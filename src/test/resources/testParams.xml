@@ -1,0 +1,4 @@
+<pipeline_params>
+	<i>/home/jacasanova/Compi/files/testingFile.txt</i>
+	<example1>touch</example1>
+</pipeline_params>

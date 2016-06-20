@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline xmlns="http://www.esei.uvigo.es/pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<programs>
+		<program id="ID1">
+			<exec>
+				cmd /c ping -n 2 127.0.0.1 > nul
+			</exec>
+		</program>
+		<program id="ID2" dependsOn="ID1">
+			<foreach element="var" source="a,a" as="param" />
+			<exec>
+				cmd /c ping -n ${param} 127.0.0.1 > nul
+			</exec>
+		</program>
+		<program id="ID3" dependsOn="ID2">
+			<exec>
+				cmd /c ping -n 2 127.0.0.1 > nul
+			</exec>
+		</program>
+		<program id="ID4" dependsOn="ID1">
+			<exec>
+				cmd /c ping -n 2 127.0.0.1 > nul
+			</exec>
+		</program>
+		<program id="ID5" dependsOn="ID4">
+			<exec>
+				cmd /c ping -n 2 127.0.0.1 > nul
+			</exec>
+		</program>
+		<program id="ID6" dependsOn="ID3,ID5">
+			<exec>
+				cmd /c ping -n 2 127.0.0.1 > nul
+			</exec>
+		</program>
+	</programs>
+</pipeline>

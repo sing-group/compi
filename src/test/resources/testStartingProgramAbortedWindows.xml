@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline xmlns="http://www.esei.uvigo.es/pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<programs>
+		<program id="ID1">
+			<exec>
+				ping -n 2 127.0.0.1 > nul
+			</exec>
+		</program>
+		<program id="ID2" dependsOn="ID1">
+			<exec>
+				cmd /c ping -n 2 127.0.0.1 > nul
+			</exec>
+		</program>
+		<program id="ID3" dependsOn="ID1">
+			<exec>
+				cmd /c ping -n 2 127.0.0.1 > nul
+			</exec>
+		</program>
+			<program id="ID4" dependsOn="ID3,ID2">
+			<exec>
+				cmd /c ping -n 2 127.0.0.1 > nul
+			</exec>
+		</program>
+	</programs>
+</pipeline>
