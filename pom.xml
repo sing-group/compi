@@ -2,12 +2,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
 	http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>jesusalvarezcasanova</groupId>
-	<artifactId>compi-core</artifactId>
+	<groupId>org.sing_group</groupId>
+	<artifactId>compi</artifactId>
 	<packaging>jar</packaging>
 	<version>1.1-SNAPSHOT</version>
-	<name>Java Framework for Computational Pipelines: Core</name>
-	<url>http://github.com/jesusalvarezcasanova/Compi</url>
+	<name>Java Framework for Computational Pipelines</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -75,7 +74,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>es.uvigo.esei.compi.cli.CompiCLI</mainClass>
+							<mainClass>org.sing_group.compi.cli.CompiCLI</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
