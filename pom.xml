@@ -9,6 +9,7 @@
 	<name>Java Framework for Computational Pipelines</name>
 
 	<properties>
+		<distResourcesDirectory>src/main/dist-resources</distResourcesDirectory>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.surefire.plugin.version>2.19.1</maven.surefire.plugin.version>
@@ -64,6 +65,8 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- create executable jar -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -85,9 +88,62 @@
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/dist</outputDirectory>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- process and copy dist-resources -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dist-resources</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/dist</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${distResourcesDirectory}</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- make .sh and .bat executable -->
+			<plugin>
+
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<id>fix-permissions</id>
+						<phase>package</phase>
+						<configuration>
+							<target>
+								<chmod perm="ugo+x">
+									<fileset dir="${basedir}/target/dist">
+										<include name="*.sh"/>
+										<include name="*.bat"/>
+									</fileset>
+								</chmod>
+							</target>
+						</configuration>
+						<goals><goal>run</goal></goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
