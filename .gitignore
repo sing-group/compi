@@ -2,9 +2,16 @@
 .settings
 .project
 .classpath
-.DS_Store
-files
+
+#Idea
+.idea
+*.iml
 
 #Maven
 target
+
+#Other
+.DS_Store
+files
+
 
