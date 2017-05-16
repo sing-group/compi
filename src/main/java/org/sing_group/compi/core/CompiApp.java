@@ -18,7 +18,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.sing_group.compi.core.loops.LoopProgram;
 import org.sing_group.compi.xmlio.DOMparsing;
 import org.sing_group.compi.xmlio.PipelineParser;
-import org.sing_group.compi.xmlio.Resolver;
+import org.sing_group.compi.xmlio.XMLParamsFileVariableResolver;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Program;
 import org.xml.sax.SAXException;
@@ -33,7 +33,7 @@ public class CompiApp implements ProgramExecutionHandler {
 
 	private Pipeline pipeline;
 	private ProgramManager programManager;
-	private Resolver resolver;
+	private VariableResolver resolver;
 	private ExecutorService executorService;
 	final String pipelineFile;
 	String paramsFile;
@@ -143,8 +143,6 @@ public class CompiApp implements ProgramExecutionHandler {
 	/**
 	 * Initializes all the parameters to allow the {@link Program} execution
 	 * 
-	 * @param xmlPipelineFile
-	 *            Indicates the XML pipeline file
 	 * @param xmlParamsFile
 	 *            Indicates the XML params file
 	 * @param threadNumber
@@ -155,7 +153,7 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * @throws JAXBException
 	 *             If there is an error in the XML unmarshal process
 	 * @throws IllegalArgumentException
-	 *             If the {@link Resolver} can't replace a tag
+	 *             If the {@link XMLParamsFileVariableResolver} can't replace a tag
 	 * @throws ParserConfigurationException
 	 *             If there is a configuration error
 	 * @throws IOException
@@ -166,7 +164,7 @@ public class CompiApp implements ProgramExecutionHandler {
 	private void initializePipeline(final String xmlParamsFile, final String threadNumber,
 			final String advanceToProgram)
 			throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
-		resolver = new Resolver(xmlParamsFile);
+		resolver = new XMLParamsFileVariableResolver(xmlParamsFile);
 		initializeExecutorService(threadNumber);
 
 		programManager.checkDependsOnIds();
@@ -231,9 +229,17 @@ public class CompiApp implements ProgramExecutionHandler {
 			throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
 		for (final Program p : pipeline.getPrograms()) {
 			if (programHasForEach(p)) {
+				System.err.println(p.getExecStrings());
 				if (p.getExecStrings().contains(p.getForeach().getAs())) {
 					for (final LoopProgram lp : programManager.getForEachPrograms().get(p.getId())) {
-						resolver.resolveForEach(p, lp);
+						for (final String tag : p.getExecStrings()) {
+							if (lp.getAs().equals(tag)) {
+								lp.setToExecute(lp.getToExecute().replace("${" + tag + "}", lp.getSource()));
+							} else {
+								final String parsed = resolver.resolveVariable(tag);
+								lp.setToExecute(lp.getToExecute().replace("${" + tag + "}", parsed));
+							}
+						}
 					}
 				} else {
 					throw new IllegalArgumentException(
@@ -241,7 +247,8 @@ public class CompiApp implements ProgramExecutionHandler {
 				}
 			} else {
 				for (final String execString : p.getExecStrings()) {
-					resolver.resolveToExecute(p, execString);
+					final String tagParsed = resolver.resolveVariable(execString);
+					p.setToExecute(p.getToExecute().replace("${" + execString + "}", tagParsed));
 				}
 			}
 		}
