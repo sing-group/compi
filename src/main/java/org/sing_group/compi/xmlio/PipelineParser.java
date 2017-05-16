@@ -1,9 +1,15 @@
 package org.sing_group.compi.xmlio;
 
+import java.io.File;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
+import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Program;
 
 /**
@@ -31,6 +37,12 @@ public class PipelineParser {
 				program.getExecStrings().add(matcher.group(1));
 			}
 		}
+	}
+
+	public static Pipeline parsePipeline(File f) throws JAXBException {
+		final JAXBContext jaxbContext = JAXBContext.newInstance(Pipeline.class);
+		final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+		return (Pipeline) jaxbUnmarshaller.unmarshal(f);
 	}
 
 }

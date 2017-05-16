@@ -60,9 +60,8 @@ public class CompiApp implements ProgramExecutionHandler {
 		final File xsdFile = new File(getClass().getClassLoader().getResource("xsd/pipeline.xsd").getFile());
 		DOMparsing.validateXMLSchema(pipelineFile, xsdFile);
 
-		final JAXBContext jaxbContext = JAXBContext.newInstance(Pipeline.class);
-		final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-		this.pipeline = (Pipeline) jaxbUnmarshaller.unmarshal(new File(this.pipelineFile));
+
+		this.pipeline = PipelineParser.parsePipeline(new File(this.pipelineFile));
 		this.programManager = new ProgramManager(this, this.pipeline);
 	}
 
