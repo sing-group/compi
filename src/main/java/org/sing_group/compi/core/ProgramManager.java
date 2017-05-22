@@ -184,6 +184,10 @@ public class ProgramManager implements ProgramExecutionHandler {
 				if (value2.contains(key)) {
 					value2.addAll(dependencies.get(key));
 				}
+
+				if (value2.contains(key2)) {
+					throw new IllegalArgumentException ("The pipeline contains a cycle");
+				}
 			});
 		});
 	}
