@@ -47,7 +47,8 @@ public class ProgramRunnable implements Runnable {
 	public void run() {
 		try {
 			if (!this.program.isSkipped()) {
-				this.process = Runtime.getRuntime().exec(this.program.getToExecute());
+				String[] commandsToExecute = { "/bin/sh", "-c", this.program.getToExecute() };
+				this.process = Runtime.getRuntime().exec(commandsToExecute);
 				openLogBuffers(this.process);
 				waitForProcess(this.process);
 			} else {
