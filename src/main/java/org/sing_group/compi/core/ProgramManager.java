@@ -128,19 +128,21 @@ public class ProgramManager implements ProgramExecutionHandler {
 	}
 
 	/**
-	 * Creates all the {@link LoopProgram} to prepare the loop execution
-	 * 
+	 * Creates the {@link LoopProgram} to prepare the loop execution for a program
+	 *
+	 * @param program The program to initialize
+	 *
 	 * @throws IllegalArgumentException
 	 *             If the directory contained in the source attribute doesn't
 	 *             have any file or if the element attribute contains a non
 	 *             existent value
 	 */
-	public void initializeForEach() throws IllegalArgumentException {
-		if (!this.getForEachPrograms().isEmpty()) {
-			this.getForEachPrograms().forEach((key, value) -> {
-				final Program program = this.DAG.get(key);
-				List<String> values = new LinkedList<>();
-				switch (program.getForeach().getElement()) {
+	public void initializeForEach(Program program) throws IllegalArgumentException {
+		if (this.getForEachPrograms().containsKey(program.getId())) {
+			List<LoopProgram> value = this.getForEachPrograms().get(program.getId());
+			List<String> values = new LinkedList<>();
+
+			switch (program.getForeach().getElement()) {
 				case "var":
 					final VarLoopGenerator vlg = new VarLoopGenerator();
 					values = vlg.getValues(program.getForeach().getSource());
@@ -155,13 +157,12 @@ public class ProgramManager implements ProgramExecutionHandler {
 					break;
 				default:
 					throw new IllegalArgumentException("The element " + program.getForeach().getElement()
-							+ " of the program " + key + " doesn't exist");
-				}
+							+ " of the program " + program.getId() + " doesn't exist");
+			}
 
-				for (final String source : values) {
-					value.add(new LoopProgram(program.getExec(), source, program.getForeach().getAs()));
-				}
-			});
+			for (final String source : values) {
+				value.add(new LoopProgram(program.getExec(), source, program.getForeach().getAs()));
+			}
 		}
 	}
 

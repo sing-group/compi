@@ -59,8 +59,6 @@ public class CompiApp implements ProgramExecutionHandler {
 		this.pipelineFile = pipelineFile;
 		final File xsdFile = new File(getClass().getClassLoader().getResource("xsd/pipeline.xsd").getFile());
 		DOMparsing.validateXMLSchema(pipelineFile, xsdFile);
-
-
 		this.pipeline = PipelineParser.parsePipeline(new File(this.pipelineFile));
 		this.programManager = new ProgramManager(this, this.pipeline);
 	}
@@ -95,10 +93,10 @@ public class CompiApp implements ProgramExecutionHandler {
 		synchronized (this) {
 			while (!programManager.getProgramsLeft().isEmpty()) {
 				for (final Program programToRun : programManager.getRunnablePrograms()) {
-
 					this.programStarted(programToRun);
-
 					if (programHasForEach(programToRun)) {
+						programManager.initializeForEach(programToRun);
+						resolveProgram(programToRun);
 						loopCount.put(programToRun, new AtomicInteger(
 								programManager.getForEachPrograms().get(programToRun.getId()).size()));
 						for (final LoopProgram lp : programManager.getForEachPrograms().get(programToRun.getId())) {
@@ -108,6 +106,7 @@ public class CompiApp implements ProgramExecutionHandler {
 							executorService.submit(new ProgramRunnable(cloned, this));
 						}
 					} else {
+						resolveProgram(programToRun);
 						executorService.submit(new ProgramRunnable(programToRun, this));
 					}
 				}
@@ -170,9 +169,6 @@ public class CompiApp implements ProgramExecutionHandler {
 		PipelineParser.solveExec(pipeline.getPrograms());
 		programManager.initializeDependencies();
 		skipPrograms(advanceToProgram);
-		programManager.initializeForEach();
-
-		resolvePrograms();
 	}
 
 	/**
@@ -215,7 +211,9 @@ public class CompiApp implements ProgramExecutionHandler {
 	}
 
 	/**
-	 * Resolves the command to execute
+	 * Resolves the command to execute of a given program
+	 *
+	 * @param p The program to resolve
 	 * 
 	 * @throws IllegalArgumentException
 	 *             If the {@link Program} attribute "as" isn't contained in the
@@ -224,11 +222,9 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * @throws SAXException
 	 * @throws ParserConfigurationException
 	 */
-	private void resolvePrograms()
+	private void resolveProgram(Program p)
 			throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
-		for (final Program p : pipeline.getPrograms()) {
 			if (programHasForEach(p)) {
-				System.err.println(p.getExecStrings());
 				if (p.getExecStrings().contains(p.getForeach().getAs())) {
 					for (final LoopProgram lp : programManager.getForEachPrograms().get(p.getId())) {
 						for (final String tag : p.getExecStrings()) {
@@ -250,7 +246,6 @@ public class CompiApp implements ProgramExecutionHandler {
 					p.setToExecute(p.getToExecute().replace("${" + execString + "}", tagParsed));
 				}
 			}
-		}
 	}
 
 	/**
