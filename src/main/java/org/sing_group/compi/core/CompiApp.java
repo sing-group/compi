@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.naming.spi.Resolver;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -71,7 +72,7 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * @param threadNumber
 	 *            the thread number
 	 * @param paramsFile
-	 *            the parameters file
+	 *            the file with parameter values
 	 * @param advanceToProgram
 	 *            the {@link Program} ID
 	 * 
@@ -86,10 +87,39 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * @throws ParserConfigurationException
 	 *             If there is a configuration error
 	 */
-	public void run(final String threadNumber, final String paramsFile, final String advanceToProgram)
+	public void run(final String threadNumber, String paramsFile, final String advanceToProgram)
 			throws SAXException, IOException, IllegalArgumentException, InterruptedException,
 			ParserConfigurationException {
-		initializePipeline(paramsFile, threadNumber, advanceToProgram);
+		this.run(threadNumber, new XMLParamsFileVariableResolver(paramsFile), advanceToProgram);
+		
+	}
+	/**
+	 * Executes all the {@link Program} in an {@link ExecutorService}. When a
+	 * {@link Program} is executed, this thread will wait until the
+	 * {@link Program} notifies when it's finished or aborted
+	 * 
+	 * @param threadNumber
+	 *            the thread number
+	 * @param resolver
+	 *            the Variables file Resolver
+	 * @param advanceToProgram
+	 *            the {@link Program} ID
+	 * 
+	 * @throws SAXException
+	 *             If there is an error in the XML parsing
+	 * @throws IOException
+	 *             If an I/O exception of some sort has occurred
+	 * @throws IllegalArgumentException
+	 *             If there is an error in the XML pipeline/params file
+	 * @throws InterruptedException
+	 *             If there is an error while the thread is waiting
+	 * @throws ParserConfigurationException
+	 *             If there is a configuration error
+	 */
+	public void run(final String threadNumber, VariableResolver resolver, final String advanceToProgram)
+			throws SAXException, IOException, IllegalArgumentException, InterruptedException,
+			ParserConfigurationException {
+		initializePipeline(resolver, threadNumber, advanceToProgram);
 		synchronized (this) {
 			while (!programManager.getProgramsLeft().isEmpty()) {
 				for (final Program programToRun : programManager.getRunnablePrograms()) {
@@ -141,8 +171,8 @@ public class CompiApp implements ProgramExecutionHandler {
 	/**
 	 * Initializes all the parameters to allow the {@link Program} execution
 	 * 
-	 * @param xmlParamsFile
-	 *            Indicates the XML params file
+	 * @param resolver
+	 *            The variable Resolver object
 	 * @param threadNumber
 	 *            Indicates the number of threads for the
 	 *            {@link ExecutorService}
@@ -159,10 +189,10 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * @throws SAXException
 	 *             If there is an error in the XML parsing
 	 */
-	private void initializePipeline(final String xmlParamsFile, final String threadNumber,
+	private void initializePipeline(VariableResolver resolver, final String threadNumber,
 			final String advanceToProgram)
 			throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
-		resolver = new XMLParamsFileVariableResolver(xmlParamsFile);
+		this.resolver = resolver;
 		initializeExecutorService(threadNumber);
 
 		programManager.checkDependsOnIds();

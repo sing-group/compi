@@ -1,5 +1,6 @@
 package org.sing_group.compi.cli;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +8,10 @@ import java.util.List;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.sing_group.compi.xmlio.PipelineParser;
+import org.sing_group.compi.xmlio.XMLParamsFileVariableResolver;
+import org.sing_group.compi.xmlio.entities.Parameter;
+import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Program;
 import org.xml.sax.SAXException;
 
@@ -17,6 +22,7 @@ import es.uvigo.ei.sing.yacli.Option;
 import es.uvigo.ei.sing.yacli.Parameters;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.ProgramExecutionHandler;
+import org.sing_group.compi.core.VariableResolver;
 
 /**
  * Contains application main method<br>
@@ -35,6 +41,10 @@ import org.sing_group.compi.core.ProgramExecutionHandler;
  */
 public class CompiCLI extends CLIApplication {
 
+	
+	private static String[] args;
+
+	
 	private class RunCommand extends AbstractCommand {
 
 		@Override
@@ -77,7 +87,25 @@ public class CompiCLI extends CLIApplication {
 					}
 
 				});
-				compi.run(arg0.getSingleValue(super.findOption("t")), arg0.getSingleValue(super.findOption("pa")),
+				VariableResolver resolver = null;
+				if (arg0.getSingleValue(super.findOption("pa"))!=null) {
+					resolver = new XMLParamsFileVariableResolver(arg0.getSingleValue(super.findOption("pa")));
+				} else {
+					resolver = new VariableResolver() {
+
+						@Override
+						public String resolveVariable(String variable) throws IllegalArgumentException {
+							if (RunCommand.this.findOption(variable) == null) {
+								throw new IllegalArgumentException(
+										"The tag: \"" + variable + "\" doesn't exist in the arguments");
+							}
+							return arg0.getSingleValue(RunCommand.this.findOption(variable));							
+						}
+						
+					};
+				}
+				
+				compi.run(arg0.getSingleValue(super.findOption("t")), resolver,
 						arg0.getSingleValue(super.findOption("s")));
 			} catch (JAXBException | InterruptedException | SAXException | IOException | ParserConfigurationException
 					| IllegalArgumentException e) {
@@ -119,6 +147,23 @@ public class CompiCLI extends CLIApplication {
 			options.add(new Option("params", "pa", "params file", true, true, false));
 			options.add(new Option("num-threads", "t", "number of threads to use", false, true, false));
 			options.add(new Option("skip", "s", "skip to program", true, true, false));
+
+			try {
+				for (int i = 0; i < CompiCLI.args.length; i++){
+					String arg = CompiCLI.args[i];
+					if (arg.equals("--pipeline") || arg.equals("-p")){
+						Pipeline p = PipelineParser.parsePipeline(new File(CompiCLI.args[i+1]));
+						List<Parameter> params = p.getParams();	
+						for (int j = 0; j < params.size(); j++){
+							Parameter param = params.get(j);
+							options.add(new Option(param.getName(), param.getShortName(), param.getDescription(), false, true, false));
+						}
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 			return options;
 		}
 
@@ -157,6 +202,7 @@ public class CompiCLI extends CLIApplication {
 	 *            Parameters received in the command line interface
 	 */
 	public static void main(final String[] args) {
+		CompiCLI.args = args;
 		new CompiCLI().run(args);
 	}
 

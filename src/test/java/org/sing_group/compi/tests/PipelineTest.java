@@ -52,7 +52,7 @@ public class PipelineTest {
 			}
 
 		});
-		compi.run(THREAD_NUMBER, null, advanceToProgam);
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
 		assertEquals(startedPrograms.get(), 1);
 		assertEquals(finishedPrograms.get(), 1);
 	}
@@ -88,7 +88,7 @@ public class PipelineTest {
 			}
 
 		});
-		compi.run(THREAD_NUMBER, null, advanceToProgam);
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
 		assertTrue("program does not wait for its dependency", times.get("ID1") < times.get("ID2"));
 		assertTrue("program does not wait for its dependency", times.get("ID1") < times.get("ID3"));
 		assertTrue("program does not wait for its dependency", times.get("ID2") < times.get("ID4"));
@@ -136,7 +136,7 @@ public class PipelineTest {
 			}
 
 		});
-		compi.run(THREAD_NUMBER, null, advanceToProgam);
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
 		assertTrue("program does not wait for its dependency", times.get("ID1") < times.get("ID2"));
 		assertTrue("program does not wait for its dependency", times.get("ID1") < times.get("ID3"));
 		assertTrue("program does not wait for its dependency", times.get("ID2") < times.get("ID4"));
@@ -180,7 +180,7 @@ public class PipelineTest {
 			}
 
 		});
-		compi.run(THREAD_NUMBER, null, advanceToProgam);
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
 		assertTrue("program does not wait for its dependency", times.get("ID1") < times.get("ID4"));
 		assertTrue("program does not wait for its dependency", times.get("ID2") < times.get("ID4"));
 		assertTrue("program does not wait for its dependency", times.get("ID3") < times.get("ID4"));
@@ -235,7 +235,7 @@ public class PipelineTest {
 			}
 
 		});
-		compi.run(THREAD_NUMBER, null, advanceToProgam);
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
 		assertTrue("program does not wait for its dependency", times.get("ID1") < times.get("ID4"));
 		assertTrue("program does not wait for its dependency", times.get("ID2") < times.get("ID4"));
 		assertTrue("program does not wait for its dependency", times.get("ID3") < times.get("ID4"));
@@ -275,7 +275,7 @@ public class PipelineTest {
 			}
 
 		});
-		compi.run(THREAD_NUMBER, null, advanceToProgam);
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
 		assertEquals(startedPrograms.get(), 1);
 		assertEquals(finishedPrograms.get(), 0);
 		assertEquals(abortedPrograms.get(), 4);
@@ -312,7 +312,7 @@ public class PipelineTest {
 			}
 
 		});
-		compi.run(THREAD_NUMBER, null, advanceToProgam);
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
 		assertEquals(startedPrograms.get(), 3);
 		assertEquals(finishedPrograms.get(), 1);
 		assertEquals(abortedPrograms.get(), 2);
@@ -349,7 +349,7 @@ public class PipelineTest {
 			}
 
 		});
-		compi.run(THREAD_NUMBER, null, advanceToProgam);
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
 		assertEquals(startedPrograms.get(), 3);
 		assertEquals(finishedPrograms.get(), 3);
 		assertEquals(abortedPrograms.get(), 2);
@@ -386,7 +386,7 @@ public class PipelineTest {
 			}
 
 		});
-		compi.run(THREAD_NUMBER, null, advanceToProgam);
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
 		assertEquals(startedPrograms.get(), 4);
 		assertEquals(finishedPrograms.get(), 3);
 		assertEquals(abortedPrograms.get(), 2);
@@ -424,7 +424,7 @@ public class PipelineTest {
 			}
 
 		});
-		compi.run(THREAD_NUMBER, null, advanceToProgam);
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
 		assertEquals(startedPrograms.get(), 4);
 		assertEquals(finishedPrograms.get(), 3);
 		assertEquals(abortedPrograms.get(), 4);

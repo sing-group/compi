@@ -17,6 +17,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Pipeline {
 
 	private List<Program> programs = new LinkedList<>();
+	private List<Parameter> params = new LinkedList<>();
 
 	public Pipeline() {
 	}
@@ -28,6 +29,17 @@ public class Pipeline {
 	 */
 	public Pipeline(final List<Program> programs) {
 		this.programs = programs;
+	}
+	
+	/**
+	 * 
+	 * @param programs
+	 * @param params
+	 *            Indicates all the {@link Program} and the {@link Parameter} in the {@link Pipeline}
+	 */
+	public Pipeline(final List<Program> programs, final List<Parameter> params) {
+		this.programs = programs;
+		this.params = params;
 	}
 
 	/**
@@ -49,6 +61,27 @@ public class Pipeline {
 	 */
 	public void setPrograms(final List<Program> programs) {
 		this.programs = programs;
+	}
+	
+	/**
+	 * Getter of the params global variable
+	 * 
+	 * @return The value of the params global variable
+	 */
+	@XmlElementWrapper(name = "params")
+	@XmlElement(name = "param")
+	public List<Parameter> getParams() {
+		return params;
+	}
+
+	/**
+	 * Changes the value of the params global variable
+	 * 
+	 * @param params
+	 *            Global variable
+	 */
+	public void setParams(List<Parameter> params) {
+		this.params = params;
 	}
 
 }
