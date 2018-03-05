@@ -37,8 +37,14 @@
 	</dependencies>
 	<repositories>
 		<repository>
-			<id>sing-maven2-repository</id>
-			<url>http://sing.ei.uvigo.es/maven2</url>
+			<id>sing-repository</id>
+			<name>SING repository</name>
+			<url>https://maven.sing-group.org/repository/maven/</url>
+		</repository>
+		<repository>
+			<id>sing-repository-snapshots</id>
+			<name>SING repository snapshots</name>
+			<url>https://maven.sing-group.org/repository/maven-snapshots/</url>
 		</repository>
 	</repositories>
 	<build>
