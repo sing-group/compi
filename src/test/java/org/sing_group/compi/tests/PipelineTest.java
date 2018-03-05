@@ -3,6 +3,7 @@ package org.sing_group.compi.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -55,6 +56,53 @@ public class PipelineTest {
 		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
 		assertEquals(startedPrograms.get(), 1);
 		assertEquals(finishedPrograms.get(), 1);
+	}
+
+	@Test
+	public void testParameters() throws Exception {
+		final String pipelineFile;
+		if (isWindows()) {
+			pipelineFile = ClassLoader.getSystemResource("echoPipelineWindows.xml").getFile();
+		} else {
+			pipelineFile = ClassLoader.getSystemResource("echoPipeline.xml").getFile();
+		}
+		final String advanceToProgam = null;
+		final CompiApp compi = new CompiApp(pipelineFile);
+		final AtomicInteger startedPrograms = new AtomicInteger();
+		final AtomicInteger finishedPrograms = new AtomicInteger();
+		compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
+
+			@Override
+			public void programStarted(Program program) {
+				startedPrograms.incrementAndGet();
+
+			}
+			@Override
+			public void programFinished(Program program) {
+				finishedPrograms.incrementAndGet();
+			}
+
+			@Override
+			public void programAborted(Program program, Exception e) {
+				e.printStackTrace();
+			}
+
+		});
+
+		File outFile = File.createTempFile("compi-test", ".txt");
+		outFile.deleteOnExit();
+		compi.run(THREAD_NUMBER, (var) -> {
+			switch(var) {
+				case "text": return "hello";
+				case "destination": return outFile.toString();
+			}
+			return null;
+		}, advanceToProgam);
+
+		assertEquals(1, startedPrograms.get());
+		assertEquals(1, finishedPrograms.get());
+
+
 	}
 
 	@Test

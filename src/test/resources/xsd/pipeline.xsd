@@ -4,11 +4,10 @@
 
 	<complexType name="program">
 		<sequence>
-			<element name="foreach" minOccurs="0" maxOccurs="unbounded">
+			<element name="foreach" minOccurs="0" maxOccurs="1">
 				<complexType>
 					<simpleContent>
 						<extension base="string">
-							<!-- <foreach element="file" source="/tmp" as="oneTempFile"> ... ${oneTempFile} -->
 							<attribute name="element" type="string" use="required" />
 							<attribute name="source" type="string" use="required" />
 							<attribute name="as" type="string" use="required" />
@@ -24,9 +23,22 @@
 		<attribute name="fileErrorLog" type="string" use="optional" />
 	</complexType>
 
+	<complexType name="param">
+		<attribute name="name" type="ID" use="required" />
+		<attribute name="shortName" type="string" use="required" />
+		<attribute name="description" type="string" use="required" />
+	</complexType>
+
 	<complexType name="programs">
 		<sequence>
 			<element name="program" type="tns:program" minOccurs="1"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="params">
+		<sequence>
+			<element name="param" type="tns:param" minOccurs="0"
 				maxOccurs="unbounded" />
 		</sequence>
 	</complexType>
@@ -35,6 +47,8 @@
 		<complexType>
 			<sequence>
 				<element name="programs" type="tns:programs" minOccurs="1"
+					maxOccurs="1" />
+				<element name="params" type="tns:params" minOccurs="0"
 					maxOccurs="1" />
 			</sequence>
 		</complexType>

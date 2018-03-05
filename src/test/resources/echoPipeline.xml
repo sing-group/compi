@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline xmlns="http://www.esei.uvigo.es/pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<programs>
+		<program id="ID-1">
+			<exec>
+				echo ${text} > ${destination}
+			</exec>
+		</program>
+	</programs>
+	<params>
+		<param name="text" shortName="c" description="The text to write"></param>
+		<param name="destination" shortName="d" description="The output file to write into"></param>
+	</params>
+</pipeline>
