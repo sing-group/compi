@@ -18,7 +18,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.javadoc.version>2.10.3</maven.javadoc.version>
-		<yacli.version>1.0</yacli.version>
+		<yacli.version>2.0-SNAPSHOT</yacli.version>
 		<junit.version>4.12</junit.version>
 	</properties>
 

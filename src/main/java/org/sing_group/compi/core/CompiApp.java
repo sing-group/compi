@@ -87,7 +87,7 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * @throws ParserConfigurationException
 	 *             If there is a configuration error
 	 */
-	public void run(final String threadNumber, String paramsFile, final String advanceToProgram)
+	public void run(final int threadNumber, String paramsFile, final String advanceToProgram)
 			throws SAXException, IOException, IllegalArgumentException, InterruptedException,
 			ParserConfigurationException {
 		this.run(threadNumber, new XMLParamsFileVariableResolver(paramsFile), advanceToProgram);
@@ -116,7 +116,7 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * @throws ParserConfigurationException
 	 *             If there is a configuration error
 	 */
-	public void run(final String threadNumber, VariableResolver resolver, final String advanceToProgram)
+	public void run(final int threadNumber, VariableResolver resolver, final String advanceToProgram)
 			throws SAXException, IOException, IllegalArgumentException, InterruptedException,
 			ParserConfigurationException {
 		initializePipeline(resolver, threadNumber, advanceToProgram);
@@ -189,7 +189,7 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * @throws SAXException
 	 *             If there is an error in the XML parsing
 	 */
-	private void initializePipeline(VariableResolver resolver, final String threadNumber,
+	private void initializePipeline(VariableResolver resolver, final int threadNumber,
 			final String advanceToProgram)
 			throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
 		this.resolver = resolver;
@@ -210,15 +210,11 @@ public class CompiApp implements ProgramExecutionHandler {
 	 *             If the number of threads is equal or less than 0 or if the
 	 *             number is a string instead of a number
 	 */
-	private void initializeExecutorService(final String threadNumber) throws IllegalArgumentException {
-		final String regex = "[0-9]+";
-		if (!threadNumber.matches(regex)) {
-			throw new IllegalArgumentException("The thread number can't be a String");
-		}
-		if (Integer.parseInt(threadNumber) <= 0) {
+	private void initializeExecutorService(final int threadNumber) throws IllegalArgumentException {
+		if (threadNumber <= 0) {
 			throw new IllegalArgumentException("The thread number must be higher than 0");
 		} else {
-			executorService = Executors.newFixedThreadPool(Integer.parseInt(threadNumber));
+			executorService = Executors.newFixedThreadPool(threadNumber);
 		}
 	}
 

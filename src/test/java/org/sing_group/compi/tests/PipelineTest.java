@@ -16,7 +16,7 @@ import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.ProgramExecutionHandler;
 
 public class PipelineTest {
-	private final static String THREAD_NUMBER = "6";
+	private final static int THREAD_NUMBER = 6;
 	private final static String OS = System.getProperty("os.name").toLowerCase();
 
 	public static boolean isWindows() {

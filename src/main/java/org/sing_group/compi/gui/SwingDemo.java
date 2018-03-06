@@ -78,7 +78,7 @@ public class SwingDemo {
 		threadNumber.setBounds(10, 70, 125, 25);
 		panel.add(threadNumber);
 
-		final SpinnerModel model = new SpinnerNumberModel(1, 1, 10, 1);
+		final SpinnerNumberModel model = new SpinnerNumberModel(1, 1, 10, 1);
 		final JSpinner threadNumberText = new JSpinner(model);
 		threadNumberText.setBounds(130, 70, 80, 25);
 		threadNumberText.setEnabled(false);
@@ -142,7 +142,7 @@ public class SwingDemo {
 			new Thread(() -> {
 				consoleTextArea.setText(null);
 				compiExecution(compi, (100 / compi.getProgramManager().getDAG().size()),
-						threadNumberText.getValue().toString(), paramsText.getText(),
+						model.getNumber().intValue(), paramsText.getText(),
 						skipComboBox.getSelectedItem().toString(), consoleTextArea, progressBar);
 			}).start();
 
@@ -151,7 +151,7 @@ public class SwingDemo {
 
 	}
 
-	private static void compiExecution(CompiApp compi, int programNumber, String threadNumber, String paramsFile,
+	private static void compiExecution(CompiApp compi, int programNumber, int threadNumber, String paramsFile,
 			String skipProgram, JTextArea consoleTextArea, JProgressBar progressBar) {
 		if (skipProgram.equals("-")) {
 			skipProgram = null;
