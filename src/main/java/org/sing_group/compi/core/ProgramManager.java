@@ -207,6 +207,23 @@ public class ProgramManager implements ProgramExecutionHandler {
 			}
 		});
 	}
+	
+	
+	/**
+	 * Marks all the {@link Program} as skipped except the
+	 * {@link Program} passed as parameter
+	 * 
+	 * @param singleProgram
+	 *            Indicates the {@link Program} ID to run
+	 */
+	public void skipAllProgramsBut(String singleProgram) {
+		this.getDAG().forEach((k, v)->{
+			if (!v.getId().equals(singleProgram)) {
+				v.setSkipped(true);
+			}
+			
+		});
+	}
 
 	/**
 	 * Marks a {@link Program} as started
@@ -288,5 +305,7 @@ public class ProgramManager implements ProgramExecutionHandler {
 	public Map<String, List<LoopProgram>> getForEachPrograms() {
 		return forEachPrograms;
 	}
+
+
 
 }

@@ -215,7 +215,7 @@ public class SwingDemo {
 				}
 
 			});
-			compi.run(threadNumber, paramsFile, skipProgram);
+			compi.run(threadNumber, paramsFile, skipProgram, null);
 		} catch (InterruptedException | SAXException | IOException | ParserConfigurationException
 				| IllegalArgumentException e) {
 			consoleTextArea.append("--Error--\n");

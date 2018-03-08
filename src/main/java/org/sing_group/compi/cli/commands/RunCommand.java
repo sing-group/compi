@@ -40,8 +40,16 @@ public class RunCommand extends AbstractCommand {
 				System.out.println("Params file - " + parameters.getSingleValue(super.getOption("pa")));
 			}
 
-			if (parameters.hasOption(super.getOption("s"))) {
+			
+			if (parameters.getSingleValue(super.getOption("s"))!=null && parameters.getSingleValue(super.getOption("sp"))!=null) {
+				throw new IllegalArgumentException("You can only specify skip or single-program, but not both: ");
+			}
+			
+			if (parameters.getSingleValue(super.getOption("s"))!=null) {
 				System.out.println("Skip to program - " + parameters.getSingleValue(super.getOption("s")) + "\n");
+			}
+			if (parameters.getSingleValue(super.getOption("sp"))!=null) {
+				System.out.println("Running single program - " + parameters.getSingleValue(super.getOption("sp")) + "\n");
 			}
 			try {
 				final CompiApp compi = new CompiApp(parameters.getSingleValue(super.getOption("p")));
@@ -97,7 +105,7 @@ public class RunCommand extends AbstractCommand {
 				}
 				
 				compi.run(parameters.getSingleValue(super.getOption("t")), resolver,
-						parameters.getSingleValue(super.getOption("s")));
+						parameters.getSingleValue(super.getOption("s")), parameters.getSingleValue(super.getOption("sp")));
 			} catch (JAXBException | InterruptedException | SAXException | IOException | ParserConfigurationException
 					| IllegalArgumentException e) {
 				e.printStackTrace();
@@ -143,7 +151,8 @@ public class RunCommand extends AbstractCommand {
 			options.add(new StringOption("pipeline", "p", "pipeline file", false, true, false));
 			options.add(new StringOption("params", "pa", "params file", true, true, false));
 			options.add(new IntegerOption("num-threads", "t", "number of threads to use", "6"));
-			options.add(new DefaultValuedStringOption("skip", "s", "skip to program", null));
+			options.add(new DefaultValuedStringOption("skip", "s", "skip to program. Run the pipeline from the specific without running its dependencies. This option is incompatible with --single-program", null));
+			options.add(new DefaultValuedStringOption("single-program", "sp", "Runs a single program without its depencendies. This option is incompatible with --skip", null));
 
 			try {
 				for (int i = 0; i < CompiCLI.args.length; i++){
