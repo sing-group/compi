@@ -4,7 +4,7 @@
 		<program id="ID-1">
 			<foreach element="file" source="/tmp" as="oneTempFile" />
 			<exec>
-				/home/jacasanova/comando.sh p1 2
+				echo ${file}
 			</exec>
 		</program>
 		<IncorrectTag>

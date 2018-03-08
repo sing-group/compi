@@ -3,7 +3,7 @@
 	<programs>
 		<program id="ID-1">
 			<exec>
-				sleep 1
+				echo "hello"
 			</exec>
 		</program>
 	</programs>

@@ -4,24 +4,24 @@
 		<program id="ID1">
 			<foreach element="var" source="2,1,1" as="param" />
 			<exec>
-				sleep ${param}
+				echo ${param}
 			</exec>
 		</program>
 		<program id="ID2" dependsOn="ID1">
 			<foreach element="var" source="1,1" as="param" />
 			<exec>
-				sleep ${param}
+				echo ${param}
 			</exec>
 		</program>
 		<program id="ID3" dependsOn="ID1">
 			<exec>
-				sleep 1
+				echo "1"
 			</exec>
 		</program>
 		<program id="ID4" dependsOn="ID2,ID3">
 			<foreach element="var" source="1,1,1,1" as="param" />
 			<exec>
-				sleep ${param}
+				echo ${param}
 			</exec>
 		</program>
 	</programs>
