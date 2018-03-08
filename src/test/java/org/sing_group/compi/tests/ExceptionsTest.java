@@ -23,7 +23,7 @@ public class ExceptionsTest {
 		final int threadNumber = -2;
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		compi.run(threadNumber, paramsFile, advanceToProgam);
+		compi.run(threadNumber, paramsFile, advanceToProgam, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -33,7 +33,7 @@ public class ExceptionsTest {
 		final int threadNumber = 0;
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		compi.run(threadNumber, paramsFile, advanceToProgam);
+		compi.run(threadNumber, paramsFile, advanceToProgam, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -43,7 +43,7 @@ public class ExceptionsTest {
 		final int threadNumber = 10;
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		compi.run(threadNumber, paramsFile, advanceToProgam);
+		compi.run(threadNumber, paramsFile, advanceToProgam, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -53,7 +53,7 @@ public class ExceptionsTest {
 		final int threadNumber = 10;
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		compi.run(threadNumber, paramsFile, advanceToProgam);
+		compi.run(threadNumber, paramsFile, advanceToProgam, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -63,7 +63,7 @@ public class ExceptionsTest {
 		final int threadNumber = 10;
 		final String advanceToProgam = "NonExistantId";
 		final CompiApp compi = new CompiApp(pipelineFile);
-		compi.run(threadNumber, paramsFile, advanceToProgam);
+		compi.run(threadNumber, paramsFile, advanceToProgam, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -73,7 +73,7 @@ public class ExceptionsTest {
 		final int threadNumber = 10;
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		compi.run(threadNumber, paramsFile, advanceToProgam);
+		compi.run(threadNumber, paramsFile, advanceToProgam, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -83,6 +83,17 @@ public class ExceptionsTest {
 		final int threadNumber = 10;
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		compi.run(threadNumber, paramsFile, advanceToProgam);
+		compi.run(threadNumber, paramsFile, advanceToProgam, null);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testBothSkipAndRunSingleProgram() throws Exception {
+		final String pipelineFile = ClassLoader.getSystemResource("testSkipPrograms.xml").getFile();
+		final String paramsFile = null;
+		final int threadNumber = -2;
+		final String advanceToProgam = "ID2";
+		final String singleProgram = "ID2";
+		final CompiApp compi = new CompiApp(pipelineFile);
+		compi.run(threadNumber, paramsFile, advanceToProgam, singleProgram);
 	}
 }

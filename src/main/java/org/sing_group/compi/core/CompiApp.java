@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.bind.JAXBException;
@@ -141,7 +142,12 @@ public class CompiApp implements ProgramExecutionHandler {
 				this.wait();
 			}
 		}
+		
+		
 		executorService.shutdown();
+		
+		// wait for remaining programs that are currently running
+		executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 	}
 
 	/**
@@ -305,7 +311,7 @@ public class CompiApp implements ProgramExecutionHandler {
 	 */
 	@Override
 	public void programStarted(final Program program) {
-		this.notifyProgramStarted(program);
+		if (!program.isSkipped()) this.notifyProgramStarted(program);
 		this.getProgramManager().programStarted(program);
 	}
 
@@ -340,7 +346,9 @@ public class CompiApp implements ProgramExecutionHandler {
 			this.getProgramManager().programFinished(program);
 			this.notify();
 		}
-		this.notifyProgramFinished(program);
+		if (!program.isSkipped()) {
+			this.notifyProgramFinished(program);
+		}
 	}
 
 	/**

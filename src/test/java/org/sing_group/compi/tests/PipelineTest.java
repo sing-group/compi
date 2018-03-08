@@ -4,16 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
-import org.sing_group.compi.xmlio.entities.Program;
-
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.ProgramExecutionHandler;
+import org.sing_group.compi.xmlio.entities.Program;
 
 public class PipelineTest {
 	private final static int THREAD_NUMBER = 6;
@@ -31,31 +29,16 @@ public class PipelineTest {
 		} else {
 			pipelineFile = ClassLoader.getSystemResource("testOneProgram.xml").getFile();
 		}
+		
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		final AtomicInteger startedPrograms = new AtomicInteger();
-		final AtomicInteger finishedPrograms = new AtomicInteger();
-		compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
-
-			@Override
-			public void programStarted(Program program) {
-				startedPrograms.incrementAndGet();
-
-			}
-
-			@Override
-			public void programFinished(Program program) {
-				finishedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programAborted(Program program, Exception e) {
-			}
-
-		});
-		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
-		assertEquals(startedPrograms.get(), 1);
-		assertEquals(finishedPrograms.get(), 1);
+		TestExecutionHandler handler = new TestExecutionHandler(compi);
+		compi.addProgramExecutionHandler(handler);
+		
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam, null);
+		
+		assertEquals(1, handler.getStartedPrograms().size());
+		assertEquals(1, handler.getFinishedPrograms().size());
 	}
 
 	@Test
@@ -66,42 +49,24 @@ public class PipelineTest {
 		} else {
 			pipelineFile = ClassLoader.getSystemResource("echoPipeline.xml").getFile();
 		}
+		
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		final AtomicInteger startedPrograms = new AtomicInteger();
-		final AtomicInteger finishedPrograms = new AtomicInteger();
-		compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
-
-			@Override
-			public void programStarted(Program program) {
-				startedPrograms.incrementAndGet();
-
-			}
-			@Override
-			public void programFinished(Program program) {
-				finishedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programAborted(Program program, Exception e) {
-				e.printStackTrace();
-			}
-
-		});
-
+		TestExecutionHandler handler = new TestExecutionHandler(compi);
+		compi.addProgramExecutionHandler(handler);
 		File outFile = File.createTempFile("compi-test", ".txt");
 		outFile.deleteOnExit();
+		
 		compi.run(THREAD_NUMBER, (var) -> {
 			switch(var) {
 				case "text": return "hello";
 				case "destination": return outFile.toString();
 			}
 			return null;
-		}, advanceToProgam);
+		}, advanceToProgam, null);
 
-		assertEquals(1, startedPrograms.get());
-		assertEquals(1, finishedPrograms.get());
-
+		assertEquals(1, handler.getStartedPrograms().size());
+		assertEquals(1, handler.getFinishedPrograms().size());
 
 	}
 
@@ -113,36 +78,20 @@ public class PipelineTest {
 		} else {
 			pipelineFile = ClassLoader.getSystemResource("testSimplePipeline.xml").getFile();
 		}
+		
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		final AtomicInteger startedPrograms = new AtomicInteger();
-		final AtomicInteger finishedPrograms = new AtomicInteger();
-		final Map<String, Long> times = new HashMap<>();
-		compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
+		TestExecutionHandler handler = new TestExecutionHandler(compi);
+		compi.addProgramExecutionHandler(handler);
 
-			@Override
-			public void programStarted(Program program) {
-				startedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programFinished(Program program) {
-				finishedPrograms.incrementAndGet();
-				times.put(program.getId(), TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-			}
-
-			@Override
-			public void programAborted(Program program, Exception e) {
-			}
-
-		});
-		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
-		assertTrue("program does not wait for its dependency", times.get("ID1") < times.get("ID2"));
-		assertTrue("program does not wait for its dependency", times.get("ID1") < times.get("ID3"));
-		assertTrue("program does not wait for its dependency", times.get("ID2") < times.get("ID4"));
-		assertTrue("program does not wait for its dependency", times.get("ID3") < times.get("ID4"));
-		assertEquals(startedPrograms.get(), 4);
-		assertEquals(finishedPrograms.get(), 4);
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam, null);
+		
+		assertTrue("program does not wait for its dependency", handler.getFinishedPrograms().indexOf("ID1") < handler.getFinishedPrograms().indexOf("ID2"));
+		assertTrue("program does not wait for its dependency", handler.getFinishedPrograms().indexOf("ID1") < handler.getFinishedPrograms().indexOf("ID3"));
+		assertTrue("program does not wait for its dependency", handler.getFinishedPrograms().indexOf("ID2") < handler.getFinishedPrograms().indexOf("ID4"));
+		assertTrue("program does not wait for its dependency", handler.getFinishedPrograms().indexOf("ID3") < handler.getFinishedPrograms().indexOf("ID4"));
+		assertEquals(4, handler.getStartedPrograms().size());
+		assertEquals(4, handler.getFinishedPrograms().size());
 	}
 
 	@Test
@@ -153,44 +102,20 @@ public class PipelineTest {
 		} else {
 			pipelineFile = ClassLoader.getSystemResource("testPipelineLoop.xml").getFile();
 		}
+		
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		final AtomicInteger startedPrograms = new AtomicInteger();
-		final AtomicInteger finishedPrograms = new AtomicInteger();
-		final Map<String, Long> times = new HashMap<>();
-		compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
-
-			@Override
-			public void programStarted(Program program) {
-				startedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programFinished(Program program) {
-				if (program.getForeach() != null) {
-					final Program parent = compi.getParentProgram().get(program);
-					if (parent.isFinished()) {
-						finishedPrograms.incrementAndGet();
-						times.put(parent.getId(), TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-					}
-				} else {
-					finishedPrograms.incrementAndGet();
-					times.put(program.getId(), TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-				}
-			}
-
-			@Override
-			public void programAborted(Program program, Exception e) {
-			}
-
-		});
-		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
-		assertTrue("program does not wait for its dependency", times.get("ID1") < times.get("ID2"));
-		assertTrue("program does not wait for its dependency", times.get("ID1") < times.get("ID3"));
-		assertTrue("program does not wait for its dependency", times.get("ID2") < times.get("ID4"));
-		assertTrue("program does not wait for its dependency", times.get("ID3") < times.get("ID4"));
-		assertEquals(startedPrograms.get(), 4);
-		assertEquals(finishedPrograms.get(), 4);
+		TestExecutionHandler handler = new TestExecutionHandler(compi);
+		compi.addProgramExecutionHandler(handler);
+		
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam, null);
+		
+		assertTrue("program does not wait for its dependency", handler.getFinishedPrograms().indexOf("ID1") < handler.getFinishedPrograms().indexOf("ID2"));
+		assertTrue("program does not wait for its dependency", handler.getFinishedPrograms().indexOf("ID1") < handler.getFinishedPrograms().indexOf("ID3"));
+		assertTrue("program does not wait for its dependency", handler.getFinishedPrograms().indexOf("ID2") < handler.getFinishedPrograms().indexOf("ID4"));
+		assertTrue("program does not wait for its dependency", handler.getFinishedPrograms().indexOf("ID3") < handler.getFinishedPrograms().indexOf("ID4"));
+		assertEquals(handler.getStartedPrograms().size(), 4);
+		assertEquals(handler.getFinishedPrograms().size(), 4);
 	}
 
 	@Test
@@ -201,42 +126,18 @@ public class PipelineTest {
 		} else {
 			pipelineFile = ClassLoader.getSystemResource("testSkipPrograms.xml").getFile();
 		}
-		final String advanceToProgam = "ID4";
+		final String advanceToProgam = "ID3";
 		final CompiApp compi = new CompiApp(pipelineFile);
-		final AtomicInteger startedPrograms = new AtomicInteger();
-		final AtomicInteger finishedPrograms = new AtomicInteger();
-		final AtomicInteger skippedPrograms = new AtomicInteger();
-		final Map<String, Long> times = new HashMap<>();
-		compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
-
-			@Override
-			public void programStarted(Program program) {
-				startedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programFinished(Program program) {
-				if (program.isSkipped()) {
-					skippedPrograms.incrementAndGet();
-				}
-				finishedPrograms.incrementAndGet();
-				times.put(program.getId(), TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-			}
-
-			@Override
-			public void programAborted(Program program, Exception e) {
-			}
-
-		});
-		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
-		assertTrue("program does not wait for its dependency", times.get("ID1") < times.get("ID4"));
-		assertTrue("program does not wait for its dependency", times.get("ID2") < times.get("ID4"));
-		assertTrue("program does not wait for its dependency", times.get("ID3") < times.get("ID4"));
-		assertEquals(startedPrograms.get(), 4);
-		assertEquals(finishedPrograms.get(), 4);
-		assertEquals(skippedPrograms.get(), 3);
+		TestExecutionHandler handler = new TestExecutionHandler(compi);
+		compi.addProgramExecutionHandler(handler);
+		
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam, null);
+		
+		assertEquals(3, handler.getStartedPrograms().size());
+		assertEquals(3, handler.getFinishedPrograms().size());
+		assertTrue(handler.getFinishedPrograms().containsAll(Arrays.asList("ID3", "ID4", "ID2")));
 	}
-
+	
 	@Test
 	public void testSkipProgramWithLoops() throws Exception {
 		final String pipelineFile;
@@ -245,53 +146,38 @@ public class PipelineTest {
 		} else {
 			pipelineFile = ClassLoader.getSystemResource("testSkipProgramsWithLoops.xml").getFile();
 		}
+		
 		final String advanceToProgam = "ID4";
 		final CompiApp compi = new CompiApp(pipelineFile);
-		final AtomicInteger startedPrograms = new AtomicInteger();
-		final AtomicInteger finishedPrograms = new AtomicInteger();
-		final AtomicInteger skippedPrograms = new AtomicInteger();
-		final Map<String, Long> times = new HashMap<>();
-		compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
-
-			@Override
-			public void programStarted(Program program) {
-				startedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programFinished(Program program) {
-				if (program.getForeach() != null) {
-					final Program parent = compi.getParentProgram().get(program);
-					if (parent.isFinished()) {
-						finishedPrograms.incrementAndGet();
-						times.put(parent.getId(), TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-						if (parent.isSkipped()) {
-							skippedPrograms.incrementAndGet();
-						}
-					}
-				} else {
-					finishedPrograms.incrementAndGet();
-					times.put(program.getId(), TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-					if (program.isSkipped()) {
-						skippedPrograms.incrementAndGet();
-					}
-				}
-			}
-
-			@Override
-			public void programAborted(Program program, Exception e) {
-			}
-
-		});
-		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
-		assertTrue("program does not wait for its dependency", times.get("ID1") < times.get("ID4"));
-		assertTrue("program does not wait for its dependency", times.get("ID2") < times.get("ID4"));
-		assertTrue("program does not wait for its dependency", times.get("ID3") < times.get("ID4"));
-		assertEquals(startedPrograms.get(), 4);
-		assertEquals(finishedPrograms.get(), 4);
-		assertEquals(skippedPrograms.get(), 3);
+		TestExecutionHandler handler = new TestExecutionHandler(compi);
+		compi.addProgramExecutionHandler(handler);
+		
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam, null);
+		
+		assertEquals(1, handler.getStartedPrograms().size());
+		assertEquals(1, handler.getFinishedPrograms().size());
+		assertEquals("ID4", handler.getFinishedPrograms().get(0));
 	}
 
+	@Test
+	public void testRunSingleProgram() throws Exception {
+		final String pipelineFile;
+		if (isWindows()) {
+			pipelineFile = ClassLoader.getSystemResource("testSkipProgramsWindows.xml").getFile();
+		} else {
+			pipelineFile = ClassLoader.getSystemResource("testSkipPrograms.xml").getFile();
+		}
+		
+		final String singleProgram = "ID3";
+		final CompiApp compi = new CompiApp(pipelineFile);
+		TestExecutionHandler handler = new TestExecutionHandler(compi);
+		compi.addProgramExecutionHandler(handler);
+		
+		compi.run(THREAD_NUMBER, (String) null, null, singleProgram);
+		assertEquals(1, handler.getStartedPrograms().size());
+		assertEquals(1, handler.getFinishedPrograms().size());
+	}
+	
 	@Test
 	public void testStartingProgramAborted() throws Exception {
 		final String pipelineFile;
@@ -300,33 +186,17 @@ public class PipelineTest {
 		} else {
 			pipelineFile = ClassLoader.getSystemResource("testStartingProgramAborted.xml").getFile();
 		}
+		
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		final AtomicInteger startedPrograms = new AtomicInteger();
-		final AtomicInteger finishedPrograms = new AtomicInteger();
-		final AtomicInteger abortedPrograms = new AtomicInteger();
-		compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
-
-			@Override
-			public void programStarted(Program program) {
-				startedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programFinished(Program program) {
-				finishedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programAborted(Program program, Exception e) {
-				abortedPrograms.incrementAndGet();
-			}
-
-		});
-		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
-		assertEquals(startedPrograms.get(), 1);
-		assertEquals(finishedPrograms.get(), 0);
-		assertEquals(abortedPrograms.get(), 4);
+		TestExecutionHandler handler = new TestExecutionHandler(compi);
+		compi.addProgramExecutionHandler(handler);
+		
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam, null);
+		
+		assertEquals(1, handler.getStartedPrograms().size());
+		assertEquals(0, handler.getFinishedPrograms().size());
+		assertEquals(4, handler.getAbortedPrograms().size());
 	}
 
 	@Test
@@ -337,33 +207,16 @@ public class PipelineTest {
 		} else {
 			pipelineFile = ClassLoader.getSystemResource("testProgramsAborted.xml").getFile();
 		}
+		
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		final AtomicInteger startedPrograms = new AtomicInteger();
-		final AtomicInteger finishedPrograms = new AtomicInteger();
-		final AtomicInteger abortedPrograms = new AtomicInteger();
-		compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
-
-			@Override
-			public void programStarted(Program program) {
-				startedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programFinished(Program program) {
-				finishedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programAborted(Program program, Exception e) {
-				abortedPrograms.incrementAndGet();
-			}
-
-		});
-		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
-		assertEquals(startedPrograms.get(), 3);
-		assertEquals(finishedPrograms.get(), 1);
-		assertEquals(abortedPrograms.get(), 2);
+		TestExecutionHandler handler = new TestExecutionHandler(compi);
+		compi.addProgramExecutionHandler(handler);
+		
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam, null);
+		assertEquals(3, handler.getStartedPrograms().size());
+		assertEquals(2, handler.getFinishedPrograms().size());
+		assertEquals(2, handler.getAbortedPrograms().size());
 	}
 
 	@Test
@@ -374,33 +227,17 @@ public class PipelineTest {
 		} else {
 			pipelineFile = ClassLoader.getSystemResource("testProgramsAbortedWithLoops.xml").getFile();
 		}
+
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		final AtomicInteger startedPrograms = new AtomicInteger();
-		final AtomicInteger finishedPrograms = new AtomicInteger();
-		final AtomicInteger abortedPrograms = new AtomicInteger();
-		compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
-
-			@Override
-			public void programStarted(Program program) {
-				startedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programFinished(Program program) {
-				finishedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programAborted(Program program, Exception e) {
-				abortedPrograms.incrementAndGet();
-			}
-
-		});
-		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
-		assertEquals(startedPrograms.get(), 3);
-		assertEquals(finishedPrograms.get(), 3);
-		assertEquals(abortedPrograms.get(), 2);
+		TestExecutionHandler handler = new TestExecutionHandler(compi);
+		compi.addProgramExecutionHandler(handler);
+		
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam, null);
+		assertEquals(3, handler.getStartedPrograms().size());
+		
+		assertEquals(5, handler.getFinishedProgramsExcludingLoopChildren().size());
+		assertEquals(2, handler.getAbortedPrograms().size());
 	}
 
 	@Test
@@ -411,33 +248,17 @@ public class PipelineTest {
 		} else {
 			pipelineFile = ClassLoader.getSystemResource("testSomeProgramsAbortedAndContinue.xml").getFile();
 		}
+		
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		final AtomicInteger startedPrograms = new AtomicInteger();
-		final AtomicInteger finishedPrograms = new AtomicInteger();
-		final AtomicInteger abortedPrograms = new AtomicInteger();
-		compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
-
-			@Override
-			public void programStarted(Program program) {
-				startedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programFinished(Program program) {
-				finishedPrograms.incrementAndGet();
-			}
-
-			@Override
-			public void programAborted(Program program, Exception e) {
-				abortedPrograms.incrementAndGet();
-			}
-
-		});
-		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
-		assertEquals(startedPrograms.get(), 4);
-		assertEquals(finishedPrograms.get(), 3);
-		assertEquals(abortedPrograms.get(), 2);
+		TestExecutionHandler handler = new TestExecutionHandler(compi);
+		compi.addProgramExecutionHandler(handler);
+		
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam, null);
+		
+		assertEquals(4, handler.getStartedPrograms().size());
+		assertEquals(3, handler.getFinishedPrograms().size());
+		assertEquals(2, handler.getAbortedPrograms().size());
 	}
 
 	@Test
@@ -451,31 +272,66 @@ public class PipelineTest {
 		}
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile);
-		final AtomicInteger startedPrograms = new AtomicInteger();
-		final AtomicInteger finishedPrograms = new AtomicInteger();
-		final AtomicInteger abortedPrograms = new AtomicInteger();
-		compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
+		TestExecutionHandler handler = new TestExecutionHandler(compi);
+		compi.addProgramExecutionHandler(handler);
+		
+		compi.run(THREAD_NUMBER, (String) null, advanceToProgam, null);
+		
+		assertEquals(4, handler.getStartedPrograms().size());
+		assertEquals(3, handler.getFinishedProgramsExcludingLoopChildren().size());
+		assertEquals(4, handler.getAbortedPrograms().size());
+	}
+	
+	private static class TestExecutionHandler implements ProgramExecutionHandler {
+		final List<String> startedPrograms = new ArrayList<>();
+		final List<String> finishedPrograms = new ArrayList<>();
+		final List<String> finishedProgramsExcludingLoopChildren = new ArrayList<>();
+		final List<String> abortedPrograms = new ArrayList<>();
+		private CompiApp compi;
+		
+		public TestExecutionHandler(CompiApp compi) {
+			this.compi = compi;
+		}
+		@Override
+		public void programStarted(Program program) {
+			startedPrograms.add(program.getId());
+		}
 
-			@Override
-			public void programStarted(Program program) {
-				startedPrograms.incrementAndGet();
+		@Override
+		public void programFinished(Program program) {
+			if (program.getForeach() != null) {
+				final Program parent = compi.getParentProgram().get(program);
+				if (parent.isFinished()) {
+					finishedPrograms.add(parent.getId());
+				}
+			} else {
+				finishedPrograms.add(program.getId());
 			}
+			
+			finishedProgramsExcludingLoopChildren.add(program.getId());
+		}
 
-			@Override
-			public void programFinished(Program program) {
-				finishedPrograms.incrementAndGet();
-			}
+		@Override
+		public void programAborted(Program program, Exception e) {
+			abortedPrograms.add(program.getId());
+		}
+		
+		public List<String> getStartedPrograms() {
+			return startedPrograms;
+		}
+		
+		public List<String> getFinishedPrograms() {
+			return finishedPrograms;
+		}
+		
+		public List<String> getAbortedPrograms() {
+			return abortedPrograms;
+		}
+		
+		public List<String> getFinishedProgramsExcludingLoopChildren() {
+			return finishedProgramsExcludingLoopChildren;
+		}
 
-			@Override
-			public void programAborted(Program program, Exception e) {
-				abortedPrograms.incrementAndGet();
-			}
-
-		});
-		compi.run(THREAD_NUMBER, (String) null, advanceToProgam);
-		assertEquals(startedPrograms.get(), 4);
-		assertEquals(finishedPrograms.get(), 3);
-		assertEquals(abortedPrograms.get(), 4);
 	}
 
 }
