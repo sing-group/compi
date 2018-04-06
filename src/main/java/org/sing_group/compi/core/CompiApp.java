@@ -280,9 +280,9 @@ public class CompiApp implements ProgramExecutionHandler {
 	private void resolveProgram(Program p)
 			throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
 		if (programHasForEach(p)) {
-			if (p.getExecStrings().contains(p.getForeach().getAs())) {
+			if (p.getParameters().contains(p.getForeach().getAs())) {
 				for (final LoopProgram lp : programManager.getForEachPrograms().get(p.getId())) {
-					for (final String tag : p.getExecStrings()) {
+					for (final String tag : p.getParameters()) {
 						if (lp.getAs().equals(tag)) {
 							lp.setToExecute(lp.getToExecute().replace("${" + tag + "}", lp.getSource()));
 						} else {
@@ -296,7 +296,7 @@ public class CompiApp implements ProgramExecutionHandler {
 						"The as attribute of the program " + p.getId() + " ins't contained in the exec tag");
 			}
 		} else {
-			for (final String execString : p.getExecStrings()) {
+			for (final String execString : p.getParameters()) {
 				final String tagParsed = resolver.resolveVariable(execString);
 				p.setToExecute(p.getToExecute().replace("${" + execString + "}", tagParsed));
 			}

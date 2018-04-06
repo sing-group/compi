@@ -1,5 +1,7 @@
 package org.sing_group.compi.xmlio.entities;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,7 +22,7 @@ public class Program implements Cloneable {
 	private String dependsOn;
 	private Foreach foreach;
 	private String exec;
-	private List<String> execStrings = new LinkedList<>();
+	private List<String> parameters = new LinkedList<>();
 	private String toExecute;
 	private String fileLog;
 	private String fileErrorLog;
@@ -189,22 +191,21 @@ public class Program implements Cloneable {
 	}
 
 	/**
-	 * Getter of the execStrings attribute
+	 * Getter of the parameters attribute
 	 * 
-	 * @return The value of the execStrings attribute
+	 * @return The value of the paramters attribute
 	 */
-	public List<String> getExecStrings() {
-		return execStrings;
+	public List<String> getParameters() {
+		return Collections.unmodifiableList(parameters);
 	}
 
 	/**
-	 * Changes the value of the execStrings attribute
+	 * Adds a parameter to the list of parameters
 	 * 
-	 * @param execStrings
-	 *            attribute
+	 * @param parameter to add to the list
 	 */
-	public void setExecStrings(final List<String> execStrings) {
-		this.execStrings = execStrings;
+	public void addParameter(final String parameter) {
+		this.parameters.add(parameter);
 	}
 
 	/**

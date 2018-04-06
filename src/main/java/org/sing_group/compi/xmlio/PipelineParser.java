@@ -34,7 +34,7 @@ public class PipelineParser {
 			pattern = Pattern.compile("\\{(.*?)\\}");
 			matcher = pattern.matcher(program.getExec());
 			while (matcher.find()) {
-				program.getExecStrings().add(matcher.group(1));
+				program.addParameter(matcher.group(1));
 			}
 		}
 	}
