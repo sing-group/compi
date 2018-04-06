@@ -30,9 +30,9 @@ public class Program implements Cloneable {
 	private boolean isSkipped = false;
 
 	/**
-	 * Getter of the id global variable
+	 * Getter of the id attribute
 	 * 
-	 * @return The value of the id global variable
+	 * @return The value of the id attribute
 	 */
 	@XmlAttribute
 	public String getId() {
@@ -40,19 +40,19 @@ public class Program implements Cloneable {
 	}
 
 	/**
-	 * Changes the value of the id global variable
+	 * Changes the value of the id attribute
 	 * 
 	 * @param id
-	 *            Global variable
+	 *            attribute
 	 */
 	public void setId(final String id) {
 		this.id = id.replaceAll(" ", "");
 	}
 
 	/**
-	 * Getter of the dependsOn global variable
+	 * Getter of the dependsOn attribute
 	 * 
-	 * @return The value of the dependsOn global variable
+	 * @return The value of the dependsOn attribute
 	 */
 	@XmlAttribute
 	public String getDependsOn() {
@@ -60,19 +60,19 @@ public class Program implements Cloneable {
 	}
 
 	/**
-	 * Changes the value of the dependsOn global variable
+	 * Changes the value of the dependsOn attribute
 	 * 
 	 * @param dependsOn
-	 *            Global variable
+	 *            attribute
 	 */
 	public void setDependsOn(final String dependsOn) {
 		this.dependsOn = dependsOn.replaceAll(" ", "");
 	}
 
 	/**
-	 * Getter of the fileLog global variable
+	 * Getter of the fileLog attribute
 	 * 
-	 * @return The value of the fileLog global variable
+	 * @return The value of the fileLog attribute
 	 */
 	@XmlAttribute
 	public String getFileLog() {
@@ -80,19 +80,19 @@ public class Program implements Cloneable {
 	}
 
 	/**
-	 * Changes the value of the fileLog global variable
+	 * Changes the value of the fileLog attribute
 	 * 
 	 * @param fileLog
-	 *            Global variable
+	 *            attribute
 	 */
 	public void setFileLog(final String fileLog) {
 		this.fileLog = fileLog;
 	}
 
 	/**
-	 * Getter of the fileErrorLog global variable
+	 * Getter of the fileErrorLog attribute
 	 * 
-	 * @return The value of the fileErrorLog global variable
+	 * @return The value of the fileErrorLog attribute
 	 */
 	@XmlAttribute
 	public String getFileErrorLog() {
@@ -100,19 +100,19 @@ public class Program implements Cloneable {
 	}
 
 	/**
-	 * Changes the value of the fileErrorLog global variable
+	 * Changes the value of the fileErrorLog attribute
 	 * 
 	 * @param fileErrorLog
-	 *            Global variable
+	 *            attribute
 	 */
 	public void setFileErrorLog(final String fileErrorLog) {
 		this.fileErrorLog = fileErrorLog;
 	}
 
 	/**
-	 * Getter of the foreach global variable
+	 * Getter of the foreach attribute
 	 * 
-	 * @return The value of the foreach global variable
+	 * @return The value of the foreach attribute
 	 */
 	@XmlElement
 	public Foreach getForeach() {
@@ -120,19 +120,19 @@ public class Program implements Cloneable {
 	}
 
 	/**
-	 * Changes the value of the foreach global variable
+	 * Changes the value of the foreach attribute
 	 * 
 	 * @param foreach
-	 *            Global variable
+	 *            attribute
 	 */
 	public void setForeach(final Foreach foreach) {
 		this.foreach = foreach;
 	}
 
 	/**
-	 * Getter of the exec global variable
+	 * Getter of the exec attribute
 	 * 
-	 * @return The value of the exec global variable
+	 * @return The value of the exec attribute
 	 */
 	@XmlElement
 	public String getExec() {
@@ -140,10 +140,10 @@ public class Program implements Cloneable {
 	}
 
 	/**
-	 * Changes the value of the exec global variable
+	 * Changes the value of the exec attribute
 	 * 
 	 * @param exec
-	 *            Global variable
+	 *            attribute
 	 */
 	public void setExec(final String exec) {
 		this.exec = exec.trim();
@@ -151,114 +151,114 @@ public class Program implements Cloneable {
 	}
 
 	/**
-	 * Getter of the isRunning global variable
+	 * Getter of the isRunning attribute
 	 * 
-	 * @return The value of the isRunning global variable
+	 * @return The value of the isRunning attribute
 	 */
 	public boolean isRunning() {
 		return isRunning;
 	}
 
 	/**
-	 * Changes the value of the isRunning global variable
+	 * Changes the value of the isRunning attribute
 	 * 
 	 * @param isRunning
-	 *            Global variable
+	 *            attribute
 	 */
 	public void setRunning(final boolean isRunning) {
 		this.isRunning = isRunning;
 	}
 
 	/**
-	 * Getter of the isFinished global variable
+	 * Getter of the isFinished attribute
 	 * 
-	 * @return The value of the isFinished global variable
+	 * @return The value of the isFinished attribute
 	 */
 	public boolean isFinished() {
 		return isFinished;
 	}
 
 	/**
-	 * Changes the value of the isFinished global variable
+	 * Changes the value of the isFinished attribute
 	 * 
 	 * @param isFinished
-	 *            Global variable
+	 *            attribute
 	 */
 	public void setFinished(final boolean isFinished) {
 		this.isFinished = isFinished;
 	}
 
 	/**
-	 * Getter of the execStrings global variable
+	 * Getter of the execStrings attribute
 	 * 
-	 * @return The value of the execStrings global variable
+	 * @return The value of the execStrings attribute
 	 */
 	public List<String> getExecStrings() {
 		return execStrings;
 	}
 
 	/**
-	 * Changes the value of the execStrings global variable
+	 * Changes the value of the execStrings attribute
 	 * 
 	 * @param execStrings
-	 *            Global variable
+	 *            attribute
 	 */
 	public void setExecStrings(final List<String> execStrings) {
 		this.execStrings = execStrings;
 	}
 
 	/**
-	 * Getter of the toExecute global variable
+	 * Getter of the toExecute attribute
 	 * 
-	 * @return The value of the toExecute global variable
+	 * @return The value of the toExecute attribute
 	 */
 	public String getToExecute() {
 		return toExecute;
 	}
 
 	/**
-	 * Changes the value of the toExecute global variable
+	 * Changes the value of the toExecute attribute
 	 * 
 	 * @param toExecute
-	 *            Global variable
+	 *            attribute
 	 */
 	public void setToExecute(final String toExecute) {
 		this.toExecute = toExecute;
 	}
 
 	/**
-	 * Getter of the isAborted global variable
+	 * Getter of the isAborted attribute
 	 * 
-	 * @return The value of the isAborted global variable
+	 * @return The value of the isAborted attribute
 	 */
 	public boolean isAborted() {
 		return isAborted;
 	}
 
 	/**
-	 * Changes the value of the isAborted global variable
+	 * Changes the value of the isAborted attribute
 	 * 
 	 * @param isAborted
-	 *            Global variable
+	 *            attribute
 	 */
 	public void setAborted(final boolean isAborted) {
 		this.isAborted = isAborted;
 	}
 
 	/**
-	 * Getter of the isSkipped global variable
+	 * Getter of the isSkipped attribute
 	 * 
-	 * @return The value of the isSkipped global variable
+	 * @return The value of the isSkipped attribute
 	 */
 	public boolean isSkipped() {
 		return isSkipped;
 	}
 
 	/**
-	 * Changes the value of the isSkipped global variable
+	 * Changes the value of the isSkipped attribute
 	 * 
 	 * @param isSkipped
-	 *            Global variable
+	 *            attribute
 	 */
 	public void setSkipped(final boolean isSkipped) {
 		this.isSkipped = isSkipped;

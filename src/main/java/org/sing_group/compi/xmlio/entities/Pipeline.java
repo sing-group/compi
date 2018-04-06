@@ -43,9 +43,9 @@ public class Pipeline {
 	}
 
 	/**
-	 * Getter of the programs global variable
+	 * Getter of the programs attribute
 	 * 
-	 * @return The value of the programs global variable
+	 * @return The value of the programs attribute
 	 */
 	@XmlElementWrapper(name = "programs")
 	@XmlElement(name = "program")
@@ -54,7 +54,7 @@ public class Pipeline {
 	}
 
 	/**
-	 * Changes the value of the programs global variable
+	 * Changes the value of the programs attribute
 	 * 
 	 * @param programs
 	 *            Global variable
@@ -64,9 +64,9 @@ public class Pipeline {
 	}
 	
 	/**
-	 * Getter of the params global variable
+	 * Getter of the params attribute
 	 * 
-	 * @return The value of the params global variable
+	 * @return The value of the params attribute
 	 */
 	@XmlElementWrapper(name = "params")
 	@XmlElement(name = "param")
@@ -75,7 +75,7 @@ public class Pipeline {
 	}
 
 	/**
-	 * Changes the value of the params global variable
+	 * Changes the value of the params attribute
 	 * 
 	 * @param params
 	 *            Global variable

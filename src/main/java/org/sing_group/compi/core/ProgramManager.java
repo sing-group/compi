@@ -271,36 +271,36 @@ public class ProgramManager implements ProgramExecutionHandler {
 	}
 
 	/**
-	 * Getter of the DAG global variable
+	 * Getter of the DAG attribute
 	 * 
-	 * @return The value of the DAG global variable
+	 * @return The value of the DAG attribute
 	 */
 	public Map<String, Program> getDAG() {
 		return DAG;
 	}
 
 	/**
-	 * Getter of the programsLeft global variable
+	 * Getter of the programsLeft attribute
 	 * 
-	 * @return The value of the programsLeft global variable
+	 * @return The value of the programsLeft attribute
 	 */
 	public List<String> getProgramsLeft() {
 		return programsLeft;
 	}
 
 	/**
-	 * Getter of the dependencies global variable
+	 * Getter of the dependencies attribute
 	 * 
-	 * @return The value of the dependencies global variable
+	 * @return The value of the dependencies attribute
 	 */
 	public Map<String, Set<String>> getDependencies() {
 		return dependencies;
 	}
 
 	/**
-	 * Getter of the forEachPrograms global variable
+	 * Getter of the forEachPrograms attribute
 	 * 
-	 * @return The value of the forEachPrograms global variable
+	 * @return The value of the forEachPrograms attribute
 	 */
 	public Map<String, List<LoopProgram>> getForEachPrograms() {
 		return forEachPrograms;

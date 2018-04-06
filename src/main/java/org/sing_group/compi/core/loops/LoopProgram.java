@@ -33,25 +33,25 @@ public class LoopProgram {
 	}
 
 	/**
-	 * Getter method of the exec global variable
+	 * Getter method of the exec attribute
 	 * 
-	 * @return The value of the exec global variable
+	 * @return The value of the exec attribute
 	 */
 	public String getExec() {
 		return exec;
 	}
 
 	/**
-	 * Getter method of the toExecute global variable
+	 * Getter method of the toExecute attribute
 	 * 
-	 * @return The value of the toExecute global variable
+	 * @return The value of the toExecute attribute
 	 */
 	public String getToExecute() {
 		return toExecute;
 	}
 
 	/**
-	 * Changes the value of the toExecute global variable
+	 * Changes the value of the toExecute attribute
 	 * 
 	 * @param toExecute
 	 *            Global variable
@@ -61,18 +61,18 @@ public class LoopProgram {
 	}
 
 	/**
-	 * Getter method of the as global variable
+	 * Getter method of the as attribute
 	 * 
-	 * @return The value of the as global variable
+	 * @return The value of the as attribute
 	 */
 	public String getAs() {
 		return as;
 	}
 
 	/**
-	 * Getter method of the source global variable
+	 * Getter method of the source attribute
 	 * 
-	 * @return The value of the source global variable
+	 * @return The value of the source attribute
 	 */
 	public String getSource() {
 		return source;

@@ -396,18 +396,18 @@ public class CompiApp implements ProgramExecutionHandler {
 	}
 
 	/**
-	 * Getter of the programManager global variable
+	 * Getter of the programManager attribute
 	 * 
-	 * @return The value of the programManager global variable
+	 * @return The value of the programManager attribute
 	 */
 	public ProgramManager getProgramManager() {
 		return programManager;
 	}
 
 	/**
-	 * Getter of the parentProgram global variable
+	 * Getter of the parentProgram attribute
 	 * 
-	 * @return The value of the parentProgram global variable
+	 * @return The value of the parentProgram attribute
 	 */
 	public Map<Program, Program> getParentProgram() {
 		return parentProgram;

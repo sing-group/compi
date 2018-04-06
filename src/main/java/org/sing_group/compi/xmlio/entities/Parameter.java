@@ -14,9 +14,9 @@ public class Parameter implements Cloneable {
 	}
 
 	/**
-	 * Getter of the name global variable
+	 * Getter of the name attribute
 	 * 
-	 * @return The value of the name global variable
+	 * @return The value of the name attribute
 	 */
 	@XmlAttribute
 	public String getName() {
@@ -24,7 +24,7 @@ public class Parameter implements Cloneable {
 	}
 
 	/**
-	 * Changes the value of the name global variable
+	 * Changes the value of the name attribute
 	 * 
 	 * @param name
 	 *            Global variable
@@ -34,9 +34,9 @@ public class Parameter implements Cloneable {
 	}
 	
 	/**
-	 * Getter of the shortName global variable
+	 * Getter of the shortName attribute
 	 * 
-	 * @return The value of the shortName global variable
+	 * @return The value of the shortName attribute
 	 */
 	@XmlAttribute
 	public String getShortName() {
@@ -44,7 +44,7 @@ public class Parameter implements Cloneable {
 	}
 
 	/**
-	 * Changes the value of the shortName global variable
+	 * Changes the value of the shortName attribute
 	 * 
 	 * @param shortName
 	 *            Global variable
@@ -54,9 +54,9 @@ public class Parameter implements Cloneable {
 	}
 	
 	/**
-	 * Getter of the description global variable
+	 * Getter of the description attribute
 	 * 
-	 * @return The value of the description global variable
+	 * @return The value of the description attribute
 	 */
 	@XmlAttribute
 	public String getDescription() {
@@ -64,7 +64,7 @@ public class Parameter implements Cloneable {
 	}
 
 	/**
-	 * Changes the value of the description global variable
+	 * Changes the value of the description attribute
 	 * 
 	 * @param description
 	 *            Global variable

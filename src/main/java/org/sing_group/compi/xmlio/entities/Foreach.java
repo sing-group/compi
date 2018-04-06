@@ -17,9 +17,9 @@ public class Foreach {
 	private String as;
 
 	/**
-	 * Getter of the element global variable
+	 * Getter of the element attribute
 	 * 
-	 * @return The value of the element global variable
+	 * @return The value of the element attribute
 	 */
 	@XmlAttribute
 	public String getElement() {
@@ -27,7 +27,7 @@ public class Foreach {
 	}
 
 	/**
-	 * Changes the value of the element global variable
+	 * Changes the value of the element attribute
 	 * 
 	 * @param element
 	 *            Global variable
@@ -37,9 +37,9 @@ public class Foreach {
 	}
 
 	/**
-	 * Getter of the source global variable
+	 * Getter of the source attribute
 	 * 
-	 * @return The value of the source global variable
+	 * @return The value of the source attribute
 	 */
 	@XmlAttribute
 	public String getSource() {
@@ -47,7 +47,7 @@ public class Foreach {
 	}
 
 	/**
-	 * Changes the value of the source global variable
+	 * Changes the value of the source attribute
 	 * 
 	 * @param source
 	 *            Global variable
@@ -57,9 +57,9 @@ public class Foreach {
 	}
 
 	/**
-	 * Getter of the as global variable
+	 * Getter of the as attribute
 	 * 
-	 * @return The value of the as global variable
+	 * @return The value of the as attribute
 	 */
 	@XmlAttribute
 	public String getAs() {
@@ -67,7 +67,7 @@ public class Foreach {
 	}
 
 	/**
-	 * Changes the value of the as global variable
+	 * Changes the value of the as attribute
 	 * 
 	 * @param as
 	 *            Global variable
