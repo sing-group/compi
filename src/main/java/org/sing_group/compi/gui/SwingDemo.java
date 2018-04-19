@@ -14,7 +14,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -27,6 +26,7 @@ import org.xml.sax.SAXException;
 public class SwingDemo {
 
 	private static CompiApp compi;
+	private static JTextField pipelineText;
 
 	public static void main(String[] args) {
 		final JFrame frame = new JFrame("Compi");
@@ -48,7 +48,7 @@ public class SwingDemo {
 		pipeline.setBounds(10, 10, 80, 25);
 		panel.add(pipeline);
 
-		final JTextField pipelineText = new JTextField(20);
+		pipelineText = new JTextField(20);
 		pipelineText.setBounds(100, 10, 160, 25);
 		pipelineText.setEditable(false);
 		panel.add(pipelineText);
@@ -113,8 +113,7 @@ public class SwingDemo {
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 				pipelineText.setText(chooser.getSelectedFile().getAbsolutePath());
-				try {
-					compi = new CompiApp(pipelineText.getText());
+					
 					consoleTextArea.setText(null);
 					skipComboBox.removeAllItems();
 					skipComboBox.addItem("-");
@@ -127,11 +126,6 @@ public class SwingDemo {
 					paramsButton.setEnabled(true);
 					threadNumberText.setEnabled(true);
 					skipComboBox.setEnabled(true);
-				} catch (SAXException | IOException | JAXBException e) {
-					consoleTextArea.append("--Error--\n");
-					consoleTextArea.append("Type - " + e.getClass() + "\n");
-					consoleTextArea.append("Message -  " + e.getMessage() + "\n");
-				}
 			}
 		});
 		panel.add(pipelineButton);
@@ -141,9 +135,14 @@ public class SwingDemo {
 		runButton.addActionListener(actionListener -> {
 			new Thread(() -> {
 				consoleTextArea.setText(null);
-				compiExecution(compi, (100 / compi.getProgramManager().getDAG().size()),
-						model.getNumber().intValue(), paramsText.getText(),
-						skipComboBox.getSelectedItem().toString(), consoleTextArea, progressBar);
+				try {
+					compiExecution((100 / compi.getProgramManager().getDAG().size()),
+							model.getNumber().intValue(), paramsText.getText(),
+							skipComboBox.getSelectedItem().toString(), consoleTextArea, progressBar);
+				} catch (JAXBException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}).start();
 
 		});
@@ -151,8 +150,8 @@ public class SwingDemo {
 
 	}
 
-	private static void compiExecution(CompiApp compi, int programNumber, int threadNumber, String paramsFile,
-			String skipProgram, JTextArea consoleTextArea, JProgressBar progressBar) {
+	private static void compiExecution(int programNumber, int threadNumber, String paramsFile,
+			String skipProgram, JTextArea consoleTextArea, JProgressBar progressBar) throws JAXBException {
 		if (skipProgram.equals("-")) {
 			skipProgram = null;
 		}
@@ -161,6 +160,7 @@ public class SwingDemo {
 		}
 
 		try {
+			compi = new CompiApp(pipelineText.getText(), threadNumber, paramsFile, skipProgram, null);
 			compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
 
 				@Override
@@ -215,7 +215,7 @@ public class SwingDemo {
 				}
 
 			});
-			compi.run(threadNumber, paramsFile, skipProgram, null);
+			compi.run();
 		} catch (InterruptedException | SAXException | IOException | ParserConfigurationException
 				| IllegalArgumentException e) {
 			consoleTextArea.append("--Error--\n");

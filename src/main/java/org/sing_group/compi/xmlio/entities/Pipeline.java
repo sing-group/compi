@@ -1,7 +1,13 @@
 package org.sing_group.compi.xmlio.entities;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -17,7 +23,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Pipeline {
 
 	private List<Program> programs = new LinkedList<>();
-	private List<Parameter> params = new LinkedList<>();
+	private List<ParameterDescription> parameterDescriptions = new LinkedList<>();
 
 	public Pipeline() {
 	}
@@ -30,16 +36,18 @@ public class Pipeline {
 	public Pipeline(final List<Program> programs) {
 		this.programs = programs;
 	}
-	
+
 	/**
 	 * 
 	 * @param programs
+	 *            Indicates the list of programs of the Pipeline
 	 * @param params
-	 *            Indicates all the {@link Program} and the {@link Parameter} in the {@link Pipeline}
+	 *            Indicates all the {@link Program} and the
+	 *            {@link ParameterDescription} in the {@link Pipeline}
 	 */
-	public Pipeline(final List<Program> programs, final List<Parameter> params) {
+	public Pipeline(final List<Program> programs, final List<ParameterDescription> params) {
 		this.programs = programs;
-		this.params = params;
+		this.parameterDescriptions = params;
 	}
 
 	/**
@@ -62,7 +70,7 @@ public class Pipeline {
 	public void setPrograms(final List<Program> programs) {
 		this.programs = programs;
 	}
-	
+
 	/**
 	 * Getter of the params attribute
 	 * 
@@ -70,18 +78,57 @@ public class Pipeline {
 	 */
 	@XmlElementWrapper(name = "params")
 	@XmlElement(name = "param")
-	public List<Parameter> getParams() {
-		return params;
+	public List<ParameterDescription> getParameterDescriptions() {
+		return parameterDescriptions;
 	}
 
 	/**
-	 * Changes the value of the params attribute
+	 * Changes the value of the parameterDescriptions attribute
 	 * 
-	 * @param params
+	 * @param parameterDescriptions
 	 *            Global variable
 	 */
-	public void setParams(List<Parameter> params) {
-		this.params = params;
+	public void setParameterDescriptions(List<ParameterDescription> parameterDescriptions) {
+		this.parameterDescriptions = parameterDescriptions;
+	}
+
+	/**
+	 * Returns all parameter names in the pipeline, organized by each program id
+	 * 
+	 * @return a map of program ids to a list of parameter names
+	 */
+	public Map<String, List<String>> getParametersByProgram() {
+		return this.programs.stream().collect(toMap(p -> p.getId(), p -> p.getParameters()));
+	}
+
+	/**
+	 * Returns a mapping of configurable parameters to programs using them
+	 * 
+	 * @return a mapping of configurable parameters to programs using them
+	 */
+	public Map<String, List<Program>> getProgramsByParameter() {
+		return this.getAllParameters().stream().collect(
+				toMap(p -> p, p -> this.programs.stream().filter(program -> program.getParameters().contains(p))
+						.collect(toList())));
+	}
+
+	private Set<String> getAllParameters() {
+		return this.programs.stream()
+				.map(p -> p.getParameters().stream()
+						.filter(param -> p.getForeach() == null || !p.getForeach().getAs().equals(param))
+						.collect(toList()))
+				.flatMap(x -> x.stream()).collect(toSet());
+	}
+
+	/**
+	 * Returns the {@link ParameterDescription} for a given a parameter name
+	 * 
+	 * @param parameterName
+	 *            the parameter name
+	 * @return the parameter description, null if it is not available
+	 */
+	public ParameterDescription getParameterDescription(String parameterName) {
+		return this.getParameterDescriptions().stream().collect(toMap(p -> p.getName(), p -> p)).get(parameterName);
 	}
 
 }

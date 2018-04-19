@@ -8,11 +8,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.sing_group.compi.core.loops.FileLoopGenerator;
+import org.sing_group.compi.core.loops.LoopProgram;
 import org.sing_group.compi.core.loops.VarLoopGenerator;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Program;
-import org.sing_group.compi.core.loops.FileLoopGenerator;
-import org.sing_group.compi.core.loops.LoopProgram;
 
 /**
  * Manages the {@link Program} execution and manages the {@link Program}

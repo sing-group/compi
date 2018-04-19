@@ -24,21 +24,23 @@ public class XMLParamsFileVariableResolver implements VariableResolver {
 	private final String xmlParamsFile;
 
 	/**
-	 * @param xmlParamsPath Indicates the path of the params file
+	 * @param xmlParamsPath
+	 *            Indicates the path of the params file
 	 */
 	public XMLParamsFileVariableResolver(final String xmlParamsPath) {
 		this.xmlParamsFile = xmlParamsPath;
 	}
 
 	@Override
-	public String resolveVariable(final String variable)
-			throws IllegalArgumentException {
-		String resolvedString = new String();
+	public String resolveVariable(final String variable) throws IllegalArgumentException {
 		if (this.xmlParamsFile == null) {
-			throw new IllegalArgumentException("Params file is missing, the tag \"" + variable + "\" can't be " +
-					"replaced");
+			return null;
 		}
+		String resolvedString = new String();
 		final File xmlFile = new File(this.xmlParamsFile);
+		if (!xmlFile.exists()) {
+			throw new IllegalArgumentException("Params file " + xmlFile.toString() + " does not exist");
+		}
 		final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		final DocumentBuilder dBuilder;
 		try {

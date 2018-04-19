@@ -47,32 +47,44 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * 
 	 * @param pipelineFile
 	 *            the pipeline file
+	 * @param threadNumber
+	 * 			  the size of the thread pool
+	 * @param resolver
+	 * 			  an object to resolve variables
+	 * @param advanceToProgram
+	 *            the program to start the pipeline from, all previous dependencies are skipped
+	 * @param singleProgram
+	 *            run a single pipeline program
 	 * @throws SAXException
 	 *             If there is an error in the XML parsing
 	 * @throws IOException
 	 *             If an I/O exception of some sort has occurred
 	 * @throws JAXBException
 	 *             If there is an error in the XML unmarshal process
+	 * @throws ParserConfigurationException If there is an error parsing the pipeline 
 	 */
-	public CompiApp(final String pipelineFile) throws SAXException, IOException, JAXBException {
+
+	public CompiApp(final String pipelineFile,final int threadNumber, final VariableResolver resolver, final String advanceToProgram,
+			final String singleProgram) throws SAXException, IOException, JAXBException, ParserConfigurationException {
 		this.pipelineFile = pipelineFile;
 		final File xsdFile = new File(getClass().getClassLoader().getResource("xsd/pipeline.xsd").getFile());
 		DOMparsing.validateXMLSchema(pipelineFile, xsdFile);
 		this.pipeline = PipelineParser.parsePipeline(new File(this.pipelineFile));
 		this.programManager = new ProgramManager(this, this.pipeline);
+		this.resolver = resolver;
+		initializePipeline(advanceToProgram, singleProgram);
+		initializeExecutorService(threadNumber);
+	}
+	
+	public CompiApp(final String pipelineFile,final int threadNumber, String paramsFile, final String advanceToProgram,
+			final String singleProgram) throws IllegalArgumentException, SAXException, IOException, JAXBException, ParserConfigurationException {
+		this(pipelineFile, threadNumber,new XMLParamsFileVariableResolver(paramsFile), advanceToProgram, singleProgram);
 	}
 
 	/**
 	 * Executes all the {@link Program} in an {@link ExecutorService}. When a
 	 * {@link Program} is executed, this thread will wait until the {@link Program}
 	 * notifies when it's finished or aborted
-	 * 
-	 * @param threadNumber
-	 *            the thread number
-	 * @param paramsFile
-	 *            the file with parameter values
-	 * @param advanceToProgram
-	 *            the {@link Program} ID
 	 * 
 	 * @throws SAXException
 	 *             If there is an error in the XML parsing
@@ -85,47 +97,15 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * @throws ParserConfigurationException
 	 *             If there is a configuration error
 	 */
-	public void run(final int threadNumber, String paramsFile, final String advanceToProgram,
-			final String singleProgram) throws SAXException, IOException, IllegalArgumentException,
-			InterruptedException, ParserConfigurationException {
-		this.run(threadNumber, new XMLParamsFileVariableResolver(paramsFile), advanceToProgram, singleProgram);
-
-	}
-
-	/**
-	 * Executes all the {@link Program} in an {@link ExecutorService}. When a
-	 * {@link Program} is executed, this thread will wait until the {@link Program}
-	 * notifies when it's finished or aborted
-	 * 
-	 * @param threadNumber
-	 *            the thread number
-	 * @param resolver
-	 *            the Variables file Resolver
-	 * @param advanceToProgram
-	 *            the {@link Program} ID
-	 * 
-	 * @throws SAXException
-	 *             If there is an error in the XML parsing
-	 * @throws IOException
-	 *             If an I/O exception of some sort has occurred
-	 * @throws IllegalArgumentException
-	 *             If there is an error in the XML pipeline/params file
-	 * @throws InterruptedException
-	 *             If there is an error while the thread is waiting
-	 * @throws ParserConfigurationException
-	 *             If there is a configuration error
-	 */
-	public void run(final int threadNumber, VariableResolver resolver, final String advanceToProgram,
-			final String singleProgram) throws SAXException, IOException, IllegalArgumentException,
-			InterruptedException, ParserConfigurationException {
-		initializePipeline(resolver, threadNumber, advanceToProgram, singleProgram);
+	public void run() throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException, InterruptedException  {
+		
 		synchronized (this) {
 			while (!programManager.getProgramsLeft().isEmpty()) {
 				for (final Program programToRun : programManager.getRunnablePrograms()) {
 					this.programStarted(programToRun);
 					if (programHasForEach(programToRun)) {
 						programManager.initializeForEach(programToRun);
-						resolveProgram(programToRun);
+						if (!programToRun.isSkipped()) resolveProgram(programToRun);
 						loopCount.put(programToRun, new AtomicInteger(
 								programManager.getForEachPrograms().get(programToRun.getId()).size()));
 						for (final LoopProgram lp : programManager.getForEachPrograms().get(programToRun.getId())) {
@@ -135,17 +115,16 @@ public class CompiApp implements ProgramExecutionHandler {
 							executorService.submit(new ProgramRunnable(cloned, this));
 						}
 					} else {
-						resolveProgram(programToRun);
+						if (!programToRun.isSkipped()) resolveProgram(programToRun);
 						executorService.submit(new ProgramRunnable(programToRun, this));
 					}
 				}
 				this.wait();
 			}
 		}
-		
-		
+
 		executorService.shutdown();
-		
+
 		// wait for remaining programs that are currently running
 		executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 	}
@@ -175,10 +154,6 @@ public class CompiApp implements ProgramExecutionHandler {
 	/**
 	 * Initializes all the parameters to allow the {@link Program} execution
 	 * 
-	 * @param resolver
-	 *            The variable Resolver object
-	 * @param threadNumber
-	 *            Indicates the number of threads for the {@link ExecutorService}
 	 * @param advanceToProgram
 	 *            Indicates the {@link Program} ID which you want to advance
 	 * @throws JAXBException
@@ -192,19 +167,17 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * @throws SAXException
 	 *             If there is an error in the XML parsing
 	 */
-	private void initializePipeline(VariableResolver resolver, final int threadNumber, final String advanceToProgram,
+	private void initializePipeline(final String advanceToProgram,
 			final String singleProgram)
 			throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
 		if (advanceToProgram != null && singleProgram != null) {
 			throw new IllegalArgumentException("advanceToProgram or singleProgram must be null");
 		}
-		this.resolver = resolver;
-		initializeExecutorService(threadNumber);
-
+		
 		programManager.checkDependsOnIds();
-		PipelineParser.solveExec(pipeline.getPrograms());
+		// PipelineParser.solveExec(pipeline.getPrograms());
 		programManager.initializeDependencies();
-
+		
 		if (advanceToProgram != null) {
 			skipPrograms(advanceToProgram);
 		}
@@ -261,9 +234,9 @@ public class CompiApp implements ProgramExecutionHandler {
 		} else {
 			this.getProgramManager().skipAllProgramsBut(singleProgram);
 		}
-		
+
 	}
-	
+
 	/**
 	 * Resolves the command to execute of a given program
 	 *
@@ -279,6 +252,7 @@ public class CompiApp implements ProgramExecutionHandler {
 	 */
 	private void resolveProgram(Program p)
 			throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
+		
 		if (programHasForEach(p)) {
 			if (p.getParameters().contains(p.getForeach().getAs())) {
 				for (final LoopProgram lp : programManager.getForEachPrograms().get(p.getId())) {
@@ -296,9 +270,9 @@ public class CompiApp implements ProgramExecutionHandler {
 						"The as attribute of the program " + p.getId() + " ins't contained in the exec tag");
 			}
 		} else {
-			for (final String execString : p.getParameters()) {
-				final String tagParsed = resolver.resolveVariable(execString);
-				p.setToExecute(p.getToExecute().replace("${" + execString + "}", tagParsed));
+			for (final String parameter : p.getParameters()) {
+				final String variableValue = resolver.resolveVariable(parameter);
+				p.setToExecute(p.getToExecute().replace("${" + parameter + "}", variableValue));
 			}
 		}
 	}
@@ -311,7 +285,8 @@ public class CompiApp implements ProgramExecutionHandler {
 	 */
 	@Override
 	public void programStarted(final Program program) {
-		if (!program.isSkipped()) this.notifyProgramStarted(program);
+		if (!program.isSkipped())
+			this.notifyProgramStarted(program);
 		this.getProgramManager().programStarted(program);
 	}
 
@@ -412,5 +387,14 @@ public class CompiApp implements ProgramExecutionHandler {
 	public Map<Program, Program> getParentProgram() {
 		return parentProgram;
 	}
+
+	public Pipeline getPipeline() {
+		return pipeline;
+	}
+	
+	public void setResolver(VariableResolver resolver) {
+		this.resolver = resolver;
+	}
+	
 
 }

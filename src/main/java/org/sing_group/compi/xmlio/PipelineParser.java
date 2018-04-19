@@ -1,7 +1,6 @@
 package org.sing_group.compi.xmlio;
 
 import java.io.File;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,15 +12,28 @@ import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Program;
 
 /**
- * Obtains the content of the {@link Program} exec tag
+ * Methods for building {@link Pipeline} objects from files
  * 
  * @author Jesus Alvarez Casanova
  *
  */
 public class PipelineParser {
 
-	private static Pattern pattern;
-	private static Matcher matcher;
+	/**
+	 * Reads a pipeline XML file and returns it as a {@link Pipeline} object
+	 * 
+	 * @param f
+	 *            the XML input file
+	 * @return the parsed Pipeline
+	 * @throws JAXBException if a problem in XML parsing and validation occurs
+	 */
+	public static Pipeline parsePipeline(File f) throws JAXBException {
+		final JAXBContext jaxbContext = JAXBContext.newInstance(Pipeline.class);
+		final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+		Pipeline pipeline = (Pipeline) jaxbUnmarshaller.unmarshal(f);
+		addProgramParameters(pipeline);
+		return pipeline;
+	}
 
 	/**
 	 * Obtain the content inside ${...} in the {@link Program} exec tag
@@ -29,20 +41,15 @@ public class PipelineParser {
 	 * @param programs
 	 *            Contains all the {@link Program}
 	 */
-	public static void solveExec(final List<Program> programs) {
-		for (final Program program : programs) {
-			pattern = Pattern.compile("\\{(.*?)\\}");
-			matcher = pattern.matcher(program.getExec());
+	private static void addProgramParameters(Pipeline pipeline) {
+		final Pattern pattern = Pattern.compile("\\{(.*?)\\}");
+
+		for (final Program program : pipeline.getPrograms()) {
+			final Matcher matcher = pattern.matcher(program.getExec());
 			while (matcher.find()) {
 				program.addParameter(matcher.group(1));
 			}
 		}
-	}
-
-	public static Pipeline parsePipeline(File f) throws JAXBException {
-		final JAXBContext jaxbContext = JAXBContext.newInstance(Pipeline.class);
-		final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-		return (Pipeline) jaxbUnmarshaller.unmarshal(f);
 	}
 
 }

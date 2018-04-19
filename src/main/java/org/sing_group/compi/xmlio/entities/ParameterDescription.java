@@ -4,13 +4,13 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "param")
-public class Parameter implements Cloneable {
+public class ParameterDescription implements Cloneable {
 
 	private String name;
 	private String shortName;
 	private String description;
 	
-	public Parameter() {
+	public ParameterDescription() {
 	}
 
 	/**

@@ -29,13 +29,16 @@ public class CompiCLI extends CLIApplication {
 	
 	public static String[] args;
 
+	public CompiCLI() {
+		super(true, true, true);
+	}
 	/**
 	 * Creates a command
 	 */
 	@Override
 	protected List<Command> buildCommands() {
 		final List<Command> commands = new ArrayList<>();
-		commands.add(new RunCommand());
+		commands.add(new RunCommand(args));
 		return commands;
 	}
 

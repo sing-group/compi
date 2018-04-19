@@ -1,6 +1,5 @@
 package org.sing_group.compi.xmlio.entities;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
