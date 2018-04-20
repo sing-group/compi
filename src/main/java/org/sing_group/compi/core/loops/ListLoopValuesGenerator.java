@@ -10,11 +10,11 @@ import java.util.List;
  * @author Jesus Alvarez Casanova
  *
  */
-public class VarLoopGenerator implements LoopGenerator {
+public class ListLoopValuesGenerator implements LoopValuesGenerator {
 
 	private final List<String> toExecute;
 
-	public VarLoopGenerator() {
+	public ListLoopValuesGenerator() {
 		this.toExecute = new LinkedList<>();
 	}
 

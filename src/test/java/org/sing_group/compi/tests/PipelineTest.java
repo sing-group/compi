@@ -52,7 +52,7 @@ public class PipelineTest {
 
 		final String advanceToProgam = null;
 		File outFile = File.createTempFile("compi-test", ".txt");
-		
+
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (var) -> {
 			switch (var) {
 			case "text":
@@ -110,8 +110,12 @@ public class PipelineTest {
 			pipelineFile = ClassLoader.getSystemResource("testPipelineLoop.xml").getFile();
 		}
 
+		File[] filesToTouch = new File[] { File.createTempFile("compi-test", ".txt"),
+				File.createTempFile("compi-test", ".txt"), File.createTempFile("compi-test", ".txt") };
+		String elementsValue = filesToTouch[0].toString()+","+filesToTouch[1].toString()+","+filesToTouch[2].toString();
+		
 		final String advanceToProgam = null;
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (var) -> (var.equals("elements"))? elementsValue: (var.equals("dirparam")? filesToTouch[0].getParent().toString():null), advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addProgramExecutionHandler(handler);
 
@@ -125,8 +129,16 @@ public class PipelineTest {
 				handler.getFinishedPrograms().indexOf("ID2") < handler.getFinishedPrograms().indexOf("ID4"));
 		assertTrue("program does not wait for its dependency",
 				handler.getFinishedPrograms().indexOf("ID3") < handler.getFinishedPrograms().indexOf("ID4"));
-		assertEquals(handler.getStartedPrograms().size(), 4);
-		assertEquals(handler.getFinishedPrograms().size(), 4);
+		assertEquals(handler.getStartedPrograms().size(), 6);
+		assertEquals(handler.getFinishedPrograms().size(), 6);
+		
+		for (File f: filesToTouch) {
+			assertTrue(f.exists());
+		}
+		
+		for (File f: filesToTouch) {
+			assertTrue(new File(f.toString()+".2.txt").exists());
+		}
 	}
 
 	@Test

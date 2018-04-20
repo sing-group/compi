@@ -2,13 +2,13 @@
 <pipeline xmlns="http://www.esei.uvigo.es/pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<programs>
 		<program id="ID1">
-			<foreach element="var" source="2,1,1" as="param" />
+			<foreach element="list" source="2,1,1" as="param" />
 			<exec>
 				echo ${param}
 			</exec>
 		</program>
 		<program id="ID2" dependsOn="ID1">
-			<foreach element="var" source="1,1" as="param" />
+			<foreach element="list" source="1,1" as="param" />
 			<exec>
 				echo ${param}
 			</exec>
@@ -19,9 +19,21 @@
 			</exec>
 		</program>
 		<program id="ID4" dependsOn="ID2,ID3">
-			<foreach element="var" source="1,1,1,1" as="param" />
+			<foreach element="list" source="1,1,1,1" as="param" />
 			<exec>
 				echo ${param}
+			</exec>
+		</program>
+		<program id="ID5" dependsOn="ID2,ID3">
+			<foreach element="param" source="elements" as="param" />
+			<exec>
+				touch ${param}
+			</exec>
+		</program>
+		<program id="ID6" dependsOn="ID2,ID3">
+			<foreach element="command" source="find ${dirparam} -maxdepth 1 | grep .txt" as="param" />
+			<exec>
+				touch "${param}.2.txt"
 			</exec>
 		</program>
 	</programs>

@@ -8,7 +8,7 @@ import java.util.List;
  * @author Jesus Alvarez Casanova
  *
  */
-public interface LoopGenerator {
+public interface LoopValuesGenerator {
 	/**
 	 * Gets the values to allow the loop execution
 	 * 

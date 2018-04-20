@@ -7,7 +7,7 @@
 			</exec>
 		</program>
 		<program id="ID2" dependsOn="ID1">
-			<foreach element="var" source="a,a" as="param" />
+			<foreach element="list" source="a,a" as="param" />
 			<exec>
 				cmd /c ping -n ${param} 127.0.0.1 > nul
 			</exec>

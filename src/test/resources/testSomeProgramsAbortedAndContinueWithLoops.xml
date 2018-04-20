@@ -7,7 +7,7 @@
 			</exec>
 		</program>
 		<program id="ID2" dependsOn="ID1">
-			<foreach element="var" source="-error,-error" as="param" />
+			<foreach element="list" source="-error,-error" as="param" />
 			<exec>
 				ls ${param}
 			</exec>

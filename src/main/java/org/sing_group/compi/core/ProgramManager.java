@@ -8,9 +8,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.sing_group.compi.core.loops.FileLoopGenerator;
+import org.sing_group.compi.core.loops.CommandLoopValuesGenerator;
+import org.sing_group.compi.core.loops.FileLoopValuesGenerator;
+import org.sing_group.compi.core.loops.ListLoopValuesGenerator;
+import org.sing_group.compi.core.loops.LoopValuesGenerator;
 import org.sing_group.compi.core.loops.LoopProgram;
-import org.sing_group.compi.core.loops.VarLoopGenerator;
+import org.sing_group.compi.core.loops.ParameterLoopValuesGenerator;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Program;
 
@@ -30,6 +33,7 @@ public class ProgramManager implements ProgramExecutionHandler {
 	private final Map<String, Set<String>> dependencies = new ConcurrentHashMap<>();
 	private final Map<String, List<LoopProgram>> forEachPrograms = new ConcurrentHashMap<>();
 	private boolean firstExecution;
+	private VariableResolver variableResolver;
 
 	/**
 	 * @param handler
@@ -37,8 +41,9 @@ public class ProgramManager implements ProgramExecutionHandler {
 	 * @param pipeline
 	 *            Indicates the {@link Pipeline}
 	 */
-	public ProgramManager(final ProgramExecutionHandler handler, final Pipeline pipeline) {
+	public ProgramManager(final ProgramExecutionHandler handler, final Pipeline pipeline, final VariableResolver resolver) {
 		this.handler = handler;
+		this.variableResolver = resolver;
 		for (final Program p : pipeline.getPrograms()) {
 			this.DAG.put(p.getId(), p);
 			this.programsLeft.add(p.getId());
@@ -142,23 +147,27 @@ public class ProgramManager implements ProgramExecutionHandler {
 			List<LoopProgram> value = this.getForEachPrograms().get(program.getId());
 			List<String> values = new LinkedList<>();
 
+			LoopValuesGenerator generator = null;
 			switch (program.getForeach().getElement()) {
-				case "var":
-					final VarLoopGenerator vlg = new VarLoopGenerator();
-					values = vlg.getValues(program.getForeach().getSource());
+				case "list":
+					generator = new ListLoopValuesGenerator();
 					break;
 				case "file":
-					final FileLoopGenerator flg = new FileLoopGenerator();
-					values = flg.getValues(program.getForeach().getSource());
-					if (values.isEmpty()) {
-						throw new IllegalArgumentException("The directory " + program.getForeach().getSource()
-								+ " of the program " + program.getId() + " doesn't contain any		 file");
-					}
+					generator = new FileLoopValuesGenerator();
+					
+					break;
+				case "param":
+					generator = new ParameterLoopValuesGenerator(this.variableResolver);
+					break;
+				case "command":
+					generator = new CommandLoopValuesGenerator(this.variableResolver);
 					break;
 				default:
 					throw new IllegalArgumentException("The element " + program.getForeach().getElement()
 							+ " of the program " + program.getId() + " doesn't exist");
 			}
+			
+			values = generator.getValues(program.getForeach().getSource());
 
 			for (final String source : values) {
 				value.add(new LoopProgram(program.getExec(), source, program.getForeach().getAs()));

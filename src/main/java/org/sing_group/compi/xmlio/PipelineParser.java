@@ -42,7 +42,7 @@ public class PipelineParser {
 	 *            Contains all the {@link Program}
 	 */
 	private static void addProgramParameters(Pipeline pipeline) {
-		final Pattern pattern = Pattern.compile("\\{(.*?)\\}");
+		final Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
 
 		for (final Program program : pipeline.getPrograms()) {
 			final Matcher matcher = pattern.matcher(program.getExec());

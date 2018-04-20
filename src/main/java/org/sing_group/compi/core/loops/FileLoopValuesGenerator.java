@@ -11,11 +11,11 @@ import java.util.List;
  * @author Jesus Alvarez Casanova
  *
  */
-public class FileLoopGenerator implements LoopGenerator {
+public class FileLoopValuesGenerator implements LoopValuesGenerator {
 
 	private final List<String> toExecute;
 
-	public FileLoopGenerator() {
+	public FileLoopValuesGenerator() {
 		this.toExecute = new LinkedList<>();
 	}
 
