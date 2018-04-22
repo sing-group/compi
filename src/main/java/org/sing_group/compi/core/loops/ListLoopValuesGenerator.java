@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Obtains the values of the program foreach tag when the element
+ * Obtains the values of the task foreach tag when the element
  * attribute contains "var"
  * 
  * @author Jesus Alvarez Casanova
@@ -19,10 +19,10 @@ public class ListLoopValuesGenerator implements LoopValuesGenerator {
 	}
 
 	/**
-	 * Splits all the values in the program source tag
+	 * Splits all the values in the task source tag
 	 * 
 	 * @param source
-	 *            Indicates the content of the program source tag
+	 *            Indicates the content of the task source tag
 	 */
 	@Override
 	public List<String> getValues(final String source) {

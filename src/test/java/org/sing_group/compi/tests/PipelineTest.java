@@ -10,8 +10,8 @@ import java.util.List;
 
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
-import org.sing_group.compi.core.ProgramExecutionHandler;
-import org.sing_group.compi.xmlio.entities.Program;
+import org.sing_group.compi.core.TaskExecutionHandler;
+import org.sing_group.compi.xmlio.entities.Task;
 
 public class PipelineTest {
 	private final static int THREAD_NUMBER = 6;
@@ -22,23 +22,23 @@ public class PipelineTest {
 	}
 
 	@Test
-	public void testOneProgram() throws Exception {
+	public void testOneTask() throws Exception {
 		final String pipelineFile;
 		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testOneProgramWindows.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testOneTaskWindows.xml").getFile();
 		} else {
-			pipelineFile = ClassLoader.getSystemResource("testOneProgram.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testOneTask.xml").getFile();
 		}
 
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
-		compi.addProgramExecutionHandler(handler);
+		compi.addTaskExecutionHandler(handler);
 
 		compi.run();
 
-		assertEquals(1, handler.getStartedPrograms().size());
-		assertEquals(1, handler.getFinishedPrograms().size());
+		assertEquals(1, handler.getStartedTasks().size());
+		assertEquals(1, handler.getFinishedTasks().size());
 	}
 
 	@Test
@@ -63,13 +63,13 @@ public class PipelineTest {
 			return null;
 		}, advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
-		compi.addProgramExecutionHandler(handler);
+		compi.addTaskExecutionHandler(handler);
 		outFile.deleteOnExit();
 
 		compi.run();
 
-		assertEquals(1, handler.getStartedPrograms().size());
-		assertEquals(1, handler.getFinishedPrograms().size());
+		assertEquals(1, handler.getStartedTasks().size());
+		assertEquals(1, handler.getFinishedTasks().size());
 
 	}
 
@@ -85,20 +85,20 @@ public class PipelineTest {
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
-		compi.addProgramExecutionHandler(handler);
+		compi.addTaskExecutionHandler(handler);
 
 		compi.run();
 
-		assertTrue("program does not wait for its dependency",
-				handler.getFinishedPrograms().indexOf("ID1") < handler.getFinishedPrograms().indexOf("ID2"));
-		assertTrue("program does not wait for its dependency",
-				handler.getFinishedPrograms().indexOf("ID1") < handler.getFinishedPrograms().indexOf("ID3"));
-		assertTrue("program does not wait for its dependency",
-				handler.getFinishedPrograms().indexOf("ID2") < handler.getFinishedPrograms().indexOf("ID4"));
-		assertTrue("program does not wait for its dependency",
-				handler.getFinishedPrograms().indexOf("ID3") < handler.getFinishedPrograms().indexOf("ID4"));
-		assertEquals(4, handler.getStartedPrograms().size());
-		assertEquals(4, handler.getFinishedPrograms().size());
+		assertTrue("task does not wait for its dependency",
+				handler.getFinishedTasks().indexOf("ID1") < handler.getFinishedTasks().indexOf("ID2"));
+		assertTrue("task does not wait for its dependency",
+				handler.getFinishedTasks().indexOf("ID1") < handler.getFinishedTasks().indexOf("ID3"));
+		assertTrue("task does not wait for its dependency",
+				handler.getFinishedTasks().indexOf("ID2") < handler.getFinishedTasks().indexOf("ID4"));
+		assertTrue("task does not wait for its dependency",
+				handler.getFinishedTasks().indexOf("ID3") < handler.getFinishedTasks().indexOf("ID4"));
+		assertEquals(4, handler.getStartedTasks().size());
+		assertEquals(4, handler.getFinishedTasks().size());
 	}
 
 	@Test
@@ -117,20 +117,20 @@ public class PipelineTest {
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (var) -> (var.equals("elements"))? elementsValue: (var.equals("dirparam")? filesToTouch[0].getParent().toString():null), advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
-		compi.addProgramExecutionHandler(handler);
+		compi.addTaskExecutionHandler(handler);
 
 		compi.run();
 
-		assertTrue("program does not wait for its dependency",
-				handler.getFinishedPrograms().indexOf("ID1") < handler.getFinishedPrograms().indexOf("ID2"));
-		assertTrue("program does not wait for its dependency",
-				handler.getFinishedPrograms().indexOf("ID1") < handler.getFinishedPrograms().indexOf("ID3"));
-		assertTrue("program does not wait for its dependency",
-				handler.getFinishedPrograms().indexOf("ID2") < handler.getFinishedPrograms().indexOf("ID4"));
-		assertTrue("program does not wait for its dependency",
-				handler.getFinishedPrograms().indexOf("ID3") < handler.getFinishedPrograms().indexOf("ID4"));
-		assertEquals(handler.getStartedPrograms().size(), 6);
-		assertEquals(handler.getFinishedPrograms().size(), 6);
+		assertTrue("task does not wait for its dependency",
+				handler.getFinishedTasks().indexOf("ID1") < handler.getFinishedTasks().indexOf("ID2"));
+		assertTrue("task does not wait for its dependency",
+				handler.getFinishedTasks().indexOf("ID1") < handler.getFinishedTasks().indexOf("ID3"));
+		assertTrue("task does not wait for its dependency",
+				handler.getFinishedTasks().indexOf("ID2") < handler.getFinishedTasks().indexOf("ID4"));
+		assertTrue("task does not wait for its dependency",
+				handler.getFinishedTasks().indexOf("ID3") < handler.getFinishedTasks().indexOf("ID4"));
+		assertEquals(handler.getStartedTasks().size(), 6);
+		assertEquals(handler.getFinishedTasks().size(), 6);
 		
 		for (File f: filesToTouch) {
 			assertTrue(f.exists());
@@ -142,174 +142,174 @@ public class PipelineTest {
 	}
 
 	@Test
-	public void testSkipPrograms() throws Exception {
+	public void testSkipTasks() throws Exception {
 		final String pipelineFile;
 		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testSkipProgramsWindows.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testSkipTasksWindows.xml").getFile();
 		} else {
-			pipelineFile = ClassLoader.getSystemResource("testSkipPrograms.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testSkipTasks.xml").getFile();
 		}
 		final String advanceToProgam = "ID3";
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
-		compi.addProgramExecutionHandler(handler);
+		compi.addTaskExecutionHandler(handler);
 
 		compi.run();
 
-		assertEquals(3, handler.getStartedPrograms().size());
-		assertEquals(3, handler.getFinishedPrograms().size());
-		assertTrue(handler.getFinishedPrograms().containsAll(Arrays.asList("ID3", "ID4", "ID2")));
+		assertEquals(3, handler.getStartedTasks().size());
+		assertEquals(3, handler.getFinishedTasks().size());
+		assertTrue(handler.getFinishedTasks().containsAll(Arrays.asList("ID3", "ID4", "ID2")));
 	}
 
 	@Test
-	public void testSkipProgramWithLoops() throws Exception {
+	public void testSkipTaskWithLoops() throws Exception {
 		final String pipelineFile;
 		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testSkipProgramsWithLoopsWindows.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testSkipTasksWithLoopsWindows.xml").getFile();
 		} else {
-			pipelineFile = ClassLoader.getSystemResource("testSkipProgramsWithLoops.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testSkipTasksWithLoops.xml").getFile();
 		}
 
 		final String advanceToProgam = "ID4";
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
-		compi.addProgramExecutionHandler(handler);
+		compi.addTaskExecutionHandler(handler);
 
 		compi.run();
 
-		assertEquals(1, handler.getStartedPrograms().size());
-		assertEquals(1, handler.getFinishedPrograms().size());
-		assertEquals("ID4", handler.getFinishedPrograms().get(0));
+		assertEquals(1, handler.getStartedTasks().size());
+		assertEquals(1, handler.getFinishedTasks().size());
+		assertEquals("ID4", handler.getFinishedTasks().get(0));
 	}
 
 	@Test
-	public void testRunSingleProgram() throws Exception {
+	public void testRunSingleTask() throws Exception {
 		final String pipelineFile;
 		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testSkipProgramsWindows.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testSkipTasksWindows.xml").getFile();
 		} else {
-			pipelineFile = ClassLoader.getSystemResource("testSkipPrograms.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testSkipTasks.xml").getFile();
 		}
 
-		final String singleProgram = "ID3";
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, null, singleProgram);
+		final String singleTask = "ID3";
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, null, singleTask);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
-		compi.addProgramExecutionHandler(handler);
+		compi.addTaskExecutionHandler(handler);
 
 		compi.run();
-		assertEquals(1, handler.getStartedPrograms().size());
-		assertEquals(1, handler.getFinishedPrograms().size());
+		assertEquals(1, handler.getStartedTasks().size());
+		assertEquals(1, handler.getFinishedTasks().size());
 	}
 
 	@Test
-	public void testStartingProgramAborted() throws Exception {
+	public void testStartingTaskAborted() throws Exception {
 		final String pipelineFile;
 		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testStartingProgramAbortedWindows.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testStartingTaskAbortedWindows.xml").getFile();
 		} else {
-			pipelineFile = ClassLoader.getSystemResource("testStartingProgramAborted.xml").getFile();
-		}
-
-		final String advanceToProgam = null;
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
-		TestExecutionHandler handler = new TestExecutionHandler(compi);
-		compi.addProgramExecutionHandler(handler);
-
-		compi.run();
-
-		assertEquals(1, handler.getStartedPrograms().size());
-		assertEquals(0, handler.getFinishedPrograms().size());
-		assertEquals(4, handler.getAbortedPrograms().size());
-	}
-
-	@Test
-	public void testProgramsAborted() throws Exception {
-		final String pipelineFile;
-		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testProgramsAbortedWindows.xml").getFile();
-		} else {
-			pipelineFile = ClassLoader.getSystemResource("testProgramsAborted.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testStartingTaskAborted.xml").getFile();
 		}
 
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
-		compi.addProgramExecutionHandler(handler);
+		compi.addTaskExecutionHandler(handler);
 
 		compi.run();
-		assertEquals(3, handler.getStartedPrograms().size());
-		assertEquals(2, handler.getFinishedPrograms().size());
-		assertEquals(2, handler.getAbortedPrograms().size());
+
+		assertEquals(1, handler.getStartedTasks().size());
+		assertEquals(0, handler.getFinishedTasks().size());
+		assertEquals(4, handler.getAbortedTasks().size());
 	}
 
 	@Test
-	public void testProgramsAbortedWithLoops() throws Exception {
+	public void testTasksAborted() throws Exception {
 		final String pipelineFile;
 		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testProgramsAbortedWithLoopsWindows.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testTasksAbortedWindows.xml").getFile();
 		} else {
-			pipelineFile = ClassLoader.getSystemResource("testProgramsAbortedWithLoops.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testTasksAborted.xml").getFile();
 		}
 
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
-		compi.addProgramExecutionHandler(handler);
+		compi.addTaskExecutionHandler(handler);
 
 		compi.run();
-		assertEquals(3, handler.getStartedPrograms().size());
-
-		assertEquals(5, handler.getFinishedProgramsExcludingLoopChildren().size());
-		assertEquals(2, handler.getAbortedPrograms().size());
+		assertEquals(3, handler.getStartedTasks().size());
+		assertEquals(2, handler.getFinishedTasks().size());
+		assertEquals(2, handler.getAbortedTasks().size());
 	}
 
 	@Test
-	public void testSomeProgramsAbortedAndContinue() throws Exception {
+	public void testTasksAbortedWithLoops() throws Exception {
 		final String pipelineFile;
 		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testSomeProgramsAbortedAndContinueWindows.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testTasksAbortedWithLoopsWindows.xml").getFile();
 		} else {
-			pipelineFile = ClassLoader.getSystemResource("testSomeProgramsAbortedAndContinue.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testTasksAbortedWithLoops.xml").getFile();
 		}
 
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
-		compi.addProgramExecutionHandler(handler);
+		compi.addTaskExecutionHandler(handler);
 
 		compi.run();
+		assertEquals(3, handler.getStartedTasks().size());
 
-		assertEquals(4, handler.getStartedPrograms().size());
-		assertEquals(3, handler.getFinishedPrograms().size());
-		assertEquals(2, handler.getAbortedPrograms().size());
+		assertEquals(5, handler.getFinishedTasksExcludingLoopChildren().size());
+		assertEquals(2, handler.getAbortedTasks().size());
 	}
 
 	@Test
-	public void testSomeProgramsAbortedAndContinueWithLoops() throws Exception {
+	public void testSomeTasksAbortedAndContinue() throws Exception {
 		final String pipelineFile;
 		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testSomeProgramsAbortedAndContinueWithLoopsWindows.xml")
+			pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinueWindows.xml").getFile();
+		} else {
+			pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinue.xml").getFile();
+		}
+
+		final String advanceToProgam = null;
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
+		TestExecutionHandler handler = new TestExecutionHandler(compi);
+		compi.addTaskExecutionHandler(handler);
+
+		compi.run();
+
+		assertEquals(4, handler.getStartedTasks().size());
+		assertEquals(3, handler.getFinishedTasks().size());
+		assertEquals(2, handler.getAbortedTasks().size());
+	}
+
+	@Test
+	public void testSomeTasksAbortedAndContinueWithLoops() throws Exception {
+		final String pipelineFile;
+		if (isWindows()) {
+			pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinueWithLoopsWindows.xml")
 					.getFile();
 		} else {
-			pipelineFile = ClassLoader.getSystemResource("testSomeProgramsAbortedAndContinueWithLoops.xml").getFile();
+			pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinueWithLoops.xml").getFile();
 		}
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
-		compi.addProgramExecutionHandler(handler);
+		compi.addTaskExecutionHandler(handler);
 
 		compi.run();
 
-		assertEquals(4, handler.getStartedPrograms().size());
-		assertEquals(3, handler.getFinishedProgramsExcludingLoopChildren().size());
-		assertEquals(4, handler.getAbortedPrograms().size());
+		assertEquals(4, handler.getStartedTasks().size());
+		assertEquals(3, handler.getFinishedTasksExcludingLoopChildren().size());
+		assertEquals(4, handler.getAbortedTasks().size());
 	}
 
-	private static class TestExecutionHandler implements ProgramExecutionHandler {
-		final List<String> startedPrograms = new ArrayList<>();
-		final List<String> finishedPrograms = new ArrayList<>();
-		final List<String> finishedProgramsExcludingLoopChildren = new ArrayList<>();
-		final List<String> abortedPrograms = new ArrayList<>();
+	private static class TestExecutionHandler implements TaskExecutionHandler {
+		final List<String> startedTasks = new ArrayList<>();
+		final List<String> finishedTasks = new ArrayList<>();
+		final List<String> finishedTasksExcludingLoopChildren = new ArrayList<>();
+		final List<String> abortedTasks = new ArrayList<>();
 		private CompiApp compi;
 
 		public TestExecutionHandler(CompiApp compi) {
@@ -317,43 +317,43 @@ public class PipelineTest {
 		}
 
 		@Override
-		public void programStarted(Program program) {
-			startedPrograms.add(program.getId());
+		public void taskStarted(Task task) {
+			startedTasks.add(task.getId());
 		}
 
 		@Override
-		public void programFinished(Program program) {
-			if (program.getForeach() != null) {
-				final Program parent = compi.getParentProgram().get(program);
+		public void taskFinished(Task task) {
+			if (task.getForeach() != null) {
+				final Task parent = compi.getParentTask().get(task);
 				if (parent.isFinished()) {
-					finishedPrograms.add(parent.getId());
+					finishedTasks.add(parent.getId());
 				}
 			} else {
-				finishedPrograms.add(program.getId());
+				finishedTasks.add(task.getId());
 			}
 
-			finishedProgramsExcludingLoopChildren.add(program.getId());
+			finishedTasksExcludingLoopChildren.add(task.getId());
 		}
 
 		@Override
-		public void programAborted(Program program, Exception e) {
-			abortedPrograms.add(program.getId());
+		public void taskAborted(Task task, Exception e) {
+			abortedTasks.add(task.getId());
 		}
 
-		public List<String> getStartedPrograms() {
-			return startedPrograms;
+		public List<String> getStartedTasks() {
+			return startedTasks;
 		}
 
-		public List<String> getFinishedPrograms() {
-			return finishedPrograms;
+		public List<String> getFinishedTasks() {
+			return finishedTasks;
 		}
 
-		public List<String> getAbortedPrograms() {
-			return abortedPrograms;
+		public List<String> getAbortedTasks() {
+			return abortedTasks;
 		}
 
-		public List<String> getFinishedProgramsExcludingLoopChildren() {
-			return finishedProgramsExcludingLoopChildren;
+		public List<String> getFinishedTasksExcludingLoopChildren() {
+			return finishedTasksExcludingLoopChildren;
 		}
 
 	}

@@ -37,14 +37,14 @@ public class RunCommand extends AbstractCommand {
 
 		if (parameters.getSingleValue(super.getOption("s")) != null
 				&& parameters.getSingleValue(super.getOption("sp")) != null) {
-			throw new IllegalArgumentException("You can only specify skip or single-program, but not both: ");
+			throw new IllegalArgumentException("You can only specify skip or single-task, but not both: ");
 		}
 
 		if (parameters.getSingleValue(super.getOption("s")) != null) {
-			System.out.println("Skip to program - " + parameters.getSingleValue(super.getOption("s")) + "\n");
+			System.out.println("Skip to task - " + parameters.getSingleValue(super.getOption("s")) + "\n");
 		}
 		if (parameters.getSingleValue(super.getOption("sp")) != null) {
-			System.out.println("Running single program - " + parameters.getSingleValue(super.getOption("sp")) + "\n");
+			System.out.println("Running single task - " + parameters.getSingleValue(super.getOption("sp")) + "\n");
 		}
 		compi = new CompiApp(parameters.getSingleValue(super.getOption("p")),
 				parameters.getSingleValue(super.getOption("t")), (VariableResolver) null,
@@ -102,10 +102,10 @@ public class RunCommand extends AbstractCommand {
 		options.add(new StringOption("params", "pa", "params file", true, true, false));
 		options.add(new IntegerOption("num-threads", "t", "number of threads to use", "6"));
 		options.add(new DefaultValuedStringOption("skip", "s",
-				"skip to program. Run the pipeline from the specific without running its dependencies. This option is incompatible with --single-program",
+				"skip to task. Run the pipeline from the specific without running its dependencies. This option is incompatible with --single-task",
 				null));
-		options.add(new DefaultValuedStringOption("single-program", "sp",
-				"Runs a single program without its depencendies. This option is incompatible with --skip", null));
+		options.add(new DefaultValuedStringOption("single-task", "st",
+				"Runs a single task without its depencendies. This option is incompatible with --skip", null));
 
 		return options;
 	}

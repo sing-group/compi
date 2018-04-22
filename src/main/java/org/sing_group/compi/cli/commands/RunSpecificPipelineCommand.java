@@ -6,12 +6,12 @@ import java.util.List;
 
 import org.sing_group.compi.cli.CompiCLI;
 import org.sing_group.compi.core.CompiApp;
-import org.sing_group.compi.core.ProgramExecutionHandler;
+import org.sing_group.compi.core.TaskExecutionHandler;
 import org.sing_group.compi.core.VariableResolver;
 import org.sing_group.compi.xmlio.XMLParamsFileVariableResolver;
 import org.sing_group.compi.xmlio.entities.ParameterDescription;
 import org.sing_group.compi.xmlio.entities.Pipeline;
-import org.sing_group.compi.xmlio.entities.Program;
+import org.sing_group.compi.xmlio.entities.Task;
 
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.option.Option;
@@ -85,32 +85,32 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
 		compiApp.setResolver(new PipelineVariableResolver(parameters));
 
-		compiApp.addProgramExecutionHandler(new ProgramExecutionHandler() {
+		compiApp.addTaskExecutionHandler(new TaskExecutionHandler() {
 
 			@Override
-			public void programStarted(Program program) {
-				System.out.println((System.currentTimeMillis() / 1000) + " - CLI - Program with id " + program.getId()
+			public void taskStarted(Task task) {
+				System.out.println((System.currentTimeMillis() / 1000) + " - CLI - Task with id " + task.getId()
 						+ " started");
 			}
 
 			@Override
-			public void programFinished(Program program) {
-				if (program.isSkipped()) {
-					System.out.println("CLI - Program with id " + program.getId() + " skipped");
+			public void taskFinished(Task task) {
+				if (task.isSkipped()) {
+					System.out.println("CLI - Task with id " + task.getId() + " skipped");
 				} else {
-					if (program.getForeach() != null) {
-						System.out.println((System.currentTimeMillis() / 1000) + " - CLI - SubProgram with id "
-								+ program.getId() + " finished - " + program.getToExecute());
+					if (task.getForeach() != null) {
+						System.out.println((System.currentTimeMillis() / 1000) + " - CLI - SubTask with id "
+								+ task.getId() + " finished - " + task.getToExecute());
 					} else {
-						System.out.println((System.currentTimeMillis() / 1000) + " - CLI - Program with id "
-								+ program.getId() + " finished");
+						System.out.println((System.currentTimeMillis() / 1000) + " - CLI - Task with id "
+								+ task.getId() + " finished");
 					}
 				}
 			}
 
 			@Override
-			public void programAborted(Program program, Exception e) {
-				System.out.println((System.currentTimeMillis() / 1000) + " - CLI - Program with id " + program.getId()
+			public void taskAborted(Task task, Exception e) {
+				System.out.println((System.currentTimeMillis() / 1000) + " - CLI - Task with id " + task.getId()
 						+ " aborted - Cause - " + e.getClass());
 			}
 
@@ -135,11 +135,11 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 								false, true, false));
 					}
 
-					p.getProgramsByParameter().forEach((parameterName, programs) -> {
+					p.getTasksByParameter().forEach((parameterName, tasks) -> {
 						XMLParamsFileVariableResolver paramsFileResolver = getParamsFileResolver();
 						ParameterDescription description = p.getParameterDescription(parameterName);
-						List<OptionCategory> categories = programs.stream().filter(program -> !program.isSkipped())
-								.map(program -> new OptionCategory(program.getId())).collect(toList());
+						List<OptionCategory> categories = tasks.stream().filter(task -> !task.isSkipped())
+								.map(task -> new OptionCategory(task.getId())).collect(toList());
 
 						if (categories.size() > 0) {
 							if (description != null) {

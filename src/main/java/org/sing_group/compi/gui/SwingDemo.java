@@ -19,8 +19,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.sing_group.compi.core.CompiApp;
-import org.sing_group.compi.core.ProgramExecutionHandler;
-import org.sing_group.compi.xmlio.entities.Program;
+import org.sing_group.compi.core.TaskExecutionHandler;
+import org.sing_group.compi.xmlio.entities.Task;
 import org.xml.sax.SAXException;
 
 public class SwingDemo {
@@ -84,7 +84,7 @@ public class SwingDemo {
 		threadNumberText.setEnabled(false);
 		panel.add(threadNumberText);
 
-		final JLabel skip = new JLabel("skip before program");
+		final JLabel skip = new JLabel("skip before task");
 		skip.setBounds(10, 100, 150, 25);
 		panel.add(skip);
 
@@ -118,10 +118,10 @@ public class SwingDemo {
 					skipComboBox.removeAllItems();
 					skipComboBox.addItem("-");
 					skipComboBox.setSelectedIndex(0);
-					consoleTextArea.append("Programs IDs\n");
-					for (String programID : compi.getProgramManager().getProgramsLeft()) {
-						consoleTextArea.append("ID : " + programID + "\n");
-						skipComboBox.addItem(programID);
+					consoleTextArea.append("Task IDs\n");
+					for (String taskID : compi.getTaskManager().getTasksLeft()) {
+						consoleTextArea.append("ID : " + taskID + "\n");
+						skipComboBox.addItem(taskID);
 					}
 					paramsButton.setEnabled(true);
 					threadNumberText.setEnabled(true);
@@ -136,7 +136,7 @@ public class SwingDemo {
 			new Thread(() -> {
 				consoleTextArea.setText(null);
 				try {
-					compiExecution((100 / compi.getProgramManager().getDAG().size()),
+					compiExecution((100 / compi.getTaskManager().getDAG().size()),
 							model.getNumber().intValue(), paramsText.getText(),
 							skipComboBox.getSelectedItem().toString(), consoleTextArea, progressBar);
 				} catch (JAXBException e) {
@@ -150,56 +150,56 @@ public class SwingDemo {
 
 	}
 
-	private static void compiExecution(int programNumber, int threadNumber, String paramsFile,
-			String skipProgram, JTextArea consoleTextArea, JProgressBar progressBar) throws JAXBException {
-		if (skipProgram.equals("-")) {
-			skipProgram = null;
+	private static void compiExecution(int taskNumber, int threadNumber, String paramsFile,
+			String skipTask, JTextArea consoleTextArea, JProgressBar progressBar) throws JAXBException {
+		if (skipTask.equals("-")) {
+			skipTask = null;
 		}
 		if (paramsFile.isEmpty()) {
 			paramsFile = null;
 		}
 
 		try {
-			compi = new CompiApp(pipelineText.getText(), threadNumber, paramsFile, skipProgram, null);
-			compi.addProgramExecutionHandler(new ProgramExecutionHandler() {
+			compi = new CompiApp(pipelineText.getText(), threadNumber, paramsFile, skipTask, null);
+			compi.addTaskExecutionHandler(new TaskExecutionHandler() {
 
 				@Override
-				public void programStarted(Program program) {
-					consoleTextArea.append((System.currentTimeMillis() / 1000) + " - Program with id " + program.getId()
+				public void taskStarted(Task task) {
+					consoleTextArea.append((System.currentTimeMillis() / 1000) + " - Task with id " + task.getId()
 							+ " started\n");
 					consoleTextArea.update(consoleTextArea.getGraphics());
 				}
 
 				@Override
-				public void programFinished(Program program) {
-					if (program.isSkipped()) {
-						if (program.getForeach() != null) {
-							consoleTextArea.append("Program with id " + program.getId() + " skipped\n");
-							final Program parent = compi.getParentProgram().get(program);
+				public void taskFinished(Task task) {
+					if (task.isSkipped()) {
+						if (task.getForeach() != null) {
+							consoleTextArea.append("Task with id " + task.getId() + " skipped\n");
+							final Task parent = compi.getParentTask().get(task);
 							if (parent.isFinished()) {
-								int percent = progressBar.getValue() + programNumber;
+								int percent = progressBar.getValue() + taskNumber;
 								progressBar.setValue(percent);
 								progressBar.update(progressBar.getGraphics());
 							}
 						} else {
-							int percent = progressBar.getValue() + programNumber;
+							int percent = progressBar.getValue() + taskNumber;
 							progressBar.setValue(percent);
 							progressBar.update(progressBar.getGraphics());
 						}
 					} else {
-						if (program.getForeach() != null) {
-							consoleTextArea.append((System.currentTimeMillis() / 1000) + " - SubProgram with id "
-									+ program.getId() + " finished\n");
-							final Program parent = compi.getParentProgram().get(program);
+						if (task.getForeach() != null) {
+							consoleTextArea.append((System.currentTimeMillis() / 1000) + " - SubTask with id "
+									+ task.getId() + " finished\n");
+							final Task parent = compi.getParentTask().get(task);
 							if (parent.isFinished()) {
-								int percent = progressBar.getValue() + programNumber;
+								int percent = progressBar.getValue() + taskNumber;
 								progressBar.setValue(percent);
 								progressBar.update(progressBar.getGraphics());
 							}
 						} else {
-							consoleTextArea.append((System.currentTimeMillis() / 1000) + " - Program with id "
-									+ program.getId() + " finished\n");
-							int percent = progressBar.getValue() + programNumber;
+							consoleTextArea.append((System.currentTimeMillis() / 1000) + " - Task with id "
+									+ task.getId() + " finished\n");
+							int percent = progressBar.getValue() + taskNumber;
 							progressBar.setValue(percent);
 							progressBar.update(progressBar.getGraphics());
 						}
@@ -208,8 +208,8 @@ public class SwingDemo {
 				}
 
 				@Override
-				public void programAborted(Program program, Exception e) {
-					consoleTextArea.append((System.currentTimeMillis() / 1000) + " - Program with id " + program.getId()
+				public void taskAborted(Task task, Exception e) {
+					consoleTextArea.append((System.currentTimeMillis() / 1000) + " - Task with id " + task.getId()
 							+ " aborted - Cause - " + e.getClass() + "\n");
 					consoleTextArea.update(consoleTextArea.getGraphics());
 				}

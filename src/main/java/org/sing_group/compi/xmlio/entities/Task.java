@@ -9,13 +9,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents a {@link Program} obtained in the XML pipeline file
+ * Represents a {@link Task} obtained in the XML pipeline file
  * 
  * @author Jesus Alvarez Casanova
  *
  */
-@XmlRootElement(name = "program")
-public class Program implements Cloneable {
+@XmlRootElement(name = "task")
+public class Task implements Cloneable {
 
 	private String id;
 	private String dependsOn;
@@ -265,12 +265,12 @@ public class Program implements Cloneable {
 	}
 
 	/**
-	 * Creates a clone of a {@link Program}
+	 * Creates a clone of a {@link Task}
 	 */
 	@Override
-	public Program clone() {
+	public Task clone() {
 		try {
-			return (Program) super.clone();
+			return (Task) super.clone();
 		} catch (final CloneNotSupportedException e) {
 			throw new RuntimeException(e);
 		}

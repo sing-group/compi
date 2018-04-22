@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "pipeline")
 public class Pipeline {
 
-	private List<Program> programs = new LinkedList<>();
+	private List<Task> tasks = new LinkedList<>();
 	private List<ParameterDescription> parameterDescriptions = new LinkedList<>();
 
 	public Pipeline() {
@@ -30,45 +30,44 @@ public class Pipeline {
 
 	/**
 	 * 
-	 * @param programs
-	 *            Indicates all the {@link Program} in the {@link Pipeline}
+	 * @param tasks
+	 *            Indicates all the {@link Task} in the {@link Pipeline}
 	 */
-	public Pipeline(final List<Program> programs) {
-		this.programs = programs;
+	public Pipeline(final List<Task> tasks) {
+		this.tasks = tasks;
 	}
 
 	/**
 	 * 
-	 * @param programs
-	 *            Indicates the list of programs of the Pipeline
+	 * @param tasks
+	 *            Indicates the list of tasks of the Pipeline
 	 * @param params
-	 *            Indicates all the {@link Program} and the
+	 *            Indicates all the {@link Task} and the
 	 *            {@link ParameterDescription} in the {@link Pipeline}
 	 */
-	public Pipeline(final List<Program> programs, final List<ParameterDescription> params) {
-		this.programs = programs;
+	public Pipeline(final List<Task> tasks, final List<ParameterDescription> params) {
+		this.tasks = tasks;
 		this.parameterDescriptions = params;
 	}
 
 	/**
-	 * Getter of the programs attribute
+	 * Getter of the tasks attribute
 	 * 
-	 * @return The value of the programs attribute
+	 * @return The value of the tasks attribute
 	 */
-	@XmlElementWrapper(name = "programs")
-	@XmlElement(name = "program")
-	public List<Program> getPrograms() {
-		return programs;
+	@XmlElementWrapper(name = "tasks")
+	@XmlElement(name = "task")
+	public List<Task> getTasks() {
+		return tasks;
 	}
 
 	/**
-	 * Changes the value of the programs attribute
+	 * Changes the value of the tasks attribute
 	 * 
-	 * @param programs
-	 *            Global variable
+	 * @param tasks attribute
 	 */
-	public void setPrograms(final List<Program> programs) {
-		this.programs = programs;
+	public void setTasks(final List<Task> tasks) {
+		this.tasks = tasks;
 	}
 
 	/**
@@ -93,27 +92,26 @@ public class Pipeline {
 	}
 
 	/**
-	 * Returns all parameter names in the pipeline, organized by each program id
+	 * Returns all parameter names in the pipeline, organized by each task id
 	 * 
-	 * @return a map of program ids to a list of parameter names
+	 * @return a map of task ids to a list of parameter names
 	 */
-	public Map<String, List<String>> getParametersByProgram() {
-		return this.programs.stream().collect(toMap(p -> p.getId(), p -> p.getParameters()));
+	public Map<String, List<String>> getParametersByTask() {
+		return this.tasks.stream().collect(toMap(t -> t.getId(), t -> t.getParameters()));
 	}
 
 	/**
-	 * Returns a mapping of configurable parameters to programs using them
+	 * Returns a mapping of configurable parameters to tasks using them
 	 * 
-	 * @return a mapping of configurable parameters to programs using them
+	 * @return a mapping of configurable parameters to tasks using them
 	 */
-	public Map<String, List<Program>> getProgramsByParameter() {
-		return this.getAllParameters().stream().collect(
-				toMap(p -> p, p -> this.programs.stream().filter(program -> program.getParameters().contains(p))
-						.collect(toList())));
+	public Map<String, List<Task>> getTasksByParameter() {
+		return this.getAllParameters().stream().collect(toMap(t -> t,
+				p -> this.tasks.stream().filter(task -> task.getParameters().contains(p)).collect(toList())));
 	}
 
 	private Set<String> getAllParameters() {
-		return this.programs.stream()
+		return this.tasks.stream()
 				.map(p -> p.getParameters().stream()
 						.filter(param -> p.getForeach() == null || !p.getForeach().getAs().equals(param))
 						.collect(toList()))

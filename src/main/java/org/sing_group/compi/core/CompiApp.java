@@ -14,33 +14,33 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.sing_group.compi.core.loops.LoopProgram;
+import org.sing_group.compi.core.loops.LoopTask;
 import org.sing_group.compi.xmlio.DOMparsing;
 import org.sing_group.compi.xmlio.PipelineParser;
 import org.sing_group.compi.xmlio.XMLParamsFileVariableResolver;
 import org.sing_group.compi.xmlio.entities.Pipeline;
-import org.sing_group.compi.xmlio.entities.Program;
+import org.sing_group.compi.xmlio.entities.Task;
 import org.xml.sax.SAXException;
 
 /**
- * Executes all the {@link Program} contained in the {@link Pipeline}
+ * Executes all the {@link Task} contained in the {@link Pipeline}
  * 
  * @author Jesus Alvarez Casanova
  *
  */
-public class CompiApp implements ProgramExecutionHandler {
+public class CompiApp implements TaskExecutionHandler {
 
 	private Pipeline pipeline;
-	private ProgramManager programManager;
+	private TaskManager taskManager;
 	private VariableResolver resolver;
 	private ExecutorService executorService;
 	final String pipelineFile;
 	String paramsFile;
 	String threadNumber;
-	String advanceToProgram;
-	private final Map<Program, Program> parentProgram = new HashMap<>();
-	private final Map<Program, AtomicInteger> loopCount = new HashMap<>();
-	private final List<ProgramExecutionHandler> executionHandlers = new ArrayList<>();
+	String advanceToTask;
+	private final Map<Task, Task> parentTask = new HashMap<>();
+	private final Map<Task, AtomicInteger> loopCount = new HashMap<>();
+	private final List<TaskExecutionHandler> executionHandlers = new ArrayList<>();
 
 	/**
 	 * Constructs the CompiApp
@@ -51,10 +51,10 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * 			  the size of the thread pool
 	 * @param resolver
 	 * 			  an object to resolve variables
-	 * @param advanceToProgram
-	 *            the program to start the pipeline from, all previous dependencies are skipped
-	 * @param singleProgram
-	 *            run a single pipeline program
+	 * @param advanceToTask
+	 *            the task to start the pipeline from, all previous dependencies are skipped
+	 * @param singleTask
+	 *            run a single pipeline task
 	 * @throws SAXException
 	 *             If there is an error in the XML parsing
 	 * @throws IOException
@@ -64,27 +64,27 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * @throws ParserConfigurationException If there is an error parsing the pipeline 
 	 */
 
-	public CompiApp(final String pipelineFile,final int threadNumber, final VariableResolver resolver, final String advanceToProgram,
-			final String singleProgram) throws SAXException, IOException, JAXBException, ParserConfigurationException {
+	public CompiApp(final String pipelineFile,final int threadNumber, final VariableResolver resolver, final String advanceToTask,
+			final String singleTask) throws SAXException, IOException, JAXBException, ParserConfigurationException {
 		this.pipelineFile = pipelineFile;
 		final File xsdFile = new File(getClass().getClassLoader().getResource("xsd/pipeline.xsd").getFile());
 		DOMparsing.validateXMLSchema(pipelineFile, xsdFile);
 		this.pipeline = PipelineParser.parsePipeline(new File(this.pipelineFile));
 		this.resolver = resolver;
 		
-		this.programManager = new ProgramManager(this, this.pipeline, this.resolver);
-		initializePipeline(advanceToProgram, singleProgram);
+		this.taskManager = new TaskManager(this, this.pipeline, this.resolver);
+		initializePipeline(advanceToTask, singleTask);
 		initializeExecutorService(threadNumber);
 	}
 	
-	public CompiApp(final String pipelineFile,final int threadNumber, String paramsFile, final String advanceToProgram,
-			final String singleProgram) throws IllegalArgumentException, SAXException, IOException, JAXBException, ParserConfigurationException {
-		this(pipelineFile, threadNumber,new XMLParamsFileVariableResolver(paramsFile), advanceToProgram, singleProgram);
+	public CompiApp(final String pipelineFile,final int threadNumber, String paramsFile, final String advanceToTask,
+			final String singleTask) throws IllegalArgumentException, SAXException, IOException, JAXBException, ParserConfigurationException {
+		this(pipelineFile, threadNumber,new XMLParamsFileVariableResolver(paramsFile), advanceToTask, singleTask);
 	}
 
 	/**
-	 * Executes all the {@link Program} in an {@link ExecutorService}. When a
-	 * {@link Program} is executed, this thread will wait until the {@link Program}
+	 * Executes all the {@link Task} in an {@link ExecutorService}. When a
+	 * {@link Task} is executed, this thread will wait until the {@link Task}
 	 * notifies when it's finished or aborted
 	 * 
 	 * @throws SAXException
@@ -101,23 +101,23 @@ public class CompiApp implements ProgramExecutionHandler {
 	public void run() throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException, InterruptedException  {
 		
 		synchronized (this) {
-			while (!programManager.getProgramsLeft().isEmpty()) {
-				for (final Program programToRun : programManager.getRunnablePrograms()) {
-					this.programStarted(programToRun);
-					if (programHasForEach(programToRun)) {
-						programManager.initializeForEach(programToRun);
-						if (!programToRun.isSkipped()) resolveProgram(programToRun);
-						loopCount.put(programToRun, new AtomicInteger(
-								programManager.getForEachPrograms().get(programToRun.getId()).size()));
-						for (final LoopProgram lp : programManager.getForEachPrograms().get(programToRun.getId())) {
-							final Program cloned = programToRun.clone();
-							parentProgram.put(cloned, programToRun);
+			while (!taskManager.getTasksLeft().isEmpty()) {
+				for (final Task taskToRun : taskManager.getRunnableTasks()) {
+					this.taskStarted(taskToRun);
+					if (taskHasForEach(taskToRun)) {
+						taskManager.initializeForEach(taskToRun);
+						if (!taskToRun.isSkipped()) resolveTask(taskToRun);
+						loopCount.put(taskToRun, new AtomicInteger(
+								taskManager.getForEachTasks().get(taskToRun.getId()).size()));
+						for (final LoopTask lp : taskManager.getForEachTasks().get(taskToRun.getId())) {
+							final Task cloned = taskToRun.clone();
+							parentTask.put(cloned, taskToRun);
 							cloned.setToExecute(lp.getToExecute());
-							executorService.submit(new ProgramRunnable(cloned, this));
+							executorService.submit(new TaskRunnable(cloned, this));
 						}
 					} else {
-						if (!programToRun.isSkipped()) resolveProgram(programToRun);
-						executorService.submit(new ProgramRunnable(programToRun, this));
+						if (!taskToRun.isSkipped()) resolveTask(taskToRun);
+						executorService.submit(new TaskRunnable(taskToRun, this));
 					}
 				}
 				this.wait();
@@ -126,37 +126,37 @@ public class CompiApp implements ProgramExecutionHandler {
 
 		executorService.shutdown();
 
-		// wait for remaining programs that are currently running
+		// wait for remaining tasks that are currently running
 		executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 	}
 
 	/**
-	 * Adds a {@link ProgramExecutionHandler}
+	 * Adds a {@link TaskExecutionHandler}
 	 * 
 	 * @param handler
-	 *            Indicates the {@link ProgramExecutionHandler}
+	 *            Indicates the {@link TaskExecutionHandler}
 	 */
-	public void addProgramExecutionHandler(final ProgramExecutionHandler handler) {
+	public void addTaskExecutionHandler(final TaskExecutionHandler handler) {
 		this.executionHandlers.add(handler);
 	}
 
 	/**
-	 * Checks if the {@link Program} has the foreach tag
+	 * Checks if the {@link Task} has the foreach tag
 	 * 
-	 * @param programToRun
-	 *            the {@link Program} to check
-	 * @return <code>true</code> if the {@link Program} has a foreach tag,
+	 * @param taskToRun
+	 *            the {@link Task} to check
+	 * @return <code>true</code> if the {@link Task} has a foreach tag,
 	 *         <code>false</code> otherwise
 	 */
-	private boolean programHasForEach(final Program programToRun) {
-		return programToRun.getForeach() != null;
+	private boolean taskHasForEach(final Task taskToRun) {
+		return taskToRun.getForeach() != null;
 	}
 
 	/**
-	 * Initializes all the parameters to allow the {@link Program} execution
+	 * Initializes all the parameters to allow the {@link Task} execution
 	 * 
-	 * @param advanceToProgram
-	 *            Indicates the {@link Program} ID which you want to advance
+	 * @param advanceToTask
+	 *            Indicates the {@link Task} ID which you want to advance
 	 * @throws JAXBException
 	 *             If there is an error in the XML unmarshal process
 	 * @throws IllegalArgumentException
@@ -168,22 +168,22 @@ public class CompiApp implements ProgramExecutionHandler {
 	 * @throws SAXException
 	 *             If there is an error in the XML parsing
 	 */
-	private void initializePipeline(final String advanceToProgram,
-			final String singleProgram)
+	private void initializePipeline(final String advanceToTask,
+			final String singleTask)
 			throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
-		if (advanceToProgram != null && singleProgram != null) {
-			throw new IllegalArgumentException("advanceToProgram or singleProgram must be null");
+		if (advanceToTask != null && singleTask != null) {
+			throw new IllegalArgumentException("advanceToTask or singleTask must be null");
 		}
 		
-		programManager.checkDependsOnIds();
-		// PipelineParser.solveExec(pipeline.getPrograms());
-		programManager.initializeDependencies();
+		taskManager.checkDependsOnIds();
+		// PipelineParser.solveExec(pipeline.getTasks());
+		taskManager.initializeDependencies();
 		
-		if (advanceToProgram != null) {
-			skipPrograms(advanceToProgram);
+		if (advanceToTask != null) {
+			skipTasks(advanceToTask);
 		}
-		if (singleProgram != null) {
-			skipAllBut(singleProgram);
+		if (singleTask != null) {
+			skipAllBut(singleTask);
 		}
 
 	}
@@ -206,58 +206,58 @@ public class CompiApp implements ProgramExecutionHandler {
 	}
 
 	/**
-	 * Skips {@link Program} until the {@link Program} where you want to start
+	 * Skips {@link Task} until the {@link Task} where you want to start
 	 * 
-	 * @param advanceToProgram
-	 *            Indicates the {@link Program} ID
+	 * @param advanceToTask
+	 *            Indicates the {@link Task} ID
 	 * @throws IllegalArgumentException
-	 *             If the {@link Program} ID doesn't exist
+	 *             If the {@link Task} ID doesn't exist
 	 */
-	private void skipPrograms(final String advanceToProgram) throws IllegalArgumentException {
-		if (!programManager.getProgramsLeft().contains(advanceToProgram)) {
-			throw new IllegalArgumentException("The program ID " + advanceToProgram + " doesn't exist");
+	private void skipTasks(final String advanceToTask) throws IllegalArgumentException {
+		if (!taskManager.getTasksLeft().contains(advanceToTask)) {
+			throw new IllegalArgumentException("The task ID " + advanceToTask + " doesn't exist");
 		} else {
-			this.getProgramManager().skipPrograms(advanceToProgram);
+			this.getTaskManager().skipTasks(advanceToTask);
 		}
 	}
 
 	/**
-	 * Skips all {@link Program} but {@link Program}
+	 * Skips all {@link Task} but {@link Task}
 	 * 
-	 * @param singleProgram
-	 *            Indicates the {@link Program} ID
+	 * @param singleTask
+	 *            Indicates the {@link Task} ID
 	 * @throws IllegalArgumentException
-	 *             If the {@link Program} ID doesn't exist
+	 *             If the {@link Task} ID doesn't exist
 	 */
-	private void skipAllBut(String singleProgram) {
-		if (!programManager.getProgramsLeft().contains(singleProgram)) {
-			throw new IllegalArgumentException("The program ID " + singleProgram + " doesn't exist");
+	private void skipAllBut(String singleTask) {
+		if (!taskManager.getTasksLeft().contains(singleTask)) {
+			throw new IllegalArgumentException("The task ID " + singleTask + " doesn't exist");
 		} else {
-			this.getProgramManager().skipAllProgramsBut(singleProgram);
+			this.getTaskManager().skipAllTasksBut(singleTask);
 		}
 
 	}
 
 	/**
-	 * Resolves the command to execute of a given program
+	 * Resolves the command to execute of a given task
 	 *
-	 * @param p
-	 *            The program to resolve
+	 * @param t
+	 *            The task to resolve
 	 * 
 	 * @throws IllegalArgumentException
-	 *             If the {@link Program} attribute "as" isn't contained in the exec
+	 *             If the {@link Task} attribute "as" isn't contained in the exec
 	 *             tag
 	 * @throws IOException
 	 * @throws SAXException
 	 * @throws ParserConfigurationException
 	 */
-	private void resolveProgram(Program p)
+	private void resolveTask(Task t)
 			throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
 		
-		if (programHasForEach(p)) {
-			if (p.getParameters().contains(p.getForeach().getAs())) {
-				for (final LoopProgram lp : programManager.getForEachPrograms().get(p.getId())) {
-					for (final String tag : p.getParameters()) {
+		if (taskHasForEach(t)) {
+			if (t.getParameters().contains(t.getForeach().getAs())) {
+				for (final LoopTask lp : taskManager.getForEachTasks().get(t.getId())) {
+					for (final String tag : t.getParameters()) {
 						if (lp.getAs().equals(tag)) {
 							lp.setToExecute(lp.getToExecute().replace("${" + tag + "}", lp.getSource()));
 						} else {
@@ -268,125 +268,125 @@ public class CompiApp implements ProgramExecutionHandler {
 				}
 			} else {
 				throw new IllegalArgumentException(
-						"The as attribute of the program " + p.getId() + " ins't contained in the exec tag");
+						"The as attribute of the task " + t.getId() + " ins't contained in the exec tag");
 			}
 		} else {
-			for (final String parameter : p.getParameters()) {
+			for (final String parameter : t.getParameters()) {
 				final String variableValue = resolver.resolveVariable(parameter);
-				p.setToExecute(p.getToExecute().replace("${" + parameter + "}", variableValue));
+				t.setToExecute(t.getToExecute().replace("${" + parameter + "}", variableValue));
 			}
 		}
 	}
 
 	/**
-	 * Indicates that a {@link Program} is started
+	 * Indicates that a {@link Task} is started
 	 * 
-	 * @param program
-	 *            Indicates the {@link Program} which has been started
+	 * @param task
+	 *            Indicates the {@link Task} which has been started
 	 */
 	@Override
-	public void programStarted(final Program program) {
-		if (!program.isSkipped())
-			this.notifyProgramStarted(program);
-		this.getProgramManager().programStarted(program);
+	public void taskStarted(final Task task) {
+		if (!task.isSkipped())
+			this.notifyTaskStarted(task);
+		this.getTaskManager().taskStarted(task);
 	}
 
 	/**
-	 * Indicates that a {@link Program} is started to an external
-	 * {@link ProgramExecutionHandler}
+	 * Indicates that a {@link Task} is started to an external
+	 * {@link TaskExecutionHandler}
 	 * 
-	 * @param program
-	 *            Indicates the {@link Program} which has been started
+	 * @param task
+	 *            Indicates the {@link Task} which has been started
 	 */
-	private void notifyProgramStarted(final Program program) {
-		for (final ProgramExecutionHandler handler : this.executionHandlers) {
-			handler.programStarted(program);
+	private void notifyTaskStarted(final Task task) {
+		for (final TaskExecutionHandler handler : this.executionHandlers) {
+			handler.taskStarted(task);
 		}
 	}
 
 	/**
-	 * Indicates that a {@link Program} is finished and notifies
+	 * Indicates that a {@link Task} is finished and notifies
 	 * 
-	 * @param program
-	 *            Indicates the {@link Program} which has been started
+	 * @param task
+	 *            Indicates the {@link Task} which has been started
 	 */
 	@Override
-	synchronized public void programFinished(final Program program) {
-		if (programHasForEach(program)) {
-			final Program parent = this.parentProgram.get(program);
+	synchronized public void taskFinished(final Task task) {
+		if (taskHasForEach(task)) {
+			final Task parent = this.parentTask.get(task);
 			if (loopCount.get(parent).decrementAndGet() == 0) {
-				this.getProgramManager().programFinished(parent);
+				this.getTaskManager().taskFinished(parent);
 				this.notify();
 			}
 		} else {
-			this.getProgramManager().programFinished(program);
+			this.getTaskManager().taskFinished(task);
 			this.notify();
 		}
-		if (!program.isSkipped()) {
-			this.notifyProgramFinished(program);
+		if (!task.isSkipped()) {
+			this.notifyTaskFinished(task);
 		}
 	}
 
 	/**
-	 * Indicates that a {@link Program} is finished to an external
-	 * {@link ProgramExecutionHandler}
+	 * Indicates that a {@link Task} is finished to an external
+	 * {@link TaskExecutionHandler}
 	 * 
-	 * @param program
-	 *            Indicates the {@link Program} which has been finished
+	 * @param task
+	 *            Indicates the {@link Task} which has been finished
 	 */
-	private void notifyProgramFinished(final Program program) {
-		for (final ProgramExecutionHandler handler : this.executionHandlers) {
-			handler.programFinished(program);
+	private void notifyTaskFinished(final Task task) {
+		for (final TaskExecutionHandler handler : this.executionHandlers) {
+			handler.taskFinished(task);
 		}
 	}
 
 	/**
-	 * Indicates that a {@link Program} is aborted and notifies
+	 * Indicates that a {@link Task} is aborted and notifies
 	 * 
-	 * @param program
-	 *            Indicates the {@link Program} which has been aborted
+	 * @param task
+	 *            Indicates the {@link Task} which has been aborted
 	 * @param e
 	 *            Indicates the {@link Exception} which causes the error
 	 */
 	@Override
-	synchronized public void programAborted(final Program program, final Exception e) {
-		this.notifyProgramAborted(program, e);
-		this.getProgramManager().programAborted(program, e);
+	synchronized public void taskAborted(final Task task, final Exception e) {
+		this.notifyTaskAborted(task, e);
+		this.getTaskManager().taskAborted(task, e);
 		this.notify();
 	}
 
 	/**
-	 * Indicates that a {@link Program} is aborted to an external
-	 * {@link ProgramExecutionHandler}
+	 * Indicates that a {@link Task} is aborted to an external
+	 * {@link TaskExecutionHandler}
 	 * 
-	 * @param program
-	 *            Indicates the {@link Program} which has been aborted
+	 * @param task
+	 *            Indicates the {@link Task} which has been aborted
 	 * 
 	 * @param e
 	 *            Indicates the {@link Exception} which causes the error
 	 */
-	private void notifyProgramAborted(final Program program, final Exception e) {
-		for (final ProgramExecutionHandler handler : this.executionHandlers) {
-			handler.programAborted(program, e);
+	private void notifyTaskAborted(final Task task, final Exception e) {
+		for (final TaskExecutionHandler handler : this.executionHandlers) {
+			handler.taskAborted(task, e);
 		}
 	}
 
 	/**
-	 * Getter of the programManager attribute
+	 * Getter of the taskManager attribute
 	 * 
-	 * @return The value of the programManager attribute
+	 * @return The value of the taskManager attribute
 	 */
-	public ProgramManager getProgramManager() {
-		return programManager;
+	public TaskManager getTaskManager() {
+		return taskManager;
 	}
 
 	/**
-	 * Getter of the parentProgram attribute
+	 * Getter of the parentTask attribute
 	 * 
-	 * @return The value of the parentProgram attribute
+	 * @return The value of the parentTask attribute
 	 */
-	public Map<Program, Program> getParentProgram() {
-		return parentProgram;
+	public Map<Task, Task> getParentTask() {
+		return parentTask;
 	}
 
 	public Pipeline getPipeline() {

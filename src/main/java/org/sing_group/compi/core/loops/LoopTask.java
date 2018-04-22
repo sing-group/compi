@@ -1,31 +1,31 @@
 package org.sing_group.compi.core.loops;
 
 /**
- * Auxiliary class to obtain the program command to execute
+ * Auxiliary class to obtain the task command to execute
  * 
  * @author Jesus Alvarez Casanova
  *
  */
-public class LoopProgram {
+public class LoopTask {
 
 	private String exec;
 	private String toExecute;
 	private String source;
 	private String as;
 
-	public LoopProgram() {
+	public LoopTask() {
 	}
 
 	/**
 	 * 
 	 * @param exec
-	 *            Contains the value of the program exec tag
+	 *            Contains the value of the task exec tag
 	 * @param source
-	 *            Contains the value of the program source tag
+	 *            Contains the value of the task source tag
 	 * @param as
-	 *            Contains the value of the program as tag
+	 *            Contains the value of the task as tag
 	 */
-	public LoopProgram(final String exec, final String source, final String as) {
+	public LoopTask(final String exec, final String source, final String as) {
 		this.exec = exec;
 		this.toExecute = exec;
 		this.as = as;

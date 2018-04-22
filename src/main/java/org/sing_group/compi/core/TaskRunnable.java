@@ -9,53 +9,53 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 
-import org.sing_group.compi.xmlio.entities.Program;
+import org.sing_group.compi.xmlio.entities.Task;
 
 /**
- * Manage the {@link Program} execution.The {@link Program} starts and if there
+ * Manage the {@link Task} execution.The {@link Task} starts and if there
  * is no error during the execution it will be marked as finished, if there is
  * an error during the execution it will be marked as aborted. If the
- * {@link Program} is skipped, it will be started and finished.
+ * {@link Task} is skipped, it will be started and finished.
  * 
  * @author Jesus Alvarez Casanova
  *
  */
-public class ProgramRunnable implements Runnable {
-	private final Program program;
-	private final ProgramExecutionHandler executionHandler;
+public class TaskRunnable implements Runnable {
+	private final Task task;
+	private final TaskExecutionHandler executionHandler;
 	private BufferedWriter out;
 	private BufferedWriter err;
 	private Process process;
 
 	/**
 	 * 
-	 * @param program
-	 *            Indicates the {@link Program} to be executed
+	 * @param task
+	 *            Indicates the {@link Task} to be executed
 	 * @param executionHandler
-	 *            Indicates the {@link ProgramExecutionHandler} to manage the
-	 *            {@link Program} execution
+	 *            Indicates the {@link TaskExecutionHandler} to manage the
+	 *            {@link Task} execution
 	 */
-	public ProgramRunnable(final Program program, final ProgramExecutionHandler executionHandler) {
-		this.program = program;
+	public TaskRunnable(final Task task, final TaskExecutionHandler executionHandler) {
+		this.task = task;
 		this.executionHandler = executionHandler;
 	}
 
 	/**
-	 * Execute the {@link Program} in a {@link Process}
+	 * Execute the {@link Task} in a {@link Process}
 	 */
 	@Override
 	public void run() {
 		try {
-			if (!this.program.isSkipped()) {
-				String[] commandsToExecute = { "/bin/sh", "-c", this.program.getToExecute() };
+			if (!this.task.isSkipped()) {
+				String[] commandsToExecute = { "/bin/sh", "-c", this.task.getToExecute() };
 				this.process = Runtime.getRuntime().exec(commandsToExecute);
 				openLogBuffers(this.process);
 				waitForProcess(this.process);
 			} else {
-				programFinished(this.program);
+				taskFinished(this.task);
 			}
 		} catch (IOException | InterruptedException e) {
-			programAborted(this.program, e);
+			taskAborted(this.task, e);
 		} finally {
 			try {
 				closeLogBuffers();
@@ -74,7 +74,7 @@ public class ProgramRunnable implements Runnable {
 	 */
 	private void waitForProcess(final Process process) throws InterruptedException {
 		if (process.waitFor() == 0) {
-			programFinished(this.program);
+			taskFinished(this.task);
 		} else {
 			throw new InterruptedException();
 		}
@@ -91,39 +91,39 @@ public class ProgramRunnable implements Runnable {
 	 *             If the file can't be opened
 	 */
 	private void openLogBuffers(final Process process) throws UnsupportedEncodingException, FileNotFoundException {
-		if (programsHasFileLog()) {
+		if (taskHasFileLog()) {
 			out = new BufferedWriter(
-					new OutputStreamWriter(new FileOutputStream(this.program.getFileLog(), true), "utf-8"));
+					new OutputStreamWriter(new FileOutputStream(this.task.getFileLog(), true), "utf-8"));
 			final BufferedReader stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			startFileLog(stdOut);
 		}
 
-		if (programHasFileErrorLog()) {
+		if (taskHasFileErrorLog()) {
 			err = new BufferedWriter(
-					new OutputStreamWriter(new FileOutputStream(this.program.getFileErrorLog(), true), "utf-8"));
+					new OutputStreamWriter(new FileOutputStream(this.task.getFileErrorLog(), true), "utf-8"));
 			final BufferedReader stdErr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 			startFileErrorLog(stdErr);
 		}
 	}
 
 	/**
-	 * Checks if the {@link Program} has a file error log
+	 * Checks if the {@link Task} has a file error log
 	 * 
-	 * @return <code>true</code> if the {@link Program} has a file error log,
+	 * @return <code>true</code> if the {@link Task} has a file error log,
 	 *         false otherwise
 	 */
-	private boolean programHasFileErrorLog() {
-		return this.program.getFileErrorLog() != null;
+	private boolean taskHasFileErrorLog() {
+		return this.task.getFileErrorLog() != null;
 	}
 
 	/**
-	 * Checks if the {@link Program} has a file log
+	 * Checks if the {@link Task} has a file log
 	 * 
-	 * @return <code>true</code> if the {@link Program} has a file log, false
+	 * @return <code>true</code> if the {@link Task} has a file log, false
 	 *         otherwise
 	 */
-	private boolean programsHasFileLog() {
-		return this.program.getFileLog() != null;
+	private boolean taskHasFileLog() {
+		return this.task.getFileLog() != null;
 	}
 
 	/**
@@ -133,11 +133,11 @@ public class ProgramRunnable implements Runnable {
 	 *             If an I/O exception of some sort has occurred
 	 */
 	private void closeLogBuffers() throws IOException {
-		if (programsHasFileLog()) {
+		if (taskHasFileLog()) {
 			out.flush();
 			out.close();
 		}
-		if (programHasFileErrorLog()) {
+		if (taskHasFileErrorLog()) {
 			err.flush();
 			err.close();
 		}
@@ -193,31 +193,31 @@ public class ProgramRunnable implements Runnable {
 	}
 
 	/**
-	 * Indicates which {@link Program} has been finished to the
-	 * {@link ProgramExecutionHandler}
+	 * Indicates which {@link Task} has been finished to the
+	 * {@link TaskExecutionHandler}
 	 * 
-	 * @param program
-	 *            Indicates the {@link Program} which has been finished
+	 * @param task
+	 *            Indicates the {@link Task} which has been finished
 	 */
-	private void programFinished(final Program program) {
-		if (program.isSkipped()) {
-			executionHandler.programFinished(program);
+	private void taskFinished(final Task task) {
+		if (task.isSkipped()) {
+			executionHandler.taskFinished(task);
 		} else {
-			executionHandler.programFinished(program);
+			executionHandler.taskFinished(task);
 		}
 	}
 
 	/**
-	 * Indicates which {@link Program} has been aborted to the
-	 * {@link ProgramExecutionHandler}
+	 * Indicates which {@link Task} has been aborted to the
+	 * {@link TaskExecutionHandler}
 	 * 
-	 * @param program
-	 *            Indicates the {@link Program} which has been aborted
+	 * @param task
+	 *            Indicates the {@link Task} which has been aborted
 	 * @param e
 	 *            Indicates the {@link Exception}
 	 */
-	private void programAborted(final Program program, final Exception e) {
-		executionHandler.programAborted(program, e);
+	private void taskAborted(final Task task, final Exception e) {
+		executionHandler.taskAborted(task, e);
 	}
 
 }

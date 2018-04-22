@@ -15,8 +15,8 @@ import es.uvigo.ei.sing.yacli.command.Command;
  * <li>1º pipeline xml file (mandatory)</li>
  * <li>2º params xml file (optional)</li>
  * <li>3º number of threads (mandatory)</li>
- * <li>4º the program ID where you want to start (If there is not a correct ID,
- * it will not skip any program). (optional)</li>
+ * <li>4º the task ID where you want to start (If there is not a correct ID,
+ * it will not skip any task). (optional)</li>
  * </ul>
  * Example:
  * 

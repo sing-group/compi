@@ -9,7 +9,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.sing_group.compi.xmlio.entities.Pipeline;
-import org.sing_group.compi.xmlio.entities.Program;
+import org.sing_group.compi.xmlio.entities.Task;
 
 /**
  * Methods for building {@link Pipeline} objects from files
@@ -31,23 +31,23 @@ public class PipelineParser {
 		final JAXBContext jaxbContext = JAXBContext.newInstance(Pipeline.class);
 		final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 		Pipeline pipeline = (Pipeline) jaxbUnmarshaller.unmarshal(f);
-		addProgramParameters(pipeline);
+		addTaskParameters(pipeline);
 		return pipeline;
 	}
 
 	/**
-	 * Obtain the content inside ${...} in the {@link Program} exec tag
+	 * Obtain the content inside ${...} in the {@link Task} exec tag
 	 * 
-	 * @param programs
-	 *            Contains all the {@link Program}
+	 * @param pipeline
+	 *            Contains all the {@link Task}
 	 */
-	private static void addProgramParameters(Pipeline pipeline) {
+	private static void addTaskParameters(Pipeline pipeline) {
 		final Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
 
-		for (final Program program : pipeline.getPrograms()) {
-			final Matcher matcher = pattern.matcher(program.getExec());
+		for (final Task task : pipeline.getTasks()) {
+			final Matcher matcher = pattern.matcher(task.getExec());
 			while (matcher.find()) {
-				program.addParameter(matcher.group(1));
+				task.addParameter(matcher.group(1));
 			}
 		}
 	}

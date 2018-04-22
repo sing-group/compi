@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline xmlns="http://www.esei.uvigo.es/pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<programs>
-		<program id="ID1">
+	<tasks>
+		<task id="ID1">
 			<foreach element="list" source="2,1,1" as="param" />
 			<exec>
 				echo ${param}
 			</exec>
-		</program>
-		<program id="ID2" dependsOn="ID1">
-			<foreach element="list" source="-l,-error" as="param" />
+		</task>
+		<task id="ID2" dependsOn="ID1">
+			<foreach element="list" source="1,1" as="param" />
 			<exec>
-				ls ${param}
+				echo ${param}
 			</exec>
-		</program>
-		<program id="ID3" dependsOn="ID1">
+		</task>
+		<task id="ID3" dependsOn="ID1">
 			<exec>
-				echo 1
+				echo "hello"
 			</exec>
-		</program>
-		<program id="ID4" dependsOn="ID2,ID3">
+		</task>
+		<task id="ID4" dependsOn="ID2,ID3">
 			<foreach element="list" source="1,1,1,1" as="param" />
 			<exec>
 				echo ${param}
 			</exec>
-		</program>
-	</programs>
+		</task>
+	</tasks>
 </pipeline>

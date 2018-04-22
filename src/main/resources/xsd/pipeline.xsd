@@ -2,7 +2,7 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.esei.uvigo.es/pipeline"
 	xmlns:tns="http://www.esei.uvigo.es/pipeline" elementFormDefault="qualified">
 
-	<complexType name="program">
+	<complexType name="task">
 		<sequence>
 			<element name="foreach" minOccurs="0" maxOccurs="1">
 				<complexType>
@@ -29,9 +29,9 @@
 		<attribute name="description" type="string" use="required" />
 	</complexType>
 
-	<complexType name="programs">
+	<complexType name="tasks">
 		<sequence>
-			<element name="program" type="tns:program" minOccurs="1"
+			<element name="task" type="tns:task" minOccurs="1"
 				maxOccurs="unbounded" />
 		</sequence>
 	</complexType>
@@ -46,7 +46,7 @@
 	<element name="pipeline">
 		<complexType>
 			<sequence>
-				<element name="programs" type="tns:programs" minOccurs="1"
+				<element name="tasks" type="tns:tasks" minOccurs="1"
 					maxOccurs="1" />
 				<element name="params" type="tns:params" minOccurs="0"
 					maxOccurs="1" />

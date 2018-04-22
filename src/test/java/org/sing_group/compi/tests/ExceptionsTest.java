@@ -64,7 +64,7 @@ public class ExceptionsTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testAdvanceToNonExistantProgram() throws Exception {
+	public void testAdvanceToNonExistantTask() throws Exception {
 		final String pipelineFile = ClassLoader.getSystemResource("pipeline.xml").getFile();
 		final String paramsFile = ClassLoader.getSystemResource("testParams.xml").getFile();
 		final int threadNumber = 10;
@@ -93,13 +93,13 @@ public class ExceptionsTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testBothSkipAndRunSingleProgram() throws Exception {
-		final String pipelineFile = ClassLoader.getSystemResource("testSkipPrograms.xml").getFile();
+	public void testBothSkipAndRunSingleTask() throws Exception {
+		final String pipelineFile = ClassLoader.getSystemResource("testSkipTasks.xml").getFile();
 		final String paramsFile = null;
 		final int threadNumber = -2;
 		final String advanceToProgam = "ID2";
-		final String singleProgram = "ID2";
-		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, paramsFile, advanceToProgam, singleProgram);
+		final String singleTask = "ID2";
+		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, paramsFile, advanceToProgam, singleTask);
 		compi.run();
 	}
 }
