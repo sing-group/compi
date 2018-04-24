@@ -26,9 +26,12 @@
 	</complexType>
 
 	<complexType name="param">
-		<attribute name="name" type="ID" use="required" />
-		<attribute name="shortName" type="string" use="required" />
-		<attribute name="description" type="string" use="required" />
+		<simpleContent>
+			<extension base="string">
+				<attribute name="name" type="ID" use="required" />
+				<attribute name="shortName" type="string" use="required" />	
+			</extension>
+		</simpleContent>
 	</complexType>
 
 	<complexType name="tasks">
