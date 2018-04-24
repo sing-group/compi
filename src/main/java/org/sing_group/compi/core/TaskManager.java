@@ -70,7 +70,7 @@ public class TaskManager implements TaskExecutionHandler {
 		if (this.firstExecution) {
 			this.firstExecution = false;
 			DAG.forEach((key, value) -> {
-				if (value.getDependsOn() == null) {
+				if (value.getAfter() == null) {
 					this.runnableTasks.add(value);
 				}
 			});
@@ -96,7 +96,7 @@ public class TaskManager implements TaskExecutionHandler {
 	 */
 	private boolean checkTaskDependencies(final Task task) {
 		int count = 0;
-		final String[] dependsArray = task.getDependsOn().split(",");
+		final String[] dependsArray = task.getAfter().split(",");
 		for (final String s : dependsArray) {
 			final Task taskToCheck = DAG.get(s);
 			if (taskToCheck.isFinished()) {
@@ -112,20 +112,20 @@ public class TaskManager implements TaskExecutionHandler {
 
 	/**
 	 * Verifies that exist all the IDs contained in the {@link Task}
-	 * attribute "dependsOn"
+	 * attribute "after"
 	 * 
 	 * @throws IllegalArgumentException
-	 *             If the {@link Task} ID contained in the dependsOn
+	 *             If the {@link Task} ID contained in the after
 	 *             attribute doesn't exist
 	 */
-	public void checkDependsOnIds() throws IllegalArgumentException {
+	public void checkAfterIds() throws IllegalArgumentException {
 		for (final String tasks : this.tasksLeft) {
 			final Task task = DAG.get(tasks);
-			if (task.getDependsOn() != null) {
-				for (final String dependsOn : task.getDependsOn().split(",")) {
-					if (!DAG.containsKey(dependsOn)) {
+			if (task.getAfter() != null) {
+				for (final String afterId : task.getAfter().split(",")) {
+					if (!DAG.containsKey(afterId)) {
 						throw new IllegalArgumentException(
-								"The IDs contained in the dependsOn attribute of the task " + task.getId()
+								"The IDs contained in the after attribute of the task " + task.getId()
 										+ " aren't correct");
 					}
 				}
@@ -183,9 +183,9 @@ public class TaskManager implements TaskExecutionHandler {
 	 */
 	public void initializeDependencies() {
 		DAG.forEach((key, value) -> {
-			if (value.getDependsOn() != null) {
-				for (final String dependsOn : value.getDependsOn().split(",")) {
-					dependencies.get(dependsOn).add(key);
+			if (value.getAfter() != null) {
+				for (final String afterId : value.getAfter().split(",")) {
+					dependencies.get(afterId).add(key);
 				}
 			}
 		});

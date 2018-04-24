@@ -6,7 +6,7 @@
 		<simpleContent>
 			<extension base="string">
 				<attribute name="id" type="ID" use="required" />
-				<attribute name="dependsOn" type="string" use="optional" />
+				<attribute name="after" type="string" use="optional" />
 				<attribute name="fileLog" type="string" use="optional" />
 				<attribute name="fileErrorLog" type="string" use="optional" />
 			</extension>

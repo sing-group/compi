@@ -19,7 +19,7 @@ import javax.xml.bind.annotation.XmlValue;
 public class Task implements Cloneable {
 
 	private String id;
-	private String dependsOn;
+	private String after;
 	private String exec;
 	private List<String> parameters = new LinkedList<>();
 	private String toExecute;
@@ -51,23 +51,22 @@ public class Task implements Cloneable {
 	}
 
 	/**
-	 * Getter of the dependsOn attribute
+	 * Getter of the after attribute
 	 * 
-	 * @return The value of the dependsOn attribute
+	 * @return The value of the after attribute
 	 */
 	@XmlAttribute
-	public String getDependsOn() {
-		return dependsOn;
+	public String getAfter() {
+		return after;
 	}
 
 	/**
-	 * Changes the value of the dependsOn attribute
+	 * Changes the value of the after attribute
 	 * 
-	 * @param dependsOn
-	 *            attribute
+	 * @param after attribute
 	 */
-	public void setDependsOn(final String dependsOn) {
-		this.dependsOn = dependsOn.replaceAll(" ", "");
+	public void setAfter(final String after) {
+		this.after = after.replaceAll(" ", "");
 	}
 
 	/**

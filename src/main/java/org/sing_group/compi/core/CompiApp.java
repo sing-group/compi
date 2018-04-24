@@ -176,7 +176,7 @@ public class CompiApp implements TaskExecutionHandler {
 			throw new IllegalArgumentException("advanceToTask or singleTask must be null");
 		}
 		
-		taskManager.checkDependsOnIds();
+		taskManager.checkAfterIds();
 		// PipelineParser.solveExec(pipeline.getTasks());
 		taskManager.initializeDependencies();
 		

@@ -5,20 +5,20 @@
 		<task id="ID1">
 			cmd /c ping -n 2 127.0.0.1 > nul
 		</task>
-		<foreach id="ID2" dependsOn="ID1" of="list" in="a,a" as="param">
+		<foreach id="ID2" after="ID1" of="list" in="a,a" as="param">
 			cmd /c
 			ping -n ${param} 127.0.0.1 > nul
 		</foreach>
-		<task id="ID3" dependsOn="ID2">
+		<task id="ID3" after="ID2">
 			cmd /c ping -n 2 127.0.0.1 > nul
 		</task>
-		<task id="ID4" dependsOn="ID1">
+		<task id="ID4" after="ID1">
 			cmd /c ping -n 2 127.0.0.1 > nul
 		</task>
-		<task id="ID5" dependsOn="ID4">
+		<task id="ID5" after="ID4">
 			cmd /c ping -n 2 127.0.0.1 > nul
 		</task>
-		<task id="ID6" dependsOn="ID3,ID5">
+		<task id="ID6" after="ID3,ID5">
 			cmd /c ping -n 2 127.0.0.1 > nul
 		</task>
 	</tasks>

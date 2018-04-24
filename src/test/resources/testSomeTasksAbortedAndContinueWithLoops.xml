@@ -4,20 +4,20 @@
 		<task id="ID1">
 			echo "hello"
 		</task>
-		<foreach id="ID2" dependsOn="ID1" of="list" in="-error,-error"
+		<foreach id="ID2" after="ID1" of="list" in="-error,-error"
 			as="param">
 			ls ${param}
 		</foreach>
-		<task id="ID3" dependsOn="ID2">
+		<task id="ID3" after="ID2">
 			echo "hello"
 		</task>
-		<task id="ID4" dependsOn="ID1">
+		<task id="ID4" after="ID1">
 			echo "hello"
 		</task>
-		<task id="ID5" dependsOn="ID4">
+		<task id="ID5" after="ID4">
 			echo "hello"
 		</task>
-		<task id="ID6" dependsOn="ID3,ID5">
+		<task id="ID6" after="ID3,ID5">
 			echo "hello"
 		</task>
 	</tasks>

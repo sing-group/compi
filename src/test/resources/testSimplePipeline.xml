@@ -5,13 +5,13 @@
 		<task id="ID1">
 			echo "hello"
 		</task>
-		<task id="ID2" dependsOn="ID1">
+		<task id="ID2" after="ID1">
 			echo "hello"
 		</task>
-		<task id="ID3" dependsOn="ID1">
+		<task id="ID3" after="ID1">
 			echo "hello"
 		</task>
-		<task id="ID4" dependsOn="ID3,ID2">
+		<task id="ID4" after="ID3,ID2">
 			echo "hello"
 		</task>
 	</tasks>

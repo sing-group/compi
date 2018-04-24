@@ -4,13 +4,13 @@
 		<foreach id="ID1" of="list" in="2,1,1" as="param">
 			echo ${param}
 		</foreach>
-		<foreach id="ID2" dependsOn="ID1" of="list" in="-l,-error" as="param">
+		<foreach id="ID2" after="ID1" of="list" in="-l,-error" as="param">
 			ls ${param}
 		</foreach>
-		<task id="ID3" dependsOn="ID1">
+		<task id="ID3" after="ID1">
 			echo 1
 		</task>
-		<foreach id="ID4" dependsOn="ID2,ID3" of="list" in="1,1,1,1" as="param">
+		<foreach id="ID4" after="ID2,ID3" of="list" in="1,1,1,1" as="param">
 			echo ${param}
 		</foreach>
 	</tasks>

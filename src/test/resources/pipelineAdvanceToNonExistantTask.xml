@@ -4,7 +4,7 @@
 		<foreach id="ID-1" of="file" in="/tmp" as="path">
 				${path} ${i}
 		</foreach>
-		<task id="ID-2" dependsOn="ID-1">
+		<task id="ID-2" after="ID-1">
 				${example1} ${i}
 		</task>
 	</tasks>
