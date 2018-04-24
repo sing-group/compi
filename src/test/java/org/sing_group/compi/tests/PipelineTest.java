@@ -16,21 +16,10 @@ import org.sing_group.compi.xmlio.entities.Task;
 
 public class PipelineTest {
 	private final static int THREAD_NUMBER = 6;
-	private final static String OS = System.getProperty("os.name").toLowerCase();
-
-	public static boolean isWindows() {
-		return (OS.indexOf("win") >= 0);
-	}
 
 	@Test
 	public void testOneTask() throws Exception {
-		final String pipelineFile;
-		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testOneTaskWindows.xml").getFile();
-		} else {
-			pipelineFile = ClassLoader.getSystemResource("testOneTask.xml").getFile();
-		}
-
+		final String pipelineFile = ClassLoader.getSystemResource("testOneTask.xml").getFile();
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
@@ -44,13 +33,7 @@ public class PipelineTest {
 
 	@Test
 	public void testParameters() throws Exception {
-		final String pipelineFile;
-		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("echoPipelineWindows.xml").getFile();
-		} else {
-			pipelineFile = ClassLoader.getSystemResource("echoPipeline.xml").getFile();
-		}
-
+		final String pipelineFile = ClassLoader.getSystemResource("echoPipeline.xml").getFile();
 		final String advanceToProgam = null;
 		File outFile = File.createTempFile("compi-test", ".txt");
 
@@ -76,12 +59,7 @@ public class PipelineTest {
 
 	@Test
 	public void testSimplePipeline() throws Exception {
-		final String pipelineFile;
-		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testSimplePipelineWindows.xml").getFile();
-		} else {
-			pipelineFile = ClassLoader.getSystemResource("testSimplePipeline.xml").getFile();
-		}
+		final String pipelineFile = ClassLoader.getSystemResource("testSimplePipeline.xml").getFile();
 
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
@@ -104,12 +82,7 @@ public class PipelineTest {
 
 	@Test
 	public void testPipelineLoop() throws Exception {
-		final String pipelineFile;
-		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testPipelineLoopWindows.xml").getFile();
-		} else {
-			pipelineFile = ClassLoader.getSystemResource("testPipelineLoop.xml").getFile();
-		}
+		final String pipelineFile = ClassLoader.getSystemResource("testPipelineLoop.xml").getFile();
 
 		File[] filesToTouch = new File[] { File.createTempFile("compi-test", ".txt"),
 				File.createTempFile("compi-test", ".txt"), File.createTempFile("compi-test", ".txt") };
@@ -144,12 +117,7 @@ public class PipelineTest {
 
 	@Test
 	public void testSkipTasks() throws Exception {
-		final String pipelineFile;
-		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testSkipTasksWindows.xml").getFile();
-		} else {
-			pipelineFile = ClassLoader.getSystemResource("testSkipTasks.xml").getFile();
-		}
+		final String pipelineFile = ClassLoader.getSystemResource("testSkipTasks.xml").getFile();
 		final String advanceToProgam = "ID3";
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
@@ -164,12 +132,7 @@ public class PipelineTest {
 
 	@Test
 	public void testSkipTaskWithLoops() throws Exception {
-		final String pipelineFile;
-		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testSkipTasksWithLoopsWindows.xml").getFile();
-		} else {
-			pipelineFile = ClassLoader.getSystemResource("testSkipTasksWithLoops.xml").getFile();
-		}
+		final String pipelineFile = ClassLoader.getSystemResource("testSkipTasksWithLoops.xml").getFile();
 
 		final String advanceToProgam = "ID4";
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
@@ -185,12 +148,7 @@ public class PipelineTest {
 
 	@Test
 	public void testRunSingleTask() throws Exception {
-		final String pipelineFile;
-		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testSkipTasksWindows.xml").getFile();
-		} else {
-			pipelineFile = ClassLoader.getSystemResource("testSkipTasks.xml").getFile();
-		}
+		final String pipelineFile = ClassLoader.getSystemResource("testSkipTasks.xml").getFile();
 
 		final String singleTask = "ID3";
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, null, singleTask);
@@ -204,12 +162,7 @@ public class PipelineTest {
 
 	@Test
 	public void testStartingTaskAborted() throws Exception {
-		final String pipelineFile;
-		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testStartingTaskAbortedWindows.xml").getFile();
-		} else {
-			pipelineFile = ClassLoader.getSystemResource("testStartingTaskAborted.xml").getFile();
-		}
+		final String pipelineFile = ClassLoader.getSystemResource("testStartingTaskAborted.xml").getFile();
 
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
@@ -225,12 +178,7 @@ public class PipelineTest {
 
 	@Test
 	public void testTasksAborted() throws Exception {
-		final String pipelineFile;
-		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testTasksAbortedWindows.xml").getFile();
-		} else {
-			pipelineFile = ClassLoader.getSystemResource("testTasksAborted.xml").getFile();
-		}
+		final String pipelineFile = ClassLoader.getSystemResource("testTasksAborted.xml").getFile();
 
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
@@ -245,12 +193,7 @@ public class PipelineTest {
 
 	@Test
 	public void testTasksAbortedWithLoops() throws Exception {
-		final String pipelineFile;
-		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testTasksAbortedWithLoopsWindows.xml").getFile();
-		} else {
-			pipelineFile = ClassLoader.getSystemResource("testTasksAbortedWithLoops.xml").getFile();
-		}
+		final String pipelineFile = ClassLoader.getSystemResource("testTasksAbortedWithLoops.xml").getFile();
 
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
@@ -266,12 +209,7 @@ public class PipelineTest {
 
 	@Test
 	public void testSomeTasksAbortedAndContinue() throws Exception {
-		final String pipelineFile;
-		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinueWindows.xml").getFile();
-		} else {
-			pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinue.xml").getFile();
-		}
+		final String pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinue.xml").getFile();
 
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
@@ -287,13 +225,7 @@ public class PipelineTest {
 
 	@Test
 	public void testSomeTasksAbortedAndContinueWithLoops() throws Exception {
-		final String pipelineFile;
-		if (isWindows()) {
-			pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinueWithLoopsWindows.xml")
-					.getFile();
-		} else {
-			pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinueWithLoops.xml").getFile();
-		}
+		final String pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinueWithLoops.xml").getFile();
 		final String advanceToProgam = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToProgam, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);

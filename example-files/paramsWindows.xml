@@ -1,5 +1,0 @@
-<pipeline_params>
-	<path>example-files/execute/execute.bat</path>
-	<seconds>2</seconds>
-	<name>p1</name>
-</pipeline_params>

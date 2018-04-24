@@ -47,7 +47,7 @@ public class CompiCLI extends CLIApplication {
 	 */
 	@Override
 	protected String getApplicationCommand() {
-		return "[compi.sh|compi.bat]";
+		return "compi.sh";
 	}
 
 	/**
