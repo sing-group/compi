@@ -130,11 +130,6 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 					Pipeline p = compiApp.getPipeline();
 
 					List<ParameterDescription> params = p.getParameterDescriptions();
-					for (int j = 0; j < params.size(); j++) {
-						ParameterDescription param = params.get(j);
-						options.add(new StringOption(param.getName(), param.getShortName(), param.getDescription(),
-								false, true, false));
-					}
 
 					p.getTasksByParameter().forEach((parameterName, tasks) -> {
 						XMLParamsFileVariableResolver paramsFileResolver = getParamsFileResolver();
