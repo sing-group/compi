@@ -20,6 +20,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.TaskExecutionHandler;
+import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Task;
 import org.xml.sax.SAXException;
 
@@ -173,7 +174,7 @@ public class SwingDemo {
 				@Override
 				public void taskFinished(Task task) {
 					if (task.isSkipped()) {
-						if (task.getForeach() != null) {
+						if (task instanceof Foreach) {
 							consoleTextArea.append("Task with id " + task.getId() + " skipped\n");
 							final Task parent = compi.getParentTask().get(task);
 							if (parent.isFinished()) {
@@ -187,7 +188,7 @@ public class SwingDemo {
 							progressBar.update(progressBar.getGraphics());
 						}
 					} else {
-						if (task.getForeach() != null) {
+						if (task instanceof Foreach) {
 							consoleTextArea.append((System.currentTimeMillis() / 1000) + " - SubTask with id "
 									+ task.getId() + " finished\n");
 							final Task parent = compi.getParentTask().get(task);

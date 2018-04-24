@@ -1,28 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<pipeline xmlns="http://www.esei.uvigo.es/pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<tasks>
-		<task id="ID1">
-			<foreach element="list" source="2,1,1" as="param" />
-			<exec>
-				echo ${param}
-			</exec>
-		</task>
-		<task id="ID2" dependsOn="ID1">
-			<foreach element="list" source="-l,-error" as="param" />
-			<exec>
-				ls ${param}
-			</exec>
-		</task>
+		<foreach id="ID1" of="list" in="2,1,1" as="param">
+			echo ${param}
+		</foreach>
+		<foreach id="ID2" dependsOn="ID1" of="list" in="-l,-error" as="param">
+			ls ${param}
+		</foreach>
 		<task id="ID3" dependsOn="ID1">
-			<exec>
-				echo 1
-			</exec>
+			echo 1
 		</task>
-		<task id="ID4" dependsOn="ID2,ID3">
-			<foreach element="list" source="1,1,1,1" as="param" />
-			<exec>
-				echo ${param}
-			</exec>
-		</task>
+		<foreach id="ID4" dependsOn="ID2,ID3" of="list" in="1,1,1,1" as="param">
+			echo ${param}
+		</foreach>
 	</tasks>
 </pipeline>

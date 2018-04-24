@@ -55,7 +55,6 @@ public class CommandLoopValuesGenerator implements LoopValuesGenerator {
 			}
 			resolvedString = resolvedString.replace("${" + varName + "}", resolver.resolveVariable(varName));
 		}
-		System.out.println(resolvedString);
 		return resolvedString;
 
 	}

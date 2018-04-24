@@ -10,10 +10,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  */
 @XmlRootElement(name = "foreach")
-public class Foreach {
+public class Foreach extends Task {
 
-	private String element;
-	private String source;
+	private String of;
+	private String in;
 	private String as;
 
 	/**
@@ -22,38 +22,37 @@ public class Foreach {
 	 * @return The value of the element attribute
 	 */
 	@XmlAttribute
-	public String getElement() {
-		return element;
+	public String getOf() {
+		return of;
 	}
 
 	/**
-	 * Changes the value of the element attribute
+	 * Changes the value of the of attribute
 	 * 
-	 * @param element
+	 * @param of
 	 *            Global variable
 	 */
-	public void setElement(final String element) {
-		this.element = element;
+	public void setOf(final String of) {
+		this.of = of;
 	}
 
 	/**
-	 * Getter of the source attribute
+	 * Getter of the in attribute
 	 * 
-	 * @return The value of the source attribute
+	 * @return The value of the in attribute
 	 */
 	@XmlAttribute
-	public String getSource() {
-		return source;
+	public String getIn() {
+		return in;
 	}
 
 	/**
-	 * Changes the value of the source attribute
+	 * Changes the value of the in attribute
 	 * 
-	 * @param source
-	 *            Global variable
+	 * @param in attribute
 	 */
-	public void setSource(final String source) {
-		this.source = source;
+	public void setIn(final String in) {
+		this.in = in;
 	}
 
 	/**

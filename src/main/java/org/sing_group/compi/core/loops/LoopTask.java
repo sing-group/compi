@@ -10,7 +10,7 @@ public class LoopTask {
 
 	private String exec;
 	private String toExecute;
-	private String source;
+	private String in;
 	private String as;
 
 	public LoopTask() {
@@ -20,16 +20,16 @@ public class LoopTask {
 	 * 
 	 * @param exec
 	 *            Contains the value of the task exec tag
-	 * @param source
-	 *            Contains the value of the task source tag
+	 * @param in
+	 *            Contains the value of the task in tag
 	 * @param as
 	 *            Contains the value of the task as tag
 	 */
-	public LoopTask(final String exec, final String source, final String as) {
+	public LoopTask(final String exec, final String in, final String as) {
 		this.exec = exec;
 		this.toExecute = exec;
 		this.as = as;
-		this.source = source;
+		this.in = in;
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class LoopTask {
 	 * @return The value of the source attribute
 	 */
 	public String getSource() {
-		return source;
+		return in;
 	}
 
 }

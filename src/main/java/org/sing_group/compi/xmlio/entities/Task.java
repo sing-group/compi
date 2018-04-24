@@ -5,8 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlValue;
 
 /**
  * Represents a {@link Task} obtained in the XML pipeline file
@@ -19,7 +20,6 @@ public class Task implements Cloneable {
 
 	private String id;
 	private String dependsOn;
-	private Foreach foreach;
 	private String exec;
 	private List<String> parameters = new LinkedList<>();
 	private String toExecute;
@@ -110,32 +110,13 @@ public class Task implements Cloneable {
 		this.fileErrorLog = fileErrorLog;
 	}
 
-	/**
-	 * Getter of the foreach attribute
-	 * 
-	 * @return The value of the foreach attribute
-	 */
-	@XmlElement
-	public Foreach getForeach() {
-		return foreach;
-	}
-
-	/**
-	 * Changes the value of the foreach attribute
-	 * 
-	 * @param foreach
-	 *            attribute
-	 */
-	public void setForeach(final Foreach foreach) {
-		this.foreach = foreach;
-	}
 
 	/**
 	 * Getter of the exec attribute
 	 * 
 	 * @return The value of the exec attribute
 	 */
-	@XmlElement
+	@XmlValue
 	public String getExec() {
 		return exec;
 	}
@@ -156,6 +137,7 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the isRunning attribute
 	 */
+	@XmlTransient
 	public boolean isRunning() {
 		return isRunning;
 	}
@@ -175,6 +157,7 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the isFinished attribute
 	 */
+	@XmlTransient
 	public boolean isFinished() {
 		return isFinished;
 	}
@@ -194,6 +177,7 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the paramters attribute
 	 */
+	@XmlTransient
 	public List<String> getParameters() {
 		return Collections.unmodifiableList(parameters);
 	}
@@ -212,6 +196,7 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the toExecute attribute
 	 */
+	@XmlTransient
 	public String getToExecute() {
 		return toExecute;
 	}
@@ -231,6 +216,7 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the isAborted attribute
 	 */
+	@XmlTransient
 	public boolean isAborted() {
 		return isAborted;
 	}
@@ -250,6 +236,7 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the isSkipped attribute
 	 */
+	@XmlTransient
 	public boolean isSkipped() {
 		return isSkipped;
 	}

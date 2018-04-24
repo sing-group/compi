@@ -14,6 +14,7 @@ import org.sing_group.compi.core.loops.ListLoopValuesGenerator;
 import org.sing_group.compi.core.loops.LoopValuesGenerator;
 import org.sing_group.compi.core.loops.LoopTask;
 import org.sing_group.compi.core.loops.ParameterLoopValuesGenerator;
+import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Task;
 
@@ -49,7 +50,7 @@ public class TaskManager implements TaskExecutionHandler {
 			this.tasksLeft.add(p.getId());
 			this.dependencies.put(p.getId(), new HashSet<String>());
 
-			if (p.getForeach() != null) {
+			if (p instanceof Foreach) {
 				this.forEachTasks.put(p.getId(), new LinkedList<LoopTask>());
 			}
 		}
@@ -135,20 +136,20 @@ public class TaskManager implements TaskExecutionHandler {
 	/**
 	 * Creates the {@link LoopTask} to prepare the loop execution for a task
 	 *
-	 * @param task The task to initialize
+	 * @param foreach The task to initialize
 	 *
 	 * @throws IllegalArgumentException
 	 *             If the directory contained in the source attribute doesn't
 	 *             have any file or if the element attribute contains a non
 	 *             existent value
 	 */
-	public void initializeForEach(Task task) throws IllegalArgumentException {
-		if (this.getForEachTasks().containsKey(task.getId())) {
-			List<LoopTask> value = this.getForEachTasks().get(task.getId());
+	public void initializeForEach(Foreach foreach) throws IllegalArgumentException {
+		if (this.getForEachTasks().containsKey(foreach.getId())) {
+			List<LoopTask> value = this.getForEachTasks().get(foreach.getId());
 			List<String> values = new LinkedList<>();
 
 			LoopValuesGenerator generator = null;
-			switch (task.getForeach().getElement()) {
+			switch (foreach.getOf()) {
 				case "list":
 					generator = new ListLoopValuesGenerator();
 					break;
@@ -163,14 +164,14 @@ public class TaskManager implements TaskExecutionHandler {
 					generator = new CommandLoopValuesGenerator(this.variableResolver);
 					break;
 				default:
-					throw new IllegalArgumentException("The element " + task.getForeach().getElement()
-							+ " of the task " + task.getId() + " doesn't exist");
+					throw new IllegalArgumentException("The element " + foreach.getOf()
+							+ " of the task " + foreach.getId() + " doesn't exist");
 			}
 			
-			values = generator.getValues(task.getForeach().getSource());
+			values = generator.getValues(foreach.getIn());
 
 			for (final String source : values) {
-				value.add(new LoopTask(task.getExec(), source, task.getForeach().getAs()));
+				value.add(new LoopTask(foreach.getExec(), source, foreach.getAs()));
 			}
 		}
 	}

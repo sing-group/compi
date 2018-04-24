@@ -1,36 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<pipeline xmlns="http://www.esei.uvigo.es/pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<tasks>
 		<task id="ID1">
-			<exec>
-				echo "hello"
-			</exec>
+			echo "hello"
 		</task>
-		<task id="ID2" dependsOn="ID1">
-			<foreach element="list" source="-error,-error" as="param" />
-			<exec>
-				ls ${param}
-			</exec>
-		</task>
+		<foreach id="ID2" dependsOn="ID1" of="list" in="-error,-error"
+			as="param">
+			ls ${param}
+		</foreach>
 		<task id="ID3" dependsOn="ID2">
-			<exec>
-				echo "hello"
-			</exec>
+			echo "hello"
 		</task>
 		<task id="ID4" dependsOn="ID1">
-			<exec>
-				echo "hello"
-			</exec>
+			echo "hello"
 		</task>
 		<task id="ID5" dependsOn="ID4">
-			<exec>
-				echo "hello"
-			</exec>
+			echo "hello"
 		</task>
 		<task id="ID6" dependsOn="ID3,ID5">
-			<exec>
-				echo "hello"
-			</exec>
+			echo "hello"
 		</task>
 	</tasks>
 </pipeline>

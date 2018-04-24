@@ -11,6 +11,7 @@ import java.util.List;
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.TaskExecutionHandler;
+import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Task;
 
 public class PipelineTest {
@@ -323,7 +324,7 @@ public class PipelineTest {
 
 		@Override
 		public void taskFinished(Task task) {
-			if (task.getForeach() != null) {
+			if (task instanceof Foreach) {
 				final Task parent = compi.getParentTask().get(task);
 				if (parent.isFinished()) {
 					finishedTasks.add(parent.getId());

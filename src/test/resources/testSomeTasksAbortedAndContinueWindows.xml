@@ -1,30 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<pipeline xmlns="http://www.esei.uvigo.es/pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<tasks>
 		<task id="ID1">
-			<exec>
-				cmd /c ping -n 2 127.0.0.1 > nul
-			</exec>
+			cmd /c ping -n 2 127.0.0.1 > nul
 		</task>
 		<task id="ID2" dependsOn="ID1">
-			<exec>
-				ping -n 4 127.0.0.1 > nul
-			</exec>
+			ping -n 4 127.0.0.1 > nul
 		</task>
 		<task id="ID3" dependsOn="ID2">
-			<exec>
-				cmd /c ping -n 2 127.0.0.1 > nul
-			</exec>
+			cmd /c ping -n 2 127.0.0.1 > nul
 		</task>
 		<task id="ID4" dependsOn="ID1">
-			<exec>
-				cmd /c ping -n 2 127.0.0.1 > nul
-			</exec>
+			cmd /c ping -n 2 127.0.0.1 > nul
 		</task>
 		<task id="ID5" dependsOn="ID4">
-			<exec>
-				cmd /c ping -n 2 127.0.0.1 > nul
-			</exec>
+			cmd /c ping -n 2 127.0.0.1 > nul
 		</task>
 	</tasks>
 </pipeline>

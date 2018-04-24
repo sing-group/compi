@@ -3,6 +3,7 @@ package org.sing_group.compi.xmlio.entities;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Stream.concat;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -25,38 +27,16 @@ public class Pipeline {
 	private List<Task> tasks = new LinkedList<>();
 	private List<ParameterDescription> parameterDescriptions = new LinkedList<>();
 
-	public Pipeline() {
-	}
-
-	/**
-	 * 
-	 * @param tasks
-	 *            Indicates all the {@link Task} in the {@link Pipeline}
-	 */
-	public Pipeline(final List<Task> tasks) {
-		this.tasks = tasks;
-	}
-
-	/**
-	 * 
-	 * @param tasks
-	 *            Indicates the list of tasks of the Pipeline
-	 * @param params
-	 *            Indicates all the {@link Task} and the
-	 *            {@link ParameterDescription} in the {@link Pipeline}
-	 */
-	public Pipeline(final List<Task> tasks, final List<ParameterDescription> params) {
-		this.tasks = tasks;
-		this.parameterDescriptions = params;
-	}
-
 	/**
 	 * Getter of the tasks attribute
 	 * 
 	 * @return The value of the tasks attribute
 	 */
 	@XmlElementWrapper(name = "tasks")
-	@XmlElement(name = "task")
+	@XmlElements({
+			@XmlElement(name = "task", type=Task.class),
+			@XmlElement(name = "foreach", type=Foreach.class)
+	})
 	public List<Task> getTasks() {
 		return tasks;
 	}
@@ -66,10 +46,13 @@ public class Pipeline {
 	 * 
 	 * @param tasks attribute
 	 */
-	public void setTasks(final List<Task> tasks) {
+	void setTasks(final List<Task> tasks) {
 		this.tasks = tasks;
+
 	}
 
+
+	
 	/**
 	 * Getter of the params attribute
 	 * 
@@ -113,7 +96,7 @@ public class Pipeline {
 	private Set<String> getAllParameters() {
 		return this.tasks.stream()
 				.map(p -> p.getParameters().stream()
-						.filter(param -> p.getForeach() == null || !p.getForeach().getAs().equals(param))
+						.filter(param -> !(p instanceof Foreach) || !((Foreach)p).getAs().equals(param))
 						.collect(toList()))
 				.flatMap(x -> x.stream()).collect(toSet());
 	}

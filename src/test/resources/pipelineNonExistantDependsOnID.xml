@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<pipeline xmlns="http://www.esei.uvigo.es/pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<tasks>
-		<task id="ID-1">
-			<foreach element="file" source="/tmp" as="path" />
-			<exec>
+		<foreach id="ID-1" of="file" in="/tmp" as="path">
 				${path} ${i}
-			</exec>
-		</task>
+		</foreach>
 		<task id="ID-2" dependsOn="ID-3">
-			<exec>
 				${example1} ${i}
-			</exec>
 		</task>
 	</tasks>
 </pipeline>

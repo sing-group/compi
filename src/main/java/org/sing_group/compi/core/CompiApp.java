@@ -18,6 +18,7 @@ import org.sing_group.compi.core.loops.LoopTask;
 import org.sing_group.compi.xmlio.DOMparsing;
 import org.sing_group.compi.xmlio.PipelineParser;
 import org.sing_group.compi.xmlio.XMLParamsFileVariableResolver;
+import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Task;
 import org.xml.sax.SAXException;
@@ -105,7 +106,7 @@ public class CompiApp implements TaskExecutionHandler {
 				for (final Task taskToRun : taskManager.getRunnableTasks()) {
 					this.taskStarted(taskToRun);
 					if (taskHasForEach(taskToRun)) {
-						taskManager.initializeForEach(taskToRun);
+						taskManager.initializeForEach((Foreach) taskToRun);
 						if (!taskToRun.isSkipped()) resolveTask(taskToRun);
 						loopCount.put(taskToRun, new AtomicInteger(
 								taskManager.getForEachTasks().get(taskToRun.getId()).size()));
@@ -149,7 +150,7 @@ public class CompiApp implements TaskExecutionHandler {
 	 *         <code>false</code> otherwise
 	 */
 	private boolean taskHasForEach(final Task taskToRun) {
-		return taskToRun.getForeach() != null;
+		return taskToRun instanceof Foreach;
 	}
 
 	/**
@@ -255,7 +256,7 @@ public class CompiApp implements TaskExecutionHandler {
 			throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
 		
 		if (taskHasForEach(t)) {
-			if (t.getParameters().contains(t.getForeach().getAs())) {
+			if (t.getParameters().contains(((Foreach)t).getAs())) {
 				for (final LoopTask lp : taskManager.getForEachTasks().get(t.getId())) {
 					for (final String tag : t.getParameters()) {
 						if (lp.getAs().equals(tag)) {

@@ -9,6 +9,7 @@ import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.TaskExecutionHandler;
 import org.sing_group.compi.core.VariableResolver;
 import org.sing_group.compi.xmlio.XMLParamsFileVariableResolver;
+import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.ParameterDescription;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Task;
@@ -98,7 +99,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 				if (task.isSkipped()) {
 					System.out.println("CLI - Task with id " + task.getId() + " skipped");
 				} else {
-					if (task.getForeach() != null) {
+					if (task instanceof Foreach) {
 						System.out.println((System.currentTimeMillis() / 1000) + " - CLI - SubTask with id "
 								+ task.getId() + " finished - " + task.getToExecute());
 					} else {
