@@ -36,19 +36,19 @@ public class RunCommand extends AbstractCommand {
 		}
 
 		if (parameters.getSingleValue(super.getOption("s")) != null
-				&& parameters.getSingleValue(super.getOption("sp")) != null) {
+				&& parameters.getSingleValue(super.getOption("st")) != null) {
 			throw new IllegalArgumentException("You can only specify skip or single-task, but not both: ");
 		}
 
 		if (parameters.getSingleValue(super.getOption("s")) != null) {
 			System.out.println("Skip to task - " + parameters.getSingleValue(super.getOption("s")) + "\n");
 		}
-		if (parameters.getSingleValue(super.getOption("sp")) != null) {
-			System.out.println("Running single task - " + parameters.getSingleValue(super.getOption("sp")) + "\n");
+		if (parameters.getSingleValue(super.getOption("st")) != null) {
+			System.out.println("Running single task - " + parameters.getSingleValue(super.getOption("st")) + "\n");
 		}
 		compi = new CompiApp(parameters.getSingleValue(super.getOption("p")),
 				parameters.getSingleValue(super.getOption("t")), (VariableResolver) null,
-				parameters.getSingleValue(super.getOption("s")), parameters.getSingleValue(super.getOption("sp")));
+				parameters.getSingleValue(super.getOption("s")), parameters.getSingleValue(super.getOption("st")));
 
 		try {
 
