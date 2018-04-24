@@ -49,12 +49,12 @@
 
 	<element name="pipeline">
 		<complexType>
-			<sequence>
+			<all>
 				<element name="tasks" type="cp:tasks" minOccurs="1"
 					maxOccurs="1" />
 				<element name="params" type="cp:params" minOccurs="0"
 					maxOccurs="1" />
-			</sequence>
+			</all>
 		</complexType>
 	</element>
 
