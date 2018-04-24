@@ -1,62 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<pipeline xmlns="http://www.esei.uvigo.es/pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<programs>
-		<program id="ID-1" fileLog="example-files/program1.txt" fileErrorLog="example-files/program1.txt">
-			<foreach element="var" source="3,7,1,1" as="nonParamSeconds" />
-			<exec>
-				${path} ${name} ${nonParamSeconds}
-			</exec>
-		</program>
-		<program id="ID-2" dependsOn="ID-1">
-			<exec>
-				example-files/execute/execute.sh p2 2
-			</exec>
-		</program>
-		<program id="ID-3" dependsOn="ID-1">
-			<exec>
-				example-files/execute/execute.sh p3 2
-			</exec>
-		</program>
-		<program id="ID-4" dependsOn="ID-2">
-			<exec>
-				${path} p4 ${seconds}
-			</exec>
-		</program>
-		<program id="ID-5" dependsOn="ID-2">
-			<exec>
-				example-files/execute/execute.sh p5 2
-			</exec>
-		</program>
-		<program id="ID-6" dependsOn="ID-3" fileLog="example-files/program6.txt"
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<params>
+		<param name="path" shortName="p2">A path to a program to execute</param>
+		<param name="seconds" shortName="s">The seconds parameter</param>
+		<param name="name" shortName="n">The name parameter</param>
+	</params>
+	<tasks>
+		<foreach id="task-1" fileLog="example-files/task1.txt"
+			fileErrorLog="example-files/task1.txt" of="list" in="3,7,1,1" as="nonParamSeconds">
+			${path} ${name} ${nonParamSeconds}
+		</foreach>
+		<task id="task-2" after="task-1">
+			example-files/execute/execute.sh p2 2
+		</task>
+		<task id="task-3" after="task-1">
+			example-files/execute/execute.sh p3 2
+		</task>
+		<task id="task-4" after="task-2">
+			${path} p4 ${seconds}
+		</task>
+		<task id="task-5" after="task-2">
+			example-files/execute/execute.sh p5 2
+		</task>
+		<task id="task-6" after="task-3" fileLog="example-files/task6.txt"
 			fileErrorLog="example-files/error6.txt">
-			<exec>
-				example-files/execute/execute.sh p6 3
-			</exec>
-		</program>
-		<program id="ID-7" dependsOn="ID-4,ID-5" fileLog="files/program7.txt">
-			<foreach element="file" source="example-files/execute/" as="path" />
-			<exec>
-				${path} p7 ${seconds}
-			</exec>
-		</program>
-		<program id="ID-8" dependsOn="ID-6,ID-7" fileLog="example-files/program8.txt"
-			fileErrorLog="example-files/error8.txt">
-			<foreach element="var" source="1,1,5" as="nonParamSeconds" />
-			<exec>
-				${path} p8 ${nonParamSeconds}
-			</exec>
-		</program>
-		<program id="ID-9" dependsOn="ID-8" fileLog="example-files/program9.txt"
+			example-files/execute/execute.sh p6 3
+		</task>
+		<foreach id="task-7" after="task-4,task-5" fileLog="files/task7.txt"
+			of="file" in="example-files/execute/" as="path">
+			${path} p7 ${seconds}
+		</foreach>
+		<foreach id="task-8" after="task-6,task-7" fileLog="example-files/task8.txt"
+			fileErrorLog="example-files/error8.txt" of="list" in="1,1,5" as="nonParamSeconds">
+			${path} p8 ${nonParamSeconds}
+		</foreach>
+		<task id="task-9" after="task-8" fileLog="example-files/task9.txt"
 			fileErrorLog="example-files/error9.txt">
-			<exec>
-				example-files/execute/execute.sh p9 2
-			</exec>
-		</program>
-		<program id="ID-10">
-			<foreach element="file" source="example-files/execute/" as="path" />
-			<exec>
-				${path} p10 3
-			</exec>
-		</program>
-	</programs>
+			example-files/execute/execute.sh p9 2
+		</task>
+		<foreach id="task-10" of="file" in="example-files/execute/"
+			as="path">
+			${path} p10 3
+		</foreach>
+	</tasks>
+
 </pipeline>
