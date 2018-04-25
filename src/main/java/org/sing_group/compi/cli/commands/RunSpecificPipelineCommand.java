@@ -2,7 +2,9 @@ package org.sing_group.compi.cli.commands;
 
 import static java.util.stream.Collectors.toList;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -93,28 +95,45 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
 		compiApp.addTaskExecutionHandler(new TaskExecutionHandler() {
 
+			private Set<String> startedForeachs = new HashSet<String>();
+			
 			@Override
-			public void taskStarted(Task task) {
-				logger.info("Task " + task.getId() + " started");
+			synchronized public void taskStarted(Task task) {
+				if (task instanceof Foreach) {
+					if (!startedForeachs.contains(task.getId())) {
+						logger.info(
+								"> Started loop task " + task.getId() + " (command: " + task.getToExecute() + ") (stdout log: "+(task.getFileLog()==null?"none":task.getFileLog())+", stderr log: "+(task.getFileErrorLog()==null?"none":task.getFileErrorLog())+")");
+						startedForeachs.add(task.getId());
+					}
+					logger.info(
+							">> Started loop iteration of task " + task.getId() + " (command: " + task.getToExecute() + ") (stdout log: "+(task.getFileLog()==null?"none":task.getFileLog())+", stderr log: "+(task.getFileErrorLog()==null?"none":task.getFileErrorLog())+")");
+				} else {
+					logger.info("> Started task " + task.getId() + " (command: " + task.getToExecute() + ")");
+				}
 			}
 
 			@Override
-			public void taskFinished(Task task) {
+			synchronized public void taskFinished(Task task) {
 				if (task.isSkipped()) {
-					logger.info("Task with id " + task.getId() + " skipped");
+					logger.debug("Task with id " + task.getId() + " skipped");
 				} else {
 					if (task instanceof Foreach) {
-						logger.info("Subtask of task " + task.getId() + " finished - " + task.getToExecute());
+						logger.info("<< Finished loop iteration of task " + task.getId() + " (command: " + task.getToExecute()
+								+ ")");
+						if (compiApp.getParentTask().get(task).isFinished()) {
+							logger.info("< Finished loop task " + task.getId() + " (command: " + task.getToExecute()
+							+ ")");
+						}
 					} else {
-						logger.info("Task " + task.getId() + " finished");
+						logger.info("< Finished task " + task.getId() + " (command: " + task.getToExecute() + ")");
 					}
 				}
 			}
 
 			@Override
-			public void taskAborted(Task task, Exception e) {
-				logger.error(
-						"Task with id " + task.getId() + " aborted - Cause - " + e.getClass() + ": " + e.getMessage());
+			synchronized public void taskAborted(Task task, Exception e) {
+				logger.error("X Aborted task " + task.getId() + " (command: " + task.getToExecute() + ") Cause - "
+						+ e.getClass() + ": " + e.getMessage());
 			}
 
 		});

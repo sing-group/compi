@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -104,7 +105,7 @@ public class CompiApp implements TaskExecutionHandler {
 		synchronized (this) {
 			while (!taskManager.getTasksLeft().isEmpty()) {
 				for (final Task taskToRun : taskManager.getRunnableTasks()) {
-					this.taskStarted(taskToRun);
+					this.getTaskManager().taskStarted(taskToRun);
 					if (taskHasForEach(taskToRun)) {
 						taskManager.initializeForEach((Foreach) taskToRun);
 						if (!taskToRun.isSkipped()) resolveTask(taskToRun);
@@ -118,6 +119,7 @@ public class CompiApp implements TaskExecutionHandler {
 						}
 					} else {
 						if (!taskToRun.isSkipped()) resolveTask(taskToRun);
+						
 						executorService.submit(new TaskRunnable(taskToRun, this));
 					}
 				}
@@ -289,7 +291,7 @@ public class CompiApp implements TaskExecutionHandler {
 	public void taskStarted(final Task task) {
 		if (!task.isSkipped())
 			this.notifyTaskStarted(task);
-		this.getTaskManager().taskStarted(task);
+		
 	}
 
 	/**

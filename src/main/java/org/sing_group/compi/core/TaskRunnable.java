@@ -8,14 +8,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 import org.sing_group.compi.xmlio.entities.Task;
 
 /**
- * Manage the {@link Task} execution.The {@link Task} starts and if there
- * is no error during the execution it will be marked as finished, if there is
- * an error during the execution it will be marked as aborted. If the
- * {@link Task} is skipped, it will be started and finished.
+ * Manage the {@link Task} execution.The {@link Task} starts and if there is no
+ * error during the execution it will be marked as finished, if there is an
+ * error during the execution it will be marked as aborted. If the {@link Task}
+ * is skipped, it will be started and finished.
  * 
  * @author Jesus Alvarez Casanova
  *
@@ -47,6 +48,7 @@ public class TaskRunnable implements Runnable {
 	public void run() {
 		try {
 			if (!this.task.isSkipped()) {
+				taskStarted(this.task);
 				String[] commandsToExecute = { "/bin/sh", "-c", this.task.getToExecute() };
 				this.process = Runtime.getRuntime().exec(commandsToExecute);
 				openLogBuffers(this.process);
@@ -109,8 +111,8 @@ public class TaskRunnable implements Runnable {
 	/**
 	 * Checks if the {@link Task} has a file error log
 	 * 
-	 * @return <code>true</code> if the {@link Task} has a file error log,
-	 *         false otherwise
+	 * @return <code>true</code> if the {@link Task} has a file error log, false
+	 *         otherwise
 	 */
 	private boolean taskHasFileErrorLog() {
 		return this.task.getFileErrorLog() != null;
@@ -119,8 +121,7 @@ public class TaskRunnable implements Runnable {
 	/**
 	 * Checks if the {@link Task} has a file log
 	 * 
-	 * @return <code>true</code> if the {@link Task} has a file log, false
-	 *         otherwise
+	 * @return <code>true</code> if the {@link Task} has a file log, false otherwise
 	 */
 	private boolean taskHasFileLog() {
 		return this.task.getFileLog() != null;
@@ -148,8 +149,7 @@ public class TaskRunnable implements Runnable {
 	 * write it in a {@link BufferedWriter}
 	 * 
 	 * @param stdOut
-	 *            Indicates the {@link BufferedReader} where the output will be
-	 *            read
+	 *            Indicates the {@link BufferedReader} where the output will be read
 	 * @throws UnsupportedEncodingException
 	 *             If the character encoding is not supported
 	 * @throws FileNotFoundException
@@ -168,12 +168,11 @@ public class TaskRunnable implements Runnable {
 	}
 
 	/**
-	 * Creates a {@link Thread} to read the {@link Process} error output and
-	 * write it in a {@link BufferedWriter}
+	 * Creates a {@link Thread} to read the {@link Process} error output and write
+	 * it in a {@link BufferedWriter}
 	 * 
 	 * @param stdOut
-	 *            Indicates the {@link BufferedReader} where the output will be
-	 *            read
+	 *            Indicates the {@link BufferedReader} where the output will be read
 	 * @throws UnsupportedEncodingException
 	 *             If the character encoding is not supported
 	 * @throws FileNotFoundException
@@ -193,28 +192,32 @@ public class TaskRunnable implements Runnable {
 	}
 
 	/**
-	 * Indicates which {@link Task} has been finished to the
-	 * {@link TaskExecutionHandler}
+	 * Notifies that the task been finished
 	 * 
 	 * @param task
-	 *            Indicates the {@link Task} which has been finished
+	 *            the task
 	 */
 	private void taskFinished(final Task task) {
-		if (task.isSkipped()) {
-			executionHandler.taskFinished(task);
-		} else {
-			executionHandler.taskFinished(task);
-		}
+		executionHandler.taskFinished(task);
 	}
 
 	/**
-	 * Indicates which {@link Task} has been aborted to the
-	 * {@link TaskExecutionHandler}
+	 * Notifies that the task has been started
 	 * 
 	 * @param task
-	 *            Indicates the {@link Task} which has been aborted
+	 *            the task
+	 */
+	private void taskStarted(Task task) {
+		executionHandler.taskStarted(task);
+	}
+
+	/**
+	 * Notifies that the task has been aborted
+	 * 
+	 * @param task
+	 *            the task
 	 * @param e
-	 *            Indicates the {@link Exception}
+	 *            the error causing the abortion
 	 */
 	private void taskAborted(final Task task, final Exception e) {
 		executionHandler.taskAborted(task, e);

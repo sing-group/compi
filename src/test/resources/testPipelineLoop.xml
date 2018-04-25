@@ -9,7 +9,7 @@
 			echo ${param}
 		</foreach>
 		<task id="ID3" after="ID1">
-			echo "1"
+			echo "tarea 3"
 		</task>
 		<foreach id="ID4" after="ID2,ID3" of="list" in="1,1,1,1"
 			as="param">
@@ -20,8 +20,8 @@
 			touch ${param}
 		</foreach>
 		<foreach id="ID6" after="ID2,ID3" of="command"
-			in="find ${dirparam} -maxdepth 1 | grep .txt" as="param">
-			touch "${param}.2.txt"
+			in="find ${dirparam} -maxdepth 1 | grep '.txt$'" as="param">
+			touch "${param}.2"
 		</foreach>
 	</tasks>
 </pipeline>

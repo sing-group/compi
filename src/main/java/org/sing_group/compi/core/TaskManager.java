@@ -1,5 +1,6 @@
 package org.sing_group.compi.core;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,8 +12,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.sing_group.compi.core.loops.CommandLoopValuesGenerator;
 import org.sing_group.compi.core.loops.FileLoopValuesGenerator;
 import org.sing_group.compi.core.loops.ListLoopValuesGenerator;
-import org.sing_group.compi.core.loops.LoopValuesGenerator;
 import org.sing_group.compi.core.loops.LoopTask;
+import org.sing_group.compi.core.loops.LoopValuesGenerator;
 import org.sing_group.compi.core.loops.ParameterLoopValuesGenerator;
 import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Pipeline;
@@ -30,7 +31,6 @@ public class TaskManager implements TaskExecutionHandler {
 	private final TaskExecutionHandler handler;
 	private final Map<String, Task> DAG = new ConcurrentHashMap<>();
 	private final List<String> tasksLeft = new CopyOnWriteArrayList<>();
-	private final List<Task> runnableTasks = new CopyOnWriteArrayList<>();
 	private final Map<String, Set<String>> dependencies = new ConcurrentHashMap<>();
 	private final Map<String, List<LoopTask>> forEachTasks = new ConcurrentHashMap<>();
 	private boolean firstExecution;
@@ -66,22 +66,22 @@ public class TaskManager implements TaskExecutionHandler {
 	 * @return A {@link List} of {@link Task} ready to run
 	 */
 	public List<Task> getRunnableTasks() {
-		this.runnableTasks.clear();
-		if (this.firstExecution) {
+		List<Task> runnableTasks = new ArrayList<Task>();
+		/*if (this.firstExecution) {
 			this.firstExecution = false;
 			DAG.forEach((key, value) -> {
 				if (value.getAfter() == null) {
-					this.runnableTasks.add(value);
+					runnableTasks.add(value);
 				}
 			});
-		} else {
+		} else {*/
 			for (final String taskId : this.tasksLeft) {
 				final Task task = DAG.get(taskId);
-				if (checkTaskDependencies(task)) {
-					this.runnableTasks.add(task);
+				if (!task.isFinished() && checkTaskDependencies(task)) {
+					runnableTasks.add(task);
 				}
 			}
-		}
+		//}
 		return runnableTasks;
 	}
 
@@ -96,6 +96,7 @@ public class TaskManager implements TaskExecutionHandler {
 	 */
 	private boolean checkTaskDependencies(final Task task) {
 		int count = 0;
+		if (task.getAfter() == null) return true;
 		final String[] dependsArray = task.getAfter().split(",");
 		for (final String s : dependsArray) {
 			final Task taskToCheck = DAG.get(s);
@@ -242,8 +243,9 @@ public class TaskManager implements TaskExecutionHandler {
 	 *            Indicates the {@link Task} which has been started
 	 */
 	@Override
-	public void taskStarted(final Task task) {
+	synchronized public void taskStarted(final Task task) {
 		this.getDAG().get(task.getId()).setRunning(true);
+		
 		this.getTasksLeft().remove(task.getId());
 	}
 
@@ -254,7 +256,7 @@ public class TaskManager implements TaskExecutionHandler {
 	 *            Indicates the {@link Task} which has been started
 	 */
 	@Override
-	public void taskFinished(final Task task) {
+	synchronized public void taskFinished(final Task task) {
 		this.getDAG().get(task.getId()).setFinished(true);
 		this.getDAG().get(task.getId()).setRunning(false);
 	}

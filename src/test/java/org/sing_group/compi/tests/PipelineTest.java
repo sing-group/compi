@@ -1,12 +1,15 @@
 package org.sing_group.compi.tests;
 
+import static java.io.File.createTempFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
@@ -78,18 +81,27 @@ public class PipelineTest {
 				handler.getFinishedTasks().indexOf("ID3") < handler.getFinishedTasks().indexOf("ID4"));
 		assertEquals(4, handler.getStartedTasks().size());
 		assertEquals(4, handler.getFinishedTasks().size());
+
 	}
 
 	@Test
 	public void testPipelineLoop() throws Exception {
 		final String pipelineFile = ClassLoader.getSystemResource("testPipelineLoop.xml").getFile();
 
-		File[] filesToTouch = new File[] { File.createTempFile("compi-test", ".txt"),
-				File.createTempFile("compi-test", ".txt"), File.createTempFile("compi-test", ".txt") };
-		String elementsValue = filesToTouch[0].toString()+","+filesToTouch[1].toString()+","+filesToTouch[2].toString();
-		
+		File[] filesToTouch = new File[] { createTempFile("compi-test", ".txt"), createTempFile("compi-test", ".txt"),
+				createTempFile("compi-test", ".txt") };
+		for (File f : filesToTouch) {
+			f.deleteOnExit();
+		}
+
+		String elementsValue = filesToTouch[0].toString() + "," + filesToTouch[1].toString() + ","
+				+ filesToTouch[2].toString();
+
 		final String advanceToTask = null;
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (var) -> (var.equals("elements"))? elementsValue: (var.equals("dirparam")? filesToTouch[0].getParent().toString():null), advanceToTask, null);
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER,
+				(var) -> (var.equals("elements")) ? elementsValue
+						: (var.equals("dirparam") ? filesToTouch[0].getParent().toString() : null),
+				advanceToTask, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addTaskExecutionHandler(handler);
 
@@ -105,13 +117,13 @@ public class PipelineTest {
 				handler.getFinishedTasks().indexOf("ID3") < handler.getFinishedTasks().indexOf("ID4"));
 		assertEquals(handler.getStartedTasks().size(), 6);
 		assertEquals(handler.getFinishedTasks().size(), 6);
-		
-		for (File f: filesToTouch) {
+
+		for (File f : filesToTouch) {
 			assertTrue(f.exists());
 		}
-		
-		for (File f: filesToTouch) {
-			assertTrue(new File(f.toString()+".2.txt").exists());
+
+		for (File f : filesToTouch) {
+			assertTrue(new File(f.toString() + ".2").exists());
 		}
 	}
 
@@ -203,7 +215,7 @@ public class PipelineTest {
 		compi.run();
 		assertEquals(3, handler.getStartedTasks().size());
 
-		assertEquals(5, handler.getFinishedTasksExcludingLoopChildren().size());
+		assertEquals(5, handler.getFinishedTasksIncludingLoopChildren().size());
 		assertEquals(2, handler.getAbortedTasks().size());
 	}
 
@@ -225,7 +237,8 @@ public class PipelineTest {
 
 	@Test
 	public void testSomeTasksAbortedAndContinueWithLoops() throws Exception {
-		final String pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinueWithLoops.xml").getFile();
+		final String pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinueWithLoops.xml")
+				.getFile();
 		final String advanceToTask = null;
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
@@ -234,15 +247,16 @@ public class PipelineTest {
 		compi.run();
 
 		assertEquals(4, handler.getStartedTasks().size());
-		assertEquals(3, handler.getFinishedTasksExcludingLoopChildren().size());
+		assertEquals(3, handler.getFinishedTasksIncludingLoopChildren().size());
 		assertEquals(4, handler.getAbortedTasks().size());
 	}
 
 	private static class TestExecutionHandler implements TaskExecutionHandler {
 		final List<String> startedTasks = new ArrayList<>();
 		final List<String> finishedTasks = new ArrayList<>();
-		final List<String> finishedTasksExcludingLoopChildren = new ArrayList<>();
+		final List<String> finishedTasksIncludingLoopChildren = new ArrayList<>();
 		final List<String> abortedTasks = new ArrayList<>();
+		final Set<String> startedForeachs = new HashSet<>();
 		private CompiApp compi;
 
 		public TestExecutionHandler(CompiApp compi) {
@@ -250,8 +264,13 @@ public class PipelineTest {
 		}
 
 		@Override
-		public void taskStarted(Task task) {
-			startedTasks.add(task.getId());
+		synchronized public void taskStarted(Task task) {
+			if (task instanceof Foreach && !startedForeachs.contains(task.getId())) {
+				startedTasks.add(task.getId());
+				startedForeachs.add(task.getId());
+			} else if (!(task instanceof Foreach)) {
+				startedTasks.add(task.getId());
+			}
 		}
 
 		@Override
@@ -265,7 +284,7 @@ public class PipelineTest {
 				finishedTasks.add(task.getId());
 			}
 
-			finishedTasksExcludingLoopChildren.add(task.getId());
+			finishedTasksIncludingLoopChildren.add(task.getId());
 		}
 
 		@Override
@@ -285,8 +304,8 @@ public class PipelineTest {
 			return abortedTasks;
 		}
 
-		public List<String> getFinishedTasksExcludingLoopChildren() {
-			return finishedTasksExcludingLoopChildren;
+		public List<String> getFinishedTasksIncludingLoopChildren() {
+			return finishedTasksIncludingLoopChildren;
 		}
 
 	}
