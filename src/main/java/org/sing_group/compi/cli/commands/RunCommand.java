@@ -5,6 +5,8 @@ import static org.sing_group.compi.cli.PipelineCLIApplication.newPipelineCLIAppl
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.VariableResolver;
 
@@ -17,6 +19,7 @@ import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class RunCommand extends AbstractCommand {
+	private static final Logger logger = LogManager.getLogger(RunCommand.class);
 
 	private String[] commandLineArgs;
 	private CompiApp compi;
@@ -28,11 +31,12 @@ public class RunCommand extends AbstractCommand {
 	@Override
 	public void execute(final Parameters parameters) throws Exception {
 
-		System.out.println("Compi running with: ");
-		System.out.println("Pipeline file - " + parameters.getSingleValue(super.getOption("p")));
-		System.out.println("Number of threads - " + parameters.getSingleValue(super.getOption("t")));
+		logger.info("Compi running with: ");
+		logger.info("Pipeline file - " + parameters.getSingleValue(super.getOption("p")));
+		logger.info("Number of threads - " + parameters.getSingleValue(super.getOption("t")));
+		
 		if (parameters.hasOption(super.getOption("pa"))) {
-			System.out.println("Params file - " + parameters.getSingleValue(super.getOption("pa")));
+			logger.info("Params file - " + parameters.getSingleValue(super.getOption("pa")));
 		}
 
 		if (parameters.getSingleValue(super.getOption("s")) != null
@@ -41,10 +45,10 @@ public class RunCommand extends AbstractCommand {
 		}
 
 		if (parameters.getSingleValue(super.getOption("s")) != null) {
-			System.out.println("Skip to task - " + parameters.getSingleValue(super.getOption("s")) + "\n");
+			logger.info("Skip to task - " + parameters.getSingleValue(super.getOption("s")) + "\n");
 		}
 		if (parameters.getSingleValue(super.getOption("st")) != null) {
-			System.out.println("Running single task - " + parameters.getSingleValue(super.getOption("st")) + "\n");
+			logger.info("Running single task - " + parameters.getSingleValue(super.getOption("st")) + "\n");
 		}
 		compi = new CompiApp(parameters.getSingleValue(super.getOption("p")),
 				parameters.getSingleValue(super.getOption("t")), (VariableResolver) null,
@@ -59,9 +63,7 @@ public class RunCommand extends AbstractCommand {
 
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
-			System.out.println("--Error--");
-			System.out.println("Type - " + e.getClass());
-			System.out.println("Message -  " + e.getMessage());
+			logger.error(e.getClass()+": "+e.getMessage());
 		}
 	}
 

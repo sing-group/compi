@@ -4,6 +4,8 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.sing_group.compi.cli.CompiCLI;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.TaskExecutionHandler;
@@ -21,6 +23,8 @@ import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class RunSpecificPipelineCommand extends AbstractCommand {
+
+	private static final Logger logger = LogManager.getLogger(RunSpecificPipelineCommand.class);
 
 	private static CompiApp compiApp;
 	private static List<Option<?>> compiGeneralOptions;
@@ -91,29 +95,26 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
 			@Override
 			public void taskStarted(Task task) {
-				System.out.println(
-						(System.currentTimeMillis() / 1000) + " - CLI - Task with id " + task.getId() + " started");
+				logger.info("Task " + task.getId() + " started");
 			}
 
 			@Override
 			public void taskFinished(Task task) {
 				if (task.isSkipped()) {
-					System.out.println("CLI - Task with id " + task.getId() + " skipped");
+					logger.info("Task with id " + task.getId() + " skipped");
 				} else {
 					if (task instanceof Foreach) {
-						System.out.println((System.currentTimeMillis() / 1000) + " - CLI - SubTask with id "
-								+ task.getId() + " finished - " + task.getToExecute());
+						logger.info("Subtask of task " + task.getId() + " finished - " + task.getToExecute());
 					} else {
-						System.out.println((System.currentTimeMillis() / 1000) + " - CLI - Task with id " + task.getId()
-								+ " finished");
+						logger.info("Task " + task.getId() + " finished");
 					}
 				}
 			}
 
 			@Override
 			public void taskAborted(Task task, Exception e) {
-				System.out.println((System.currentTimeMillis() / 1000) + " - CLI - Task with id " + task.getId()
-						+ " aborted - Cause - " + e.getClass());
+				logger.error(
+						"Task with id " + task.getId() + " aborted - Cause - " + e.getClass() + ": " + e.getMessage());
 			}
 
 		});
@@ -129,8 +130,6 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 				String arg = CompiCLI.args[i];
 				if (arg.equals("--pipeline") || arg.equals("-p")) {
 					Pipeline p = compiApp.getPipeline();
-
-					List<ParameterDescription> params = p.getParameterDescriptions();
 
 					p.getTasksByParameter().forEach((parameterName, tasks) -> {
 						XMLParamsFileVariableResolver paramsFileResolver = getParamsFileResolver();
@@ -150,7 +149,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 											true, false));
 								}
 							} else {
-								System.err.println("warning: description for parameter " + parameterName
+								logger.warn("description for parameter " + parameterName
 										+ " not found in the pipeline XML file");
 								options.add(new StringOption(categories, parameterName, parameterName, "",
 										paramsFileResolver != null
