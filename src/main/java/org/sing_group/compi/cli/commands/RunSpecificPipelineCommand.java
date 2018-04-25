@@ -25,14 +25,14 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 	private static CompiApp compiApp;
 	private static List<Option<?>> compiGeneralOptions;
 
-	
-	public static RunSpecificPipelineCommand newRunSpecificPipelineCommand(CompiApp compiApp, List<Option<?>> compiGeneralOptions) {
+	public static RunSpecificPipelineCommand newRunSpecificPipelineCommand(CompiApp compiApp,
+			List<Option<?>> compiGeneralOptions) {
 		RunSpecificPipelineCommand.compiApp = compiApp;
 		RunSpecificPipelineCommand.compiGeneralOptions = compiGeneralOptions;
-		
+
 		return new RunSpecificPipelineCommand();
 	}
-	
+
 	private RunSpecificPipelineCommand() {
 	}
 
@@ -74,7 +74,8 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
 			@Override
 			public String resolveVariable(String variable) throws IllegalArgumentException {
-				if (RunSpecificPipelineCommand.this.getOption(variable) != null) {
+				if (RunSpecificPipelineCommand.this.getOption(variable) != null
+						&& parameters.hasOption(RunSpecificPipelineCommand.this.getOption(variable))) {
 					return parameters.getSingleValue(RunSpecificPipelineCommand.this.getOption(variable));
 				} else if (xmlResolver != null) {
 					return xmlResolver.resolveVariable(variable);
@@ -90,8 +91,8 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
 			@Override
 			public void taskStarted(Task task) {
-				System.out.println((System.currentTimeMillis() / 1000) + " - CLI - Task with id " + task.getId()
-						+ " started");
+				System.out.println(
+						(System.currentTimeMillis() / 1000) + " - CLI - Task with id " + task.getId() + " started");
 			}
 
 			@Override
@@ -103,8 +104,8 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 						System.out.println((System.currentTimeMillis() / 1000) + " - CLI - SubTask with id "
 								+ task.getId() + " finished - " + task.getToExecute());
 					} else {
-						System.out.println((System.currentTimeMillis() / 1000) + " - CLI - Task with id "
-								+ task.getId() + " finished");
+						System.out.println((System.currentTimeMillis() / 1000) + " - CLI - Task with id " + task.getId()
+								+ " finished");
 					}
 				}
 			}
