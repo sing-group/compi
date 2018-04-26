@@ -318,6 +318,9 @@ public class TaskManager implements TaskExecutionHandler {
 		return forEachTasks;
 	}
 
+	public void setResolver(VariableResolver variableResolver) {
+		this.variableResolver = variableResolver;
+	}
 
 
 }

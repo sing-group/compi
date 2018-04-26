@@ -8,6 +8,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Task;
 
@@ -48,6 +49,9 @@ public class PipelineParser {
 			final Matcher matcher = pattern.matcher(task.getExec());
 			while (matcher.find()) {
 				task.addParameter(matcher.group(1));
+			}
+			if (task instanceof Foreach && ((Foreach) task).getOf().equals("param")) {
+				task.addParameter(((Foreach) task).getIn());
 			}
 		}
 	}

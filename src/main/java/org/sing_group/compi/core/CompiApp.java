@@ -398,6 +398,7 @@ public class CompiApp implements TaskExecutionHandler {
 	
 	public void setResolver(VariableResolver resolver) {
 		this.resolver = resolver;
+		this.taskManager.setResolver(resolver);
 	}
 	
 
