@@ -6,7 +6,7 @@
 			echo "hello"
 		</task>
 		<task id="ID2" after="ID1">
-			ls -error
+			ls -errorj
 		</task>
 		<task id="ID3" after="ID2">
 			echo "hello"

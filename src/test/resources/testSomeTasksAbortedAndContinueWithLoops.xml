@@ -4,7 +4,7 @@
 		<task id="ID1">
 			echo "hello"
 		</task>
-		<foreach id="ID2" after="ID1" of="list" in="-error,-error"
+		<foreach id="ID2" after="ID1" of="list" in="-errorj,-errorj"
 			as="param">
 			ls ${param}
 		</foreach>

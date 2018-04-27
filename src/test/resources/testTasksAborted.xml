@@ -9,7 +9,7 @@
 			echo "hello"
 		</task>
 		<task id="ID3" after="ID1">
-			ls -error
+			ls -errorj
 		</task>
 		<task id="ID4" after="ID3,ID2">
 			echo "hello"

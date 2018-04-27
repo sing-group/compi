@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<tasks>
 		<task id="ID1">
-			ls -error
+			ls -errorj
 		</task>
 		<task id="ID2" after="ID1">
 			echo "hello"
