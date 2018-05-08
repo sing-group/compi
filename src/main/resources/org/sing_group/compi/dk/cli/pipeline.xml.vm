@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This is an example file of a compi pipeline -->
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<!--
+		Params section (<params>): this section contains parameter declarations
+		of the pipeline. It is important that you give a description since it 
+		will be shown in the help.
+	-->
+	<params>
+		<param name="parameter1" shortName="p1">Parameter one</param>
+		<param name="parameter2" shortName="p2">Parameter two</param>
+		<param name="a-list" shortName="l">A list of comma separated values
+		</param>
+		<param name="out" shortName="o">Out file</param>
+	</params>
+
+	<!--
+		Tasks section (<tasks>): this section contains all the steps of your pipeline.
+		There are two types of taks:
+		- regular "tasks" (<task>) which is a simple task with a piece of runnable
+		code inside.
+		- loops (<foreach>) which is a task which launches several subtask in parallel
+	-->
+	<tasks>
+		<!--
+			A task (<task>). A task contains the following attributes:
+			- id: a name for the task, which must be unique. This id will be displayed
+			in the help of the pipeline, so it is important that you give it a
+			significative name for the end user.
+			- after: a comma-separated list of task ids that this task depends on.
+			In a regular execution of the pipeline, this task will never start
+			before all dependencies finish. However, if you run the the pipeline with
+			the -s (skip to task) or the -st (single task) options, that will ignore
+			those dependencies and start the pipeline from this task.
+			- fileLog: a file to redirect the standard output.
+			- fileErrorLog: a file to redirect the standar error.
+
+			Inside the <task> you place the code of your task (it is interpreted
+			by the Bourne shell (sh)). You can use your parameters by placing
+			${parameter_name} anywhere in your code.
+		-->
+		<task id="task-1">
+			echo ${parameter1} >> ${out}
+			echo ${parameter2} >> ${out}
+		</task>
+
+		<!--
+			A loop task (<foreach>). A loop iterates over a set of items that are 
+			accesible in your code via a loop variable. For each iteration, 
+			a parallel process is scheduled. This task contains the same attributes
+			as a regular <task>, plus the following	ones:
+			- of: The source of values for the iteration variable:
+			  - "file". The items are the files in a directory.
+			  - "list". The items are those in a list of comma-separated values.
+			  - "param". The items are in a parameter which value is a list of comma-separated values.
+			  - "command". The items are the lines produced by a command via its standard output.
+		    - in: The directory, list of values, parameter name or command, for each type of source (see "of").
+			- as: The name of the loop variable that will be accesible in the code as ${name}
+		-->
+		<foreach id="task-2" after="task-1" of="param" in="a-list" as="i">
+			echo ${i} >> ${out}
+		</foreach>
+	</tasks>
+</pipeline>

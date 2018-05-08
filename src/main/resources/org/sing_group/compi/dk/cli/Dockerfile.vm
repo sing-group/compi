@@ -1,0 +1,12 @@
+FROM $baseImage
+MAINTAINER $maintainer
+
+# INSTALL COMPI
+ADD jre.tgz /
+ADD compi.jar compi.jar
+# ADD PIPELINE
+ADD pipeline.xml pipeline.xml
+
+ENTRYPOINT ["/java/bin/java", "-jar",  "/compi.jar",  "run",  "-p", "/pipeline.xml"]
+
+# PLACE HERE YOUR DEPENDENCIES (SOFTWARE NEEDED BY YOUR PIPELINE)
