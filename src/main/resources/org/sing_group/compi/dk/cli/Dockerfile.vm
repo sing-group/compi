@@ -1,5 +1,5 @@
 FROM $baseImage
-MAINTAINER $maintainer
+LABEL maintainer="$maintainer"
 
 # INSTALL COMPI
 ADD jre.tgz /
