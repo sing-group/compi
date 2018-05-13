@@ -10,7 +10,8 @@ public class CompiDKCLI extends CLIApplication {
 
 	@Override
 	protected List<Command> buildCommands() {
-		return Arrays.asList(new NewProjectCommand());
+		return Arrays.asList(new NewProjectCommand(), new BuildCommand());
+		
 	}
 
 	@Override
