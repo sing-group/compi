@@ -7,72 +7,50 @@ import javax.xml.bind.annotation.XmlValue;
 @XmlRootElement(name = "param")
 public class ParameterDescription implements Cloneable {
 
-	private String name;
-	private String shortName;
-	private String description;
-	
-	public ParameterDescription() {
-	}
+  @XmlAttribute
+  private String name;
+  @XmlAttribute
+  private String shortName;
+  @XmlValue
+  private String description;
+  @XmlAttribute
+  private String defaultValue;
 
-	/**
-	 * Getter of the name attribute
-	 * 
-	 * @return The value of the name attribute
-	 */
-	@XmlAttribute
-	public String getName() {
-		return name;
-	}
+  public ParameterDescription() {}
 
-	/**
-	 * Changes the value of the name attribute
-	 * 
-	 * @param name
-	 *            Global variable
-	 */
-	public void setName(final String name) {
-		this.name = name.replaceAll(" ", "");
-	}
-	
-	/**
-	 * Getter of the shortName attribute
-	 * 
-	 * @return The value of the shortName attribute
-	 */
-	@XmlAttribute
-	public String getShortName() {
-		return shortName;
-	}
+  /**
+   * Getter of the name attribute
+   * 
+   * @return The value of the name attribute
+   */
+  public String getName() {
+    return name;
+  }
 
-	/**
-	 * Changes the value of the shortName attribute
-	 * 
-	 * @param shortName
-	 *            Global variable
-	 */
-	public void setShortName(final String shortName) {
-		this.shortName = shortName.replaceAll(" ", "");
-	}
-	
-	/**
-	 * Getter of the description attribute
-	 * 
-	 * @return The value of the description attribute
-	 */
-	@XmlValue
-	public String getDescription() {
-		return description;
-	}
+  /**
+   * Getter of the shortName attribute
+   * 
+   * @return The value of the shortName attribute
+   */
+  public String getShortName() {
+    return shortName;
+  }
 
-	/**
-	 * Changes the value of the description attribute
-	 * 
-	 * @param description
-	 *            Global variable
-	 */
-	public void setDescription(final String description) {
-		this.description = description;
-	}
+  /**
+   * Getter of the description attribute
+   * 
+   * @return The value of the description attribute
+   */
+  public String getDescription() {
+    return description;
+  }
 
-
+  /**
+   * Getter of the defaultValue attribute
+   * 
+   * @return The value of the defaultValue attribute
+   */
+  public String getDefaultValue() {
+    return defaultValue;
+  }
 }

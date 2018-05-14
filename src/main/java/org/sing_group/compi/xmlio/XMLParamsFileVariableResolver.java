@@ -50,8 +50,9 @@ public class XMLParamsFileVariableResolver implements VariableResolver {
 
 			final NodeList nodeList = doc.getElementsByTagName(variable);
 			if (nodeList.getLength() == 0) {
-				throw new IllegalArgumentException(
-						"The tag: \"" + variable + "\" doesn't exist in the file " + this.xmlParamsFile);
+				/*throw new IllegalArgumentException(
+						"The tag: \"" + variable + "\" doesn't exist in the file " + this.xmlParamsFile);*/
+			  return null;
 			}
 
 			for (int i = 0; i < nodeList.getLength(); i++) {

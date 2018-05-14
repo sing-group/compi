@@ -19,6 +19,8 @@ import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Task;
 
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
+import es.uvigo.ei.sing.yacli.command.option.DefaultValuedOption;
+import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;
 import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.option.OptionCategory;
 import es.uvigo.ei.sing.yacli.command.option.StringOption;
@@ -26,177 +28,220 @@ import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class RunSpecificPipelineCommand extends AbstractCommand {
 
-	private static final Logger logger = LogManager.getLogger(RunSpecificPipelineCommand.class);
+  private static final Logger logger = LogManager.getLogger(RunSpecificPipelineCommand.class);
 
-	private static CompiApp compiApp;
-	private static List<Option<?>> compiGeneralOptions;
+  private static CompiApp compiApp;
+  private static List<Option<?>> compiGeneralOptions;
 
-	public static RunSpecificPipelineCommand newRunSpecificPipelineCommand(CompiApp compiApp,
-			List<Option<?>> compiGeneralOptions) {
-		RunSpecificPipelineCommand.compiApp = compiApp;
-		RunSpecificPipelineCommand.compiGeneralOptions = compiGeneralOptions;
+  public static RunSpecificPipelineCommand newRunSpecificPipelineCommand(
+    CompiApp compiApp,
+    List<Option<?>> compiGeneralOptions
+  ) {
+    RunSpecificPipelineCommand.compiApp = compiApp;
+    RunSpecificPipelineCommand.compiGeneralOptions = compiGeneralOptions;
 
-		return new RunSpecificPipelineCommand();
-	}
+    return new RunSpecificPipelineCommand();
+  }
 
-	private RunSpecificPipelineCommand() {
-	}
+  private RunSpecificPipelineCommand() {}
 
-	@Override
-	public String getName() {
-		return "run";
-	}
+  @Override
+  public String getName() {
+    return "run";
+  }
 
-	@Override
-	public String getDescriptiveName() {
-		return "";
-	}
+  @Override
+  public String getDescriptiveName() {
+    return "";
+  }
 
-	@Override
-	public String getDescription() {
-		return "";
-	}
+  @Override
+  public String getDescription() {
+    return "";
+  }
 
-	@Override
-	public void execute(Parameters parameters) throws Exception {
-		/**
-		 * A variable resolver that resolves variables by first looking at the command
-		 * line parameters and then in the xml params file
-		 * 
-		 * @author lipido
-		 *
-		 */
-		class PipelineVariableResolver implements VariableResolver {
-			private XMLParamsFileVariableResolver xmlResolver;
-			private Parameters parameters;
+  @Override
+  public void execute(Parameters parameters) throws Exception {
+    /**
+     * A variable resolver that resolves variables by first looking at the
+     * command line parameters and then in the xml params file
+     * 
+     * @author lipido
+     *
+     */
+    class PipelineVariableResolver implements VariableResolver {
+      private XMLParamsFileVariableResolver xmlResolver;
+      private Parameters parameters;
 
-			public PipelineVariableResolver(final Parameters parameters) {
-				this.parameters = parameters;
-				if (parameters.hasOption(RunSpecificPipelineCommand.super.getOption("pa"))) {
-					xmlResolver = new XMLParamsFileVariableResolver(
-							parameters.getSingleValue(RunSpecificPipelineCommand.super.getOption("pa")));
-				}
-			}
+      public PipelineVariableResolver(final Parameters parameters) {
+        this.parameters = parameters;
+        if (parameters.hasOption(RunSpecificPipelineCommand.super.getOption("pa"))) {
+          xmlResolver =
+            new XMLParamsFileVariableResolver(
+              parameters.getSingleValue(RunSpecificPipelineCommand.super.getOption("pa"))
+            );
+        }
+      }
 
-			@Override
-			public String resolveVariable(String variable) throws IllegalArgumentException {
-				if (RunSpecificPipelineCommand.this.getOption(variable) != null
-						&& parameters.hasOption(RunSpecificPipelineCommand.this.getOption(variable))) {
-					return parameters.getSingleValue(RunSpecificPipelineCommand.this.getOption(variable));
-				} else if (xmlResolver != null) {
-					return xmlResolver.resolveVariable(variable);
-				} else {
-					return null;
-				}
-			}
-		}
+      @Override
+      public String resolveVariable(String variable) throws IllegalArgumentException {
+        if (
+          RunSpecificPipelineCommand.this.getOption(variable) != null
+            && parameters.hasOption(RunSpecificPipelineCommand.this.getOption(variable))
+            && (!(RunSpecificPipelineCommand.this.getOption(variable) instanceof DefaultValuedOption) ||
+              !((DefaultValuedOption<?>) RunSpecificPipelineCommand.this.getOption(variable)).getDefaultValue().equals(parameters.getSingleValue(RunSpecificPipelineCommand.this.getOption(variable))))
+        ) {
+          return parameters.getSingleValue(RunSpecificPipelineCommand.this.getOption(variable));
+        } else if (xmlResolver != null && xmlResolver.resolveVariable(variable) != null) {
+          return xmlResolver.resolveVariable(variable);
+        } else if (RunSpecificPipelineCommand.this.getOption(variable) instanceof DefaultValuedOption) {
+          return ((DefaultValuedOption<?>) RunSpecificPipelineCommand.this.getOption(variable)).getDefaultValue()
+            .toString();
+        } else {
+          return null;
+        }
+      }
+    }
 
-		compiApp.setResolver(new PipelineVariableResolver(parameters));
+    compiApp.setResolver(new PipelineVariableResolver(parameters));
 
-		compiApp.addTaskExecutionHandler(new TaskExecutionHandler() {
+    compiApp.addTaskExecutionHandler(new TaskExecutionHandler() {
 
-			private Set<String> startedForeachs = new HashSet<String>();
-			
-			@Override
-			synchronized public void taskStarted(Task task) {
-				if (task instanceof Foreach) {
-					if (!startedForeachs.contains(task.getId())) {
-						logger.info(
-								"> Started loop task " + task.getId() + " (command: " + task.getToExecute() + ") (stdout log: "+(task.getFileLog()==null?"none":task.getFileLog())+", stderr log: "+(task.getFileErrorLog()==null?"none":task.getFileErrorLog())+")");
-						startedForeachs.add(task.getId());
-					}
-					logger.info(
-							">> Started loop iteration of task " + task.getId() + " (command: " + task.getToExecute() + ") (stdout log: "+(task.getFileLog()==null?"none":task.getFileLog())+", stderr log: "+(task.getFileErrorLog()==null?"none":task.getFileErrorLog())+")");
-				} else {
-					logger.info("> Started task " + task.getId() + " (command: " + task.getToExecute() + ")");
-				}
-			}
+      private Set<String> startedForeachs = new HashSet<String>();
 
-			@Override
-			synchronized public void taskFinished(Task task) {
-				if (task.isSkipped()) {
-					logger.debug("Task with id " + task.getId() + " skipped");
-				} else {
-					if (task instanceof Foreach) {
-						logger.info("<< Finished loop iteration of task " + task.getId() + " (command: " + task.getToExecute()
-								+ ")");
-						if (compiApp.getParentTask().get(task).isFinished()) {
-							logger.info("< Finished loop task " + task.getId() + " (command: " + task.getToExecute()
-							+ ")");
-						}
-					} else {
-						logger.info("< Finished task " + task.getId() + " (command: " + task.getToExecute() + ")");
-					}
-				}
-			}
+      @Override
+      synchronized public void taskStarted(Task task) {
+        if (task instanceof Foreach) {
+          if (!startedForeachs.contains(task.getId())) {
+            logger.info(
+              "> Started loop task " + task.getId() + " (command: " + task.getToExecute() + ") (stdout log: "
+                + (task.getFileLog() == null ? "none" : task.getFileLog()) + ", stderr log: "
+                + (task.getFileErrorLog() == null ? "none" : task.getFileErrorLog()) + ")"
+            );
+            startedForeachs.add(task.getId());
+          }
+          logger.info(
+            ">> Started loop iteration of task " + task.getId() + " (command: " + task.getToExecute()
+              + ") (stdout log: " + (task.getFileLog() == null ? "none" : task.getFileLog()) + ", stderr log: "
+              + (task.getFileErrorLog() == null ? "none" : task.getFileErrorLog()) + ")"
+          );
+        } else {
+          logger.info("> Started task " + task.getId() + " (command: " + task.getToExecute() + ")");
+        }
+      }
 
-			@Override
-			synchronized public void taskAborted(Task task, Exception e) {
-				logger.error("X Aborted task " + task.getId() + " (command: " + task.getToExecute() + ") Cause - "
-						+ e.getClass() + ": " + e.getMessage());
-			}
+      @Override
+      synchronized public void taskFinished(Task task) {
+        if (task.isSkipped()) {
+          logger.debug("Task with id " + task.getId() + " skipped");
+        } else {
+          if (task instanceof Foreach) {
+            logger.info(
+              "<< Finished loop iteration of task " + task.getId() + " (command: " + task.getToExecute()
+                + ")"
+            );
+            if (compiApp.getParentTask().get(task).isFinished()) {
+              logger.info(
+                "< Finished loop task " + task.getId() + " (command: " + task.getToExecute()
+                  + ")"
+              );
+            }
+          } else {
+            logger.info("< Finished task " + task.getId() + " (command: " + task.getToExecute() + ")");
+          }
+        }
+      }
 
-		});
-		compiApp.run();
-	}
+      @Override
+      synchronized public void taskAborted(Task task, Exception e) {
+        logger.error(
+          "X Aborted task " + task.getId() + " (command: " + task.getToExecute() + ") Cause - "
+            + e.getClass() + ": " + e.getMessage()
+        );
+      }
 
-	@Override
-	protected List<Option<?>> createOptions() {
-		List<Option<?>> options = compiGeneralOptions;
-		try {
-			// find params file if it is available
-			for (int i = 0; i < CompiCLI.args.length; i++) {
-				String arg = CompiCLI.args[i];
-				if (arg.equals("--pipeline") || arg.equals("-p")) {
-					Pipeline p = compiApp.getPipeline();
+    });
+    compiApp.run();
+  }
 
-					p.getTasksByParameter().forEach((parameterName, tasks) -> {
-						XMLParamsFileVariableResolver paramsFileResolver = getParamsFileResolver();
-						ParameterDescription description = p.getParameterDescription(parameterName);
-						List<OptionCategory> categories = tasks.stream().filter(task -> !task.isSkipped())
-								.map(task -> new OptionCategory(task.getId())).collect(toList());
+  @Override
+  protected List<Option<?>> createOptions() {
+    List<Option<?>> options = compiGeneralOptions;
+    try {
+      // find params file if it is available
+      for (int i = 0; i < CompiCLI.args.length; i++) {
+        String arg = CompiCLI.args[i];
+        if (arg.equals("--pipeline") || arg.equals("-p")) {
+          Pipeline p = compiApp.getPipeline();
 
-						if (categories.size() > 0) {
-							if (description != null) {
+          p.getTasksByParameter().forEach((parameterName, tasks) -> {
+            XMLParamsFileVariableResolver paramsFileResolver = getParamsFileResolver();
+            ParameterDescription description = p.getParameterDescription(parameterName);
+            List<OptionCategory> categories =
+              tasks.stream().filter(task -> !task.isSkipped())
+                .map(task -> new OptionCategory(task.getId())).collect(toList());
 
-								if (categories.size() > 0) {
-									options.add(new StringOption(categories, description.getName(),
-											description.getShortName(), description.getDescription(),
-											paramsFileResolver != null
-													&& paramsFileResolver.resolveVariable(parameterName) != null ? true
-															: false,
-											true, false));
-								}
-							} else {
-								logger.warn("description for parameter " + parameterName
-										+ " not found in the pipeline XML file");
-								options.add(new StringOption(categories, parameterName, parameterName, "",
-										paramsFileResolver != null
-												&& paramsFileResolver.resolveVariable(parameterName) != null ? true
-														: false,
-										true, false));
-							}
-						}
+            if (categories.size() > 0) {
+              if (description != null) {
 
-					});
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+                if (categories.size() > 0) {
+                  Option<String> option = null;
+                  if (description.getDefaultValue() != null) {
+                    option =
+                      new DefaultValuedStringOption(
+                        categories, description.getName(),
+                        description.getShortName(), description.getDescription(),
+                        description.getDefaultValue()
+                      );
+                  } else {
+                    option =
+                      new StringOption(
+                        categories, description.getName(),
+                        description.getShortName(), description.getDescription(),
+                        paramsFileResolver != null
+                          && paramsFileResolver.resolveVariable(parameterName) != null ? true
+                            : false,
+                        true, false
+                      );
+                  }
+                  options.add(option);
+                }
+              } else {
+                logger.warn(
+                  "description for parameter " + parameterName
+                    + " not found in the pipeline XML file"
+                );
+                options.add(
+                  new StringOption(
+                    categories, parameterName, parameterName, "",
+                    paramsFileResolver != null
+                      && paramsFileResolver.resolveVariable(parameterName) != null ? true
+                        : false,
+                    true, false
+                  )
+                );
+              }
+            }
 
-		return options;
-	}
+          });
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 
-	private XMLParamsFileVariableResolver getParamsFileResolver() {
-		XMLParamsFileVariableResolver resolver = null;
-		for (int i = 0; i < CompiCLI.args.length; i++) {
-			String arg = CompiCLI.args[i];
-			if (arg.equals("--params") || arg.equals("-pa")) {
-				resolver = new XMLParamsFileVariableResolver(CompiCLI.args[i + 1]);
-			}
-		}
-		return resolver;
-	}
+    return options;
+  }
+
+  private XMLParamsFileVariableResolver getParamsFileResolver() {
+    XMLParamsFileVariableResolver resolver = null;
+    for (int i = 0; i < CompiCLI.args.length; i++) {
+      String arg = CompiCLI.args[i];
+      if (arg.equals("--params") || arg.equals("-pa")) {
+        resolver = new XMLParamsFileVariableResolver(CompiCLI.args[i + 1]);
+      }
+    }
+    return resolver;
+  }
 
 }

@@ -30,6 +30,7 @@
 			<extension base="string">
 				<attribute name="name" type="ID" use="required" />
 				<attribute name="shortName" type="string" use="required" />	
+				<attribute name="defaultValue" type="string" />
 			</extension>
 		</simpleContent>
 	</complexType>
