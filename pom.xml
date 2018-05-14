@@ -23,9 +23,23 @@
 		<log4j.version>2.11.0</log4j.version>
 	</properties>
 
+	<distributionManagement>
+		<repository>
+			<id>sing-maven-releases</id>
+			<name>SING Maven Releases</name>
+			<url>https://maven.sing-group.org/repository/maven-releases/</url>
+		</repository>
+
+		<snapshotRepository>
+			<id>sing-maven-releases</id>
+			<name>SING Maven Snapshots</name>
+			<url>https://maven.sing-group.org/repository/maven-snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<dependencies>
-	
-		<!--  java 9 and beyond deps (JAXB)-->
+
+		<!-- java 9 and beyond deps (JAXB) -->
 		<dependency>
 			<groupId>javax.activation</groupId>
 			<artifactId>activation</artifactId>
