@@ -3,7 +3,6 @@ package org.sing_group.compi.xmlio.entities;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static java.util.stream.Stream.concat;
 
 import java.util.LinkedList;
 import java.util.List;

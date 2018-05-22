@@ -33,7 +33,6 @@ public class TaskManager implements TaskExecutionHandler {
 	private final List<String> tasksLeft = new CopyOnWriteArrayList<>();
 	private final Map<String, Set<String>> dependencies = new ConcurrentHashMap<>();
 	private final Map<String, List<LoopTask>> forEachTasks = new ConcurrentHashMap<>();
-	private boolean firstExecution;
 	private VariableResolver variableResolver;
 
 	/**
@@ -54,7 +53,6 @@ public class TaskManager implements TaskExecutionHandler {
 				this.forEachTasks.put(p.getId(), new LinkedList<LoopTask>());
 			}
 		}
-		this.firstExecution = true;
 	}
 
 	/**
