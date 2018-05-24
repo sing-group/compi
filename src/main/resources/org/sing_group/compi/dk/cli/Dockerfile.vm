@@ -2,9 +2,8 @@ FROM $baseImage
 LABEL maintainer="$maintainer"
 
 # INSTALL COMPI
-ADD $jreURL jre.tgz
-RUN tar xzf jre.tgz && rm jre.tgz
-ADD $compiURL compi.jar
+ADD image-files/jre.tgz .
+ADD image-files/compi.jar compi.jar
 
 # PLACE HERE YOUR DEPENDENCIES (SOFTWARE NEEDED BY YOUR PIPELINE)
 

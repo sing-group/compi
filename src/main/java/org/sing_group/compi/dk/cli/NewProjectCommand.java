@@ -4,7 +4,10 @@ import static java.lang.System.getProperty;
 import static org.sing_group.compi.dk.project.ProjectConfiguration.COMPI_PROJECT_FILENAME;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -86,6 +89,14 @@ public class NewProjectCommand extends AbstractCommand {
     createDockerFile(directory, parameters.getSingleValueString(getOption("i")), getProperty("user.name"), compiVersion);
 
     createPipelineFile(directory);
+    
+    createGitIgnoreFile(directory);
+  }
+
+  private void createGitIgnoreFile(File directory) throws FileNotFoundException {
+    try (PrintStream out = new PrintStream(new FileOutputStream(directory + File.separator + ".gitignore"))) {
+      out.println("/"+PipelineDockerFile.IMAGE_FILES_DIR+"/");
+    }
   }
 
   private void createPipelineFile(File destDirectory) throws IOException {
@@ -100,6 +111,6 @@ public class NewProjectCommand extends AbstractCommand {
     PipelineDockerFile dockerFile = new PipelineDockerFile(destDirectory);
     dockerFile.setBaseImage(baseImage);
     dockerFile.setCompiVersion(compiVersion);
-    dockerFile.writeOrUpdate();
+    dockerFile.createDockerFile();
   }
 }

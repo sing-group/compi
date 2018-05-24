@@ -1,6 +1,7 @@
 package org.sing_group.compi.dk.cli;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -78,31 +79,21 @@ public class BuildCommand extends AbstractCommand {
 
     PipelineDockerFile pipelineDockerFile = new PipelineDockerFile(directory);
     pipelineDockerFile.setCompiVersion(compiVersion);
-    pipelineDockerFile.writeOrUpdate();
+    pipelineDockerFile.downloadImageFilesIfNecessary();
 
     // TODO: validate pipeline
-
+    
     // build image
+    buildDockerImage(directory, imageName, dockerFile);
+  }
+
+  private void buildDockerImage(File directory, String imageName, File dockerFile)
+    throws IOException, InterruptedException {
     logger.info("Building docker image (dockerfile: " + dockerFile + ")");
     Process p = Runtime.getRuntime().exec(new String[] {
       "/bin/sh", "-c", "docker build -t "+ imageName+" "+directory.getAbsolutePath()
     });
-
-    new Thread(() -> {
-      try (Scanner sc = new Scanner(p.getInputStream())) {
-        while (sc.hasNextLine()) {
-          logger.info("DOCKER BUILD: " + sc.nextLine());
-        }
-      }
-    }).start();
-
-    new Thread(() -> {
-      try (Scanner sc = new Scanner(p.getErrorStream())) {
-        while (sc.hasNextLine()) {
-          logger.error("DOCKER BUILD ERROR: " + sc.nextLine());
-        }
-      }
-    }).start();
+    redirectOutputToLogger(p);
 
     int returnValue = p.waitFor();
     if (returnValue != 0) {
@@ -111,5 +102,27 @@ public class BuildCommand extends AbstractCommand {
     }
     
     logger.info("Docker image built: "+imageName);
+  }
+
+  private void redirectOutputToLogger(Process p) {
+    Thread stdoutThread = new Thread(() -> {
+      try (Scanner sc = new Scanner(p.getInputStream())) {
+        while (sc.hasNextLine()) {
+          logger.info("DOCKER BUILD: " + sc.nextLine());
+        }
+      }
+    });
+    stdoutThread.setName("Docker stdout");
+    stdoutThread.start();
+
+    Thread stderrThread = new Thread(() -> {
+      try (Scanner sc = new Scanner(p.getErrorStream())) {
+        while (sc.hasNextLine()) {
+          logger.error("DOCKER BUILD ERROR: " + sc.nextLine());
+        }
+      }
+    });
+    stderrThread.setName("Docker stderr");
+    stderrThread.start();
   }
 }

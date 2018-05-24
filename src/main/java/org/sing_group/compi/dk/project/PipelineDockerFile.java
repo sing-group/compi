@@ -3,12 +3,16 @@ package org.sing_group.compi.dk.project;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,12 +42,17 @@ public class PipelineDockerFile {
     "https://maven.sing-group.org/repository/maven-snapshots/org/sing_group/compi/%version-SNAPSHOT/compi-%version-%timestamp-%build-jar-with-dependencies.jar";
   public static final String DEFAULT_BASE_IMAGE = "ubuntu:16.04";
   public static final String DEFAULT_COMPI_VERSION = "1.1-SNAPSHOT";
+  public static final String IMAGE_FILES_DIR = "image-files";
+  private static final String VERSIONS_FILENAME = "versions";
+
   private File dockerFile;
+  private File baseDirectory;
 
   private String baseImage = DEFAULT_BASE_IMAGE;
   private String compiVersion = DEFAULT_COMPI_VERSION;
 
   public PipelineDockerFile(File directory) {
+    this.baseDirectory = directory;
     this.dockerFile = new File(directory.toString() + File.separator + "Dockerfile");
   }
 
@@ -55,49 +64,85 @@ public class PipelineDockerFile {
     this.compiVersion = compiVersion;
   }
 
-  public void writeOrUpdate() throws IOException, SAXException, ParserConfigurationException {
-    if (!dockerFile.exists()) {
-      // create file
-      new TemplateProcessor().processTemplate(
-        "Dockerfile.vm",
-        MapBuilder.<String, String>newMapOf()
-          .put("baseImage", baseImage)
-          .put("maintainer", System.getProperty("user.name"))
-          .put("compiURL", getCompiURL(compiVersion))
-          .put("jreURL", JRE_URL)
-          .build(),
-        dockerFile
+  public void downloadImageFilesIfNecessary() throws IOException, SAXException, ParserConfigurationException {
+    createImageFilesDirIfNeccesary();
+    downloadJREIfNecessary();
+    downloadCompiJarIfNecessary();
+  }
+  
+  public void createDockerFile() throws IOException {
+    // create file
+    new TemplateProcessor().processTemplate(
+      "Dockerfile.vm",
+      MapBuilder.<String, String>newMapOf()
+        .put("baseImage", baseImage)
+        .put("maintainer", System.getProperty("user.name"))
+        .build(),
+      dockerFile
+    );
+  }
+
+  private void createImageFilesDirIfNeccesary() {
+    File imageFilesDir = new File(this.baseDirectory + File.separator + IMAGE_FILES_DIR);
+    if (!imageFilesDir.exists()) {
+      imageFilesDir.mkdir();
+    }
+  }
+
+  private void downloadJREIfNecessary() throws MalformedURLException, IOException {
+    File jreFile = new File(this.baseDirectory + File.separator + IMAGE_FILES_DIR + File.separator + "jre.tgz");
+    if (!jreFile.exists()) {
+      downloadToFile(new URL(JRE_URL), jreFile);
+    }
+
+  }
+
+  private void downloadCompiJarIfNecessary()
+    throws MalformedURLException, IOException, SAXException, ParserConfigurationException {
+    String currentCompiVersion = getCurrentDownloadedCompiVersion();
+    if (!this.compiVersion.equals(currentCompiVersion)) {
+      downloadToFile(
+        new URL(getCompiURL()), new File(baseDirectory.toString() + File.separator + IMAGE_FILES_DIR + File.separator + "compi.jar")
       );
+      updateDownloadedCompiVersion();
+    }
+  }
+
+  private void updateDownloadedCompiVersion() throws FileNotFoundException, IOException {
+    File versionsFile =
+      new File(this.baseDirectory + File.separator + IMAGE_FILES_DIR + File.separator + VERSIONS_FILENAME);
+    Properties props = new Properties();
+    if (versionsFile.exists()) {
+      try (FileInputStream in = new FileInputStream(versionsFile)) {
+        props.load(in);
+      }
+    }
+    props.setProperty("compi", compiVersion);
+    try (FileOutputStream out = new FileOutputStream(versionsFile)) {
+      props.store(out, "");
+    }
+  }
+
+  private String getCurrentDownloadedCompiVersion() throws IOException {
+    File versionsFile =
+      new File(this.baseDirectory + File.separator + IMAGE_FILES_DIR + File.separator + VERSIONS_FILENAME);
+    Properties props = new Properties();
+    if (versionsFile.exists()) {
+      try (FileInputStream in = new FileInputStream(versionsFile)) {
+        props.load(in);
+        return props.getProperty("compi");
+      }
     } else {
-      // update
-      String dockerFileContents = new String(Files.readAllBytes(dockerFile.toPath()));
-      dockerFileContents = updateAddCompiLine(dockerFileContents);
-      try(OutputStream out = new FileOutputStream(dockerFile)) {
-        out.write(dockerFileContents.getBytes());
-      }
+      return null;
     }
   }
 
-  private String updateAddCompiLine(String dockerFileContents)
-    throws SAXException, IOException, ParserConfigurationException {
-    Pattern p = Pattern.compile("ADD\\s+(.*)\\s+compi.jar");
-    Matcher m = p.matcher(dockerFileContents);
-    if (m.find()) {
-      String compiURL = this.getCompiURL(compiVersion);
-      if (!m.group(1).equals(compiURL)) {
-        return m.replaceFirst("ADD " + compiURL + " compi.jar");
-      } else {
-        return dockerFileContents;
-      }
-    }
-    throw new IllegalArgumentException("ADD <url> compi.jar line not found");
-  }
-
-  private String getCompiURL(String compiVersion) throws SAXException, IOException, ParserConfigurationException {
+  private String getCompiURL() throws SAXException, IOException, ParserConfigurationException {
+    String noSnapshotVersion = compiVersion;
     if (compiVersion.endsWith("-SNAPSHOT")) {
-      compiVersion = compiVersion.replace("-SNAPSHOT", "");
+      noSnapshotVersion = compiVersion.replace("-SNAPSHOT", "");
       URL snapshotMetadata =
-        new URL(getPathDir(COMPI_URL_TEMPLATE_SNAPSHOTS.replaceAll("%version", compiVersion))
+        new URL(getPathDir(COMPI_URL_TEMPLATE_SNAPSHOTS.replaceAll("%version", noSnapshotVersion))
           + "/maven-metadata.xml"
         );
       ByteArrayOutputStream metadataXMLbaos = new ByteArrayOutputStream();
@@ -109,10 +154,16 @@ public class PipelineDockerFile {
 
       String timestamp = document.getElementsByTagName("timestamp").item(0).getTextContent();
       String buildNumber = document.getElementsByTagName("buildNumber").item(0).getTextContent();
-      return COMPI_URL_TEMPLATE_SNAPSHOTS.replaceAll("%version", compiVersion).replaceAll("%timestamp", timestamp)
+      return COMPI_URL_TEMPLATE_SNAPSHOTS.replaceAll("%version", noSnapshotVersion).replaceAll("%timestamp", timestamp)
         .replaceAll("%build", buildNumber);
     }
-    return COMPI_URL_TEMPLATE.replaceAll("%version", compiVersion);
+    return COMPI_URL_TEMPLATE.replaceAll("%version", noSnapshotVersion);
+  }
+
+  private void downloadToFile(URL url, File f) throws IOException {
+    try (OutputStream out = new FileOutputStream(f)) {
+      downloadTo(url, out);
+    }
   }
 
   private void downloadTo(URL url, OutputStream out) throws IOException {
