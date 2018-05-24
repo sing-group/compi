@@ -8,7 +8,9 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sing_group.compi.core.CompiApp;
+import org.sing_group.compi.core.PipelineValidationException;
 import org.sing_group.compi.core.VariableResolver;
+import org.sing_group.compi.core.validation.ValidationError;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
@@ -50,17 +52,25 @@ public class RunCommand extends AbstractCommand {
 		if (parameters.getSingleValue(super.getOption("st")) != null) {
 			logger.info("Running single task - " + parameters.getSingleValue(super.getOption("st")) + "\n");
 		}
-		compi = new CompiApp(parameters.getSingleValue(super.getOption("p")),
-				parameters.getSingleValue(super.getOption("t")), (VariableResolver) null,
-				parameters.getSingleValue(super.getOption("s")), parameters.getSingleValue(super.getOption("st")));
+		
+		
 
+		
 		try {
-
-			CLIApplication pipelineApplication = newPipelineCLIApplication(
+		  List<ValidationError> errors = new ArrayList<>();
+	    compi = new CompiApp(parameters.getSingleValue(super.getOption("p")),
+	        parameters.getSingleValue(super.getOption("t")), (VariableResolver) null,
+	        parameters.getSingleValue(super.getOption("s")), parameters.getSingleValue(super.getOption("st")), errors);
+	    logValidationErrors(errors);
+			
+	    CLIApplication pipelineApplication = newPipelineCLIApplication(
 					parameters.getSingleValue(super.getOption("p")), compi, this.createOptions());
 			
 			pipelineApplication.run(this.commandLineArgs);
 
+		} catch(PipelineValidationException e) {
+		  logger.error("Pipeline is not valid");
+		  logValidationErrors(e.getErrors());
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			logger.error(e.getClass()+": "+e.getMessage());
@@ -110,6 +120,16 @@ public class RunCommand extends AbstractCommand {
 				"Runs a single task without its depencendies. This option is incompatible with --skip", null));
 
 		return options;
+	}
+	
+	private void logValidationErrors(List<ValidationError> errors) {
+	  errors.stream().forEach(error -> {
+	    if (error.getType().isError()) {
+	      logger.error(error.toString());
+	    } else {
+	      logger.warn(error.toString());
+	    }
+	  });
 	}
 
 }

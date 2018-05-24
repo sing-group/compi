@@ -35,7 +35,7 @@ public class PipelineParser {
 		addTaskParameters(pipeline);
 		return pipeline;
 	}
-
+	
 	/**
 	 * Obtain the content inside ${...} in the {@link Task} exec tag
 	 * 

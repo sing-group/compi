@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
+import org.sing_group.compi.core.PipelineValidationException;
 import org.sing_group.compi.core.VariableResolver;
 import org.sing_group.compi.xmlio.DOMparsing;
 import org.xml.sax.SAXException;
@@ -88,8 +89,14 @@ public class ExceptionsTest {
 		final String paramsFile = ClassLoader.getSystemResource("testParams.xml").getFile();
 		final int threadNumber = 10;
 		final String advanceToProgam = null;
+		try {
 		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, paramsFile, advanceToProgam, null);
 		compi.run();
+		} catch(PipelineValidationException e) {
+		  System.err.println(e.getErrors());
+		  e.printStackTrace();
+		  throw e;
+		}
 	}
 
 	@Test(expected = IllegalArgumentException.class)

@@ -24,7 +24,7 @@ import org.sing_group.compi.xmlio.entities.Task;
  * dependencies
  * 
  * @author Jesus Alvarez Casanova
- *
+ * @author Daniel Glez-Peña
  */
 public class TaskManager implements TaskExecutionHandler {
 
@@ -40,6 +40,8 @@ public class TaskManager implements TaskExecutionHandler {
 	 *            Indicates the {@link TaskExecutionHandler}
 	 * @param pipeline
 	 *            Indicates the {@link Pipeline}
+	 * @param resolver
+	 *            Indicates the {@link VariableResolver}
 	 */
 	public TaskManager(final TaskExecutionHandler handler, final Pipeline pipeline, final VariableResolver resolver) {
 		this.handler = handler;

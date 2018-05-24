@@ -207,10 +207,6 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
                   options.add(option);
                 }
               } else {
-                logger.warn(
-                  "description for parameter " + parameterName
-                    + " not found in the pipeline XML file"
-                );
                 options.add(
                   new StringOption(
                     categories, parameterName, parameterName, "",

@@ -3,8 +3,8 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<params>
 		<param name="path" shortName="p2">A path to a program to execute</param>
-		<param name="seconds" shortName="s">The seconds parameter</param>
-		<param name="name" shortName="n">The name parameter</param>
+		<param name="seconds" shortName="se">The seconds parameter</param>
+		<!-- <param name="name" shortName="n">The name parameter</param> -->
 	</params>
 	<tasks>
 		<foreach id="task-1" fileLog="/tmp/task1.txt"

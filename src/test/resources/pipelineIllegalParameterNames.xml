@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<params>
+		<param name="legal" shortName="pa">pa is an illegal short name</param>
+		<param name="num-threads" shortName="legal">num-threads is an illegal long name</param>
+		<param name="param2" shortName="p2">parameter 2</param>
+	</params>
+	<tasks>
+		<task id="ID-1">
+			echo "pipeline is an illegal parameter name" ${pipeline} ${param2}
+		</task>
+	</tasks>
+</pipeline>

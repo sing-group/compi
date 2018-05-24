@@ -19,6 +19,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.sing_group.compi.core.CompiApp;
+import org.sing_group.compi.core.PipelineValidationException;
 import org.sing_group.compi.core.TaskExecutionHandler;
 import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Task;
@@ -161,7 +162,7 @@ public class SwingDemo {
 		}
 
 		try {
-			compi = new CompiApp(pipelineText.getText(), threadNumber, paramsFile, skipTask, null);
+			compi = new CompiApp(pipelineText.getText(), threadNumber, paramsFile, skipTask, null, null);
 			compi.addTaskExecutionHandler(new TaskExecutionHandler() {
 
 				@Override
@@ -218,7 +219,7 @@ public class SwingDemo {
 			});
 			compi.run();
 		} catch (InterruptedException | SAXException | IOException | ParserConfigurationException
-				| IllegalArgumentException e) {
+				| IllegalArgumentException | PipelineValidationException e) {
 			consoleTextArea.append("--Error--\n");
 			consoleTextArea.append("Type - " + e.getClass() + "\n");
 			consoleTextArea.append("Message -  " + e.getMessage() + "\n");

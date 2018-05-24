@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sing_group.compi.cli.commands.RunCommand;
+import org.sing_group.compi.cli.commands.ValidatePipelineCommand;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.Command;
@@ -39,6 +40,7 @@ public class CompiCLI extends CLIApplication {
 	protected List<Command> buildCommands() {
 		final List<Command> commands = new ArrayList<>();
 		commands.add(new RunCommand(args));
+		commands.add(new ValidatePipelineCommand());
 		return commands;
 	}
 
