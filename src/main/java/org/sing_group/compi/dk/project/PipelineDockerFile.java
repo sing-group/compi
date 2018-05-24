@@ -69,7 +69,7 @@ public class PipelineDockerFile {
     downloadJREIfNecessary();
     downloadCompiJarIfNecessary();
   }
-  
+
   public void createDockerFile() throws IOException {
     // create file
     new TemplateProcessor().processTemplate(
@@ -80,6 +80,19 @@ public class PipelineDockerFile {
         .build(),
       dockerFile
     );
+  }
+
+  public File getBaseDirectory() {
+    return baseDirectory;
+  }
+
+  public File getDownloadedCompiJar() {
+    File compiJar = new File(this.baseDirectory + File.separator + IMAGE_FILES_DIR + File.separator + "compi.jar");
+    if (compiJar.exists()) {
+      return compiJar;
+    } else {
+      return null;
+    }
   }
 
   private void createImageFilesDirIfNeccesary() {

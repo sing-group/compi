@@ -1,7 +1,15 @@
 package org.sing_group.compi.dk.cli;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.security.Permission;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -81,27 +89,57 @@ public class BuildCommand extends AbstractCommand {
     pipelineDockerFile.setCompiVersion(compiVersion);
     pipelineDockerFile.downloadImageFilesIfNecessary();
 
-    // TODO: validate pipeline
-    
+    boolean isValid = validatePipeline(pipelineDockerFile);
+
     // build image
-    buildDockerImage(directory, imageName, dockerFile);
+    if (isValid) {
+      buildDockerImage(directory, imageName, dockerFile);
+    }
   }
 
-  private void buildDockerImage(File directory, String imageName, File dockerFile)
+  private boolean validatePipeline(PipelineDockerFile pipelineDockerFile)
+    throws ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException,
+    IllegalArgumentException, InvocationTargetException {
+
+    MainMethodRunner mainRunner =
+      new MainMethodRunner("org.sing_group.compi.cli.CompiCLI", getDownloadedCompiJarURL(pipelineDockerFile));
+
+    int returnValue = mainRunner.run(new String[] {
+      "validate", "-p", pipelineDockerFile.getBaseDirectory() + File.separator + "pipeline.xml"
+    });
+
+    if (returnValue != 0) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  private URL getDownloadedCompiJarURL(PipelineDockerFile pipelineDockerFile) {
+    try {
+      return pipelineDockerFile.getDownloadedCompiJar().toURI().toURL();
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void buildDockerImage(
+    File directory, String imageName, File dockerFile
+  )
     throws IOException, InterruptedException {
     logger.info("Building docker image (dockerfile: " + dockerFile + ")");
     Process p = Runtime.getRuntime().exec(new String[] {
-      "/bin/sh", "-c", "docker build -t "+ imageName+" "+directory.getAbsolutePath()
+      "/bin/sh", "-c", "docker build -t " + imageName + " " + directory.getAbsolutePath()
     });
     redirectOutputToLogger(p);
 
     int returnValue = p.waitFor();
     if (returnValue != 0) {
-      logger.error("Docker build has returned a non-zero value: "+returnValue);
+      logger.error("Docker build has returned a non-zero value: " + returnValue);
       System.exit(1);
     }
-    
-    logger.info("Docker image built: "+imageName);
+
+    logger.info("Docker image built: " + imageName);
   }
 
   private void redirectOutputToLogger(Process p) {
@@ -124,5 +162,66 @@ public class BuildCommand extends AbstractCommand {
     });
     stderrThread.setName("Docker stderr");
     stderrThread.start();
+  }
+
+  private static class MainMethodRunner {
+    private PrintStream oldStdErr;
+    private int returnStatus = Integer.MIN_VALUE;
+    private URL jarFile;
+    private String className;
+
+    public MainMethodRunner(String className, URL jarFile) {
+      this.className = className;
+      this.jarFile = jarFile;
+    }
+
+    public int run(String[] args) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+      ClassNotFoundException, NoSuchMethodException, SecurityException {
+      URLClassLoader loader = new URLClassLoader(new URL[] {
+        this.jarFile
+      });
+
+      Class<?> clazz = loader.loadClass(this.className);
+      Method mainMethod = clazz.getMethod("main", String[].class);
+      forbidSystemExitCall();
+      try {
+        mainMethod.invoke(null, new Object[] {
+          args
+        });
+      } catch (ExitTrappedException e) {
+        restoreStdErr();
+      }
+
+      enableSystemExitCall();
+      return this.returnStatus;
+    }
+
+    private void silenceStdErr() {
+      oldStdErr = System.err;
+      System.setErr(new PrintStream(new ByteArrayOutputStream()));
+    }
+
+    private void restoreStdErr() {
+      System.setErr(oldStdErr);
+    }
+
+    private void forbidSystemExitCall() {
+      final SecurityManager securityManager = new SecurityManager() {
+        public void checkPermission(Permission permission) {
+          if (permission.getName().startsWith("exitVM")) {
+            returnStatus = Integer.parseInt(permission.getName().substring(permission.getName().lastIndexOf('.') + 1));
+            silenceStdErr();
+            throw new ExitTrappedException();
+          }
+        }
+      };
+      System.setSecurityManager(securityManager);
+    }
+
+    private static void enableSystemExitCall() {
+      System.setSecurityManager(null);
+    }
+
+    private static class ExitTrappedException extends SecurityException {}
   }
 }
