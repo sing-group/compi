@@ -29,8 +29,7 @@ import org.xml.sax.SAXException;
 public class PipelineDockerFile {
   private static final Logger logger = Logger.getLogger( PipelineDockerFile.class.getName() );
   private static final String JRE_URL =
-    "https://maven.sing-group.org/repository/alfresco/com/oracle/java/jre/1.8.0_131/jre-1.8.0_131-linux.tgz";
-
+    "https://maven.sing-group.org/repository/maven-releases/com/oracle/java/jre-mod.java.base-mod.java.logging-mod.java.xml-mod.java.naming/10.0.1/jre-mod.java.base-mod.java.logging-mod.java.xml-mod.java.naming-10.0.1.tgz";
   private static final String COMPI_URL_TEMPLATE =
     "https://maven.sing-group.org/repository/maven-releases/org/sing_group/compi/%version/compi-%version-jar-with-dependencies.jar";
 
