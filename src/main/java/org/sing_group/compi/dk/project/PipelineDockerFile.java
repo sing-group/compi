@@ -11,10 +11,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,15 +21,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.sing_group.compi.dk.cli.MapBuilder;
 import org.sing_group.compi.dk.cli.TemplateProcessor;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 public class PipelineDockerFile {
-  private static final Logger logger = LogManager.getLogger(PipelineDockerFile.class);
+  private static final Logger logger = Logger.getLogger( PipelineDockerFile.class.getName() );
   private static final String JRE_URL =
     "https://maven.sing-group.org/repository/alfresco/com/oracle/java/jre/1.8.0_131/jre-1.8.0_131-linux.tgz";
 
@@ -184,7 +180,7 @@ public class PipelineDockerFile {
     try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
       httpclient.execute(new HttpGet(url.toString()), (response) -> {
         if (response.getStatusLine().getStatusCode() != 200) {
-          logger.error("Cannot download. Status: " + response.getStatusLine());
+          logger.severe("Cannot download. Status: " + response.getStatusLine());
           throw new RuntimeException("Cannot download " + url);
         }
         long length = response.getEntity().getContentLength();
@@ -195,7 +191,7 @@ public class PipelineDockerFile {
         while ((readed = in.read(data)) != -1) {
           out.write(data, 0, readed);
           total += readed;
-          logger.debug(((float) total / (float) length) * 100 + "%");
+          logger.fine(((float) total / (float) length) * 100 + "%");
         }
         return null;
       });
@@ -205,5 +201,4 @@ public class PipelineDockerFile {
   private String getPathDir(String url) {
     return url.toString().substring(0, url.toString().lastIndexOf("/"));
   }
-
 }

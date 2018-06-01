@@ -13,9 +13,8 @@ import java.security.Permission;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.sing_group.compi.dk.project.PipelineDockerFile;
 import org.sing_group.compi.dk.project.ProjectConfiguration;
 import org.sing_group.compi.dk.project.PropertiesFileProjectConfiguration;
@@ -26,7 +25,9 @@ import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class BuildCommand extends AbstractCommand {
-  private static final Logger logger = LogManager.getLogger(BuildCommand.class);
+  // private static final Logger logger =
+  // LogManager.getLogger(BuildCommand.class);
+  private static final Logger logger = Logger.getLogger(BuildCommand.class.getName());
 
   public String getName() {
     return "build";
@@ -44,7 +45,7 @@ public class BuildCommand extends AbstractCommand {
   protected List<Option<?>> createOptions() {
     return Arrays.asList(
       new DefaultValuedStringOption("path", "p", "path the new project to build", ".")
-    );
+      );
   }
 
   @Override
@@ -53,13 +54,13 @@ public class BuildCommand extends AbstractCommand {
     logger.info("Building project in directory: " + directory);
 
     if (!directory.exists()) {
-      logger.error("Directory " + directory + " does not exist");
+      logger.severe("Directory " + directory + " does not exist");
       System.exit(1);
     }
 
     File compiProjectFile = new File(directory + File.separator + ProjectConfiguration.COMPI_PROJECT_FILENAME);
     if (!compiProjectFile.exists()) {
-      logger.error("Compi project file does not exist: " + compiProjectFile);
+      logger.severe("Compi project file does not exist: " + compiProjectFile);
       System.exit(1);
     }
 
@@ -72,16 +73,20 @@ public class BuildCommand extends AbstractCommand {
 
     String imageName = projectConfiguration.getImageName();
     if (imageName == null) {
-      logger.error(
+      logger.severe(
         "Image name not found in configuration file (" + PropertiesFileProjectConfiguration.IMAGE_NAME_PROPERTY
           + " property)"
-      );
+        );
       System.exit(1);
     }
 
     File dockerFile = new File(directory + File.separator + "Dockerfile");
+
     if (!dockerFile.exists()) {
-      logger.error("Dockerfile does not exist: " + dockerFile);
+      logger.severe(
+        "Dockerfile does not exist: " +
+          dockerFile
+        );
       System.exit(1);
     }
 
@@ -97,7 +102,9 @@ public class BuildCommand extends AbstractCommand {
     }
   }
 
-  private boolean validatePipeline(PipelineDockerFile pipelineDockerFile)
+  private boolean validatePipeline(
+    PipelineDockerFile pipelineDockerFile
+    )
     throws ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException,
     IllegalArgumentException, InvocationTargetException {
 
@@ -125,7 +132,7 @@ public class BuildCommand extends AbstractCommand {
 
   private void buildDockerImage(
     File directory, String imageName, File dockerFile
-  )
+    )
     throws IOException, InterruptedException {
     logger.info("Building docker image (dockerfile: " + dockerFile + ")");
     Process p = Runtime.getRuntime().exec(new String[] {
@@ -135,18 +142,18 @@ public class BuildCommand extends AbstractCommand {
 
     int returnValue = p.waitFor();
     if (returnValue != 0) {
-      logger.error("Docker build has returned a non-zero value: " + returnValue);
+      logger.severe("Docker build has returned a non-zero value: " + returnValue);
       System.exit(1);
     }
 
-    logger.info("Docker image built: " + imageName);
+    // logger.info("Docker image built: " + imageName);
   }
 
   private void redirectOutputToLogger(Process p) {
     Thread stdoutThread = new Thread(() -> {
       try (Scanner sc = new Scanner(p.getInputStream())) {
         while (sc.hasNextLine()) {
-          logger.info("DOCKER BUILD: " + sc.nextLine());
+           logger.info("DOCKER BUILD: " + sc.nextLine());
         }
       }
     });
@@ -156,7 +163,7 @@ public class BuildCommand extends AbstractCommand {
     Thread stderrThread = new Thread(() -> {
       try (Scanner sc = new Scanner(p.getErrorStream())) {
         while (sc.hasNextLine()) {
-          logger.error("DOCKER BUILD ERROR: " + sc.nextLine());
+           logger.severe("DOCKER BUILD ERROR: " + sc.nextLine());
         }
       }
     });

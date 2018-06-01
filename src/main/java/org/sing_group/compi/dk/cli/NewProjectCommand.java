@@ -10,11 +10,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.sing_group.compi.dk.project.PipelineDockerFile;
 import org.sing_group.compi.dk.project.PropertiesFileProjectConfiguration;
 import org.xml.sax.SAXException;
@@ -26,7 +25,7 @@ import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class NewProjectCommand extends AbstractCommand {
-  private static final Logger logger = LogManager.getLogger(NewProjectCommand.class);
+  private static final Logger logger = Logger.getLogger( NewProjectCommand.class.getName() );
   
   public String getName() {
     return "new-project";
@@ -57,7 +56,7 @@ public class NewProjectCommand extends AbstractCommand {
     logger.info("Creating project with path: " + parameters.getSingleValueString(getOption("p")));
 
     if (directory.exists()) {
-      logger.error("Directory " + directory + " already exists");
+      logger.severe("Directory " + directory + " already exists");
       System.exit(1);
     }
 
