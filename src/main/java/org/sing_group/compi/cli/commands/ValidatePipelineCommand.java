@@ -3,9 +3,8 @@ package org.sing_group.compi.cli.commands;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.sing_group.compi.core.validation.PipelineValidator;
 import org.sing_group.compi.core.validation.ValidationError;
 
@@ -15,7 +14,7 @@ import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class ValidatePipelineCommand extends AbstractCommand {
-	private static final Logger logger = LogManager.getLogger(ValidatePipelineCommand.class);
+  private static final Logger logger = Logger.getLogger( ValidatePipelineCommand.class.getName() );
 
 	@Override
 	public void execute(final Parameters parameters) throws Exception {
@@ -25,7 +24,7 @@ public class ValidatePipelineCommand extends AbstractCommand {
 		File f = new File(parameters.getSingleValueString(super.getOption("p")));
 		
 		if (!f.exists()) {
-		  logger.error("Pipeline file not found: "+f);
+		  logger.severe("Pipeline file not found: "+f);
 		  System.exit(1);
 		}
 		
@@ -79,9 +78,9 @@ public class ValidatePipelineCommand extends AbstractCommand {
 	 private void logValidationErrors(List<ValidationError> errors) {
 	    errors.stream().forEach(error -> {
 	      if (error.getType().isError()) {
-	        logger.error(error.toString());
+	        logger.severe(error.toString());
 	      } else {
-	        logger.warn(error.toString());
+	        logger.warning(error.toString());
 	      }
 	    });
 	  }

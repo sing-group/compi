@@ -5,9 +5,8 @@ import static java.util.stream.Collectors.toList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.sing_group.compi.cli.CompiCLI;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.TaskExecutionHandler;
@@ -28,7 +27,7 @@ import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class RunSpecificPipelineCommand extends AbstractCommand {
 
-  private static final Logger logger = LogManager.getLogger(RunSpecificPipelineCommand.class);
+  private static final Logger logger = Logger.getLogger( RunSpecificPipelineCommand.class.getName() );
 
   private static CompiApp compiApp;
   private static List<Option<?>> compiGeneralOptions;
@@ -133,7 +132,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
       @Override
       synchronized public void taskFinished(Task task) {
         if (task.isSkipped()) {
-          logger.debug("Task with id " + task.getId() + " skipped");
+          logger.fine("Task with id " + task.getId() + " skipped");
         } else {
           if (task instanceof Foreach) {
             logger.info(
@@ -154,7 +153,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
       @Override
       synchronized public void taskAborted(Task task, Exception e) {
-        logger.error(
+        logger.severe(
           "X Aborted task " + task.getId() + " (command: " + task.getToExecute() + ") Cause - "
             + e.getClass() + ": " + e.getMessage()
         );

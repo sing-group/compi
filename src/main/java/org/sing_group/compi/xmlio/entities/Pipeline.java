@@ -45,12 +45,10 @@ public class Pipeline {
 	 * 
 	 * @param tasks attribute
 	 */
-	void setTasks(final List<Task> tasks) {
+	public void setTasks(final List<Task> tasks) {
 		this.tasks = tasks;
 
 	}
-
-
 	
 	/**
 	 * Getter of the params attribute

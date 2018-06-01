@@ -127,7 +127,7 @@ public class TaskManager implements TaskExecutionHandler {
 					if (!DAG.containsKey(afterId)) {
 						throw new IllegalArgumentException(
 								"The IDs contained in the after attribute of the task " + task.getId()
-										+ " aren't correct");
+										+ " aren't correct: "+task.getAfter());
 					}
 				}
 			}

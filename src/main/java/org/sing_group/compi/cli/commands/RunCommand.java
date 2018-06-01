@@ -4,9 +4,8 @@ import static org.sing_group.compi.cli.PipelineCLIApplication.newPipelineCLIAppl
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.PipelineValidationException;
 import org.sing_group.compi.core.VariableResolver;
@@ -21,8 +20,7 @@ import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class RunCommand extends AbstractCommand {
-	private static final Logger logger = LogManager.getLogger(RunCommand.class);
-
+	private static final Logger logger = Logger.getLogger( RunCommand.class.getName() );
 	private String[] commandLineArgs;
 	private CompiApp compi;
 
@@ -69,11 +67,11 @@ public class RunCommand extends AbstractCommand {
 			pipelineApplication.run(this.commandLineArgs);
 
 		} catch(PipelineValidationException e) {
-		  logger.error("Pipeline is not valid");
+		  logger.severe("Pipeline is not valid");
 		  logValidationErrors(e.getErrors());
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
-			logger.error(e.getClass()+": "+e.getMessage());
+			logger.severe(e.getClass()+": "+e.getMessage());
 		}
 	}
 
@@ -125,9 +123,9 @@ public class RunCommand extends AbstractCommand {
 	private void logValidationErrors(List<ValidationError> errors) {
 	  errors.stream().forEach(error -> {
 	    if (error.getType().isError()) {
-	      logger.error(error.toString());
+	      logger.severe(error.toString());
 	    } else {
-	      logger.warn(error.toString());
+	      logger.warning(error.toString());
 	    }
 	  });
 	}

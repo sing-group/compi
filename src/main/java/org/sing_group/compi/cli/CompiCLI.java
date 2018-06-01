@@ -1,7 +1,10 @@
 package org.sing_group.compi.cli;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.LogManager;
 
 import org.sing_group.compi.cli.commands.RunCommand;
 import org.sing_group.compi.cli.commands.ValidatePipelineCommand;
@@ -27,7 +30,9 @@ import es.uvigo.ei.sing.yacli.command.Command;
  */
 public class CompiCLI extends CLIApplication {
 
-	
+  static {
+    configureLog();
+  }
 	public static String[] args;
 
 	public CompiCLI() {
@@ -60,6 +65,17 @@ public class CompiCLI extends CLIApplication {
 		return "Compi App";
 	}
 
+  private static void configureLog() {
+    InputStream stream = CompiCLI.class.getClassLoader().
+            getResourceAsStream("logging.properties");
+    try {
+        LogManager.getLogManager().readConfiguration(stream);
+
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+  }
+  
 	/**
 	 * Main method
 	 * 

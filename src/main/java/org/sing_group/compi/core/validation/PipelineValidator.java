@@ -16,11 +16,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.bind.JAXBException;
-
 import org.sing_group.compi.cli.commands.RunCommand;
 import org.sing_group.compi.xmlio.DOMparsing;
-import org.sing_group.compi.xmlio.PipelineParser;
+import org.sing_group.compi.xmlio.PipelineParserFactory;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.xml.sax.SAXException;
 
@@ -65,7 +63,7 @@ public class PipelineValidator {
       final File xsdFile = new File(getClass().getClassLoader().getResource("xsd/pipeline.xsd").getFile());
       DOMparsing.validateXMLSchema(this.pipelineFile.toString(), xsdFile);
       
-      this.pipeline = PipelineParser.parsePipeline(this.pipelineFile);
+      this.pipeline = PipelineParserFactory.createPipelineParser().parsePipeline(this.pipelineFile);
       checkThatAllParameterNamesAreLegal();
 
       checkThatAllParametersHaveDescription();
@@ -76,9 +74,7 @@ public class PipelineValidator {
       errors.add(new ValidationError(XML_SCHEMA_VALIDATION_ERROR, e.getMessage()));
     } catch (IOException e) {
       throw new RuntimeException(e);
-    } catch (JAXBException e) {
-      throw new RuntimeException(e);
-    }
+    } 
     return errors;
   }
 

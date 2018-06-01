@@ -17,7 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.sing_group.compi.core.loops.LoopTask;
 import org.sing_group.compi.core.validation.PipelineValidator;
 import org.sing_group.compi.core.validation.ValidationError;
-import org.sing_group.compi.xmlio.PipelineParser;
+import org.sing_group.compi.xmlio.PipelineParserFactory;
 import org.sing_group.compi.xmlio.XMLParamsFileVariableResolver;
 import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Pipeline;
@@ -65,12 +65,16 @@ public class CompiApp implements TaskExecutionHandler {
    *           If there is an error in the XML unmarshal process
    * @throws PipelineValidationException
    *           If the validation process gives an error (not only warnings)
+   * @throws IOException
+   *           If a problem reading the pipeline file occurs
+   * @throws IllegalArgumentException
+   *          If the XML cannot be parsed or validated
    */
 
   public CompiApp(
     final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String advanceToTask,
     final String singleTask, List<ValidationError> errors
-  ) throws JAXBException, PipelineValidationException {
+  ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
     this.pipelineFile = new File(pipelineFile);
 
     PipelineValidator validator = new PipelineValidator(this.pipelineFile);
@@ -84,7 +88,7 @@ public class CompiApp implements TaskExecutionHandler {
       throw new PipelineValidationException(_errors);
     }
 
-    this.pipeline = PipelineParser.parsePipeline(this.pipelineFile);
+    this.pipeline = PipelineParserFactory.createPipelineParser().parsePipeline(this.pipelineFile);
     this.resolver = resolver;
 
     this.taskManager = new TaskManager(this, this.pipeline, this.resolver);
@@ -95,21 +99,21 @@ public class CompiApp implements TaskExecutionHandler {
   public CompiApp(
     final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String advanceToTask,
     final String singleTask
-  ) throws JAXBException, PipelineValidationException {
+  ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
     this(pipelineFile, threadNumber, resolver, advanceToTask, singleTask, null);
   }
   
   public CompiApp(
     final String pipelineFile, final int threadNumber, String paramsFile, final String advanceToTask,
     final String singleTask, final List<ValidationError> errors
-  ) throws JAXBException, PipelineValidationException {
+  ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
     this(pipelineFile, threadNumber, new XMLParamsFileVariableResolver(paramsFile), advanceToTask, singleTask, errors);
   }
   
   public CompiApp(
     final String pipelineFile, final int threadNumber, String paramsFile, final String advanceToTask,
     final String singleTask
-  ) throws JAXBException, PipelineValidationException {
+  ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
     this(pipelineFile, threadNumber, paramsFile, advanceToTask, singleTask, null);
   }
 

@@ -7,13 +7,13 @@ import javax.xml.bind.annotation.XmlValue;
 @XmlRootElement(name = "param")
 public class ParameterDescription implements Cloneable {
 
-  @XmlAttribute
+  
   private String name;
-  @XmlAttribute
+  
   private String shortName;
-  @XmlValue
+  
   private String description;
-  @XmlAttribute
+  
   private String defaultValue;
 
   public ParameterDescription() {}
@@ -23,8 +23,13 @@ public class ParameterDescription implements Cloneable {
    * 
    * @return The value of the name attribute
    */
+  @XmlAttribute
   public String getName() {
     return name;
+  }
+  
+  public void setName(String name) {
+    this.name = name;
   }
 
   /**
@@ -32,8 +37,13 @@ public class ParameterDescription implements Cloneable {
    * 
    * @return The value of the shortName attribute
    */
+  @XmlAttribute
   public String getShortName() {
     return shortName;
+  }
+  
+  public void setShortName(String shortName) {
+    this.shortName = shortName;
   }
 
   /**
@@ -41,8 +51,13 @@ public class ParameterDescription implements Cloneable {
    * 
    * @return The value of the description attribute
    */
+  @XmlValue
   public String getDescription() {
     return description;
+  }
+  
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   /**
@@ -50,7 +65,12 @@ public class ParameterDescription implements Cloneable {
    * 
    * @return The value of the defaultValue attribute
    */
+  @XmlAttribute
   public String getDefaultValue() {
     return defaultValue;
+  }
+  
+  public void setDefaultValue(String defaultValue) {
+    this.defaultValue = defaultValue;
   }
 }
