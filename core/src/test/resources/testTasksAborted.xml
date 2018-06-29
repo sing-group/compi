@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<tasks>
+		<task id="ID1">
+			echo "hello"
+		</task>
+		<task id="ID2" after="ID1">
+			echo "hello"
+		</task>
+		<task id="ID3" after="ID1">
+			ls -errorj
+		</task>
+		<task id="ID4" after="ID3,ID2">
+			echo "hello"
+		</task>
+	</tasks>
+</pipeline>

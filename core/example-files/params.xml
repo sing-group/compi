@@ -1,0 +1,5 @@
+<pipeline_params>
+	<path>example-files/execute/execute.sh</path>
+	<seconds>2</seconds>
+	<name>p1</name>
+</pipeline_params>

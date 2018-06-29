@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<tasks>
+		<foreach id="ID1" of="list" in="2,1,1" as="param">
+			echo ${param}
+		</foreach>
+		<foreach id="ID2" after="ID1" of="list" in="1,1" as="param">
+			echo ${param}
+		</foreach>
+		<task id="ID3" after="ID1">
+			echo "tarea 3"
+		</task>
+		<foreach id="ID4" after="ID2,ID3" of="list" in="1,1,1,1"
+			as="param">
+			echo ${param}
+		</foreach>
+		<foreach id="ID5" after="ID2,ID3" of="param" in="elements"
+			as="param">
+			touch ${param}
+		</foreach>
+		<foreach id="ID6" after="ID2,ID3" of="command"
+			in="find ${dirparam} -maxdepth 1 | grep '.txt$'" as="param">
+			touch "${param}.2"
+		</foreach>
+	</tasks>
+</pipeline>

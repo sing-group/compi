@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<tasks>
+		<foreach id="ID1" of="list" in="2,1,1" as="param">
+			echo ${param}
+		</foreach>
+		<foreach id="ID2" after="ID1" of="list" in="1,1" as="param">
+			echo ${param}
+		</foreach>
+		<task id="ID3" after="ID1">
+			echo "hello"
+		</task>
+		<foreach id="ID4" after="ID2,ID3" of="list" in="1,1,1,1"
+			as="param">
+			echo ${param}
+		</foreach>
+	</tasks>
+</pipeline>

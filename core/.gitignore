@@ -1,0 +1,17 @@
+#Eclipse
+.settings
+.project
+.classpath
+.metadata
+
+#Idea
+.idea
+*.iml
+
+#Maven
+target
+
+#Other
+.DS_Store
+files
+

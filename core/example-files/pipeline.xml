@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<params>
+		<param name="path" shortName="p2">A path to a program to execute</param>
+		<param name="seconds" shortName="se">The seconds parameter</param>
+		<!-- <param name="name" shortName="n">The name parameter</param> -->
+	</params>
+	<tasks>
+		<foreach id="task-1" fileLog="/tmp/task1.txt"
+			fileErrorLog="/tmp/task1.txt" of="list" in="3,7,1,1" as="nonParamSeconds">
+			${path} ${name} ${nonParamSeconds}
+		</foreach>
+		<task id="task-2" after="task-1">
+			example-files/execute/execute.sh p2 2
+		</task>
+		<task id="task-3" after="task-1">
+			example-files/execute/execute.sh p3 2
+		</task>
+		<task id="task-4" after="task-2">
+			${path} p4 ${seconds}
+		</task>
+		<task id="task-5" after="task-2">
+			example-files/execute/execute.sh p5 2
+		</task>
+		<task id="task-6" after="task-3" fileLog="/tmp/task6.txt"
+			fileErrorLog="/tmp/error6.txt">
+			example-files/execute/execute.sh p6 3
+		</task>
+		<foreach id="task-7" after="task-4,task-5" fileLog="/tmp/task7.txt"
+			of="file" in="example-files/execute/" as="path">
+			${path} p7 ${seconds}
+		</foreach>
+		<foreach id="task-8" after="task-6,task-7" fileLog="/tmp/task8.txt"
+			fileErrorLog="/tmp/error8.txt" of="list" in="1,1,5" as="nonParamSeconds">
+			${path} p8 ${nonParamSeconds}
+		</foreach>
+		<task id="task-9" after="task-8" fileLog="/tmp/task9.txt"
+			fileErrorLog="/tmp/error9.txt">
+			example-files/execute/execute.sh p9 2
+		</task>
+		<foreach id="task-10" of="file" in="example-files/execute/"
+			as="path">
+			${path} p10 3
+		</foreach>
+	</tasks>
+
+</pipeline>
