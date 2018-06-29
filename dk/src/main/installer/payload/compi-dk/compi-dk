@@ -1,0 +1,3 @@
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+$DIR/compi-dk-files/jre/bin/java -jar "$DIR/compi-dk-files/${project.artifactId}-${project.version}-jar-with-dependencies.jar" "$@"
