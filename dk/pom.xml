@@ -6,9 +6,19 @@
 	<groupId>org.sing_group</groupId>
 	<artifactId>compi-dk</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0-SNAPSHOT</version>
 	<name>Compi Development Kit</name>
+    <parent>
+      <groupId>org.sing_group</groupId>
+      <artifactId>compi</artifactId>
+      <version>1.1-SNAPSHOT</version>
+        <!--
+                        WARNING: change version using (in the parent project):
+                                mvn versions:set -DnewVersion=[new_version]
+                                mvn versions:commit
 
+                        This will change the version in all modules at-once
+        -->
+    </parent>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>

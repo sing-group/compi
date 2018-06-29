@@ -4,11 +4,21 @@
 	http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.sing_group</groupId>
-	<artifactId>compi</artifactId>
+	<artifactId>compi-core</artifactId>
 	<packaging>jar</packaging>
-	<version>1.1-SNAPSHOT</version>
-	<name>Java Framework for Computational Pipelines</name>
+	<name>Compi Core</name>
+    <parent>
+      <groupId>org.sing_group</groupId>
+      <artifactId>compi</artifactId>
+      <version>1.1-SNAPSHOT</version>
+        <!--
+                        WARNING: change version using (in the parent project):
+                                mvn versions:set -DnewVersion=[new_version]
+                                mvn versions:commit
 
+                        This will change the version in all modules at-once
+        -->
+    </parent>
 	<properties>
 		<distResourcesDirectory>src/main/dist-resources</distResourcesDirectory>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
