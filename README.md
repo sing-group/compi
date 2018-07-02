@@ -84,7 +84,7 @@ Now you have a new Docker image `my-new-pipeline`
 
 To run the image you have to run `docker run <docker-params> my-new-pipeline [<pipeline-params>|-pa <pipeline-params-file>`. For example:
 ```
-docker run -v /tmp:/data my-new-pipeline -p1 param-one -p2 param-two -o output.txt -l one,two,three
+docker run -v /tmp:/data my-new-pipeline -p1 param-one -p2 param-two -o /data/output.txt -l one,two,three
 cat /tmp/output.txt
 ```
 
