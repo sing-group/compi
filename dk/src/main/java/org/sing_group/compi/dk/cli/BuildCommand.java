@@ -68,7 +68,7 @@ public class BuildCommand extends AbstractCommand {
 
     String compiVersion = projectConfiguration.getCompiVersion();
     if (compiVersion == null) {
-      compiVersion = ProjectConfiguration.DEFAULT_COMPI_VERSION;
+      compiVersion = PipelineDockerFile.DEFAULT_COMPI_VERSION;
     }
 
     String imageName = projectConfiguration.getImageName();

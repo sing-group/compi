@@ -9,6 +9,7 @@ import java.util.logging.LogManager;
 
 import org.sing_group.compi.cli.commands.RunCommand;
 import org.sing_group.compi.cli.commands.ValidatePipelineCommand;
+import org.sing_group.compi.core.CompiApp;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.Command;
@@ -63,7 +64,7 @@ public class CompiCLI extends CLIApplication {
 	 */
 	@Override
 	protected String getApplicationName() {
-		return "Compi App";
+		return "Compi App (version "+CompiApp.getCompiVersion()+")";
 	}
 
   private static void configureLog() {

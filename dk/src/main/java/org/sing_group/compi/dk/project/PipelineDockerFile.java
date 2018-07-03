@@ -49,8 +49,8 @@ public class PipelineDockerFile {
   static {
     try {
       Properties p = new Properties();
-      p.load(PipelineDockerFile.class.getResourceAsStream("/project.version"));
-      DEFAULT_COMPI_VERSION = p.getProperty("project.version").toString();
+      p.load(PipelineDockerFile.class.getResourceAsStream("/compi-dk.version"));
+      DEFAULT_COMPI_VERSION = p.getProperty("compi-dk.version").toString();
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

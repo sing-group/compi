@@ -67,8 +67,6 @@
 			</resource>
 		</resources>
 		<plugins>
-			
-
 			<!-- process and copy dist-resources -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

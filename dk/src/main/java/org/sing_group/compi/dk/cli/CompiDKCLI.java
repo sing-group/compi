@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.LogManager;
 
+import org.sing_group.compi.dk.CompiDKVersion;
+
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.Command;
 
@@ -23,7 +25,7 @@ public class CompiDKCLI extends CLIApplication {
 
 	@Override
 	protected String getApplicationName() {
-		return "Compi Development Kit";
+		return "Compi Development Kit (version: "+CompiDKVersion.getCompiDKVersion()+")";
 	}
 
 	@Override

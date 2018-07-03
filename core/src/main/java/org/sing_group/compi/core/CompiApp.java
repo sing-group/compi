@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -68,7 +69,7 @@ public class CompiApp implements TaskExecutionHandler {
    * @throws IOException
    *           If a problem reading the pipeline file occurs
    * @throws IllegalArgumentException
-   *          If the XML cannot be parsed or validated
+   *           If the XML cannot be parsed or validated
    */
 
   public CompiApp(
@@ -102,14 +103,14 @@ public class CompiApp implements TaskExecutionHandler {
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
     this(pipelineFile, threadNumber, resolver, advanceToTask, singleTask, null);
   }
-  
+
   public CompiApp(
     final String pipelineFile, final int threadNumber, String paramsFile, final String advanceToTask,
     final String singleTask, final List<ValidationError> errors
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
     this(pipelineFile, threadNumber, new XMLParamsFileVariableResolver(paramsFile), advanceToTask, singleTask, errors);
   }
-  
+
   public CompiApp(
     final String pipelineFile, final int threadNumber, String paramsFile, final String advanceToTask,
     final String singleTask
@@ -180,6 +181,20 @@ public class CompiApp implements TaskExecutionHandler {
    */
   public void addTaskExecutionHandler(final TaskExecutionHandler handler) {
     this.executionHandlers.add(handler);
+  }
+
+  /**
+   * Returns the current compi project version
+   * @return The Compi version
+   */
+  public static String getCompiVersion() {
+    try {
+      Properties p = new Properties();
+      p.load(CompiApp.class.getResourceAsStream("/compi.version"));
+      return p.getProperty("compi.version").toString();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
