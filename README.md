@@ -82,9 +82,9 @@ compi-dk build
 
 Now you have a new Docker image `my-new-pipeline`
 
-To run the image you have to run `docker run <docker-params> my-new-pipeline [<pipeline-params>|-pa <pipeline-params-file>`. For example:
+To run the image you have to run `docker run <docker-params> my-new-pipeline [-pa <pipeline-params-file>] [-t <num-threads>] [-s <skip>] [-st <single-task>] [-- <pipeline-params>]`. For example:
 ```
-docker run -v /tmp:/data my-new-pipeline -p1 param-one -p2 param-two -o /data/output.txt -l one,two,three
+docker run -v /tmp:/data my-new-pipeline -t 10 -- -p1 param-one -p2 param-two -o /data/output.txt -l one,two,three
 cat /tmp/output.txt
 ```
 

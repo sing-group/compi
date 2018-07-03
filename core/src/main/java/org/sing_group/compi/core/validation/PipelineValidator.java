@@ -1,11 +1,7 @@
 package org.sing_group.compi.core.validation;
 
-import static java.util.stream.Collectors.toSet;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.SEMANTIC_ERROR_REPEATED_PARAM_DESCRIPTION_NAME;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.SEMANTIC_ERROR_REPEATED_PARAM_DESCRIPTION_SHORT_NAME;
-import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.SEMANTIC_ERROR_RESERVED_PARAMETER_DESCRIPTION_NAME;
-import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.SEMANTIC_ERROR_RESERVED_PARAMETER_DESCRIPTION_SHORT_NAME;
-import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.SEMANTIC_ERROR_RESERVED_PARAMETER_NAME;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.WARNING_MISSING_PARAM_DESCRIPTION;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.XML_SCHEMA_VALIDATION_ERROR;
 
@@ -16,13 +12,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.sing_group.compi.cli.commands.RunCommand;
 import org.sing_group.compi.xmlio.DOMparsing;
 import org.sing_group.compi.xmlio.PipelineParserFactory;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.xml.sax.SAXException;
 
-import es.uvigo.ei.sing.yacli.command.option.Option;
 
 public class PipelineValidator {
 
@@ -48,6 +42,7 @@ public class PipelineValidator {
   private Pipeline pipeline;
   private List<ValidationError> errors = new ArrayList<>();
 
+
   public PipelineValidator(File pipelineFile) {
     if (!pipelineFile.exists()) {
       throw new IllegalArgumentException("Pipeline file not found: " + pipelineFile);
@@ -64,7 +59,6 @@ public class PipelineValidator {
       DOMparsing.validateXMLSchema(this.pipelineFile.toString(), xsdFile);
       
       this.pipeline = PipelineParserFactory.createPipelineParser().parsePipeline(this.pipelineFile);
-      checkThatAllParameterNamesAreLegal();
 
       checkThatAllParametersHaveDescription();
 
@@ -111,43 +105,6 @@ public class PipelineValidator {
           new ValidationError(
             WARNING_MISSING_PARAM_DESCRIPTION,
             "The parameter \"" + parameterName + "\" has no <param> section for discribing it."
-          )
-        );
-      }
-    });
-  }
-
-  private void checkThatAllParameterNamesAreLegal() {
-    RunCommand command = new RunCommand(new String[] {});
-    List<Option<?>> options = command.getOptions();
-    Set<String> longNames = options.stream().map(Option::getParamName).collect(toSet());
-    Set<String> shortNames = options.stream().map(Option::getShortName).collect(toSet());
-
-    pipeline.getTasksByParameter().keySet().stream().forEach(parameter -> {
-      if (longNames.contains(parameter)) {
-        errors.add(
-          new ValidationError(
-            SEMANTIC_ERROR_RESERVED_PARAMETER_NAME,
-            "Cannot use a parameter with name \"" + parameter + "\" because it is reserved"
-          )
-        );
-      }
-    });
-
-    pipeline.getParameterDescriptions().stream().forEach(parameterDescription -> {
-      if (longNames.contains(parameterDescription.getName())) {
-        errors.add(
-          new ValidationError(
-            SEMANTIC_ERROR_RESERVED_PARAMETER_DESCRIPTION_NAME,
-            "Cannot use a <param> with name \"" + parameterDescription.getName() + "\" because it is reserved"
-          )
-        );
-      }
-      if (shortNames.contains(parameterDescription.getShortName())) {
-        errors.add(
-          new ValidationError(
-            SEMANTIC_ERROR_RESERVED_PARAMETER_DESCRIPTION_SHORT_NAME,
-            "Cannot use a <param> with short name \"" + parameterDescription.getShortName() + "\" because it is reserved"
           )
         );
       }

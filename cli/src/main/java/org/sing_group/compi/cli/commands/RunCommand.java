@@ -3,6 +3,7 @@ package org.sing_group.compi.cli.commands;
 import static org.sing_group.compi.cli.PipelineCLIApplication.newPipelineCLIApplication;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -64,7 +65,17 @@ public class RunCommand extends AbstractCommand {
 	    CLIApplication pipelineApplication = newPipelineCLIApplication(
 					parameters.getSingleValue(super.getOption("p")), compi, this.createOptions());
 			
-			pipelineApplication.run(this.commandLineArgs);
+	    int indexOfParameterSeparator = Arrays.asList(this.commandLineArgs).indexOf("--");
+	    
+	    // after --
+	    String[] pipelineParameters = new String[] {"run"};
+	    if (indexOfParameterSeparator > 0 && indexOfParameterSeparator < this.commandLineArgs.length - 1) {
+	      pipelineParameters = new String[this.commandLineArgs.length - indexOfParameterSeparator - 1 + 1];
+	      pipelineParameters[0] = "run";
+	      System.arraycopy(commandLineArgs, indexOfParameterSeparator + 1, pipelineParameters, 1, pipelineParameters.length - 1);
+	    }
+	    
+			pipelineApplication.run(pipelineParameters);
 
 		} catch(PipelineValidationException e) {
 		  logger.severe("Pipeline is not valid");

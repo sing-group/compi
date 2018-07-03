@@ -108,6 +108,7 @@ public class BuildCommand extends AbstractCommand {
     throws ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException,
     IllegalArgumentException, InvocationTargetException {
 
+    try {
     MainMethodRunner mainRunner =
       new MainMethodRunner("org.sing_group.compi.cli.CompiCLI", getDownloadedCompiJarURL(pipelineDockerFile));
 
@@ -120,6 +121,11 @@ public class BuildCommand extends AbstractCommand {
     } else {
       return true;
     }
+    }catch(RuntimeException e) {
+      e.printStackTrace();
+      throw e;
+    }
+    
   }
 
   private URL getDownloadedCompiJarURL(PipelineDockerFile pipelineDockerFile) {

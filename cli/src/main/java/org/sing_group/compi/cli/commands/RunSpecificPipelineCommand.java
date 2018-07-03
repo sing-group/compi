@@ -2,6 +2,7 @@ package org.sing_group.compi.cli.commands;
 
 import static java.util.stream.Collectors.toList;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,17 +28,17 @@ import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class RunSpecificPipelineCommand extends AbstractCommand {
 
-  private static final Logger logger = Logger.getLogger( RunSpecificPipelineCommand.class.getName() );
+  private static final Logger logger = Logger.getLogger(RunSpecificPipelineCommand.class.getName());
+
+  public static final String NAME = "run";
 
   private static CompiApp compiApp;
-  private static List<Option<?>> compiGeneralOptions;
 
   public static RunSpecificPipelineCommand newRunSpecificPipelineCommand(
     CompiApp compiApp,
     List<Option<?>> compiGeneralOptions
   ) {
     RunSpecificPipelineCommand.compiApp = compiApp;
-    RunSpecificPipelineCommand.compiGeneralOptions = compiGeneralOptions;
 
     return new RunSpecificPipelineCommand();
   }
@@ -46,7 +47,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
   @Override
   public String getName() {
-    return "run";
+    return NAME;
   }
 
   @Override
@@ -74,12 +75,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
       public PipelineVariableResolver(final Parameters parameters) {
         this.parameters = parameters;
-        if (parameters.hasOption(RunSpecificPipelineCommand.super.getOption("pa"))) {
-          xmlResolver =
-            new XMLParamsFileVariableResolver(
-              parameters.getSingleValue(RunSpecificPipelineCommand.super.getOption("pa"))
-            );
-        }
+        this.xmlResolver = getParamsFileResolver();
       }
 
       @Override
@@ -165,62 +161,64 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
   @Override
   protected List<Option<?>> createOptions() {
-    List<Option<?>> options = compiGeneralOptions;
+    List<Option<?>> options = /* compiGeneralOptions; */ new ArrayList<>();
     try {
       // find params file if it is available
-      for (int i = 0; i < CompiCLI.args.length; i++) {
-        String arg = CompiCLI.args[i];
-        if (arg.equals("--pipeline") || arg.equals("-p")) {
-          Pipeline p = compiApp.getPipeline();
+      /*
+       * for (int i = 0; i < CompiCLI.args.length; i++) { String arg =
+       * CompiCLI.args[i]; if (arg.equals("--pipeline") || arg.equals("-p")) {
+       */
+      Pipeline p = compiApp.getPipeline();
 
-          p.getTasksByParameter().forEach((parameterName, tasks) -> {
-            XMLParamsFileVariableResolver paramsFileResolver = getParamsFileResolver();
-            ParameterDescription description = p.getParameterDescription(parameterName);
-            List<OptionCategory> categories =
-              tasks.stream().filter(task -> !task.isSkipped())
-                .map(task -> new OptionCategory(task.getId())).collect(toList());
+      p.getTasksByParameter().forEach((parameterName, tasks) -> {
+        XMLParamsFileVariableResolver paramsFileResolver = getParamsFileResolver();
+        ParameterDescription description = p.getParameterDescription(parameterName);
+        List<OptionCategory> categories =
+          tasks.stream().filter(task -> !task.isSkipped())
+            .map(task -> new OptionCategory(task.getId())).collect(toList());
+
+        if (categories.size() > 0) {
+          if (description != null) {
 
             if (categories.size() > 0) {
-              if (description != null) {
-
-                if (categories.size() > 0) {
-                  Option<String> option = null;
-                  if (description.getDefaultValue() != null) {
-                    option =
-                      new DefaultValuedStringOption(
-                        categories, description.getName(),
-                        description.getShortName(), description.getDescription(),
-                        description.getDefaultValue()
-                      );
-                  } else {
-                    option =
-                      new StringOption(
-                        categories, description.getName(),
-                        description.getShortName(), description.getDescription(),
-                        paramsFileResolver != null
-                          && paramsFileResolver.resolveVariable(parameterName) != null ? true
-                            : false,
-                        true, false
-                      );
-                  }
-                  options.add(option);
-                }
+              Option<String> option = null;
+              if (description.getDefaultValue() != null) {
+                option =
+                  new DefaultValuedStringOption(
+                    categories, description.getName(),
+                    description.getShortName(), description.getDescription(),
+                    description.getDefaultValue()
+                  );
               } else {
-                options.add(
+                option =
                   new StringOption(
-                    categories, parameterName, parameterName, "",
+                    categories, description.getName(),
+                    description.getShortName(), description.getDescription(),
                     paramsFileResolver != null
                       && paramsFileResolver.resolveVariable(parameterName) != null ? true
                         : false,
                     true, false
-                  )
-                );
+                  );
               }
+              options.add(option);
             }
-
-          });
+          } else {
+            options.add(
+              new StringOption(
+                categories, parameterName, parameterName, "",
+                paramsFileResolver != null
+                  && paramsFileResolver.resolveVariable(parameterName) != null ? true
+                    : false,
+                true, false
+              )
+            );
+          }
         }
-      }
+
+      });
+      /*
+       * } }
+       */
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -233,6 +231,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
     for (int i = 0; i < CompiCLI.args.length; i++) {
       String arg = CompiCLI.args[i];
       if (arg.equals("--params") || arg.equals("-pa")) {
+        System.err.println("creating resolver in file " + CompiCLI.args[i + 1]);
         resolver = new XMLParamsFileVariableResolver(CompiCLI.args[i + 1]);
       }
     }

@@ -31,10 +31,10 @@ public class PipelineDockerFile {
   private static final String JRE_URL =
     "https://maven.sing-group.org/repository/maven-releases/com/oracle/java/jre-mod.java.base-mod.java.logging-mod.java.xml-mod.java.naming/10.0.1/jre-mod.java.base-mod.java.logging-mod.java.xml-mod.java.naming-10.0.1.tgz";
   private static final String COMPI_URL_TEMPLATE =
-    "https://maven.sing-group.org/repository/maven-releases/org/sing_group/compi/%version/compi-%version-jar-with-dependencies.jar";
+    "https://maven.sing-group.org/repository/maven-releases/org/sing_group/compi-cli/%version/compi-cli-%version-jar-with-dependencies.jar";
 
   private static final String COMPI_URL_TEMPLATE_SNAPSHOTS =
-    "https://maven.sing-group.org/repository/maven-snapshots/org/sing_group/compi/%version-SNAPSHOT/compi-%version-%timestamp-%build-jar-with-dependencies.jar";
+    "https://maven.sing-group.org/repository/maven-snapshots/org/sing_group/compi-cli/%version-SNAPSHOT/compi-cli-%version-%timestamp-%build-jar-with-dependencies.jar";
   public static final String DEFAULT_BASE_IMAGE = "ubuntu:16.04";
   public static final String DEFAULT_COMPI_VERSION = "1.1-SNAPSHOT";
   public static final String IMAGE_FILES_DIR = "image-files";

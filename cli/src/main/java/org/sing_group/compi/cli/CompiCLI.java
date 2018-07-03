@@ -3,6 +3,7 @@ package org.sing_group.compi.cli;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.LogManager;
 
@@ -83,8 +84,18 @@ public class CompiCLI extends CLIApplication {
 	 *            Parameters received in the command line interface
 	 */
 	public static void main(final String[] args) {
-		CompiCLI.args = args;
-		new CompiCLI().run(args);
+		CompiCLI.args = args; //all args
+		
+		int indexOfParameterSeparator = Arrays.asList(args).indexOf("--");
+		
+		// before --
+		String[] compiParameters = args;
+		if (indexOfParameterSeparator > 0) {
+		  compiParameters = new String[indexOfParameterSeparator];
+		  System.arraycopy(args, 0, compiParameters, 0, indexOfParameterSeparator);
+		}
+		
+		new CompiCLI().run(compiParameters);
 	}
 
 }
