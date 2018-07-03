@@ -190,9 +190,9 @@ public class BuildCommand extends AbstractCommand {
 
     public int run(String[] args) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException,
       ClassNotFoundException, NoSuchMethodException, SecurityException {
-      URLClassLoader loader = new URLClassLoader(new URL[] {
+      try (URLClassLoader loader = new URLClassLoader(new URL[] {
         this.jarFile
-      });
+      })) {
 
       Class<?> clazz = loader.loadClass(this.className);
       Method mainMethod = clazz.getMethod("main", String[].class);
@@ -207,6 +207,9 @@ public class BuildCommand extends AbstractCommand {
 
       enableSystemExitCall();
       return this.returnStatus;
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
 
     private void silenceStdErr() {
@@ -235,6 +238,7 @@ public class BuildCommand extends AbstractCommand {
       System.setSecurityManager(null);
     }
 
+    @SuppressWarnings("serial")
     private static class ExitTrappedException extends SecurityException {}
   }
 }
