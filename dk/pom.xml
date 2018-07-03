@@ -26,7 +26,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<distResourcesDirectory>src/main/dist-resources</distResourcesDirectory>
 		<installerResourcesDirectory>src/main/installer</installerResourcesDirectory>
-		<yacli.version>2.0-SNAPSHOT</yacli.version>
+		<yacli.version>2.0</yacli.version>
 		<httpclient.version>4.5.5</httpclient.version>
 		<velocity.version>1.7</velocity.version>
 	</properties>
