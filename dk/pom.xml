@@ -67,34 +67,7 @@
 			</resource>
 		</resources>
 		<plugins>
-			<!-- create executable jar -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>${maven.assembly.version}</version>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifest>
-							<mainClass>org.sing_group.compi.dk.cli.CompiDKCLI</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/dist</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+			
 
 			<!-- process and copy dist-resources -->
 			<plugin>
@@ -136,6 +109,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- create executable jar -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -151,6 +125,16 @@
 					</archive>
 				</configuration>
 				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/dist</outputDirectory>
+						</configuration>
+					</execution>
 					<execution>
 						<id>make-assembly-for-installer</id>
 						<phase>package</phase>
