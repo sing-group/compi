@@ -36,7 +36,7 @@ public class PipelineDockerFile {
   private static final String COMPI_URL_TEMPLATE_SNAPSHOTS =
     "https://maven.sing-group.org/repository/maven-snapshots/org/sing_group/compi-cli/%version-SNAPSHOT/compi-cli-%version-%timestamp-%build-jar-with-dependencies.jar";
   public static final String DEFAULT_BASE_IMAGE = "ubuntu:16.04";
-  public static final String DEFAULT_COMPI_VERSION = "1.1-SNAPSHOT";
+  public static String DEFAULT_COMPI_VERSION;
   public static final String IMAGE_FILES_DIR = "image-files";
   private static final String VERSIONS_FILENAME = "versions";
 
@@ -46,6 +46,17 @@ public class PipelineDockerFile {
   private String baseImage = DEFAULT_BASE_IMAGE;
   private String compiVersion = DEFAULT_COMPI_VERSION;
 
+  static {
+    try {
+      Properties p = new Properties();
+      p.load(PipelineDockerFile.class.getResourceAsStream("/project.version"));
+      DEFAULT_COMPI_VERSION = p.getProperty("project.version").toString();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
+  }
   public PipelineDockerFile(File directory) {
     this.baseDirectory = directory;
     this.dockerFile = new File(directory.toString() + File.separator + "Dockerfile");
