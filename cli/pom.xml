@@ -31,6 +31,7 @@
 		<maven.resources.version>3.1.0</maven.resources.version>
 		<yacli.version>2.0</yacli.version>
 		<junit.version>4.12</junit.version>
+		<installerResourcesDirectory>src/main/installer</installerResourcesDirectory>
 	</properties>
 
 	<distributionManagement>
@@ -129,6 +130,16 @@
 							<outputDirectory>${project.build.directory}/dist</outputDirectory>
 						</configuration>
 					</execution>
+					<execution>
+						<id>make-assembly-for-installer</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/installer/payload/compi/compi-files</outputDirectory>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 
@@ -154,9 +165,52 @@
 							</resources>
 						</configuration>
 					</execution>
+					<execution>
+						<id>copy-installer-resources</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/installer</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${installerResourcesDirectory}</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.0.2</version>
+				<executions>
+					<execution>
+						<id>unpack-jre</id>
+						<phase>package</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>com.oracle.java</groupId>
+									<artifactId>jre-mod.java.base-mod.java.logging-mod.java.xml-mod.java.naming</artifactId>
+									<version>10.0.1</version>
+									<type>tgz</type>
+									<overWrite>false</overWrite>
+									<!-- <classifier>win64</classifier> -->
+									<outputDirectory>${project.build.directory}/installer/payload/compi/compi-files/jre</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
-
 			<!-- make .sh and .bat executable -->
 			<plugin>
 
@@ -173,6 +227,45 @@
 									<fileset dir="${basedir}/target/dist">
 										<include name="*.sh" />
 										<include name="*.bat" />
+									</fileset>
+									<fileset
+										dir="${basedir}/target/installer/payload/compi">
+										<include name="compi" />
+									</fileset>
+									<fileset dir="${basedir}/target/installer/payload">
+										<include name="installer" />
+									</fileset>
+									<fileset dir="${basedir}/target/installer">
+										<include name="build" />
+									</fileset>
+								</chmod>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>build-installer</id>
+						<phase>package</phase>
+						<configuration>
+							<target>
+								<exec executable="${basedir}/target/installer/build"
+									dir="${project.build.directory}/installer"></exec>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>make-installer-executable</id>
+						<phase>package</phase>
+						<configuration>
+							<target>
+								<chmod perm="ugo+x">
+									<fileset dir="${basedir}/target/installer">
+										<include name="*.bsx" />
 									</fileset>
 								</chmod>
 							</target>

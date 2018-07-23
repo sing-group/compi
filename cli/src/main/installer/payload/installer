@@ -1,0 +1,9 @@
+#!/bin/bash
+echo "Running Installer"
+cp -r compi/* /usr/local/bin
+if (( $? )); then
+  echo "Error during compi installation" >&2
+  exit 1
+else
+  echo "Installation successful. Type compi to start!"
+fi
