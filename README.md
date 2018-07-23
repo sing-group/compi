@@ -43,6 +43,19 @@ Compi pipelines are defined in XML files, such as this one:
 </pipeline>
 ```
 
+## Elements of Compi
+Compi has several parts:
+* **Compi core**: Contains the pipelines execution engine, which is in charge
+of launching your pipeline tasks and managing their parallel execution.
+* **Compi Command Line Interface (cli)**: This tool allows you to run pipelines
+in your host machine. With this utility you can launch your pipeline entirely
+or partially.
+* **Compi Development Kit (dk)**: This tool allows you to create pipelines to
+be run on docker. The docker image will contain (i) compi cli and compi core
+and (ii) all third-party programs and dependencies your pipeline needs.
+compi-dk helps you on creating and building this docker image with your
+*portable* pipeline and all its dependencies.
+
 ## Requisites
 * Linux
 * Java JDK
