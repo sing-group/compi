@@ -1,20 +1,25 @@
-Compi docs
-==========
+# Compi docs
 
-You need sphinx installed to generate the documentation.
+## Building the docs
 
-You also need to install the ReadTheDocs theme
+The documentation can be build using maven or `sphinx` directly. Before building the documentation, check the `source/conf.py` file to make sure that the compi version is right.
+
+### Building the docs with maven
+
+Simply run `mvn package -PgenerateDocs`in the parent directory. Documentation will be generated in `./docs/build/html` directory.
+
+### Building the docs with sphinx
+
+You need `sphinx` installed to generate the documentation. You also need to install the ReadTheDocs theme:
 
 	pip install sphinx_rtd_theme
 
-Documentation will be generated in `./build/html` directory.
+Placed in this directory, run `make html`. Documentation will be generated in `./build/html` directory.
 
-To build the documentation run:
+## Writing the documentation
 
-    make html
+The documentation source files are located at the `./source` directory.
 
 Documentation is written using [reStructuredText](http://docutils.sourceforge.net/rst.html). In the following links you can find information about the syntax:
 - http://docutils.sourceforge.net/docs/user/rst/quickref.html
 - http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html
-
-
