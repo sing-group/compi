@@ -67,7 +67,7 @@ compi-dk helps you on creating and building this docker image with your
 # Clone the repository
 git clone https://github.com/sing-group/compi.git
 cd compi
-mvn package
+mvn package -PcreateInstaller
 ```
 Inside `dk/target/installer` you will find `compi-dk-<version>-installer.bsx`,
 which is a self-extracting installer of the *Compi Development Kit*, compatible

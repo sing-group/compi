@@ -25,6 +25,8 @@
 	<properties>
 		<distResourcesDirectory>src/main/dist-resources</distResourcesDirectory>
 		<installerResourcesDirectory>src/main/installer</installerResourcesDirectory>
+		<should.skip.dist>true</should.skip.dist>
+		<should.skip.installer>true</should.skip.installer>
 	</properties>
 
 	<dependencies>
@@ -41,6 +43,89 @@
 			<artifactId>velocity</artifactId>
 		</dependency>
 	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>createDist</id>
+			<properties>
+				<should.skip.dist>false</should.skip.dist>
+			</properties>
+		</profile>
+		<profile>
+			<id>createInstaller</id>
+			<properties>
+				<should.skip.dist>false</should.skip.dist>
+				<should.skip.installer>false</should.skip.installer>
+			</properties>
+			<build>
+				<plugins>
+					<!-- build installer executables -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>fix-permissions</id>
+								<phase>package</phase>
+								<configuration>
+									<target>
+										<chmod perm="ugo+x">
+											<fileset dir="${basedir}/target/dist">
+												<include name="compi-dk"/>
+											</fileset>
+											<fileset
+												dir="${basedir}/target/installer/payload/compi-dk">
+												<include name="compi-dk"/>
+											</fileset>
+											<fileset dir="${basedir}/target/installer/payload">
+												<include name="installer"/>
+											</fileset>
+											<fileset dir="${basedir}/target/installer">
+												<include name="build"/>
+											</fileset>
+										</chmod>
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>build-installer</id>
+								<phase>package</phase>
+								<configuration>
+									<target>
+										<exec executable="${basedir}/target/installer/build"
+											dir="${project.build.directory}/installer"></exec>
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>make-installer-executable</id>
+								<phase>package</phase>
+								<configuration>
+									<target>
+										<chmod perm="ugo+x">
+											<fileset dir="${basedir}/target/installer">
+												<include name="*.bsx"/>
+											</fileset>
+										</chmod>
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<build>
 		<resources>
@@ -63,6 +148,7 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
+							<skip>${should.skip.dist}</skip>
 							<outputDirectory>${project.build.directory}/dist</outputDirectory>
 							<resources>
 								<resource>
@@ -79,6 +165,7 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
+							<skip>${should.skip.installer}</skip>
 							<outputDirectory>${project.build.directory}/installer</outputDirectory>
 							<resources>
 								<resource>
@@ -114,6 +201,7 @@
 							<goal>single</goal>
 						</goals>
 						<configuration>
+							<skipAssembly>${should.skip.dist}</skipAssembly>
 							<outputDirectory>${project.build.directory}/dist</outputDirectory>
 						</configuration>
 					</execution>
@@ -124,6 +212,7 @@
 							<goal>single</goal>
 						</goals>
 						<configuration>
+							<skipAssembly>${should.skip.installer}</skipAssembly>
 							<outputDirectory>${project.build.directory}/installer/payload/compi-dk/compi-dk-files</outputDirectory>
 						</configuration>
 					</execution>
@@ -142,6 +231,7 @@
 							<goal>unpack</goal>
 						</goals>
 						<configuration>
+							<skip>${should.skip.installer}</skip>
 							<artifactItems>
 								<artifactItem>
 									<groupId>com.oracle.java</groupId>
@@ -154,71 +244,6 @@
 								</artifactItem>
 							</artifactItems>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- make .sh and .bat executable -->
-			<plugin>
-
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.6</version>
-				<executions>
-					<execution>
-						<id>fix-permissions</id>
-						<phase>package</phase>
-						<configuration>
-							<target>
-								<chmod perm="ugo+x">
-									<fileset dir="${basedir}/target/dist">
-										<include name="compi-dk" />
-									</fileset>
-									<fileset
-										dir="${basedir}/target/installer/payload/compi-dk">
-										<include name="compi-dk" />
-									</fileset>
-									<fileset dir="${basedir}/target/installer/payload">
-										<include name="installer" />
-									</fileset>
-									<fileset dir="${basedir}/target/installer">
-										<include name="build" />
-									</fileset>
-								</chmod>
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>build-installer</id>
-						<phase>package</phase>
-						<configuration>
-							<target>
-								<exec executable="${basedir}/target/installer/build"
-									dir="${project.build.directory}/installer"></exec>
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>make-installer-executable</id>
-						<phase>package</phase>
-						<configuration>
-							<target>
-								<chmod perm="ugo+x">
-									<fileset dir="${basedir}/target/installer">
-										<include name="*.bsx" />
-									</fileset>
-								</chmod>
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>
