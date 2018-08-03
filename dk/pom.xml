@@ -3,9 +3,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
 	http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<artifactId>compi-dk</artifactId>
 	<packaging>jar</packaging>
-	<name>Compi Development Kit</name>
+
 	<parent>
 		<groupId>org.sing_group</groupId>
 		<artifactId>compi</artifactId>
@@ -18,47 +19,29 @@
 			This will change the version in all modules at-once
 		-->
 	</parent>
+
+	<name>Compi Development Kit</name>
+
 	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<maven.assembly.version>2.6</maven.assembly.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<distResourcesDirectory>src/main/dist-resources</distResourcesDirectory>
 		<installerResourcesDirectory>src/main/installer</installerResourcesDirectory>
-		<yacli.version>2.0</yacli.version>
-		<httpclient.version>4.5.5</httpclient.version>
-		<velocity.version>1.7</velocity.version>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>es.uvigo.ei.sing</groupId>
 			<artifactId>yacli</artifactId>
-			<version>${yacli.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>${httpclient.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
-			<version>${velocity.version}</version>
 		</dependency>
 	</dependencies>
-	<repositories>
-		<repository>
-			<id>sing-repository</id>
-			<name>SING repository</name>
-			<url>https://maven.sing-group.org/repository/maven/</url>
-		</repository>
-		<repository>
-			<id>sing-repository-snapshots</id>
-			<name>SING repository snapshots</name>
-			<url>https://maven.sing-group.org/repository/maven-snapshots/</url>
-		</repository>
-	</repositories>
+
 	<build>
 		<resources>
 			<resource>
@@ -107,6 +90,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<!-- create executable jar -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -173,6 +157,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<!-- make .sh and .bat executable -->
 			<plugin>
 
@@ -237,8 +222,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
-
 		</plugins>
 	</build>
 </project>

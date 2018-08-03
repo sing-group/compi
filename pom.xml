@@ -3,6 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
 	http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>org.sing_group</groupId>
 	<artifactId>compi</artifactId>
 	<packaging>pom</packaging>
@@ -15,21 +16,39 @@
                         This will change the version in all modules at-once
                 -->
 
-	<name>Java Framework for Computational Pipelines</name>
+	<name>Compi</name>
+	<description>Compi: Java Framework for Computational Pipelines</description>
+	<url>http://www.sing-group.org/compi</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+
+		<maven.surefire.plugin.version>2.19.1</maven.surefire.plugin.version>
+		<maven.compiler.version>3.5</maven.compiler.version>
+		<maven.assembly.version>2.6</maven.assembly.version>
+		<maven.javadoc.version>2.10.3</maven.javadoc.version>
+		<maven.resources.version>3.1.0</maven.resources.version>
+		<maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
+
+		<junit.version>4.12</junit.version>
+		
+		<javax.activation.activation.version>1.1</javax.activation.activation.version>
+		<jaxb.version>2.2.11</jaxb.version>
+		<yacli.version>2.0</yacli.version>
+		<httpclient.version>4.5.5</httpclient.version>
+		<velocity.version>1.7</velocity.version>
 	</properties>
 
-    <modules>
-        <module>core</module>
-	<module>cli</module>
-        <module>dk</module>
-    </modules>
-    
+	<modules>
+		<module>core</module>
+		<module>cli</module>
+		<module>dk</module>
+	</modules>
+
 	<distributionManagement>
 		<repository>
 			<id>sing-maven-releases</id>
@@ -44,4 +63,105 @@
 		</snapshotRepository>
 	</distributionManagement>
 
+	<repositories>
+		<repository>
+			<id>sing-repository</id>
+			<name>SING repository</name>
+			<url>https://maven.sing-group.org/repository/maven/</url>
+		</repository>
+		<repository>
+			<id>sing-repository-snapshots</id>
+			<name>SING repository snapshots</name>
+			<url>https://maven.sing-group.org/repository/maven-snapshots/</url>
+		</repository>
+	</repositories>
+	
+	<dependencyManagement>
+		<dependencies>
+			<!-- java 9 and beyond deps (JAXB) -->
+			<dependency>
+				<groupId>javax.activation</groupId>
+				<artifactId>activation</artifactId>
+				<version>${javax.activation.activation.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.xml.bind</groupId>
+				<artifactId>jaxb-api</artifactId>
+				<version>${jaxb.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.xml.bind</groupId>
+				<artifactId>jaxb-impl</artifactId>
+				<version>${jaxb.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.xml.bind</groupId>
+				<artifactId>jaxb-core</artifactId>
+				<version>${jaxb.version}</version>
+			</dependency>
+			<!-- end of java 9 and beyond deps (JAXB) -->
+
+			<!-- compi modules -->
+			<dependency>
+				<groupId>org.sing_group</groupId>
+				<artifactId>compi-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>es.uvigo.ei.sing</groupId>
+				<artifactId>yacli</artifactId>
+				<version>${yacli.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+				<version>${httpclient.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.velocity</groupId>
+				<artifactId>velocity</artifactId>
+				<version>${velocity.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>${maven-javadoc-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${maven.surefire.plugin.version}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

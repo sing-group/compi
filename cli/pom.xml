@@ -3,9 +3,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
 	http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<artifactId>compi-cli</artifactId>
 	<packaging>jar</packaging>
-	<name>Compi CLI</name>
+
 	<parent>
 		<groupId>org.sing_group</groupId>
 		<artifactId>compi</artifactId>
@@ -18,92 +19,32 @@
 			This will change the version in all modules at-once
 		-->
 	</parent>
+
+	<name>Compi CLI</name>
+
 	<properties>
 		<distResourcesDirectory>src/main/dist-resources</distResourcesDirectory>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<maven.surefire.plugin.version>2.19.1</maven.surefire.plugin.version>
-		<maven.compiler.version>3.5</maven.compiler.version>
-		<maven.assembly.version>2.6</maven.assembly.version>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<maven.javadoc.version>2.10.3</maven.javadoc.version>
-		<maven.resources.version>3.1.0</maven.resources.version>
-		<yacli.version>2.0</yacli.version>
-		<junit.version>4.12</junit.version>
 		<installerResourcesDirectory>src/main/installer</installerResourcesDirectory>
 	</properties>
-
-	<distributionManagement>
-		<repository>
-			<id>sing-maven-releases</id>
-			<name>SING Maven Releases</name>
-			<url>https://maven.sing-group.org/repository/maven-releases/</url>
-		</repository>
-
-		<snapshotRepository>
-			<id>sing-maven-releases</id>
-			<name>SING Maven Snapshots</name>
-			<url>https://maven.sing-group.org/repository/maven-snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.sing_group</groupId>
 			<artifactId>compi-core</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>es.uvigo.ei.sing</groupId>
 			<artifactId>yacli</artifactId>
-			<version>${yacli.version}</version>
 		</dependency>
 	</dependencies>
-	<repositories>
-		<repository>
-			<id>sing-repository</id>
-			<name>SING repository</name>
-			<url>https://maven.sing-group.org/repository/maven/</url>
-		</repository>
-		<repository>
-			<id>sing-repository-snapshots</id>
-			<name>SING repository snapshots</name>
-			<url>https://maven.sing-group.org/repository/maven-snapshots/</url>
-		</repository>
 
-	</repositories>
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven.compiler.version}</version>
-				<configuration>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>${maven.javadoc.version}</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
 			<!-- create executable jar -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -211,6 +152,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<!-- make .sh and .bat executable -->
 			<plugin>
 
@@ -275,12 +217,6 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven.surefire.plugin.version}</version>
 			</plugin>
 		</plugins>
 	</build>
