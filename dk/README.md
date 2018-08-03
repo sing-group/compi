@@ -1,2 +1,2 @@
 # Compi Development Kit
-Development Kit for Compi (Java Framework for Computational Pipelines)
+The `dk` module contains the Development Kit for Compi. This tool allows you to create pipelines to be run on docker. The docker image will contain (i) compi cli and compi core and (ii) all third-party programs and dependencies your pipeline needs. compi-dk helps you on creating and building this docker image with your *portable* pipeline and all its dependencies.
