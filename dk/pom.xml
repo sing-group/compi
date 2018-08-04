@@ -23,6 +23,7 @@
 	<name>Compi Development Kit</name>
 
 	<properties>
+		<exec.mainClass>org.sing_group.compi.dk.cli.CompiDKCLI</exec.mainClass>
 		<distResourcesDirectory>src/main/dist-resources</distResourcesDirectory>
 		<installerResourcesDirectory>src/main/installer</installerResourcesDirectory>
 		<should.skip.dist>true</should.skip.dist>
@@ -189,7 +190,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>org.sing_group.compi.dk.cli.CompiDKCLI</mainClass>
+							<mainClass>${exec.mainClass}</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
