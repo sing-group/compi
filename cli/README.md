@@ -56,6 +56,8 @@ usage: compi.sh export-graph -p <pipeline> -o <output> [-f <format>] [-w <width>
                 output file
         --format/-f
                 graph format. Values: png, svg, xdot, json (default: png)
+        --orientation/-or
+                graph orientation. Values: horizontal, vertical (default: vertical)
         --width/-w
                 graph width. By default, no width is used so the graph takes the minimum required. This option is incompatible with --height (default: -1)
         --height/-h

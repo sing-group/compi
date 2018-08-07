@@ -4,15 +4,19 @@ import static java.util.Arrays.asList;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.joining;
 import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.DEFAULT_FONT_SIZE;
+import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.DEFAULT_GRAPH_ORIENTATION;
 import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.DEFAULT_HEIGHT;
 import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.DEFAULT_OUTPUT_FORMAT;
 import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.DEFAULT_WIDTH;
+import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.isValidGraphOrientation;
+import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.isValidOutputFormat;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.sing_group.compi.xmlio.io.graph.PipelineGraphExporter.GraphOrientation;
 import org.sing_group.compi.xmlio.io.graph.PipelineGraphExporter.OutputFormat;
 import org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder;
 
@@ -29,6 +33,7 @@ public class ExportGraphCommand extends AbstractCommand {
 	private static final String PIPELINE_FILE = CommonParameters.PIPELINE_FILE;
 	private static final String OUTPUT_FILE = "o";
 	private static final String GRAPH_FORMAT = "f";
+	private static final String GRAPH_ORIENTATION = "or";
 	private static final String GRAPH_WIDTH = "w";
 	private static final String GRAPH_HEIGHT = "h";
 	private static final String GRAPH_FONT_SIZE = "fs";
@@ -36,26 +41,32 @@ public class ExportGraphCommand extends AbstractCommand {
 	private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;;
 	private static final String OUTPUT_FILE_LONG = "output";
 	private static final String GRAPH_FORMAT_LONG = "format";
+	private static final String GRAPH_ORIENTATION_LONG = "orientation";
 	private static final String GRAPH_WITH_LONG = "width";
 	private static final String GRAPH_HEIGHT_LONG = "height";
 	private static final String GRAPH_FONT_SIZE_LONG = "font-size";
 
 	private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
 	private static final String OUTPUT_FILE_DESCRIPTION = "output file";
-	private static final String GRAPH_FORMAT_DESCRIPTION = 
+	private static final String GRAPH_FORMAT_DESCRIPTION =
 		"graph format. Values: " + getOutputformatValues();
+	private static final String GRAPH_ORIENTATION_DESCRIPTION =
+		"graph orientation. Values: " + getGraphOrientationValues();
 	private static final String GRAPH_WIDTH_DESCRIPTION = "graph width. "
 		+ "By default, no width is used so the graph takes the minimum "
 		+ "required. This option is incompatible with --"
 		+ GRAPH_HEIGHT_LONG;
 	private static final String GRAPH_HEIGHT_DESCRIPTION = "graph height. "
-		+ "By default, no height is used so the graph takes the minimum " 
+		+ "By default, no height is used so the graph takes the minimum "
 		+ "required. This option is incompatible with --"
 		+ GRAPH_WITH_LONG;
 	private static final String GRAPH_FONT_SIZE_DESCRIPTION = "graph font size";
 
-	private static final String DEFAULT_OUTPUT_FORMAT_STRING = 
+	private static final String DEFAULT_OUTPUT_FORMAT_STRING =
 		DEFAULT_OUTPUT_FORMAT.toString().toLowerCase();
+
+	private static final String DEFAULT_GRAPH_ORIENTATION_STRING =
+		DEFAULT_GRAPH_ORIENTATION.toString().toLowerCase();
 
 	@Override
 	public void execute(final Parameters parameters) throws Exception {
@@ -71,7 +82,7 @@ public class ExportGraphCommand extends AbstractCommand {
 
 		File outputFile = new File(
 			parameters.getSingleValueString(super.getOption(OUTPUT_FILE)));
-		
+
 		LOGGER.info("Export graph to file - " + outputFile);
 
 		if (!outputFile.getParentFile().canWrite()) {
@@ -79,15 +90,40 @@ public class ExportGraphCommand extends AbstractCommand {
 			System.exit(1);
 		}
 
-		PipelineGraphExporterBuilder graphExporterBuilder = 
+		PipelineGraphExporterBuilder graphExporterBuilder =
 			new PipelineGraphExporterBuilder(pipelineFile, outputFile);
-		
-		String graphFormat = 
+
+		String graphFormat =
 			parameters.getSingleValueString(super.getOption(GRAPH_FORMAT));
 
-		if (!graphFormat.equals(DEFAULT_OUTPUT_FORMAT_STRING)) {
+		if(isValidOutputFormat(graphFormat)) {
 			LOGGER.info("Graph format - " + graphFormat);
+		} else {
+			throw new IllegalArgumentException("The specified graph format ("
+				+ graphFormat + ") is not valid. Valid values: "
+				+ getOutputformatValues());
+		}
+
+		if (!graphFormat.equals(DEFAULT_OUTPUT_FORMAT_STRING)) {
 			graphExporterBuilder = graphExporterBuilder.outputFormat(graphFormat);
+		}
+
+		String graphOrientation =
+			parameters.getSingleValueString(super.getOption(GRAPH_ORIENTATION));
+
+
+		if(isValidGraphOrientation(graphOrientation)) {
+			LOGGER.info("Graph orientation - " + graphOrientation);
+		} else {
+			throw new IllegalArgumentException(
+				"The specified graph orientation (" + graphOrientation
+					+ ") is not valid. Valid values: "
+					+ getGraphOrientationValues());
+		}
+
+		if (!graphOrientation.equals(DEFAULT_GRAPH_ORIENTATION_STRING)) {
+			graphExporterBuilder =
+				graphExporterBuilder.graphOrientation(graphOrientation);
 		}
 
 		Integer graphWidth = parameters
@@ -111,9 +147,9 @@ public class ExportGraphCommand extends AbstractCommand {
 
 		Integer fontSize = parameters
 			.getSingleValue(super.getOption(GRAPH_FONT_SIZE));
+		LOGGER.info("Graph font size - " + fontSize);
 
 		if (fontSize != DEFAULT_FONT_SIZE) {
-			LOGGER.info("Graph font size - " + fontSize);
 			graphExporterBuilder = graphExporterBuilder.fontSize(fontSize);
 		}
 
@@ -142,6 +178,7 @@ public class ExportGraphCommand extends AbstractCommand {
 		options.add(getOutputFileOption());
 
 		options.add(getOutputFormatOption());
+		options.add(getGraphOrientationOption());
 		options.add(getWidthOption());
 		options.add(getHeightOption());
 		options.add(getFontSizeOption());
@@ -164,6 +201,11 @@ public class ExportGraphCommand extends AbstractCommand {
 			GRAPH_FORMAT_DESCRIPTION, DEFAULT_OUTPUT_FORMAT_STRING);
 	}
 
+	private DefaultValuedStringOption getGraphOrientationOption() {
+		return new DefaultValuedStringOption(GRAPH_ORIENTATION_LONG, GRAPH_ORIENTATION,
+			GRAPH_ORIENTATION_DESCRIPTION, DEFAULT_GRAPH_ORIENTATION_STRING);
+	}
+
 	private IntegerOption getWidthOption() {
 		return new IntegerOption(GRAPH_WITH_LONG, GRAPH_WIDTH,
 			GRAPH_WIDTH_DESCRIPTION, DEFAULT_WIDTH);
@@ -182,6 +224,12 @@ public class ExportGraphCommand extends AbstractCommand {
 	private static final String getOutputformatValues() {
 		return asList(OutputFormat.values()).stream()
 			.map(OutputFormat::toString).map(String::toLowerCase)
+			.collect(joining(", "));
+	}
+
+	private static final String getGraphOrientationValues() {
+		return asList(GraphOrientation.values()).stream()
+			.map(GraphOrientation::toString).map(String::toLowerCase)
 			.collect(joining(", "));
 	}
 }

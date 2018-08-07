@@ -15,6 +15,7 @@ import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Task;
 
+import guru.nidi.graphviz.attribute.RankDir;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.attribute.Style;
 import guru.nidi.graphviz.engine.Format;
@@ -26,48 +27,68 @@ import guru.nidi.graphviz.model.Node;
 public class PipelineGraphExporter {
 	public enum OutputFormat {
 		PNG(Format.PNG), SVG(Format.SVG), XDOT(Format.XDOT), JSON(Format.JSON);
-		
+
 		private Format format;
 
 		OutputFormat(Format format) {
 			this.format = format;
 		}
-		
+
 		public Format getFormat() {
 			return format;
+		}
+	}
+
+	public enum GraphOrientation {
+		HORIZONTAL(RankDir.LEFT_TO_RIGHT), VERTICAL(RankDir.TOP_TO_BOTTOM);
+
+		private RankDir rankDir;
+
+		GraphOrientation(RankDir rankDir) {
+			this.rankDir = rankDir;
+		}
+
+		public RankDir getRankDir() {
+			return rankDir;
 		}
 	}
 
 	private File pipeline;
 	private File output;
 	private OutputFormat outputFormat;
+	private GraphOrientation graphOrientation;
 	private int width = -1;
 	private int height = -1;
 	private int fontSize;
 
 	public PipelineGraphExporter(File pipeline, File output,
-		OutputFormat outputFormat, int fontSize) {
+		OutputFormat outputFormat, int fontSize,
+		GraphOrientation graphOrientation
+	) {
 		this.pipeline = pipeline;
 		this.output = output;
 		this.outputFormat = outputFormat;
 		this.fontSize = fontSize;
+		this.graphOrientation = graphOrientation;
 	}
 
 	public void setWidth(int width) {
 		this.width = width;
 	}
-	
+
 	public void setHeight(int height) {
 		this.height = height;
 	}
 
 	public void export() throws IOException {
-		Pipeline pipelineObject = 
+		Pipeline pipelineObject =
 			createPipelineParser().parsePipeline(this.pipeline);
-		
+
 		Graphviz.useEngine(new GraphvizJdkEngine());
 
-		Graph pipelineGraph = graph("compi").directed();
+		Graph pipelineGraph = graph("compi").directed()
+			.graphAttr().with(this.graphOrientation.getRankDir());
+
 		pipelineGraph = pipelineGraph.nodeAttr()
 			.with(config("Arial", this.fontSize));
 
