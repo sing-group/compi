@@ -1,5 +1,7 @@
 package org.sing_group.compi.cli.commands;
 
+import static java.util.logging.Logger.getLogger;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,45 +16,42 @@ import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class ValidatePipelineCommand extends AbstractCommand {
-  private static final Logger logger = Logger.getLogger( ValidatePipelineCommand.class.getName() );
+	private static final Logger LOGGER = getLogger(ValidatePipelineCommand.class.getName());
+
+	private static final String PIPELINE_FILE = CommonParameters.PIPELINE_FILE;
+	private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;
+	private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
 
 	@Override
 	public void execute(final Parameters parameters) throws Exception {
+		String pipelineFile = parameters.getSingleValue(super.getOption(PIPELINE_FILE));
 
-		logger.info("Validating pipeline file: " + parameters.getSingleValue(super.getOption("p")));
-		
-		File f = new File(parameters.getSingleValueString(super.getOption("p")));
-		
+		LOGGER.info("Validating pipeline file: " + pipelineFile);
+
+		File f = new File(pipelineFile);
+
 		if (!f.exists()) {
-		  logger.severe("Pipeline file not found: "+f);
-		  System.exit(1);
+			LOGGER.severe("Pipeline file not found: " + f);
+			System.exit(1);
 		}
 		
-	  List<ValidationError> errors = new PipelineValidator(f).validate();
-	  logValidationErrors(errors);
-		
-	  if (errors.stream().filter(error -> error.getType().isError()).count() > 0) {
-	    System.exit(1);
-	  } else {
-	    System.exit(0);
-	  }
+		List<ValidationError> errors = new PipelineValidator(f).validate();
+		logValidationErrors(errors);
+
+		if (errors.stream().filter(error -> error.getType().isError())
+			.count() > 0
+		) {
+			System.exit(1);
+		} else {
+			System.exit(0);
+		}
 	}
 
-	/**
-	 * Getter of the description
-	 * 
-	 * @return The description
-	 */
 	@Override
 	public String getDescription() {
-		return "Validates a pipeline";
+		return "Validates a pipeline.";
 	}
 
-	/**
-	 * Getter of the name
-	 * 
-	 * @return The name
-	 */
 	@Override
 	public String getName() {
 		return "validate";
@@ -63,26 +62,27 @@ public class ValidatePipelineCommand extends AbstractCommand {
 		return "Validate a pipeline";
 	}
 
-	/**
-	 * Returns a {@link List} with all the {@link Option}
-	 * 
-	 * @return A {@link List} with all the {@link Option}
-	 */
 	@Override
 	protected List<Option<?>> createOptions() {
 		final List<Option<?>> options = new ArrayList<>();
-		options.add(new StringOption("pipeline", "p", "pipeline file", false, true, false));
+		options.add(getPipelineOption());
+
 		return options;
 	}
-	
-	 private void logValidationErrors(List<ValidationError> errors) {
-	    errors.stream().forEach(error -> {
-	      if (error.getType().isError()) {
-	        logger.severe(error.toString());
-	      } else {
-	        logger.warning(error.toString());
-	      }
-	    });
-	  }
+
+	private Option<?> getPipelineOption() {
+		return new StringOption(PIPELINE_FILE_LONG, PIPELINE_FILE,
+			PIPELINE_FILE_DESCRIPTION, false, true, false);
+	}
+
+	private void logValidationErrors(List<ValidationError> errors) {
+		errors.stream().forEach(error -> {
+			if (error.getType().isError()) {
+				LOGGER.severe(error.toString());
+			} else {
+				LOGGER.warning(error.toString());
+			}
+		});
+	}
 
 }
