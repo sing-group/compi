@@ -77,6 +77,8 @@ public class PipelineGraphExporter {
 			Node node = node(task.getId());
 			if (Foreach.class.isAssignableFrom(task.getClass())) {
 				node = node.with(Style.DASHED, Shape.RECTANGLE);
+			} else {
+				node = node.with(Shape.RECTANGLE);
 			}
 			idToNode.putIfAbsent(task.getId(), node);
 		}
