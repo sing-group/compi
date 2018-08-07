@@ -51,6 +51,33 @@
 			<properties>
 				<should.skip.dist>false</should.skip.dist>
 			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>fix-permissions</id>
+								<phase>package</phase>
+								<configuration>
+									<target>
+										<chmod perm="ugo+x">
+											<fileset dir="${basedir}/target/dist">
+												<include name="compi-dk"/>
+											</fileset>
+										</chmod>
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 		<profile>
 			<id>createInstaller</id>
