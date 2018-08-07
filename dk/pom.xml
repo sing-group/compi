@@ -229,6 +229,16 @@
 							<goal>single</goal>
 						</goals>
 						<configuration>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>make-assembly-for-dist</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
 							<skipAssembly>${should.skip.dist}</skipAssembly>
 							<outputDirectory>${project.build.directory}/dist</outputDirectory>
 						</configuration>
