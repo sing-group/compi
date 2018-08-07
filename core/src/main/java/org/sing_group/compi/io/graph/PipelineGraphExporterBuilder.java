@@ -1,9 +1,9 @@
-package org.sing_group.compi.xmlio.io.graph;
+package org.sing_group.compi.io.graph;
 
 import java.io.File;
 
-import org.sing_group.compi.xmlio.io.graph.PipelineGraphExporter.GraphOrientation;
-import org.sing_group.compi.xmlio.io.graph.PipelineGraphExporter.OutputFormat;
+import org.sing_group.compi.io.graph.PipelineGraphExporter.GraphOrientation;
+import org.sing_group.compi.io.graph.PipelineGraphExporter.OutputFormat;
 
 public class PipelineGraphExporterBuilder {
 	public static final OutputFormat DEFAULT_OUTPUT_FORMAT = OutputFormat.PNG;

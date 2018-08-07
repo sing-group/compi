@@ -3,22 +3,22 @@ package org.sing_group.compi.cli.commands;
 import static java.util.Arrays.asList;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.joining;
-import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.DEFAULT_FONT_SIZE;
-import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.DEFAULT_GRAPH_ORIENTATION;
-import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.DEFAULT_HEIGHT;
-import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.DEFAULT_OUTPUT_FORMAT;
-import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.DEFAULT_WIDTH;
-import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.isValidGraphOrientation;
-import static org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder.isValidOutputFormat;
+import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_FONT_SIZE;
+import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_GRAPH_ORIENTATION;
+import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_HEIGHT;
+import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_OUTPUT_FORMAT;
+import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_WIDTH;
+import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.isValidGraphOrientation;
+import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.isValidOutputFormat;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.sing_group.compi.xmlio.io.graph.PipelineGraphExporter.GraphOrientation;
-import org.sing_group.compi.xmlio.io.graph.PipelineGraphExporter.OutputFormat;
-import org.sing_group.compi.xmlio.io.graph.PipelineGraphExporterBuilder;
+import org.sing_group.compi.io.graph.PipelineGraphExporterBuilder;
+import org.sing_group.compi.io.graph.PipelineGraphExporter.GraphOrientation;
+import org.sing_group.compi.io.graph.PipelineGraphExporter.OutputFormat;
 
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;

@@ -1,4 +1,4 @@
-package org.sing_group.compi.xmlio.io.graph;
+package org.sing_group.compi.io.graph;
 
 import static guru.nidi.graphviz.attribute.Font.config;
 import static guru.nidi.graphviz.engine.Graphviz.fromGraph;
