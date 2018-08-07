@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.LogManager;
 
+import org.sing_group.compi.cli.commands.ExportGraphCommand;
 import org.sing_group.compi.cli.commands.RunCommand;
 import org.sing_group.compi.cli.commands.ValidatePipelineCommand;
 import org.sing_group.compi.core.CompiApp;
@@ -48,6 +49,7 @@ public class CompiCLI extends CLIApplication {
 		final List<Command> commands = new ArrayList<>();
 		commands.add(new RunCommand(args));
 		commands.add(new ValidatePipelineCommand());
+		commands.add(new ExportGraphCommand());
 		return commands;
 	}
 
