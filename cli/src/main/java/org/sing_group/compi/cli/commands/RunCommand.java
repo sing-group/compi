@@ -16,7 +16,7 @@ import org.sing_group.compi.core.validation.ValidationError;
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;
-import es.uvigo.ei.sing.yacli.command.option.IntegerOption;
+import es.uvigo.ei.sing.yacli.command.option.IntegerDefaultValuedStringConstructedOption;
 import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
@@ -155,7 +155,7 @@ public class RunCommand extends AbstractCommand {
 	}
 
 	private Option<?> getNumThreads() {
-		return new IntegerOption(NUM_THREADS_LONG, NUM_THREADS,
+		return new IntegerDefaultValuedStringConstructedOption(NUM_THREADS_LONG, NUM_THREADS,
 			NUM_THEADS_DESCRIPTION, NUM_THREADS_DEFAULT);
 	}
 

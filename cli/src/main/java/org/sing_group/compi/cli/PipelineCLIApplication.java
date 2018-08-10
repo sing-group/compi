@@ -1,5 +1,6 @@
 package org.sing_group.compi.cli;
 
+import static es.uvigo.ei.sing.yacli.command.CommandPrinter.printCommandOptionsExtended;
 import static java.util.Arrays.asList;
 
 import java.io.PrintStream;
@@ -58,13 +59,12 @@ public class PipelineCLIApplication extends CLIApplication {
 	    super.printCommandUsageLine(command, out);
 	    out.println(" <general-options> -- <pipeline-parameters>");
 	    out.print("  where <general-options>: "); super.printCommandOptions(new RunCommand(CompiCLI.args), out); out.println();
-	    super.printCommandOptionsExtended(new RunCommand(CompiCLI.args), out);
+	    printCommandOptionsExtended(new RunCommand(CompiCLI.args), out);
 	    out.println();
 	    out.print("  where <pipeline-parameters>:"); super.printCommandOptions(command, out); out.println();
-	    super.printCommandOptionsExtended(command, out);
+	    printCommandOptionsExtended(command, out);
 	  } else {
 	    super.printCommandHelp(command, out);
 	  }
 	}
-
 }

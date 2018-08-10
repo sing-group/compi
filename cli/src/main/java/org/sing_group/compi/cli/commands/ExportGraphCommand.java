@@ -22,7 +22,7 @@ import org.sing_group.compi.io.graph.PipelineGraphExporter.OutputFormat;
 
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;
-import es.uvigo.ei.sing.yacli.command.option.IntegerOption;
+import es.uvigo.ei.sing.yacli.command.option.IntegerDefaultValuedStringConstructedOption;
 import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
@@ -186,38 +186,38 @@ public class ExportGraphCommand extends AbstractCommand {
 		return options;
 	}
 
-	private StringOption getPipelineFileOption() {
+	private Option<?> getPipelineFileOption() {
 		return new StringOption(PIPELINE_FILE_LONG, PIPELINE_FILE,
 			PIPELINE_FILE_DESCRIPTION, false, true, false);
 	}
 
-	private StringOption getOutputFileOption() {
+	private Option<?> getOutputFileOption() {
 		return new StringOption(OUTPUT_FILE_LONG, OUTPUT_FILE,
 			OUTPUT_FILE_DESCRIPTION, false, true, false);
 	}
 
-	private DefaultValuedStringOption getOutputFormatOption() {
+	private Option<?> getOutputFormatOption() {
 		return new DefaultValuedStringOption(GRAPH_FORMAT_LONG, GRAPH_FORMAT,
 			GRAPH_FORMAT_DESCRIPTION, DEFAULT_OUTPUT_FORMAT_STRING);
 	}
 
-	private DefaultValuedStringOption getGraphOrientationOption() {
+	private Option<?> getGraphOrientationOption() {
 		return new DefaultValuedStringOption(GRAPH_ORIENTATION_LONG, GRAPH_ORIENTATION,
 			GRAPH_ORIENTATION_DESCRIPTION, DEFAULT_GRAPH_ORIENTATION_STRING);
 	}
 
-	private IntegerOption getWidthOption() {
-		return new IntegerOption(GRAPH_WITH_LONG, GRAPH_WIDTH,
+	private Option<?> getWidthOption() {
+		return new IntegerDefaultValuedStringConstructedOption(GRAPH_WITH_LONG, GRAPH_WIDTH,
 			GRAPH_WIDTH_DESCRIPTION, DEFAULT_WIDTH);
 	}
 
-	private IntegerOption getHeightOption() {
-		return new IntegerOption(GRAPH_HEIGHT_LONG, GRAPH_HEIGHT,
+	private Option<?> getHeightOption() {
+		return new IntegerDefaultValuedStringConstructedOption(GRAPH_HEIGHT_LONG, GRAPH_HEIGHT,
 			GRAPH_HEIGHT_DESCRIPTION, DEFAULT_HEIGHT);
 	}
 
-	private IntegerOption getFontSizeOption() {
-		return new IntegerOption(GRAPH_FONT_SIZE_LONG, GRAPH_FONT_SIZE,
+	private Option<?> getFontSizeOption() {
+		return new IntegerDefaultValuedStringConstructedOption(GRAPH_FONT_SIZE_LONG, GRAPH_FONT_SIZE,
 			GRAPH_FONT_SIZE_DESCRIPTION, DEFAULT_FONT_SIZE);
 	}
 
