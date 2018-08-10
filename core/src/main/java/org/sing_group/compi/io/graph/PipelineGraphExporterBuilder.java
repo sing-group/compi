@@ -8,9 +8,10 @@ import org.sing_group.compi.io.graph.PipelineGraphExporter.OutputFormat;
 public class PipelineGraphExporterBuilder {
 	public static final OutputFormat DEFAULT_OUTPUT_FORMAT = OutputFormat.PNG;
 	public static final GraphOrientation DEFAULT_GRAPH_ORIENTATION = GraphOrientation.VERTICAL;
-	public static final int DEFAULT_WIDTH = -1;
-	public static final int DEFAULT_HEIGHT = -1;
 	public static final int DEFAULT_FONT_SIZE = 10;
+
+	private static final int DEFAULT_WIDTH = -1;
+	private static final int DEFAULT_HEIGHT = -1;
 
 	private File pipeline;
 	private File output;

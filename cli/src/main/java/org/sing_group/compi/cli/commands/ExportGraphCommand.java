@@ -5,9 +5,7 @@ import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.joining;
 import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_FONT_SIZE;
 import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_GRAPH_ORIENTATION;
-import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_HEIGHT;
 import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_OUTPUT_FORMAT;
-import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_WIDTH;
 import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.isValidGraphOrientation;
 import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.isValidOutputFormat;
 
@@ -16,13 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.sing_group.compi.io.graph.PipelineGraphExporterBuilder;
 import org.sing_group.compi.io.graph.PipelineGraphExporter.GraphOrientation;
 import org.sing_group.compi.io.graph.PipelineGraphExporter.OutputFormat;
+import org.sing_group.compi.io.graph.PipelineGraphExporterBuilder;
 
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;
 import es.uvigo.ei.sing.yacli.command.option.IntegerDefaultValuedStringConstructedOption;
+import es.uvigo.ei.sing.yacli.command.option.IntegerOption;
 import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
@@ -126,21 +125,23 @@ public class ExportGraphCommand extends AbstractCommand {
 				graphExporterBuilder.graphOrientation(graphOrientation);
 		}
 
-		Integer graphWidth = parameters
-			.getSingleValue(super.getOption(GRAPH_WIDTH));
-		Integer graphHeight = parameters
-			.getSingleValue(super.getOption(GRAPH_HEIGHT));
+		boolean hasWidth = parameters.hasOption(super.getOption(GRAPH_WIDTH));
+		boolean hasHeight = parameters.hasOption(super.getOption(GRAPH_HEIGHT));
 
-		if (graphWidth > 0 && graphHeight > 0) {
+		if (hasWidth && hasHeight) {
 			throw new IllegalArgumentException(
 				"You can specify " + GRAPH_WITH_LONG + " or "
 					+ GRAPH_HEIGHT_LONG + ", but not both at the same time.");
 		}
 
-		if (graphWidth > 0) {
+		if (hasWidth) {
+			Integer graphWidth = parameters
+				.getSingleValue(super.getOption(GRAPH_WIDTH));
 			LOGGER.info("Graph width - " + graphWidth);
 			graphExporterBuilder = graphExporterBuilder.width(graphWidth);
-		} else if (graphHeight > 0) {
+		} else if (hasHeight) {
+			Integer graphHeight = parameters
+				.getSingleValue(super.getOption(GRAPH_HEIGHT));
 			LOGGER.info("Graph height - " + graphHeight);
 			graphExporterBuilder = graphExporterBuilder.height(graphHeight);
 		}
@@ -207,13 +208,13 @@ public class ExportGraphCommand extends AbstractCommand {
 	}
 
 	private Option<?> getWidthOption() {
-		return new IntegerDefaultValuedStringConstructedOption(GRAPH_WITH_LONG, GRAPH_WIDTH,
-			GRAPH_WIDTH_DESCRIPTION, DEFAULT_WIDTH);
+		return new IntegerOption(GRAPH_WITH_LONG, GRAPH_WIDTH,
+			GRAPH_WIDTH_DESCRIPTION, true);
 	}
 
 	private Option<?> getHeightOption() {
-		return new IntegerDefaultValuedStringConstructedOption(GRAPH_HEIGHT_LONG, GRAPH_HEIGHT,
-			GRAPH_HEIGHT_DESCRIPTION, DEFAULT_HEIGHT);
+		return new IntegerOption(GRAPH_HEIGHT_LONG, GRAPH_HEIGHT,
+			GRAPH_HEIGHT_DESCRIPTION, true);
 	}
 
 	private Option<?> getFontSizeOption() {

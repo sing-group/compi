@@ -59,9 +59,9 @@ usage: compi.sh export-graph -p <pipeline> -o <output> [-f <format>] [-w <width>
         --orientation/-or
                 graph orientation. Values: horizontal, vertical (default: vertical)
         --width/-w
-                graph width. By default, no width is used so the graph takes the minimum required. This option is incompatible with --height (default: -1)
+                graph width. By default, no width is used so the graph takes the minimum required. This option is incompatible with --height
         --height/-h
-                graph height. By default, no height is used so the graph takes the minimum required. This option is incompatible with --width (default: -1)
+                graph height. By default, no height is used so the graph takes the minimum required. This option is incompatible with --width
         --font-size/-fs
-                graph font size (default: 10)               
+                graph font size (default: 10)
 ```
