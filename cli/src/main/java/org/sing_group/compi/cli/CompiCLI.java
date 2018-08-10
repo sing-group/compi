@@ -1,5 +1,7 @@
 package org.sing_group.compi.cli;
 
+import static java.lang.System.arraycopy;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -33,17 +35,16 @@ import es.uvigo.ei.sing.yacli.command.Command;
  */
 public class CompiCLI extends CLIApplication {
 
-  static {
-    configureLog();
-  }
+	static {
+		configureLog();
+	}
+
 	public static String[] args;
 
 	public CompiCLI() {
-		super(true, true, true);
+		super(true, true, false);
 	}
-	/**
-	 * Creates a command
-	 */
+
 	@Override
 	protected List<Command> buildCommands() {
 		final List<Command> commands = new ArrayList<>();
@@ -53,52 +54,39 @@ public class CompiCLI extends CLIApplication {
 		return commands;
 	}
 
-	/**
-	 * Getter of the application command
-	 */
 	@Override
 	protected String getApplicationCommand() {
 		return "compi.sh";
 	}
 
-	/**
-	 * Getter of the application name
-	 */
 	@Override
 	protected String getApplicationName() {
 		return "Compi App (version "+CompiApp.getCompiVersion()+")";
 	}
 
-  private static void configureLog() {
-    InputStream stream = CompiCLI.class.getClassLoader().
-            getResourceAsStream("logging.properties");
-    try {
-        LogManager.getLogManager().readConfiguration(stream);
+	private static void configureLog() {
+		InputStream stream = CompiCLI.class.getClassLoader()
+			.getResourceAsStream("logging.properties");
+		try {
+			LogManager.getLogManager().readConfiguration(stream);
 
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-  }
-  
-	/**
-	 * Main method
-	 * 
-	 * @param args
-	 *            Parameters received in the command line interface
-	 */
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void main(final String[] args) {
-		CompiCLI.args = args; //all args
-		
+		CompiCLI.args = args; // all args
+
 		int indexOfParameterSeparator = Arrays.asList(args).indexOf("--");
-		
+
 		// before --
 		String[] compiParameters = args;
 		if (indexOfParameterSeparator > 0) {
-		  compiParameters = new String[indexOfParameterSeparator];
-		  System.arraycopy(args, 0, compiParameters, 0, indexOfParameterSeparator);
+			compiParameters = new String[indexOfParameterSeparator];
+			arraycopy(args, 0, compiParameters, 0, indexOfParameterSeparator);
 		}
-		
+
 		new CompiCLI().run(compiParameters);
 	}
-
 }
