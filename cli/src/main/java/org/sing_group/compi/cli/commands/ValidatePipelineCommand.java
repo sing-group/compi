@@ -24,18 +24,18 @@ public class ValidatePipelineCommand extends AbstractCommand {
 
 	@Override
 	public void execute(final Parameters parameters) throws Exception {
-		String pipelineFile = parameters.getSingleValue(super.getOption(PIPELINE_FILE));
+		String pipelineNameFile = parameters.getSingleValue(super.getOption(PIPELINE_FILE));
 
-		LOGGER.info("Validating pipeline file: " + pipelineFile);
+		LOGGER.info("Validating pipeline file: " + pipelineNameFile);
 
-		File f = new File(pipelineFile);
+		File pipelineFile = new File(pipelineNameFile);
 
-		if (!f.exists()) {
-			LOGGER.severe("Pipeline file not found: " + f);
-			System.exit(1);
+		if (!pipelineFile.exists()) {
+			throw new IllegalArgumentException(
+				"Pipeline file not found: " + pipelineNameFile);
 		}
 		
-		List<ValidationError> errors = new PipelineValidator(f).validate();
+		List<ValidationError> errors = new PipelineValidator(pipelineFile).validate();
 		logValidationErrors(errors);
 
 		if (errors.stream().filter(error -> error.getType().isError())
@@ -43,6 +43,7 @@ public class ValidatePipelineCommand extends AbstractCommand {
 		) {
 			System.exit(1);
 		} else {
+			LOGGER.info("Pipeline file is OK.");
 			System.exit(0);
 		}
 	}
