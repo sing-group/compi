@@ -73,8 +73,8 @@ public class ExportGraphCommand extends AbstractCommand {
 			parameters.getSingleValueString(super.getOption(PIPELINE_FILE)));
 
 		if (!pipelineFile.exists()) {
-			LOGGER.severe("Pipeline file not found: " + pipelineFile);
-			System.exit(1);
+			throw new IllegalArgumentException(
+				"Pipeline file not found: " + pipelineFile);
 		}
 
 		LOGGER.info("Pipeline file - " + pipelineFile);
@@ -85,8 +85,8 @@ public class ExportGraphCommand extends AbstractCommand {
 		LOGGER.info("Export graph to file - " + outputFile);
 
 		if (!outputFile.getParentFile().canWrite()) {
-			LOGGER.severe("Can't write output file: " + outputFile);
-			System.exit(1);
+			throw new IllegalArgumentException(
+				"Can't write output file: " + outputFile);
 		}
 
 		PipelineGraphExporterBuilder graphExporterBuilder =
