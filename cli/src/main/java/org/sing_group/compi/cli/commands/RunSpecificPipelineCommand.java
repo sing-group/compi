@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.sing_group.compi.cli.CompiCLI;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.TaskExecutionHandler;
 import org.sing_group.compi.core.VariableResolver;
@@ -33,10 +32,12 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 	public static final String NAME = "run";
 
 	private static CompiApp compiApp;
+	private static String[] commandLineArgs;
 
 	public static RunSpecificPipelineCommand newRunSpecificPipelineCommand(
-		CompiApp compiApp, List<Option<?>> compiGeneralOptions) {
+		CompiApp compiApp, List<Option<?>> compiGeneralOptions, String[] commandLineArgs) {
 		RunSpecificPipelineCommand.compiApp = compiApp;
+		RunSpecificPipelineCommand.commandLineArgs = commandLineArgs;
 
 		return new RunSpecificPipelineCommand();
 	}
@@ -227,12 +228,11 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 	
 	private XMLParamsFileVariableResolver getParamsFileResolver() {
 		XMLParamsFileVariableResolver resolver = null;
-		for (int i = 0; i < CompiCLI.args.length; i++) {
-			String arg = CompiCLI.args[i];
+		for (int i = 0; i < commandLineArgs.length; i++) {
+			String arg = commandLineArgs[i];
 			if (arg.equals("--params") || arg.equals("-pa")) {
-				System.err.println("creating resolver in file " + CompiCLI.args[i + 1]);
 				resolver = new XMLParamsFileVariableResolver(
-					CompiCLI.args[i + 1]);
+					commandLineArgs[i + 1]);
 			}
 		}
 

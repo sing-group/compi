@@ -50,8 +50,8 @@ public class RunCommand extends AbstractCommand {
 	private String[] commandLineArgs;
 	private CompiApp compi;
 
-	public RunCommand(String[] args) {
-		this.commandLineArgs = args;
+	public RunCommand(String[] commandLineArgs) {
+		this.commandLineArgs = commandLineArgs;
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public class RunCommand extends AbstractCommand {
 			logValidationErrors(errors);
 			
 			CLIApplication pipelineApplication = newPipelineCLIApplication(
-				pipelineFile, compi, this.createOptions());
+				pipelineFile, compi, this.createOptions(), this.commandLineArgs);
 			
 			int indexOfParameterSeparator = asList(this.commandLineArgs).indexOf("--");
 	    

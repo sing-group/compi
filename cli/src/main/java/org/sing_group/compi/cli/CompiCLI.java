@@ -1,18 +1,18 @@
 package org.sing_group.compi.cli;
 
 import static java.lang.System.arraycopy;
+import static java.util.Arrays.asList;
+import static org.sing_group.compi.core.CompiApp.getCompiVersion;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.LogManager;
 
 import org.sing_group.compi.cli.commands.ExportGraphCommand;
 import org.sing_group.compi.cli.commands.RunCommand;
 import org.sing_group.compi.cli.commands.ValidatePipelineCommand;
-import org.sing_group.compi.core.CompiApp;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.Command;
@@ -33,13 +33,11 @@ import es.uvigo.ei.sing.yacli.command.Command;
  * @author Daniel Glez-Peña
  *
  */
-public class CompiCLI extends CLIApplication {
+public abstract class CompiCLI extends CLIApplication {
 
 	static {
 		configureLog();
 	}
-
-	public static String[] args;
 
 	public CompiCLI() {
 		super(true, true, false);
@@ -48,9 +46,10 @@ public class CompiCLI extends CLIApplication {
 	@Override
 	protected List<Command> buildCommands() {
 		final List<Command> commands = new ArrayList<>();
-		commands.add(new RunCommand(args));
+		commands.add(new RunCommand(getCommandLineArgs()));
 		commands.add(new ValidatePipelineCommand());
 		commands.add(new ExportGraphCommand());
+
 		return commands;
 	}
 
@@ -61,7 +60,7 @@ public class CompiCLI extends CLIApplication {
 
 	@Override
 	protected String getApplicationName() {
-		return "Compi App (version "+CompiApp.getCompiVersion()+")";
+		return "Compi App (version " + getCompiVersion() + ")";
 	}
 
 	private static void configureLog() {
@@ -69,16 +68,25 @@ public class CompiCLI extends CLIApplication {
 			.getResourceAsStream("logging.properties");
 		try {
 			LogManager.getLogManager().readConfiguration(stream);
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	public static CompiCLI newCompiCLI(String[] args) {
+		return new CompiCLI() {
+			String[] getCommandLineArgs() {
+				return args;
+			}
+		};
+	}
+
+	abstract String[] getCommandLineArgs();
 
 	public static void main(final String[] args) {
-		CompiCLI.args = args; // all args
+		CompiCLI compiCLI = newCompiCLI(args);
 
-		int indexOfParameterSeparator = Arrays.asList(args).indexOf("--");
+		int indexOfParameterSeparator = asList(args).indexOf("--");
 
 		// before --
 		String[] compiParameters = args;
@@ -87,6 +95,6 @@ public class CompiCLI extends CLIApplication {
 			arraycopy(args, 0, compiParameters, 0, indexOfParameterSeparator);
 		}
 
-		new CompiCLI().run(compiParameters);
+		compiCLI.run(compiParameters);
 	}
 }
