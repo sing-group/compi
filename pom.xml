@@ -35,7 +35,7 @@
 		<maven.resources.version>3.1.0</maven.resources.version>
 		<maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
 		<maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
-		<sphinx-maven-plugin.version>2.2.2</sphinx-maven-plugin.version>
+		<sphinx-maven-plugin.version>2.2.3</sphinx-maven-plugin.version>
 		<findbugs-maven-plugin.version>3.0.5</findbugs-maven-plugin.version>
 
 		<junit.version>4.12</junit.version>	
