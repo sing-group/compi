@@ -84,7 +84,9 @@ public class ExportGraphCommand extends AbstractCommand {
 
 		LOGGER.info("Export graph to file - " + outputFile);
 
-		if (!outputFile.getParentFile().canWrite()) {
+		if (outputFile.getParentFile() != null
+			&& !outputFile.getParentFile().canWrite()
+		) {
 			throw new IllegalArgumentException(
 				"Can't write output file: " + outputFile);
 		}
