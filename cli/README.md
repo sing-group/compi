@@ -1,5 +1,5 @@
 # Compi `cli`
-The `cli` module provides a tool that allows you to run pipelines in your host machine. With this utility you can launch your pipeline entirely or partially as well as other functions related to pipelines.
+The `cli` module provides a tool that allows you to run pipelines in your host machine. With this utility you can launch your pipeline entirely or partially as well as other functions related to pipelines. Check the [quickstart](QUICKSTART.md) to see some examples.
 
 ## Building `cli`
 To build the `cli`, you can run:
