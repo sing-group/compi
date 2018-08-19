@@ -31,6 +31,11 @@ public class CompiDKCLI extends CLIApplication {
 	}
 
 	@Override
+	protected String getApplicationVersion() {
+		return getCompiDKVersion();
+	}
+
+	@Override
 	protected String getApplicationCommand() {
 		return "compi-dk";
 	}

@@ -44,6 +44,11 @@ public class PipelineCLIApplication extends CLIApplication {
 	}
 
 	@Override
+	protected String getApplicationVersion() {
+		return CompiApp.getCompiVersion();
+	}
+
+	@Override
 	protected String getApplicationCommand() {
 		return "compi";
 	}

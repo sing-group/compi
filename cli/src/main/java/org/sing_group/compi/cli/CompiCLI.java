@@ -59,6 +59,11 @@ public abstract class CompiCLI extends CLIApplication {
 	}
 
 	@Override
+	protected String getApplicationVersion() {
+		return getCompiVersion();
+	}
+
+	@Override
 	protected String getApplicationName() {
 		return "Compi App (version " + getCompiVersion() + ")";
 	}
