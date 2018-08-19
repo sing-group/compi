@@ -6,7 +6,7 @@ The `example-files` folder contains a simple pipeline XML file to test the compi
 ## 1. Validating a pipeline
 Run the following command to validate the `example-files/pipeline.xml` file:
 ```
-target/dist/compi.sh validate -p example-files/pipeline.xml
+target/dist/compi validate -p example-files/pipeline.xml
 ```
 <details><summary>Command output</summary>
 ```
@@ -19,14 +19,14 @@ target/dist/compi.sh validate -p example-files/pipeline.xml
 ## 2. Executing the pipeline using a XML parameters file
 Run the following command to execute the `example-files/pipeline.xml` file using the example parameters file (`example-files/params.xml`):
 ```
-target/dist/compi.sh run -p example-files/pipeline.xml -pa example-files/params.xml
+target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 ```
 <details><summary>Command output</summary>
 ```
 [2018-08-17 11:26:24] [INFO   ] Validating pipeline file: example-files/pipeline.xml 
 [2018-08-17 11:26:25] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-08-17 11:26:25] [INFO   ] Pipeline file is OK. 
-hlfernandez@hlfernandez-mountain:~/Eclipse/workspace-oxygen/compi/cli$ target/dist/compi.sh run -p example-files/pipeline.xml -pa example-files/params.xml
+hlfernandez@hlfernandez-mountain:~/Eclipse/workspace-oxygen/compi/cli$ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 [2018-08-17 11:27:57] [INFO   ] Compi running with:  
 [2018-08-17 11:27:57] [INFO   ] Pipeline file - example-files/pipeline.xml 
 [2018-08-17 11:27:57] [INFO   ] Number of threads - 6 
@@ -77,7 +77,7 @@ hlfernandez@hlfernandez-mountain:~/Eclipse/workspace-oxygen/compi/cli$ target/di
 ## 3. Executing a single pipeline task
 Run the following command to execute a single task of the `example-files/pipeline.xml` file, specified with the `--single-task/-st` parameter:
 ```
-target/dist/compi.sh run -p example-files/pipeline.xml -pa example-files/params.xml -st task-10
+target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml -st task-10
 ```
 <details><summary>Command output</summary>
 ```
@@ -100,7 +100,7 @@ Pipeline parameters can be also indicated in the command line, separated by a `-
 
 Run the following command to execute the `example-files/pipeline.xml` file providing the required parameters trough the command-line:
 ```
-target/dist/compi.sh run -p example-files/pipeline.xml -- --path example-files/execute/execute.sh --name command-line-name --seconds 1
+target/dist/compi run -p example-files/pipeline.xml -- --path example-files/execute/execute.sh --name command-line-name --seconds 1
 ```
 <details><summary>Command output</summary>
 ```
@@ -152,7 +152,7 @@ target/dist/compi.sh run -p example-files/pipeline.xml -- --path example-files/e
 ## 5. Export the pipeline graph as a image
 Run the following command to export the graph defined by the `example-files/pipeline.xml` pipeline as an image.
 ```
-target/dist/compi.sh export-graph -p example-files/pipeline.xml -o pipeline.png -f png
+target/dist/compi export-graph -p example-files/pipeline.xml -o pipeline.png -f png
 ```
 <details><summary>Command output</summary>
 ```

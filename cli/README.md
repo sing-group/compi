@@ -7,10 +7,10 @@ To build the `cli`, you can run:
 - `mvn clean package -PcreateInstaller`: this command compiles the module and creates the compi self-extracting installer under `target/installer` (this option also creates the compi distributable under `target/dist`).
 
 ## `cli` commands
-Run the `cli` (with `mvn exec` or `target/dist/compi.sh`) to list the available commands:
+Run the `cli` (with `mvn exec` or `target/dist/compi`) to list the available commands:
 
 ```
-usage: compi.sh <command> [options]
+usage: compi <command> [options]
 where <command> is one of:
         run
                 Runs a pipeline.
@@ -18,13 +18,13 @@ where <command> is one of:
                 Validates a pipeline.
         export-graph
                 Exports a pipeline to a graph file.
-Write 'compi.sh help <command>' to see command-specific help
+Write 'compi help <command>' to see command-specific help
 ```
 
 ### `run`
 ```
 Command run
-usage: compi.sh run -p <pipeline> [-pa <params>] [-t <num-threads>] [-s <skip>] [-st <single-task>]
+usage: compi run -p <pipeline> [-pa <params>] [-t <num-threads>] [-s <skip>] [-st <single-task>]
         --pipeline/-p
                 XML pipeline file
         --params/-pa
@@ -41,7 +41,7 @@ usage: compi.sh run -p <pipeline> [-pa <params>] [-t <num-threads>] [-s <skip>] 
 
 ```
 Command validate
-usage: compi.sh validate -p <pipeline>
+usage: compi validate -p <pipeline>
         --pipeline/-p
                 XML pipeline file
 ```
@@ -49,7 +49,7 @@ usage: compi.sh validate -p <pipeline>
 ### `export-graph`
 ```
 Command export-graph
-usage: compi.sh export-graph -p <pipeline> -o <output> [-f <format>] [-w <width>] [-h <height>] [-fs <font-size>]
+usage: compi export-graph -p <pipeline> -o <output> [-f <format>] [-w <width>] [-h <height>] [-fs <font-size>]
         --pipeline/-p
                 XML pipeline file
         --output/-o

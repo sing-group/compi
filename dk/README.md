@@ -10,19 +10,19 @@ To build the `dk`, you can run:
 Run the `cli` (with `mvn exec` or `target/dist/compi-dk`) to list the available commands:
 
 ```
-usage: compi-dk.sh <command> [options]
+usage: compi-dk <command> [options]
 where <command> is one of:
         new-project
                 Creates a new compi project
         build
                 Builds a compi project
-Write 'compi-dk.sh help <command>' to see command-specific help
+Write 'compi-dk help <command>' to see command-specific help
 ```
 
 ### `new-project`
 ```
 Command new-project
-usage: compi-dk.sh new-project -p <path> -n <image-name> [-i <base-image>] [-v <compi-version>]
+usage: compi-dk new-project -p <path> -n <image-name> [-i <base-image>] [-v <compi-version>]
         --path/-p
                 path of the new project
         --image-name/-n
@@ -37,7 +37,7 @@ usage: compi-dk.sh new-project -p <path> -n <image-name> [-i <base-image>] [-v <
 
 ```
 Command build
-usage: compi-dk.sh build [-p <path>]
+usage: compi-dk build [-p <path>]
         --path/-p
                 path the new project to build (default: .)
 ```

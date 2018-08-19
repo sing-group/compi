@@ -55,7 +55,7 @@ public abstract class CompiCLI extends CLIApplication {
 
 	@Override
 	protected String getApplicationCommand() {
-		return "compi.sh";
+		return "compi";
 	}
 
 	@Override

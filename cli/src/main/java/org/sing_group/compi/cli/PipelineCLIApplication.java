@@ -45,7 +45,7 @@ public class PipelineCLIApplication extends CLIApplication {
 
 	@Override
 	protected String getApplicationCommand() {
-		return "compi.sh";
+		return "compi";
 	}
 
 	@Override
