@@ -15,7 +15,6 @@ import org.sing_group.compi.core.validation.ValidationError;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
-import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;
 import es.uvigo.ei.sing.yacli.command.option.IntegerDefaultValuedStringConstructedOption;
 import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.option.StringOption;
@@ -41,9 +40,10 @@ public class RunCommand extends AbstractCommand {
 	private static final String NUM_THEADS_DESCRIPTION = "number of threads to use";
 	private static final String SKIP_DESCRIPTION = "skip to task. Runs the "
 		+ "pipeline from the specific without running its dependencies. This "
-		+ "option is incompatible with " + SINGLE_TASK_LONG;
+		+ "option is incompatible with --" + SINGLE_TASK_LONG;
 	private static final String SINGLE_TASK_DESCRIPTION = "Runs a single task "
-		+ "without its depencendies. This option is incompatible with " + SKIP;
+		+ "without its depencendies. This option is incompatible with --"
+		+ SKIP_LONG;
 
 	private static final String NUM_THREADS_DEFAULT = "6";
 
@@ -67,25 +67,32 @@ public class RunCommand extends AbstractCommand {
 			LOGGER.info("Params file - " + parameters.getSingleValue(super.getOption(PARAMS_FILE)));
 		}
 
-		String skip = parameters.getSingleValueString(super.getOption(SKIP));
-		String skipToTask = parameters.getSingleValueString(super.getOption(SINGLE_TASK));
+		boolean hasSkip = parameters.hasOption(super.getOption(SKIP));
+		boolean hasSingleTask = parameters.hasOption(super.getOption(SINGLE_TASK));
 
-		if (skip != null && skipToTask != null) {
+		if (hasSkip && hasSingleTask) {
 			throw new IllegalArgumentException(
 				"You can specify skip or single-task, but not both at the same time.");
 		}
 
+		String skip = hasSkip
+			? parameters.getSingleValueString(super.getOption(SKIP))
+			: null;
+		String singleTask = hasSingleTask
+			? parameters.getSingleValueString(super.getOption(SINGLE_TASK))
+			: null;
+
 		if (skip != null) {
 			LOGGER.info("Skip to task - " + skip + "\n");
-		} else if (skipToTask != null) {
-			LOGGER.info("Running single task - " + skipToTask + "\n");
+		} else if (singleTask != null) {
+			LOGGER.info("Running single task - " + singleTask + "\n");
 		}
-		
+
 		try {
 			List<ValidationError> errors = new ArrayList<>();
 			compi = new CompiApp(
 				pipelineFile, threads, (VariableResolver) null, 
-				skip, skipToTask, errors
+				skip, singleTask, errors
 			);
 			logValidationErrors(errors);
 			
@@ -155,18 +162,17 @@ public class RunCommand extends AbstractCommand {
 	}
 
 	private Option<?> getNumThreads() {
-		return new IntegerDefaultValuedStringConstructedOption(NUM_THREADS_LONG, NUM_THREADS,
-			NUM_THEADS_DESCRIPTION, NUM_THREADS_DEFAULT);
+		return new IntegerDefaultValuedStringConstructedOption(NUM_THREADS_LONG,
+			NUM_THREADS, NUM_THEADS_DESCRIPTION, NUM_THREADS_DEFAULT);
 	}
 
 	private Option<?> getSkipToTask() {
-		return new DefaultValuedStringOption(
-			SKIP_LONG, SKIP, SKIP_DESCRIPTION, null);
+		return new StringOption(SKIP_LONG, SKIP, SKIP_DESCRIPTION, true, true);
 	}
 
 	private Option<?> getRunSingleTask() {
-		return new DefaultValuedStringOption(
-			SINGLE_TASK_LONG, SINGLE_TASK, SINGLE_TASK_DESCRIPTION, null);
+		return new StringOption(SINGLE_TASK_LONG, SINGLE_TASK,
+			SINGLE_TASK_DESCRIPTION, true, true);
 	}
 
 	private void logValidationErrors(List<ValidationError> errors) {
