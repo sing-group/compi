@@ -21,6 +21,8 @@ import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class RunCommand extends AbstractCommand {
+	private static final String ARGS_DELIMITER = "--";
+
 	private static final Logger LOGGER = Logger.getLogger(RunCommand.class.getName());
 
 	private static final String PIPELINE_FILE = CommonParameters.PIPELINE_FILE;
@@ -99,21 +101,7 @@ public class RunCommand extends AbstractCommand {
 			CLIApplication pipelineApplication = newPipelineCLIApplication(
 				pipelineFile, compi, this.createOptions(), this.commandLineArgs);
 			
-			int indexOfParameterSeparator = asList(this.commandLineArgs).indexOf("--");
-	    
-			// after --
-			String[] pipelineParameters = new String[] { "run" };
-			if (indexOfParameterSeparator > 0 && 
-				indexOfParameterSeparator < this.commandLineArgs.length - 1
-			) {
-				pipelineParameters = new String[this.commandLineArgs.length
-					- indexOfParameterSeparator - 1 + 1];
-				pipelineParameters[0] = "run";
-				arraycopy(commandLineArgs, indexOfParameterSeparator + 1,
-					pipelineParameters, 1, pipelineParameters.length - 1);
-			}
-
-			pipelineApplication.run(pipelineParameters);
+			pipelineApplication.run(getPipelineParameters(this.commandLineArgs));
 
 		} catch (PipelineValidationException e) {
 			LOGGER.severe("Pipeline is not valid");
@@ -183,5 +171,35 @@ public class RunCommand extends AbstractCommand {
 				LOGGER.warning(error.toString());
 			}
 		});
+	}
+
+	private static String[] getPipelineParameters(String[] args) {
+		int paramsDelimiterIndex = asList(args).indexOf(ARGS_DELIMITER);
+
+		// after --
+		String[] pipelineParameters = new String[] { "run" };
+		if (paramsDelimiterIndex > 0
+			&& paramsDelimiterIndex < args.length - 1) {
+			pipelineParameters = new String[args.length - paramsDelimiterIndex
+				- 1 + 1];
+			pipelineParameters[0] = "run";
+			arraycopy(args, paramsDelimiterIndex + 1, pipelineParameters, 1,
+				pipelineParameters.length - 1);
+		}
+
+		return pipelineParameters;
+	}
+
+	public static String[] getCompiParameters(String[] args) {
+		int paramsDelimiterIndex = asList(args).indexOf(ARGS_DELIMITER);
+
+		// before --
+		String[] compiParameters = args;
+		if (paramsDelimiterIndex > 0) {
+			compiParameters = new String[paramsDelimiterIndex];
+			arraycopy(args, 0, compiParameters, 0, paramsDelimiterIndex);
+		}
+
+		return compiParameters;
 	}
 }

@@ -1,7 +1,6 @@
 package org.sing_group.compi.cli;
 
-import static java.lang.System.arraycopy;
-import static java.util.Arrays.asList;
+import static org.sing_group.compi.cli.commands.RunCommand.getCompiParameters;
 import static org.sing_group.compi.core.CompiApp.getCompiVersion;
 
 import java.io.IOException;
@@ -91,15 +90,6 @@ public abstract class CompiCLI extends CLIApplication {
 	public static void main(final String[] args) {
 		CompiCLI compiCLI = newCompiCLI(args);
 
-		int indexOfParameterSeparator = asList(args).indexOf("--");
-
-		// before --
-		String[] compiParameters = args;
-		if (indexOfParameterSeparator > 0) {
-			compiParameters = new String[indexOfParameterSeparator];
-			arraycopy(args, 0, compiParameters, 0, indexOfParameterSeparator);
-		}
-
-		compiCLI.run(compiParameters);
+		compiCLI.run(getCompiParameters(args));
 	}
 }
