@@ -31,10 +31,10 @@ public class DOMparsing {
 	 * @throws IOException
 	 *             If an I/O exception of some sort has occurred
 	 */
-	public static void validateXMLSchema(final String xmlPath, final File xsdFile) throws SAXException, IOException {
+	public static void validateXMLSchema(final String xmlPath, final String xsdFile) throws SAXException, IOException {
 		final SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		final Schema schema = schemaFactory
-				.newSchema(DOMparsing.class.getClassLoader().getResource("xsd/pipeline.xsd"));
+				.newSchema(DOMparsing.class.getClassLoader().getResource(xsdFile));
 		final Validator validator = schema.newValidator();
 		validator.setErrorHandler(new SimpleErrorHandler());
 		validator.validate(new StreamSource(new File(xmlPath)));

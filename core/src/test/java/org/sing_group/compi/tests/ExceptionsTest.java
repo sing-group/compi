@@ -23,7 +23,7 @@ public class ExceptionsTest {
 	@Test(expected = SAXException.class)
 	public void testXSDSAXException() throws Exception {
 		DOMparsing.validateXMLSchema(ClassLoader.getSystemResource("pipelineParsingException.xml").getFile(),
-				new File(ClassLoader.getSystemResource("xsd/pipeline.xsd").getFile()));
+				"xsd/pipeline.xsd");
 	}
 
 	@Test(expected = IllegalArgumentException.class)

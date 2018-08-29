@@ -55,8 +55,8 @@ public class PipelineValidator {
     clearValidationStatus();
 
     try {
-      final File xsdFile = new File(getClass().getClassLoader().getResource("xsd/pipeline.xsd").getFile());
-      DOMparsing.validateXMLSchema(this.pipelineFile.toString(), xsdFile);
+      
+      DOMparsing.validateXMLSchema(this.pipelineFile.toString(), "xsd/pipeline.xsd");
       
       this.pipeline = PipelineParserFactory.createPipelineParser().parsePipeline(this.pipelineFile);
 
