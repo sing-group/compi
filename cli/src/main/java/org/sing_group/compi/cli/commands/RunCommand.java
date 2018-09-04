@@ -4,6 +4,7 @@ import static java.lang.System.arraycopy;
 import static java.util.Arrays.asList;
 import static org.sing_group.compi.cli.PipelineCLIApplication.newPipelineCLIApplication;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -30,12 +31,14 @@ public class RunCommand extends AbstractCommand {
 	private static final String NUM_THREADS = "t";
 	private static final String SKIP = "s";
 	private static final String SINGLE_TASK = "st";
-
+	private static final String RUNNERS_CONFIG_FILE = "r";
+	
 	private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;
 	private static final String PARAMS_FILE_LONG = "params";
 	private static final String NUM_THREADS_LONG = "num-threads";
 	private static final String SKIP_LONG = "skip";
 	private static final String SINGLE_TASK_LONG = "single-task";
+	private static final String RUNNERS_CONFIG_FILE_LONG = "runners-config";
 
 	private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
 	private static final String PARAMS_FILE_DESCRIPTION = "XML params file";
@@ -46,6 +49,8 @@ public class RunCommand extends AbstractCommand {
 	private static final String SINGLE_TASK_DESCRIPTION = "Runs a single task "
 		+ "without its depencendies. This option is incompatible with --"
 		+ SKIP_LONG;
+	private static final String RUNNERS_CONFIG_DESCRIPTION = "XML file configuring custom runners for tasks. See the "
+	  + "Compi documentation for more details";
 
 	private static final String NUM_THREADS_DEFAULT = "6";
 
@@ -98,6 +103,14 @@ public class RunCommand extends AbstractCommand {
 			);
 			logValidationErrors(errors);
 			
+			if (parameters.hasOption(super.getOption(RUNNERS_CONFIG_FILE))) {
+			  File runnersFile = new File(parameters.getSingleValueString(super.getOption(RUNNERS_CONFIG_FILE)));
+			  if (!runnersFile.exists()) {
+			    throw new IllegalArgumentException("The runners file does not exist: "+runnersFile);
+			  }
+			  compi.setRunnersConfiguration(runnersFile);
+			}
+			
 			CLIApplication pipelineApplication = newPipelineCLIApplication(
 				pipelineFile, compi, this.createOptions(), this.commandLineArgs);
 			
@@ -135,6 +148,7 @@ public class RunCommand extends AbstractCommand {
 		options.add(getNumThreads());
 		options.add(getSkipToTask());
 		options.add(getRunSingleTask());
+		options.add(getRunnersConfigFile());
 
 		return options;
 	}
@@ -163,6 +177,10 @@ public class RunCommand extends AbstractCommand {
 			SINGLE_TASK_DESCRIPTION, true, true);
 	}
 
+	private Option<?> getRunnersConfigFile() {
+    return new StringOption(RUNNERS_CONFIG_FILE_LONG, RUNNERS_CONFIG_FILE,
+      RUNNERS_CONFIG_DESCRIPTION, true, true, false);
+  }
 	private void logValidationErrors(List<ValidationError> errors) {
 		errors.stream().forEach(error -> {
 			if (error.getType().isError()) {

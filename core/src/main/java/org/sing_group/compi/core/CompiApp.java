@@ -15,7 +15,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.sing_group.compi.core.loops.LoopTask;
+import org.sing_group.compi.core.loops.ForeachIteration;
+import org.sing_group.compi.core.runner.RunnersManager;
 import org.sing_group.compi.core.validation.PipelineValidator;
 import org.sing_group.compi.core.validation.ValidationError;
 import org.sing_group.compi.xmlio.PipelineParserFactory;
@@ -44,6 +45,7 @@ public class CompiApp implements TaskExecutionHandler {
   private final Map<Task, Task> parentTask = new HashMap<>();
   private final Map<Task, AtomicInteger> loopCount = new HashMap<>();
   private final List<TaskExecutionHandler> executionHandlers = new ArrayList<>();
+  private RunnersManager runnersManager = new RunnersManager();
 
   /**
    * Constructs the CompiApp
@@ -143,24 +145,29 @@ public class CompiApp implements TaskExecutionHandler {
           this.getTaskManager().taskStarted(taskToRun);
           if (taskHasForEach(taskToRun)) {
             taskManager.initializeForEach((Foreach) taskToRun);
-            if (!taskToRun.isSkipped())
-              resolveTask(taskToRun);
             loopCount.put(
               taskToRun, new AtomicInteger(
                 taskManager.getForEachTasks().get(taskToRun.getId()).size()
               )
             );
-            for (final LoopTask lp : taskManager.getForEachTasks().get(taskToRun.getId())) {
+            for (final ForeachIteration lp : taskManager.getForEachTasks().get(taskToRun.getId())) {
               final Task cloned = taskToRun.clone();
+              ((Foreach) cloned).setForeachIteration(lp);
+              if (!cloned.isSkipped()) {
+                resolveTask(cloned);
+              }
               parentTask.put(cloned, taskToRun);
-              cloned.setToExecute(lp.getToExecute());
-              executorService.submit(new TaskRunnable(cloned, this));
+              executorService.submit(
+                new TaskRunnable(cloned, this, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()))
+              );
             }
           } else {
             if (!taskToRun.isSkipped())
               resolveTask(taskToRun);
 
-            executorService.submit(new TaskRunnable(taskToRun, this));
+            executorService.submit(
+              new TaskRunnable(taskToRun, this, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()))
+            );
           }
         }
         this.wait();
@@ -185,6 +192,7 @@ public class CompiApp implements TaskExecutionHandler {
 
   /**
    * Returns the current compi project version
+   * 
    * @return The Compi version
    */
   public static String getCompiVersion() {
@@ -302,29 +310,15 @@ public class CompiApp implements TaskExecutionHandler {
   private void resolveTask(Task t)
     throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
 
-    if (taskHasForEach(t)) {
-      if (t.getParameters().contains(((Foreach) t).getAs())) {
-        for (final LoopTask lp : taskManager.getForEachTasks().get(t.getId())) {
-          for (final String tag : t.getParameters()) {
-            if (lp.getAs().equals(tag)) {
-              lp.setToExecute(lp.getToExecute().replace("${" + tag + "}", lp.getSource()));
-            } else {
-              final String parsed = resolver.resolveVariable(tag);
-              lp.setToExecute(lp.getToExecute().replace("${" + tag + "}", parsed));
-            }
-          }
-        }
-      } else {
-        throw new IllegalArgumentException(
-          "The as attribute of the task " + t.getId() + " ins't contained in the exec tag"
-        );
+    TextVariableResolver textVariableResolver = new TextVariableResolver((var) -> {
+      ForeachIteration fi = t instanceof Foreach ? ((Foreach) t).getForeachIteration() : null;
+      if (fi != null && var.equals(fi.getTask().getAs())) {
+        return fi.getIterationValue();
       }
-    } else {
-      for (final String parameter : t.getParameters()) {
-        final String variableValue = resolver.resolveVariable(parameter);
-        t.setToExecute(t.getToExecute().replace("${" + parameter + "}", variableValue));
-      }
-    }
+      return resolver.resolveVariable(var);
+    });
+    
+    t.setToExecute(textVariableResolver.resolveAllVariables(t.getToExecute()));
   }
 
   /**
@@ -445,6 +439,11 @@ public class CompiApp implements TaskExecutionHandler {
   public void setResolver(VariableResolver resolver) {
     this.resolver = resolver;
     this.taskManager.setResolver(resolver);
+    this.runnersManager.setResolver(resolver);
+  }
+
+  public void setRunnersConfiguration(File runnersXML) throws IllegalArgumentException, IOException {
+    this.runnersManager = new RunnersManager(runnersXML, this.pipeline, this.resolver);
   }
 
 }

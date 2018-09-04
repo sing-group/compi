@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://sing-group.org/compi-pipeline-runner"
+	xmlns:cp="http://sing-group.org/compi-pipeline-runner" elementFormDefault="qualified">
+
+	<complexType name="runner">
+		<simpleContent>
+			<extension base="string">
+				<attribute name="tasks" type="string" use="optional" />
+			</extension>
+		</simpleContent>
+
+	</complexType>
+
+	<element name="runners">
+		<complexType>
+			<sequence>
+				<element name="runner" type="cp:runner" minOccurs="0"
+					maxOccurs="unbounded" />
+			</sequence>
+		</complexType>
+	</element>
+
+</schema>

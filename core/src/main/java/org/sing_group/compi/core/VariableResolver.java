@@ -18,4 +18,5 @@ public interface VariableResolver {
 	 */
 	String resolveVariable(String variable)
 			throws IllegalArgumentException;
+
 }

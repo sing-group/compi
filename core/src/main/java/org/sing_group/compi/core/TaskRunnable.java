@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 
+import org.sing_group.compi.core.runner.ProcessCreator;
 import org.sing_group.compi.xmlio.entities.Task;
 
 /**
@@ -26,19 +27,23 @@ public class TaskRunnable implements Runnable {
 	private BufferedWriter out;
 	private BufferedWriter err;
 	private Process process;
+  private ProcessCreator processCreator;
 
-	/**
-	 * 
-	 * @param task
-	 *            Indicates the {@link Task} to be executed
-	 * @param executionHandler
-	 *            Indicates the {@link TaskExecutionHandler} to manage the
-	 *            {@link Task} execution
-	 */
-	public TaskRunnable(final Task task, final TaskExecutionHandler executionHandler) {
-		this.task = task;
-		this.executionHandler = executionHandler;
-	}
+	 /**
+   * 
+   * @param task
+   *            Indicates the {@link Task} to be executed
+   * @param executionHandler
+   *            Indicates the {@link TaskExecutionHandler} to manage the
+   *            {@link Task} execution
+   * @param processCreator
+   *            an interface to create a process for running the task
+   */
+  public TaskRunnable(final Task task, final TaskExecutionHandler executionHandler, ProcessCreator processCreator) {
+    this.task = task;
+    this.executionHandler = executionHandler;
+    this.processCreator = processCreator;
+  }
 
 	/**
 	 * Execute the {@link Task} in a {@link Process}
@@ -48,8 +53,9 @@ public class TaskRunnable implements Runnable {
 		try {
 			if (!this.task.isSkipped()) {
 				taskStarted(this.task);
-				String[] commandsToExecute = { "/bin/sh", "-c", this.task.getToExecute() };
-				this.process = Runtime.getRuntime().exec(commandsToExecute);
+				
+				this.process = this.getProcess(this.task);
+				
 				openLogBuffers(this.process);
 				waitForProcess(this.process);
 			} else {
@@ -65,7 +71,11 @@ public class TaskRunnable implements Runnable {
 		}
 	}
 
-	/**
+	private Process getProcess(Task task) {
+    return this.processCreator.createProcess(task);
+  }
+
+  /**
 	 * Checks the {@link Process} end
 	 * 
 	 * @param process

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<runners xmlns="http://sing-group.org/compi-pipeline-runner" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<runner tasks="t1,t2">
+		echo "[${task-id}] code: ${task-code}" >> /tmp/runner-output
+		/bin/sh -c "${task-code}"
+	</runner>
+	<runner tasks="t3">
+		echo "[${task-id}] iteration-value: ${i} my-var: ${my-var} code: ${task-code}" >> /tmp/runner-output
+		/bin/sh -c "${task-code}"
+	</runner>
+</runners>

@@ -35,6 +35,8 @@ usage: compi run -p <pipeline> [-pa <params>] [-t <num-threads>] [-s <skip>] [-s
                 skip to task. Runs the pipeline from the specific without running its dependencies. This option is incompatible with --single-task
         --single-task/-st
                 Runs a single task without its depencendies. This option is incompatible with --skip
+        --runners-config/-r
+                XML file configuring custom runners for tasks. See the Compi documentation for more details
 ```
 
 ### `validate`

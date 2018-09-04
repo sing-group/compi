@@ -1,7 +1,5 @@
 package org.sing_group.compi.tests;
 
-import java.io.File;
-
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.PipelineValidationException;

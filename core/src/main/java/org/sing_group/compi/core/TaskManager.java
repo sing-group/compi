@@ -12,7 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.sing_group.compi.core.loops.CommandLoopValuesGenerator;
 import org.sing_group.compi.core.loops.FileLoopValuesGenerator;
 import org.sing_group.compi.core.loops.ListLoopValuesGenerator;
-import org.sing_group.compi.core.loops.LoopTask;
+import org.sing_group.compi.core.loops.ForeachIteration;
 import org.sing_group.compi.core.loops.LoopValuesGenerator;
 import org.sing_group.compi.core.loops.ParameterLoopValuesGenerator;
 import org.sing_group.compi.xmlio.entities.Foreach;
@@ -32,7 +32,7 @@ public class TaskManager implements TaskExecutionHandler {
 	private final Map<String, Task> DAG = new ConcurrentHashMap<>();
 	private final List<String> tasksLeft = new CopyOnWriteArrayList<>();
 	private final Map<String, Set<String>> dependencies = new ConcurrentHashMap<>();
-	private final Map<String, List<LoopTask>> forEachTasks = new ConcurrentHashMap<>();
+	private final Map<String, List<ForeachIteration>> forEachTasks = new ConcurrentHashMap<>();
 	private VariableResolver variableResolver;
 
 	/**
@@ -52,7 +52,7 @@ public class TaskManager implements TaskExecutionHandler {
 			this.dependencies.put(p.getId(), new HashSet<String>());
 
 			if (p instanceof Foreach) {
-				this.forEachTasks.put(p.getId(), new LinkedList<LoopTask>());
+				this.forEachTasks.put(p.getId(), new LinkedList<ForeachIteration>());
 			}
 		}
 	}
@@ -135,7 +135,7 @@ public class TaskManager implements TaskExecutionHandler {
 	}
 
 	/**
-	 * Creates the {@link LoopTask} to prepare the loop execution for a task
+	 * Creates the {@link ForeachIteration} to prepare the loop execution for a task
 	 *
 	 * @param foreach The task to initialize
 	 *
@@ -146,7 +146,7 @@ public class TaskManager implements TaskExecutionHandler {
 	 */
 	public void initializeForEach(Foreach foreach) throws IllegalArgumentException {
 		if (this.getForEachTasks().containsKey(foreach.getId())) {
-			List<LoopTask> value = this.getForEachTasks().get(foreach.getId());
+			List<ForeachIteration> value = this.getForEachTasks().get(foreach.getId());
 			List<String> values = new LinkedList<>();
 
 			LoopValuesGenerator generator = null;
@@ -172,7 +172,7 @@ public class TaskManager implements TaskExecutionHandler {
 			values = generator.getValues(foreach.getIn());
 
 			for (final String source : values) {
-				value.add(new LoopTask(foreach.getExec(), source, foreach.getAs()));
+				value.add(new ForeachIteration(foreach, source));
 			}
 		}
 	}
@@ -314,7 +314,7 @@ public class TaskManager implements TaskExecutionHandler {
 	 * 
 	 * @return The value of the forEachTasks attribute
 	 */
-	public Map<String, List<LoopTask>> getForEachTasks() {
+	public Map<String, List<ForeachIteration>> getForEachTasks() {
 		return forEachTasks;
 	}
 

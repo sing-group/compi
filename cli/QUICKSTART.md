@@ -163,3 +163,82 @@ target/dist/compi export-graph -p example-files/pipeline.xml -o pipeline.png -f 
 [2018-08-17 11:48:33] [INFORMACIÓN] Graph font size - 10
 ```
 </details>
+
+## 6. Executing the pipeline using a custom task runner
+It is possible to run pipeline tasks using custom runners, which must be defined in XML passed with the `-r` or `--runners-config` parameter. 
+
+Run the following command to execute the `example-files/pipeline.xml` file using the example parameters file (`example-files/params.xml`) with the custom runner defined in the `example-files/pipeline-runner.xml` file. This runner simply writes a log in `/tmp/runner-output.txt` and runs each task using `/bin/sh -c`.
+```
+target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml -r example-files/pipeline-runner.xml
+```
+
+<details><summary>Command output</summary>
+```
+[2018-09-04 22:31:31] [INFORMACIÓN] Compi running with:  
+[2018-09-04 22:31:31] [INFORMACIÓN] Pipeline file - example-files/pipeline.xml 
+[2018-09-04 22:31:31] [INFORMACIÓN] Number of threads - 6 
+[2018-09-04 22:31:31] [INFORMACIÓN] Params file - example-files/params.xml 
+[2018-09-04 22:31:31] [ADVERTENCIA] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
+[2018-09-04 22:31:31] [INFORMACIÓN] > Started loop task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-04 22:31:31] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-04 22:31:31] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-04 22:31:31] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-04 22:31:31] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-04 22:31:31] [INFORMACIÓN] > Started loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
+[2018-09-04 22:31:31] [INFORMACIÓN] >> Started loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
+[2018-09-04 22:31:32] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
+[2018-09-04 22:31:32] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
+[2018-09-04 22:31:34] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) 
+[2018-09-04 22:31:34] [INFORMACIÓN] << Finished loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
+[2018-09-04 22:31:34] [INFORMACIÓN] < Finished loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
+[2018-09-04 22:31:38] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) 
+[2018-09-04 22:31:38] [INFORMACIÓN] < Finished loop task task-1 (command: example-files/execute/execute.sh p1 7) 
+[2018-09-04 22:31:38] [INFORMACIÓN] > Started task task-2 (command: example-files/execute/execute.sh p2 2) 
+[2018-09-04 22:31:38] [INFORMACIÓN] > Started task task-3 (command: example-files/execute/execute.sh p3 2) 
+[2018-09-04 22:31:40] [INFORMACIÓN] < Finished task task-2 (command: example-files/execute/execute.sh p2 2) 
+[2018-09-04 22:31:40] [INFORMACIÓN] > Started task task-4 (command: example-files/execute/execute.sh p4 2) 
+[2018-09-04 22:31:40] [INFORMACIÓN] < Finished task task-3 (command: example-files/execute/execute.sh p3 2) 
+[2018-09-04 22:31:40] [INFORMACIÓN] > Started task task-5 (command: example-files/execute/execute.sh p5 2) 
+[2018-09-04 22:31:40] [INFORMACIÓN] > Started task task-6 (command: example-files/execute/execute.sh p6 3) 
+[2018-09-04 22:31:42] [INFORMACIÓN] < Finished task task-4 (command: example-files/execute/execute.sh p4 2) 
+[2018-09-04 22:31:42] [INFORMACIÓN] < Finished task task-5 (command: example-files/execute/execute.sh p5 2) 
+[2018-09-04 22:31:42] [INFORMACIÓN] > Started loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
+[2018-09-04 22:31:42] [INFORMACIÓN] >> Started loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
+[2018-09-04 22:31:43] [INFORMACIÓN] < Finished task task-6 (command: example-files/execute/execute.sh p6 3) 
+[2018-09-04 22:31:44] [INFORMACIÓN] << Finished loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
+[2018-09-04 22:31:44] [INFORMACIÓN] < Finished loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
+[2018-09-04 22:31:44] [INFORMACIÓN] > Started loop task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-04 22:31:44] [INFORMACIÓN] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-04 22:31:44] [INFORMACIÓN] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-04 22:31:44] [INFORMACIÓN] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-04 22:31:45] [INFORMACIÓN] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
+[2018-09-04 22:31:45] [INFORMACIÓN] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
+[2018-09-04 22:31:49] [INFORMACIÓN] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) 
+[2018-09-04 22:31:49] [INFORMACIÓN] < Finished loop task task-8 (command: example-files/execute/execute.sh p8 5) 
+[2018-09-04 22:31:49] [INFORMACIÓN] > Started task task-9 (command: example-files/execute/execute.sh p9 2) 
+[2018-09-04 22:31:51] [INFORMACIÓN] < Finished task task-9 (command: example-files/execute/execute.sh p9 2)
+```
+
+<details><summary>Contents of `/tmp/runner-output.txt`</summary>
+```
+[t1] code: echo hello > /tmp/t1-result
+[t3] iteration-value: 1 my-var: hello code: echo 1 >> /tmp/t3-result
+[t3] iteration-value: 2 my-var: hello code: echo 2 >> /tmp/t3-result
+[t3] iteration-value: 3 my-var: hello code: echo 3 >> /tmp/t3-result
+[t2] code: echo task-2 > /tmp/t2-result
+[task-1] code: example-files/execute/execute.sh p1 7
+[task-1] code: example-files/execute/execute.sh p1 3
+[task-1] code: example-files/execute/execute.sh p1 1
+[task-1] code: example-files/execute/execute.sh p1 1
+[task-10] code: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3
+[task-2] code: example-files/execute/execute.sh p2 2
+[task-3] code: example-files/execute/execute.sh p3 2
+[task-4] code: example-files/execute/execute.sh p4 2
+[task-5] code: example-files/execute/execute.sh p5 2
+[task-6] code: example-files/execute/execute.sh p6 3
+[task-7] code: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2
+[task-8] code: example-files/execute/execute.sh p8 1
+[task-8] code: example-files/execute/execute.sh p8 1
+[task-8] code: example-files/execute/execute.sh p8 5
+[task-9] code: example-files/execute/execute.sh p9 2
+```
