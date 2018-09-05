@@ -152,10 +152,10 @@ public class TaskManager implements TaskExecutionHandler {
 			LoopValuesGenerator generator = null;
 			switch (foreach.getOf()) {
 				case "list":
-					generator = new ListLoopValuesGenerator();
+					generator = new ListLoopValuesGenerator(this.variableResolver);
 					break;
 				case "file":
-					generator = new FileLoopValuesGenerator();
+					generator = new FileLoopValuesGenerator(this.variableResolver);
 					
 					break;
 				case "param":

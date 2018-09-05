@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.sing_group.compi.core.VariableResolver;
+
 /**
  * Obtains the values of the task foreach tag when the element
  * attribute contains "file"
@@ -11,12 +13,13 @@ import java.util.List;
  * @author Jesus Alvarez Casanova
  *
  */
-public class FileLoopValuesGenerator implements LoopValuesGenerator {
+public class FileLoopValuesGenerator extends AbstractLoopValuesGenerator {
 
 	private final List<String> toExecute;
 
-	public FileLoopValuesGenerator() {
-		this.toExecute = new LinkedList<>();
+	public FileLoopValuesGenerator(VariableResolver resolver) {
+		super(resolver);
+	  this.toExecute = new LinkedList<>();
 	}
 
 	/**
@@ -26,13 +29,13 @@ public class FileLoopValuesGenerator implements LoopValuesGenerator {
 	 *            Indicates the directory of the task source tag
 	 */
 	@Override
-	public List<String> getValues(final String source) {
+	public List<String> getValuesFromResolvedSource(String source) {
 		final File folder = new File(source);
 		listFilesForFolder(folder);
 		return this.toExecute;
 	}
 
-	/**
+  /**
 	 * List all the files inside a folder
 	 * 
 	 * @param folder

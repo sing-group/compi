@@ -6,12 +6,12 @@ import java.util.List;
 
 import org.sing_group.compi.core.VariableResolver;
 
-public class ParameterLoopValuesGenerator implements LoopValuesGenerator {
+public class ParameterLoopValuesGenerator extends AbstractLoopValuesGenerator {
 
-	private VariableResolver resolver;
 	public ParameterLoopValuesGenerator(VariableResolver resolver) {
-		this.resolver = resolver;
+		super(resolver);
 	}
+	
 	@Override
 	public List<String> getValues(String source) {
 		String variableValue = resolver.resolveVariable(source);
@@ -21,4 +21,6 @@ public class ParameterLoopValuesGenerator implements LoopValuesGenerator {
 		return asList(resolver.resolveVariable(source).split(","));
 	}
 
+  @Override
+  protected List<String> getValuesFromResolvedSource(String source) { return null; }
 }

@@ -4,23 +4,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.sing_group.compi.core.VariableResolver;
 
-public class CommandLoopValuesGenerator implements LoopValuesGenerator {
-
-	private VariableResolver resolver;
+public class CommandLoopValuesGenerator extends AbstractLoopValuesGenerator {
 
 	public CommandLoopValuesGenerator(VariableResolver resolver) {
-		super();
-		this.resolver = resolver;
+		super(resolver);
 	}
 
 	@Override
-	public List<String> getValues(String source) {
-		source = resolveCommandParameters(source);
+	public List<String> getValuesFromResolvedSource(String source) {
 		final List<String> values = new ArrayList<>();
 		try {
 
@@ -41,22 +35,4 @@ public class CommandLoopValuesGenerator implements LoopValuesGenerator {
 			throw new RuntimeException(e);
 		}
 	}
-
-	private String resolveCommandParameters(String command) {
-		final Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
-		String resolvedString = command;
-		final Matcher matcher = pattern.matcher(command);
-		while (matcher.find()) {
-			String varName = matcher.group(1);
-			String resolvedVarName = resolver.resolveVariable(varName);
-			if (resolvedVarName == null) {
-				throw new IllegalArgumentException(
-						"Variable " + varName + " cannot be resolved in command line " + command);
-			}
-			resolvedString = resolvedString.replace("${" + varName + "}", resolver.resolveVariable(varName));
-		}
-		return resolvedString;
-
-	}
-
 }
