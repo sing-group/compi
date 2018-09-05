@@ -32,9 +32,13 @@ usage: compi run -p <pipeline> [-pa <params>] [-t <num-threads>] [-s <skip>] [-s
         --num-threads/-t
                 number of threads to use (default: 6)
         --skip/-s
-                skip to task. Runs the pipeline from the specific without running its dependencies. This option is incompatible with --single-task
+                skip to task. Runs the pipeline from the specific without running its dependencies. This option is incompatible with --single-task, --until and --before
         --single-task/-st
-                Runs a single task without its depencendies. This option is incompatible with --skip
+                runs a single task without its depencendies. This option is incompatible with --skip, --until and --before
+        --until/-ut
+                runs until a task (inclusive) including its depencendies. This option is incompatible with --single-task, --skip and --before
+        --before/-bt
+                runs all tasks which are dependencies of a given task. This option is incompatible with --single-task, --skip and --until
         --runners-config/-r
                 XML file configuring custom runners for tasks. See the Compi documentation for more details
 ```

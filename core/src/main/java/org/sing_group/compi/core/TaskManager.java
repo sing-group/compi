@@ -204,38 +204,74 @@ public class TaskManager implements TaskExecutionHandler {
 		});
 	}
 
+	 /**
+   * Marks a {@link Task} as skipped
+   * 
+   * @param task
+   *            Indicates the {@link Task} ID which you want to skip
+   */
+	public void skipTask(String task) {
+	  this.getDAG().get(task).setSkipped(true);
+	}
+	
+  /**
+   * Marks a {@link Task} as not skipped
+   * 
+   * @param task
+   *            Indicates the {@link Task} ID which you want not to skip
+   */
+  public void unSkipTask(String task) {
+    this.getDAG().get(task).setSkipped(false);
+  }
+  
 	/**
 	 * Marks all the {@link Task} as skipped if they are dependencies of the
 	 * {@link Task} passed as parameter
 	 * 
-	 * @param advanceTo
-	 *            Indicates the {@link Task} ID which you want to advance
+	 * @param task
+	 *            Indicates the {@link Task} ID which you want to skip its dependencies
 	 */
-	public void skipTasks(final String advanceTo) {
+	public void skipDependencies(final String task) {
 		dependencies.forEach((key, value) -> {
-			if (value.contains(advanceTo)) {
+			if (value.contains(task)) {
 				this.getDAG().get(key).setSkipped(true);
 			}
 		});
 	}
 	
-	
+  /**
+  * Marks all the {@link Task} as skipped if they are dependencies of the
+  * {@link Task}
+  * 
+  * @param task
+  *            Indicates the {@link Task} ID whose dependencies are not skipped
+  */
+  public void skipAllButDependencies(String task) {
+    this.getDAG().keySet().forEach((taskId) -> {
+      if (!dependencies.get(taskId).contains(task)) {
+        this.getDAG().get(taskId).setSkipped(true);
+      }
+    });
+  }
 	/**
 	 * Marks all the {@link Task} as skipped except the
 	 * {@link Task} passed as parameter
 	 * 
-	 * @param singleTask
-	 *            Indicates the {@link Task} ID to run
+	 * @param task
+	 *            Indicates the only {@link Task} ID which will not be skipped
 	 */
-	public void skipAllTasksBut(String singleTask) {
+	public void skipAllTasksBut(String task) {
 		this.getDAG().forEach((k, v)->{
-			if (!v.getId().equals(singleTask)) {
+			if (!v.getId().equals(task)) {
 				v.setSkipped(true);
 			}
 			
 		});
 	}
 
+
+
+  
 	/**
 	 * Marks a {@link Task} as started
 	 * 
@@ -321,6 +357,4 @@ public class TaskManager implements TaskExecutionHandler {
 	public void setResolver(VariableResolver variableResolver) {
 		this.variableResolver = variableResolver;
 	}
-
-
 }

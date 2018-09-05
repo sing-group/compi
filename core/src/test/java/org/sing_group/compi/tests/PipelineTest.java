@@ -24,7 +24,7 @@ public class PipelineTest {
 	public void testOneTask() throws Exception {
 		final String pipelineFile = ClassLoader.getSystemResource("testOneTask.xml").getFile();
 		final String advanceToTask = null;
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null);
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null, null, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addTaskExecutionHandler(handler);
 
@@ -48,7 +48,7 @@ public class PipelineTest {
 				return outFile.toString();
 			}
 			return null;
-		}, advanceToTask, null);
+		}, advanceToTask, null, null, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addTaskExecutionHandler(handler);
 		outFile.deleteOnExit();
@@ -65,7 +65,7 @@ public class PipelineTest {
 		final String pipelineFile = ClassLoader.getSystemResource("testSimplePipeline.xml").getFile();
 
 		final String advanceToTask = null;
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null);
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null, null, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addTaskExecutionHandler(handler);
 
@@ -101,7 +101,7 @@ public class PipelineTest {
 		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER,
 				(var) -> (var.equals("elements")) ? elementsValue
 						: (var.equals("dirparam") ? filesToTouch[0].getParent().toString() : null),
-				advanceToTask, null);
+				advanceToTask, null, null, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addTaskExecutionHandler(handler);
 
@@ -131,7 +131,7 @@ public class PipelineTest {
 	public void testSkipTasks() throws Exception {
 		final String pipelineFile = ClassLoader.getSystemResource("testSkipTasks.xml").getFile();
 		final String advanceToTask = "ID3";
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null);
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null, null, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addTaskExecutionHandler(handler);
 
@@ -147,7 +147,7 @@ public class PipelineTest {
 		final String pipelineFile = ClassLoader.getSystemResource("testSkipTasksWithLoops.xml").getFile();
 
 		final String advanceToTask = "ID4";
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null);
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null, null, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addTaskExecutionHandler(handler);
 
@@ -163,7 +163,7 @@ public class PipelineTest {
 		final String pipelineFile = ClassLoader.getSystemResource("testSkipTasks.xml").getFile();
 
 		final String singleTask = "ID3";
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, null, singleTask);
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, null, singleTask, null, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addTaskExecutionHandler(handler);
 
@@ -171,13 +171,46 @@ public class PipelineTest {
 		assertEquals(1, handler.getStartedTasks().size());
 		assertEquals(1, handler.getFinishedTasks().size());
 	}
+	
+  @Test
+  public void testRunUntilTask() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("testRunUntilTask.xml").getFile();
 
+    final String untilTask = "ID3";
+    final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, null, null, untilTask, null);
+    TestExecutionHandler handler = new TestExecutionHandler(compi);
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+    assertEquals(2, handler.getStartedTasks().size());
+    assertTrue(handler.getStartedTasks().contains("ID1"));
+    assertTrue(handler.getStartedTasks().contains("ID3"));
+    assertEquals(2, handler.getFinishedTasks().size());
+  }
+  
+  @Test
+  public void testRunBeforeTask() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("testRunUntilTask.xml").getFile();
+
+    final String beforeTask = "ID4";
+    final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, null, null, null, beforeTask);
+    TestExecutionHandler handler = new TestExecutionHandler(compi);
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+    assertEquals(3, handler.getStartedTasks().size());
+    assertTrue(handler.getStartedTasks().contains("ID1"));
+    assertTrue(handler.getStartedTasks().contains("ID2"));
+    assertTrue(handler.getStartedTasks().contains("ID3"));
+    assertEquals(3, handler.getFinishedTasks().size());
+  }
+  
 	@Test
 	public void testStartingTaskAborted() throws Exception {
 		final String pipelineFile = ClassLoader.getSystemResource("testStartingTaskAborted.xml").getFile();
 
 		final String advanceToTask = null;
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null);
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null, null, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addTaskExecutionHandler(handler);
 
@@ -193,7 +226,7 @@ public class PipelineTest {
 		final String pipelineFile = ClassLoader.getSystemResource("testTasksAborted.xml").getFile();
 
 		final String advanceToTask = null;
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null);
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null, null, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addTaskExecutionHandler(handler);
 
@@ -208,7 +241,7 @@ public class PipelineTest {
 		final String pipelineFile = ClassLoader.getSystemResource("testTasksAbortedWithLoops.xml").getFile();
 
 		final String advanceToTask = null;
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null);
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null, null, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addTaskExecutionHandler(handler);
 
@@ -224,7 +257,7 @@ public class PipelineTest {
 		final String pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinue.xml").getFile();
 
 		final String advanceToTask = null;
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null);
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null, null, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addTaskExecutionHandler(handler);
 
@@ -240,7 +273,7 @@ public class PipelineTest {
 		final String pipelineFile = ClassLoader.getSystemResource("testSomeTasksAbortedAndContinueWithLoops.xml")
 				.getFile();
 		final String advanceToTask = null;
-		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null);
+		final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, advanceToTask, null, null, null);
 		TestExecutionHandler handler = new TestExecutionHandler(compi);
 		compi.addTaskExecutionHandler(handler);
 

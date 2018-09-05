@@ -56,7 +56,7 @@ public class CompiApp implements TaskExecutionHandler {
    *          the size of the thread pool
    * @param resolver
    *          an object to resolve variables
-   * @param advanceToTask
+   * @param skipToTask
    *          the task to start the pipeline from, all previous dependencies are
    *          skipped
    * @param singleTask
@@ -75,8 +75,8 @@ public class CompiApp implements TaskExecutionHandler {
    */
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String advanceToTask,
-    final String singleTask, List<ValidationError> errors
+    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String skipToTask,
+    final String singleTask, final String untilTask, final String beforeTask, List<ValidationError> errors
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
     this.pipelineFile = new File(pipelineFile);
 
@@ -95,29 +95,40 @@ public class CompiApp implements TaskExecutionHandler {
     this.resolver = resolver;
 
     this.taskManager = new TaskManager(this, this.pipeline, this.resolver);
-    initializePipeline(advanceToTask, singleTask);
+    
+    initializePipeline();
+    if (skipToTask != null) {
+      skipTasks(skipToTask);
+    } else if (singleTask != null) {
+      skipAllBut(singleTask);
+    } else if (untilTask != null) {
+      runUntil(untilTask);
+    } else if (beforeTask != null) {
+      runBefore(beforeTask);
+    }
+    
     initializeExecutorService(threadNumber);
   }
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String advanceToTask,
-    final String singleTask
+    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String skipToTask,
+    final String singleTask, final String until, String beforeTask
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    this(pipelineFile, threadNumber, resolver, advanceToTask, singleTask, null);
+    this(pipelineFile, threadNumber, resolver, skipToTask, singleTask, until, beforeTask, null);
   }
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, String paramsFile, final String advanceToTask,
-    final String singleTask, final List<ValidationError> errors
+    final String pipelineFile, final int threadNumber, String paramsFile, final String skipToTask,
+    final String singleTask, final String until, String beforeTask, final List<ValidationError> errors
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    this(pipelineFile, threadNumber, new XMLParamsFileVariableResolver(paramsFile), advanceToTask, singleTask, errors);
+    this(pipelineFile, threadNumber, new XMLParamsFileVariableResolver(paramsFile), skipToTask, singleTask, until, beforeTask, errors);
   }
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, String paramsFile, final String advanceToTask,
-    final String singleTask
+    final String pipelineFile, final int threadNumber, String paramsFile, final String skipToTask,
+    final String singleTask, final String until, final String beforeTask
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    this(pipelineFile, threadNumber, paramsFile, advanceToTask, singleTask, null);
+    this(pipelineFile, threadNumber, paramsFile, skipToTask, singleTask, until, beforeTask, null);
   }
 
   /**
@@ -219,29 +230,11 @@ public class CompiApp implements TaskExecutionHandler {
 
   /**
    * Initializes all the parameters to allow the {@link Task} execution
-   * 
-   * @param advanceToTask
-   *          Indicates the {@link Task} ID which you want to advance
-   */
-  private void initializePipeline(
-    final String advanceToTask,
-    final String singleTask
-  ) {
-    if (advanceToTask != null && singleTask != null) {
-      throw new IllegalArgumentException("advanceToTask or singleTask must be null");
-    }
-
+   */ 
+  private void initializePipeline() {
     taskManager.checkAfterIds();
     // PipelineParser.solveExec(pipeline.getTasks());
     taskManager.initializeDependencies();
-
-    if (advanceToTask != null) {
-      skipTasks(advanceToTask);
-    }
-    if (singleTask != null) {
-      skipAllBut(singleTask);
-    }
-
   }
 
   /**
@@ -273,7 +266,7 @@ public class CompiApp implements TaskExecutionHandler {
     if (!taskManager.getTasksLeft().contains(advanceToTask)) {
       throw new IllegalArgumentException("The task ID " + advanceToTask + " doesn't exist");
     } else {
-      this.getTaskManager().skipTasks(advanceToTask);
+      this.getTaskManager().skipDependencies(advanceToTask);
     }
   }
 
@@ -291,9 +284,41 @@ public class CompiApp implements TaskExecutionHandler {
     } else {
       this.getTaskManager().skipAllTasksBut(singleTask);
     }
-
+  }
+  
+  /**
+   * Runs until {@link Task} including its dependencies
+   * 
+   * @param singleTask
+   *          Indicates the {@link Task} ID
+   * @throws IllegalArgumentException
+   *           If the {@link Task} ID doesn't exist
+   */
+  private void runUntil(String untilTask) {
+    if (!taskManager.getTasksLeft().contains(untilTask)) {
+      throw new IllegalArgumentException("The task ID " + untilTask + " doesn't exist");
+    } else {
+      this.getTaskManager().skipAllButDependencies(untilTask);
+      this.getTaskManager().unSkipTask(untilTask);
+    }
   }
 
+  /**
+   * Runs all dependencies of a {@link Task}, excluding the task itself
+   * 
+   * @param singleTask
+   *          Indicates the {@link Task} ID
+   * @throws IllegalArgumentException
+   *           If the {@link Task} ID doesn't exist
+   */
+  private void runBefore(String beforeTask) {
+    if (!taskManager.getTasksLeft().contains(beforeTask)) {
+      throw new IllegalArgumentException("The task ID " + beforeTask + " doesn't exist");
+    } else {
+      this.getTaskManager().skipAllButDependencies(beforeTask);
+    }
+  }
+  
   /**
    * Resolves the command to execute of a given task
    *
