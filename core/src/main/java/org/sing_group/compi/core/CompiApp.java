@@ -58,7 +58,7 @@ public class CompiApp implements TaskExecutionHandler {
    *          the size of the thread pool
    * @param resolver
    *          an object to resolve variables
-   * @param skipToTask
+   * @param fromTask
    *          the task to start the pipeline from, all previous dependencies are
    *          skipped
    * @param singleTask
@@ -77,7 +77,7 @@ public class CompiApp implements TaskExecutionHandler {
    */
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String skipToTask,
+    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String fromTask,
     final String singleTask, final String untilTask, final String beforeTask, List<ValidationError> errors
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
     this.pipelineFile = new File(pipelineFile);
@@ -99,8 +99,8 @@ public class CompiApp implements TaskExecutionHandler {
     this.taskManager = new TaskManager(this, this.pipeline, this.resolver);
 
     initializePipeline();
-    if (skipToTask != null) {
-      skipTasks(skipToTask);
+    if (fromTask != null) {
+      skipTasksBefore(fromTask);
     } else if (singleTask != null) {
       skipAllBut(singleTask);
     } else if (untilTask != null) {
@@ -113,26 +113,26 @@ public class CompiApp implements TaskExecutionHandler {
   }
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String skipToTask,
+    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String fromTask,
     final String singleTask, final String until, String beforeTask
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    this(pipelineFile, threadNumber, resolver, skipToTask, singleTask, until, beforeTask, null);
+    this(pipelineFile, threadNumber, resolver, fromTask, singleTask, until, beforeTask, null);
   }
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, String paramsFile, final String skipToTask,
+    final String pipelineFile, final int threadNumber, String paramsFile, final String fromTask,
     final String singleTask, final String until, String beforeTask, final List<ValidationError> errors
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
     this(
-      pipelineFile, threadNumber, new XMLParamsFileVariableResolver(paramsFile), skipToTask, singleTask, until, beforeTask, errors
+      pipelineFile, threadNumber, new XMLParamsFileVariableResolver(paramsFile), fromTask, singleTask, until, beforeTask, errors
     );
   }
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, String paramsFile, final String skipToTask,
+    final String pipelineFile, final int threadNumber, String paramsFile, final String fromTask,
     final String singleTask, final String until, final String beforeTask
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    this(pipelineFile, threadNumber, paramsFile, skipToTask, singleTask, until, beforeTask, null);
+    this(pipelineFile, threadNumber, paramsFile, fromTask, singleTask, until, beforeTask, null);
   }
 
   /**
@@ -280,7 +280,7 @@ public class CompiApp implements TaskExecutionHandler {
    * @throws IllegalArgumentException
    *           If the {@link Task} ID doesn't exist
    */
-  private void skipTasks(final String advanceToTask) throws IllegalArgumentException {
+  private void skipTasksBefore(final String advanceToTask) throws IllegalArgumentException {
     if (!taskManager.getTasksLeft().contains(advanceToTask)) {
       throw new IllegalArgumentException("The task ID " + advanceToTask + " doesn't exist");
     } else {

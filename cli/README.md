@@ -24,21 +24,21 @@ Write 'compi help <command>' to see command-specific help
 ### `run`
 ```
 Command run
-usage: compi run -p <pipeline> [-pa <params>] [-t <num-threads>] [-s <skip>] [-st <single-task>]
+usage: compi run -p <pipeline> [-pa <params>] [-t <num-threads>] [-f <from>] [-st <single-task>] [-ut <until>] [-bt <before>] [-r <runners-config>]
         --pipeline/-p
                 XML pipeline file
         --params/-pa
                 XML params file
         --num-threads/-t
                 number of threads to use (default: 6)
-        --skip/-s
-                skip to task. Runs the pipeline from the specific without running its dependencies. This option is incompatible with --single-task, --until and --before
+        --from/-f
+                from task. Runs the pipeline from the specific without running its dependencies. This option is incompatible with --single-task, --until and --before
         --single-task/-st
-                runs a single task without its depencendies. This option is incompatible with --skip, --until and --before
+                runs a single task without its depencendies. This option is incompatible with --from, --until and --before
         --until/-ut
-                runs until a task (inclusive) including its depencendies. This option is incompatible with --single-task, --skip and --before
+                runs until a task (inclusive) including its depencendies. This option is incompatible with --single-task, --from and --before
         --before/-bt
-                runs all tasks which are dependencies of a given task. This option is incompatible with --single-task, --skip and --until
+                runs all tasks which are dependencies of a given task. This option is incompatible with --single-task, --from and --until
         --runners-config/-r
                 XML file configuring custom runners for tasks. See the Compi documentation for more details
 ```

@@ -29,7 +29,7 @@ public class RunCommand extends AbstractCommand {
   private static final String PIPELINE_FILE = CommonParameters.PIPELINE_FILE;
   private static final String PARAMS_FILE = "pa";
   private static final String NUM_THREADS = "t";
-  private static final String SKIP = "s";
+  private static final String FROM = "f";
   private static final String SINGLE_TASK = "st";
   private static final String UNTIL_TASK = "ut";
   private static final String BEFORE_TASK = "bt";
@@ -38,7 +38,7 @@ public class RunCommand extends AbstractCommand {
   private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;
   private static final String PARAMS_FILE_LONG = "params";
   private static final String NUM_THREADS_LONG = "num-threads";
-  private static final String SKIP_LONG = "skip";
+  private static final String FROM_LONG = "from";
   private static final String SINGLE_TASK_LONG = "single-task";
   private static final String UNTIL_TASK_LONG = "until";
   private static final String BEFORE_TASK_LONG = "before";
@@ -47,18 +47,18 @@ public class RunCommand extends AbstractCommand {
   private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
   private static final String PARAMS_FILE_DESCRIPTION = "XML params file";
   private static final String NUM_THEADS_DESCRIPTION = "number of threads to use";
-  private static final String SKIP_DESCRIPTION = "skip to task. Runs the "
+  private static final String FROM_DESCRIPTION = "from task. Runs the "
     + "pipeline from the specific without running its dependencies. This "
     + "option is incompatible with --" + SINGLE_TASK_LONG + ", --" + UNTIL_TASK_LONG + " and --" + BEFORE_TASK_LONG;
   private static final String SINGLE_TASK_DESCRIPTION = "runs a single task "
     + "without its depencendies. This option is incompatible with --"
-    + SKIP_LONG + ", --" + UNTIL_TASK_LONG + " and --" + BEFORE_TASK_LONG;
+    + FROM_LONG + ", --" + UNTIL_TASK_LONG + " and --" + BEFORE_TASK_LONG;
   private static final String UNTIL_TASK_DESCRIPTION = "runs until a task (inclusive) "
     + "including its depencendies. This option is incompatible with --"
-    + SINGLE_TASK_LONG + ", --" + SKIP_LONG + " and --" + BEFORE_TASK_LONG;
+    + SINGLE_TASK_LONG + ", --" + FROM_LONG + " and --" + BEFORE_TASK_LONG;
   private static final String BEFORE_TASK_DESCRIPTION = "runs all tasks which are dependencies of a given task. "
     + "This option is incompatible with --"
-    + SINGLE_TASK_LONG + ", --" + SKIP_LONG + " and --" + UNTIL_TASK_LONG;
+    + SINGLE_TASK_LONG + ", --" + FROM_LONG + " and --" + UNTIL_TASK_LONG;
   private static final String RUNNERS_CONFIG_DESCRIPTION = "XML file configuring custom runners for tasks. See the "
     + "Compi documentation for more details";
 
@@ -84,22 +84,22 @@ public class RunCommand extends AbstractCommand {
       LOGGER.info("Params file - " + parameters.getSingleValue(super.getOption(PARAMS_FILE)));
     }
 
-    boolean hasSkip = parameters.hasOption(super.getOption(SKIP));
+    boolean hasFrom = parameters.hasOption(super.getOption(FROM));
     boolean hasSingleTask = parameters.hasOption(super.getOption(SINGLE_TASK));
     boolean hasUntilTask = parameters.hasOption(super.getOption(UNTIL_TASK));
     boolean hasBeforeTask = parameters.hasOption(super.getOption(BEFORE_TASK));
 
-    int taskSpecsCount = (hasSkip?1:0) + (hasSingleTask?1:0) + (hasUntilTask?1:0) + (hasBeforeTask?1:0);
+    int taskSpecsCount = (hasFrom?1:0) + (hasSingleTask?1:0) + (hasUntilTask?1:0) + (hasBeforeTask?1:0);
 
     if (taskSpecsCount > 1) {
       throw new IllegalArgumentException(
-        "You can only specify one of --" + SKIP_LONG + ", --" + SINGLE_TASK_LONG + ", --" + UNTIL_TASK_LONG + " or --"
+        "You can only specify one of --" + FROM_LONG + ", --" + SINGLE_TASK_LONG + ", --" + UNTIL_TASK_LONG + " or --"
           + BEFORE_TASK_LONG
       );
     }
 
-    String skip = hasSkip
-      ? parameters.getSingleValueString(super.getOption(SKIP))
+    String from = hasFrom
+      ? parameters.getSingleValueString(super.getOption(FROM))
       : null;
     String singleTask = hasSingleTask
       ? parameters.getSingleValueString(super.getOption(SINGLE_TASK))
@@ -111,8 +111,8 @@ public class RunCommand extends AbstractCommand {
       ? parameters.getSingleValueString(super.getOption(BEFORE_TASK))
       : null;
 
-    if (skip != null) {
-      LOGGER.info("Skip to task - " + skip);
+    if (from != null) {
+      LOGGER.info("From task - " + from);
     } else if (singleTask != null) {
       LOGGER.info("Running single task - " + singleTask);
     } else if (untilTask != null) {
@@ -125,7 +125,7 @@ public class RunCommand extends AbstractCommand {
       List<ValidationError> errors = new ArrayList<>();
       compi = new CompiApp(
         pipelineFile, threads, (VariableResolver) null,
-        skip, singleTask, untilTask, beforeTask, errors
+        from, singleTask, untilTask, beforeTask, errors
       );
       logValidationErrors(errors);
 
@@ -173,7 +173,7 @@ public class RunCommand extends AbstractCommand {
     options.add(getPipelineFile());
     options.add(getParamsFile());
     options.add(getNumThreads());
-    options.add(getSkipToTask());
+    options.add(getRunFromTask());
     options.add(getRunSingleTask());
     options.add(getRunUntilTask());
     options.add(getRunBeforeTask());
@@ -197,8 +197,8 @@ public class RunCommand extends AbstractCommand {
       NUM_THREADS, NUM_THEADS_DESCRIPTION, NUM_THREADS_DEFAULT);
   }
 
-  private Option<?> getSkipToTask() {
-    return new StringOption(SKIP_LONG, SKIP, SKIP_DESCRIPTION, true, true);
+  private Option<?> getRunFromTask() {
+    return new StringOption(FROM_LONG, FROM, FROM_DESCRIPTION, true, true);
   }
 
   private Option<?> getRunSingleTask() {

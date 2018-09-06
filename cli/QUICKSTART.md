@@ -339,7 +339,7 @@ It is possible start the pipeline execution at a specific task (e.g. in order to
 
 Run the following command to execute the `example-files/pipeline.xml` file using the example parameters file (`example-files/params.xml`) starting at task `task-7`. This command will run all tasks that do not depend on `task-7`, that is: `task-7`, `task-3`, `task-10`, `task-6`, `task-8`, and `task-9`.
 ```
-target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml -s task-7
+target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml -f task-7
 ```
 
 <details><summary>Command output</summary>
@@ -348,7 +348,7 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 [2018-09-05 22:29:16] [INFORMACIÓN] Pipeline file - example-files/pipeline.xml 
 [2018-09-05 22:29:16] [INFORMACIÓN] Number of threads - 6 
 [2018-09-05 22:29:16] [INFORMACIÓN] Params file - example-files/params.xml 
-[2018-09-05 22:29:16] [INFORMACIÓN] Skip to task - task-7
+[2018-09-05 22:29:16] [INFORMACIÓN] From task - task-7
 [2018-09-05 22:29:16] [ADVERTENCIA] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-09-05 22:29:16] [INFORMACIÓN] > Started loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
 [2018-09-05 22:29:16] [INFORMACIÓN] >> Started loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
