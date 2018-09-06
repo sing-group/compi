@@ -52,7 +52,7 @@ public class RunCommand extends AbstractCommand {
   private static final String FROM_DESCRIPTION =
     "from task. Runs the "
       + "pipeline from the specific without running its dependencies. This "
-      + "option is incompatible with --" + SINGLE_TASK_LONG + ", --" + UNTIL_TASK_LONG + " and --" + BEFORE_TASK_LONG;
+      + "option is incompatible with --" + SINGLE_TASK_LONG;
   private static final String SINGLE_TASK_DESCRIPTION =
     "runs a single task "
       + "without its depencendies. This option is incompatible with --"
@@ -60,11 +60,11 @@ public class RunCommand extends AbstractCommand {
   private static final String UNTIL_TASK_DESCRIPTION =
     "runs until a task (inclusive) "
       + "including its depencendies. This option is incompatible with --"
-      + SINGLE_TASK_LONG + ", --" + FROM_LONG + " and --" + BEFORE_TASK_LONG;
+      + SINGLE_TASK_LONG + " and --" + BEFORE_TASK_LONG;
   private static final String BEFORE_TASK_DESCRIPTION =
     "runs all tasks which are dependencies of a given task. "
       + "This option is incompatible with --"
-      + SINGLE_TASK_LONG + ", --" + FROM_LONG + " and --" + UNTIL_TASK_LONG;
+      + SINGLE_TASK_LONG + " and --" + UNTIL_TASK_LONG;
   private static final String RUNNERS_CONFIG_DESCRIPTION =
     "XML file configuring custom runners for tasks. See the "
       + "Compi documentation for more details";
@@ -83,6 +83,21 @@ public class RunCommand extends AbstractCommand {
     String pipelineFile = parameters.getSingleValueString(super.getOption(PIPELINE_FILE));
     Integer compiThreads = parameters.getSingleValue(super.getOption(NUM_PARALLEL_TASKS));
 
+    boolean hasFrom = parameters.hasOption(super.getOption(FROM));
+    boolean hasSingleTask = parameters.hasOption(super.getOption(SINGLE_TASK));
+    boolean hasUntilTask = parameters.hasOption(super.getOption(UNTIL_TASK));
+    boolean hasBeforeTask = parameters.hasOption(super.getOption(BEFORE_TASK));
+
+    if (hasSingleTask && (hasFrom || hasUntilTask || hasBeforeTask)) {
+      throw new IllegalArgumentException(
+        "--" + SINGLE_TASK_LONG + " is incompatible with any of --" + FROM_LONG + ", --" + UNTIL_TASK_LONG + ", and "
+          + BEFORE_TASK_LONG
+      );
+    }
+    if (hasUntilTask && hasBeforeTask) {
+      throw new IllegalArgumentException("--" + UNTIL_TASK_LONG + " is incompatible with --" + BEFORE_TASK_LONG);
+    }
+
     LOGGER.info("Compi running with: ");
     LOGGER.info("Pipeline file - " + pipelineFile);
     LOGGER.info("Max number of parallel tasks - " + compiThreads);
@@ -90,21 +105,7 @@ public class RunCommand extends AbstractCommand {
     if (parameters.hasOption(super.getOption(PARAMS_FILE))) {
       LOGGER.info("Params file - " + parameters.getSingleValue(super.getOption(PARAMS_FILE)));
     }
-
-    boolean hasFrom = parameters.hasOption(super.getOption(FROM));
-    boolean hasSingleTask = parameters.hasOption(super.getOption(SINGLE_TASK));
-    boolean hasUntilTask = parameters.hasOption(super.getOption(UNTIL_TASK));
-    boolean hasBeforeTask = parameters.hasOption(super.getOption(BEFORE_TASK));
-
-    int taskSpecsCount = (hasFrom ? 1 : 0) + (hasSingleTask ? 1 : 0) + (hasUntilTask ? 1 : 0) + (hasBeforeTask ? 1 : 0);
-
-    if (taskSpecsCount > 1) {
-      throw new IllegalArgumentException(
-        "You can only specify one of --" + FROM_LONG + ", --" + SINGLE_TASK_LONG + ", --" + UNTIL_TASK_LONG + " or --"
-          + BEFORE_TASK_LONG
-      );
-    }
-
+    
     String from =
       hasFrom
         ? parameters.getSingleValueString(super.getOption(FROM))
@@ -122,13 +123,17 @@ public class RunCommand extends AbstractCommand {
         ? parameters.getSingleValueString(super.getOption(BEFORE_TASK))
         : null;
 
-    if (from != null) {
-      LOGGER.info("From task - " + from);
-    } else if (singleTask != null) {
+    if (singleTask != null) {
       LOGGER.info("Running single task - " + singleTask);
-    } else if (untilTask != null) {
+    }
+    
+    if (from != null) {
+      LOGGER.info("Running from task - " + from);
+    }
+    if (untilTask != null) {
       LOGGER.info("Running until task - " + untilTask);
-    } else if (beforeTask != null) {
+    }
+    if (beforeTask != null) {
       LOGGER.info("Running tasks before task - " + beforeTask);
     }
 

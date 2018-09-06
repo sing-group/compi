@@ -80,6 +80,14 @@ public class CompiApp implements TaskExecutionHandler {
     final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String fromTask,
     final String singleTask, final String untilTask, final String beforeTask, List<ValidationError> errors
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
+    
+    if (singleTask != null && (fromTask!=null || untilTask!=null || beforeTask!=null)) {
+      throw new IllegalArgumentException("singleTask is incompatible with any of fromTask, untilTask and beforeTask");
+    }
+    if (untilTask != null && beforeTask != null) {
+      throw new IllegalArgumentException("untilTask is incompatible with beforeTask");
+    }
+    
     this.pipelineFile = new File(pipelineFile);
 
     PipelineValidator validator = new PipelineValidator(this.pipelineFile);
@@ -99,14 +107,18 @@ public class CompiApp implements TaskExecutionHandler {
     this.taskManager = new TaskManager(this, this.pipeline, this.resolver);
 
     initializePipeline();
-    if (fromTask != null) {
-      skipTasksBefore(fromTask);
-    } else if (singleTask != null) {
+    
+    if (singleTask != null) {
       skipAllBut(singleTask);
-    } else if (untilTask != null) {
-      runUntil(untilTask);
-    } else if (beforeTask != null) {
-      runBefore(beforeTask);
+    } else {
+      if (fromTask != null) {
+        skipTasksBefore(fromTask);
+      }
+      if (untilTask != null) {
+        runUntil(untilTask);
+      } else if (beforeTask != null) {
+        runBefore(beforeTask);
+      }
     }
 
     initializeExecutorService(threadNumber);
@@ -166,7 +178,8 @@ public class CompiApp implements TaskExecutionHandler {
               )
             );
             if (taskManager.getForEachTasks().get(taskToRun.getId()).size() == 0) {
-              // for loops without iterations, we need to add a dummy process, because we expect the foreach task itself
+              // for loops without iterations, we need to add a dummy process,
+              // because we expect the foreach task itself
               // is in taskLeft and we need to be notified that it has finished
               this.parentTask.put(taskToRun, taskToRun);
               executorService.submit(
@@ -175,8 +188,8 @@ public class CompiApp implements TaskExecutionHandler {
                   (task) -> {
                     return new DummyProcess();
                   }
-                )
-              );
+                  )
+                );
             } else {
               for (final ForeachIteration lp : taskManager.getForEachTasks().get(taskToRun.getId())) {
                 final Task cloned = taskToRun.clone();
@@ -187,7 +200,7 @@ public class CompiApp implements TaskExecutionHandler {
                 parentTask.put(cloned, taskToRun);
                 executorService.submit(
                   new TaskRunnable(cloned, this, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()))
-                );
+                  );
               }
             }
           } else {
@@ -196,7 +209,7 @@ public class CompiApp implements TaskExecutionHandler {
 
             executorService.submit(
               new TaskRunnable(taskToRun, this, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()))
-            );
+              );
           }
         }
         this.wait();
@@ -350,7 +363,9 @@ public class CompiApp implements TaskExecutionHandler {
    * @throws SAXException
    * @throws ParserConfigurationException
    */
-  private void resolveTask(Task t)
+  private void resolveTask(
+    Task t
+    )
     throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
 
     TextVariableResolver textVariableResolver = new TextVariableResolver((var) -> {

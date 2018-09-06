@@ -189,6 +189,60 @@ public class PipelineTest {
   }
   
   @Test
+  public void testUntilStartingFrom() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("pipelinePartialRuns.xml").getFile();
+
+    final String fromTask = "task-3";
+    final String untilTask = "task-6";
+    final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, fromTask, null, untilTask, null);
+    TestExecutionHandler handler = new TestExecutionHandler(compi);
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+    assertEquals(2, handler.getStartedTasks().size());
+    assertTrue(handler.getStartedTasks().contains("task-3"));
+    assertTrue(handler.getStartedTasks().contains("task-6"));
+    assertEquals(2, handler.getFinishedTasks().size());
+  }
+  
+  @Test
+  public void testBeforeStartingFrom() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("pipelinePartialRuns.xml").getFile();
+
+    final String fromTask = "task-3";
+    final String beforeTask = "task-8";
+    final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, fromTask, null, null, beforeTask);
+    TestExecutionHandler handler = new TestExecutionHandler(compi);
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+    assertEquals(6, handler.getStartedTasks().size());
+    assertTrue(handler.getStartedTasks().contains("task-2"));
+    assertTrue(handler.getStartedTasks().contains("task-3"));
+    assertTrue(handler.getStartedTasks().contains("task-4"));
+    assertTrue(handler.getStartedTasks().contains("task-5"));
+    assertTrue(handler.getStartedTasks().contains("task-6"));
+    assertTrue(handler.getStartedTasks().contains("task-7"));
+    assertEquals(6, handler.getFinishedTasks().size());
+  }
+  
+  @Test
+  public void testStartingFromAndUntilSameTask() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("pipelinePartialRuns.xml").getFile();
+
+    final String fromTask = "task-8";
+    final String untilTask = "task-8";
+    final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, fromTask, null, untilTask, null);
+    TestExecutionHandler handler = new TestExecutionHandler(compi);
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+    assertEquals(1, handler.getStartedTasks().size());
+    assertTrue(handler.getStartedTasks().contains("task-8"));
+    assertEquals(1, handler.getFinishedTasks().size());
+  }
+  
+  @Test
   public void testRunBeforeTask() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("testRunUntilTask.xml").getFile();
 

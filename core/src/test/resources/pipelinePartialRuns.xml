@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<tasks>
+		<foreach id="task-1"
+			of="list" in="3,7,1,1" as="i">
+			echo "${i}"
+		</foreach>
+		<task id="task-2" after="task-1">
+			echo "hi"
+		</task>
+		<task id="task-3" after="task-1">
+			echo "hi"
+		</task>
+		<task id="task-4" after="task-2">
+			echo "hi"
+		</task>
+		<task id="task-5" after="task-2">
+			echo "hi"
+		</task>
+		<task id="task-6" after="task-3">
+			echo "hi"
+		</task>
+		<foreach id="task-7" after="task-4,task-5"
+			of="list" in="3,7,1,1" as="i">
+			echo "${i}"
+		</foreach>
+		<foreach id="task-8" after="task-6,task-7"
+			of="list" in="3,7,1,1" as="i">
+			echo "${i}"
+		</foreach>
+		<task id="task-9" after="task-8">
+			echo "hi"
+		</task>
+		<foreach id="task-10"
+			of="list" in="3,7,1,1" as="i">
+			echo "${i}"
+		</foreach>
+	</tasks>
+
+</pipeline>
