@@ -24,21 +24,23 @@ Write 'compi help <command>' to see command-specific help
 ### `run`
 ```
 Command run
-usage: compi run -p <pipeline> [-pa <params>] [-n <num-tasks>] [-f <from>] [-st <single-task>] [-ut <until>] [-bt <before>] [-r <runners-config>]
+usage: compi run -p <pipeline> [-pa <params>] [-n <num-tasks>] [-st <single-task>] [-f <from>] [-a <after>] [-ut <until>] [-bt <before>] [-r <runners-config>]
         --pipeline/-p
                 XML pipeline file
         --params/-pa
-                XML params file
+                XML parameters file
         --num-tasks/-n
                 maximum number of tasks that can be run in parallel. This is not equivalent to the number of threads the pipeline will use, because some tasks can be parallel processes themselves (default: 6)
-        --from/-f
-                from task. Runs the pipeline from the specific without running its dependencies. This option is incompatible with --single-task, --until and --before
         --single-task/-st
-                runs a single task without its depencendies. This option is incompatible with --from, --until and --before
+                runs a single task without its depencendies. This option is incompatible with --from, --after, --until and --before
+        --from/-f
+                from task(s). Runs the pipeline from the specific task(s) without running its/their dependencies. This option is incompatible with --single-task. This option can be specified multiple times
+        --after/-a
+                after task(s). Runs the pipeline from the specific task(s) without running neither it/them nor its/their dependencies. This option is incompatible with --single-task. This option can be specified multiple times
         --until/-ut
-                runs until a task (inclusive) including its depencendies. This option is incompatible with --single-task, --from and --before
+                runs until a task (inclusive) including its depencendies. This option is incompatible with --single-task and --before
         --before/-bt
-                runs all tasks which are dependencies of a given task. This option is incompatible with --single-task, --from and --until
+                runs all tasks which are dependencies of a given task. This option is incompatible with --single-task and --until
         --runners-config/-r
                 XML file configuring custom runners for tasks. See the Compi documentation for more details
 ```

@@ -164,7 +164,7 @@ public class SwingDemo {
 		}
 
 		try {
-			compi = new CompiApp(pipelineText.getText(), threadNumber, paramsFile, skipTask!=null?asList(skipTask):null, null, null, null, null);
+			compi = new CompiApp(pipelineText.getText(), threadNumber, paramsFile, null, skipTask!=null?asList(skipTask):null, null, null, null, null);
 			compi.addTaskExecutionHandler(new TaskExecutionHandler() {
 
 				@Override

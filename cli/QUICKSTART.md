@@ -14,6 +14,8 @@ The `example-files` folder contains a simple pipeline XML file to test the compi
    * [7. Run the pipeline until a specific task](#7-run-the-pipeline-until-a-specific-task)
    * [8. Run all the dependencies of a specific task](#8-run-all-the-dependencies-of-a-specific-task)
    * [9. Start the pipeline execution at a specific task](#9-start-the-pipeline-execution-at-a-specific-task)
+   * [10. Start the pipeline execution after a specific task](#10-start-the-pipeline-execution-after-a-specific-task)
+   * [11. Starting the pipeline execution using both after and <code>from</code>](#11-starting-the-pipeline-execution-using-both-after-and-from)
 
 ## 1. Validating a pipeline
 Run the following command to validate the `example-files/pipeline.xml` file:
@@ -161,7 +163,7 @@ target/dist/compi run -p example-files/pipeline.xml -- --path example-files/exec
 ```
 </details>
 
-## 5. Export the pipeline graph as a image
+## 5. Export the pipeline graph as an image
 Run the following command to export the graph defined by the `example-files/pipeline.xml` pipeline as an image.
 ```
 target/dist/compi export-graph -p example-files/pipeline.xml -o pipeline.png -f png
@@ -169,11 +171,11 @@ target/dist/compi export-graph -p example-files/pipeline.xml -o pipeline.png -f 
 
 <details><summary>Command output</summary>
 ```
-[2018-08-17 11:48:33] [INFORMACIÓN] Pipeline file - example-files/pipeline.xml 
-[2018-08-17 11:48:33] [INFORMACIÓN] Export graph to file - pipeline.png 
-[2018-08-17 11:48:33] [INFORMACIÓN] Graph format - png 
-[2018-08-17 11:48:33] [INFORMACIÓN] Graph orientation - vertical 
-[2018-08-17 11:48:33] [INFORMACIÓN] Graph font size - 10
+[2018-08-17 11:48:33] [INFO   ] Pipeline file - example-files/pipeline.xml 
+[2018-08-17 11:48:33] [INFO   ] Export graph to file - pipeline.png 
+[2018-08-17 11:48:33] [INFO   ] Graph format - png 
+[2018-08-17 11:48:33] [INFO   ] Graph orientation - vertical 
+[2018-08-17 11:48:33] [INFO   ] Graph font size - 10
 ```
 </details>
 
@@ -187,50 +189,50 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 
 <details><summary>Command output</summary>
 ```
-[2018-09-04 22:31:31] [INFORMACIÓN] Compi running with:  
-[2018-09-04 22:31:31] [INFORMACIÓN] Pipeline file - example-files/pipeline.xml 
-[2018-09-04 22:31:31] [INFORMACIÓN] Max number of parallel tasks - 6 
-[2018-09-04 22:31:31] [INFORMACIÓN] Params file - example-files/params.xml 
-[2018-09-04 22:31:31] [ADVERTENCIA] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
-[2018-09-06 09:25:08] [INFORMACIÓN] Runners file - example-files/pipeline-runner.xml
-[2018-09-04 22:31:31] [INFORMACIÓN] > Started loop task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-04 22:31:31] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-04 22:31:31] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-04 22:31:31] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-04 22:31:31] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-04 22:31:31] [INFORMACIÓN] > Started loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
-[2018-09-04 22:31:31] [INFORMACIÓN] >> Started loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
-[2018-09-04 22:31:32] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
-[2018-09-04 22:31:32] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
-[2018-09-04 22:31:34] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) 
-[2018-09-04 22:31:34] [INFORMACIÓN] << Finished loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
-[2018-09-04 22:31:34] [INFORMACIÓN] < Finished loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
-[2018-09-04 22:31:38] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) 
-[2018-09-04 22:31:38] [INFORMACIÓN] < Finished loop task task-1 (command: example-files/execute/execute.sh p1 7) 
-[2018-09-04 22:31:38] [INFORMACIÓN] > Started task task-2 (command: example-files/execute/execute.sh p2 2) 
-[2018-09-04 22:31:38] [INFORMACIÓN] > Started task task-3 (command: example-files/execute/execute.sh p3 2) 
-[2018-09-04 22:31:40] [INFORMACIÓN] < Finished task task-2 (command: example-files/execute/execute.sh p2 2) 
-[2018-09-04 22:31:40] [INFORMACIÓN] > Started task task-4 (command: example-files/execute/execute.sh p4 2) 
-[2018-09-04 22:31:40] [INFORMACIÓN] < Finished task task-3 (command: example-files/execute/execute.sh p3 2) 
-[2018-09-04 22:31:40] [INFORMACIÓN] > Started task task-5 (command: example-files/execute/execute.sh p5 2) 
-[2018-09-04 22:31:40] [INFORMACIÓN] > Started task task-6 (command: example-files/execute/execute.sh p6 3) 
-[2018-09-04 22:31:42] [INFORMACIÓN] < Finished task task-4 (command: example-files/execute/execute.sh p4 2) 
-[2018-09-04 22:31:42] [INFORMACIÓN] < Finished task task-5 (command: example-files/execute/execute.sh p5 2) 
-[2018-09-04 22:31:42] [INFORMACIÓN] > Started loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
-[2018-09-04 22:31:42] [INFORMACIÓN] >> Started loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
-[2018-09-04 22:31:43] [INFORMACIÓN] < Finished task task-6 (command: example-files/execute/execute.sh p6 3) 
-[2018-09-04 22:31:44] [INFORMACIÓN] << Finished loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
-[2018-09-04 22:31:44] [INFORMACIÓN] < Finished loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
-[2018-09-04 22:31:44] [INFORMACIÓN] > Started loop task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
-[2018-09-04 22:31:44] [INFORMACIÓN] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
-[2018-09-04 22:31:44] [INFORMACIÓN] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
-[2018-09-04 22:31:44] [INFORMACIÓN] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
-[2018-09-04 22:31:45] [INFORMACIÓN] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
-[2018-09-04 22:31:45] [INFORMACIÓN] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
-[2018-09-04 22:31:49] [INFORMACIÓN] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) 
-[2018-09-04 22:31:49] [INFORMACIÓN] < Finished loop task task-8 (command: example-files/execute/execute.sh p8 5) 
-[2018-09-04 22:31:49] [INFORMACIÓN] > Started task task-9 (command: example-files/execute/execute.sh p9 2) 
-[2018-09-04 22:31:51] [INFORMACIÓN] < Finished task task-9 (command: example-files/execute/execute.sh p9 2)
+[2018-09-04 22:31:31] [INFO   ] Compi running with:  
+[2018-09-04 22:31:31] [INFO   ] Pipeline file - example-files/pipeline.xml 
+[2018-09-04 22:31:31] [INFO   ] Max number of parallel tasks - 6 
+[2018-09-04 22:31:31] [INFO   ] Params file - example-files/params.xml 
+[2018-09-04 22:31:31] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
+[2018-09-06 09:25:08] [INFO   ] Runners file - example-files/pipeline-runner.xml
+[2018-09-04 22:31:31] [INFO   ] > Started loop task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-04 22:31:31] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-04 22:31:31] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-04 22:31:31] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-04 22:31:31] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-04 22:31:31] [INFO   ] > Started loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
+[2018-09-04 22:31:31] [INFO   ] >> Started loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
+[2018-09-04 22:31:32] [INFO   ] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
+[2018-09-04 22:31:32] [INFO   ] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
+[2018-09-04 22:31:34] [INFO   ] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) 
+[2018-09-04 22:31:34] [INFO   ] << Finished loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
+[2018-09-04 22:31:34] [INFO   ] < Finished loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
+[2018-09-04 22:31:38] [INFO   ] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) 
+[2018-09-04 22:31:38] [INFO   ] < Finished loop task task-1 (command: example-files/execute/execute.sh p1 7) 
+[2018-09-04 22:31:38] [INFO   ] > Started task task-2 (command: example-files/execute/execute.sh p2 2) 
+[2018-09-04 22:31:38] [INFO   ] > Started task task-3 (command: example-files/execute/execute.sh p3 2) 
+[2018-09-04 22:31:40] [INFO   ] < Finished task task-2 (command: example-files/execute/execute.sh p2 2) 
+[2018-09-04 22:31:40] [INFO   ] > Started task task-4 (command: example-files/execute/execute.sh p4 2) 
+[2018-09-04 22:31:40] [INFO   ] < Finished task task-3 (command: example-files/execute/execute.sh p3 2) 
+[2018-09-04 22:31:40] [INFO   ] > Started task task-5 (command: example-files/execute/execute.sh p5 2) 
+[2018-09-04 22:31:40] [INFO   ] > Started task task-6 (command: example-files/execute/execute.sh p6 3) 
+[2018-09-04 22:31:42] [INFO   ] < Finished task task-4 (command: example-files/execute/execute.sh p4 2) 
+[2018-09-04 22:31:42] [INFO   ] < Finished task task-5 (command: example-files/execute/execute.sh p5 2) 
+[2018-09-04 22:31:42] [INFO   ] > Started loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
+[2018-09-04 22:31:42] [INFO   ] >> Started loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
+[2018-09-04 22:31:43] [INFO   ] < Finished task task-6 (command: example-files/execute/execute.sh p6 3) 
+[2018-09-04 22:31:44] [INFO   ] << Finished loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
+[2018-09-04 22:31:44] [INFO   ] < Finished loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
+[2018-09-04 22:31:44] [INFO   ] > Started loop task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-04 22:31:44] [INFO   ] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-04 22:31:44] [INFO   ] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-04 22:31:44] [INFO   ] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-04 22:31:45] [INFO   ] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
+[2018-09-04 22:31:45] [INFO   ] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
+[2018-09-04 22:31:49] [INFO   ] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) 
+[2018-09-04 22:31:49] [INFO   ] < Finished loop task task-8 (command: example-files/execute/execute.sh p8 5) 
+[2018-09-04 22:31:49] [INFO   ] > Started task task-9 (command: example-files/execute/execute.sh p9 2) 
+[2018-09-04 22:31:51] [INFO   ] < Finished task task-9 (command: example-files/execute/execute.sh p9 2)
 ```
 </details>
 
@@ -270,32 +272,32 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 
 <details><summary>Command output</summary>
 ```
-[2018-09-05 22:23:18] [INFORMACIÓN] Compi running with:  
-[2018-09-05 22:23:18] [INFORMACIÓN] Pipeline file - example-files/pipeline.xml 
-[2018-09-05 22:23:18] [INFORMACIÓN] Max number of parallel tasks - 6 
-[2018-09-05 22:23:18] [INFORMACIÓN] Params file - example-files/params.xml 
-[2018-09-05 22:23:18] [INFORMACIÓN] Running until task - task-7
-[2018-09-05 22:23:18] [ADVERTENCIA] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
-[2018-09-05 22:23:18] [INFORMACIÓN] > Started loop task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-05 22:23:18] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-05 22:23:18] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-05 22:23:18] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-05 22:23:18] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-05 22:23:19] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
-[2018-09-05 22:23:19] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
-[2018-09-05 22:23:21] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) 
-[2018-09-05 22:23:25] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) 
-[2018-09-05 22:23:25] [INFORMACIÓN] < Finished loop task task-1 (command: example-files/execute/execute.sh p1 7) 
-[2018-09-05 22:23:25] [INFORMACIÓN] > Started task task-2 (command: example-files/execute/execute.sh p2 2) 
-[2018-09-05 22:23:27] [INFORMACIÓN] < Finished task task-2 (command: example-files/execute/execute.sh p2 2) 
-[2018-09-05 22:23:27] [INFORMACIÓN] > Started task task-4 (command: example-files/execute/execute.sh p4 2) 
-[2018-09-05 22:23:27] [INFORMACIÓN] > Started task task-5 (command: example-files/execute/execute.sh p5 2) 
-[2018-09-05 22:23:29] [INFORMACIÓN] < Finished task task-5 (command: example-files/execute/execute.sh p5 2) 
-[2018-09-05 22:23:29] [INFORMACIÓN] < Finished task task-4 (command: example-files/execute/execute.sh p4 2) 
-[2018-09-05 22:23:29] [INFORMACIÓN] > Started loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
-[2018-09-05 22:23:29] [INFORMACIÓN] >> Started loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
-[2018-09-05 22:23:31] [INFORMACIÓN] << Finished loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
-[2018-09-05 22:23:31] [INFORMACIÓN] < Finished loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
+[2018-09-05 22:23:18] [INFO   ] Compi running with:  
+[2018-09-05 22:23:18] [INFO   ] Pipeline file - example-files/pipeline.xml 
+[2018-09-05 22:23:18] [INFO   ] Max number of parallel tasks - 6 
+[2018-09-05 22:23:18] [INFO   ] Params file - example-files/params.xml 
+[2018-09-05 22:23:18] [INFO   ] Running until task - task-7
+[2018-09-05 22:23:18] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
+[2018-09-05 22:23:18] [INFO   ] > Started loop task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-05 22:23:18] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-05 22:23:18] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-05 22:23:18] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-05 22:23:18] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-05 22:23:19] [INFO   ] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
+[2018-09-05 22:23:19] [INFO   ] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
+[2018-09-05 22:23:21] [INFO   ] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) 
+[2018-09-05 22:23:25] [INFO   ] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) 
+[2018-09-05 22:23:25] [INFO   ] < Finished loop task task-1 (command: example-files/execute/execute.sh p1 7) 
+[2018-09-05 22:23:25] [INFO   ] > Started task task-2 (command: example-files/execute/execute.sh p2 2) 
+[2018-09-05 22:23:27] [INFO   ] < Finished task task-2 (command: example-files/execute/execute.sh p2 2) 
+[2018-09-05 22:23:27] [INFO   ] > Started task task-4 (command: example-files/execute/execute.sh p4 2) 
+[2018-09-05 22:23:27] [INFO   ] > Started task task-5 (command: example-files/execute/execute.sh p5 2) 
+[2018-09-05 22:23:29] [INFO   ] < Finished task task-5 (command: example-files/execute/execute.sh p5 2) 
+[2018-09-05 22:23:29] [INFO   ] < Finished task task-4 (command: example-files/execute/execute.sh p4 2) 
+[2018-09-05 22:23:29] [INFO   ] > Started loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
+[2018-09-05 22:23:29] [INFO   ] >> Started loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
+[2018-09-05 22:23:31] [INFO   ] << Finished loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
+[2018-09-05 22:23:31] [INFO   ] < Finished loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
 ```
 </details>
 
@@ -309,28 +311,28 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 
 <details><summary>Command output</summary>
 ```
-[2018-09-05 22:25:58] [INFORMACIÓN] Compi running with:  
-[2018-09-05 22:25:58] [INFORMACIÓN] Pipeline file - example-files/pipeline.xml 
-[2018-09-05 22:25:58] [INFORMACIÓN] Max number of parallel tasks - 6 
-[2018-09-05 22:25:58] [INFORMACIÓN] Params file - example-files/params.xml 
-[2018-09-05 22:25:58] [INFORMACIÓN] Running tasks before task - task-7
-[2018-09-05 22:25:58] [ADVERTENCIA] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
-[2018-09-05 22:25:58] [INFORMACIÓN] > Started loop task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-05 22:25:58] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-05 22:25:58] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-05 22:25:58] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-05 22:25:58] [INFORMACIÓN] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
-[2018-09-05 22:25:59] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
-[2018-09-05 22:25:59] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
-[2018-09-05 22:26:01] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) 
-[2018-09-05 22:26:05] [INFORMACIÓN] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) 
-[2018-09-05 22:26:05] [INFORMACIÓN] < Finished loop task task-1 (command: example-files/execute/execute.sh p1 7) 
-[2018-09-05 22:26:05] [INFORMACIÓN] > Started task task-2 (command: example-files/execute/execute.sh p2 2) 
-[2018-09-05 22:26:07] [INFORMACIÓN] < Finished task task-2 (command: example-files/execute/execute.sh p2 2) 
-[2018-09-05 22:26:07] [INFORMACIÓN] > Started task task-4 (command: example-files/execute/execute.sh p4 2) 
-[2018-09-05 22:26:07] [INFORMACIÓN] > Started task task-5 (command: example-files/execute/execute.sh p5 2) 
-[2018-09-05 22:26:09] [INFORMACIÓN] < Finished task task-5 (command: example-files/execute/execute.sh p5 2) 
-[2018-09-05 22:26:09] [INFORMACIÓN] < Finished task task-4 (command: example-files/execute/execute.sh p4 2) 
+[2018-09-05 22:25:58] [INFO   ] Compi running with:  
+[2018-09-05 22:25:58] [INFO   ] Pipeline file - example-files/pipeline.xml 
+[2018-09-05 22:25:58] [INFO   ] Max number of parallel tasks - 6 
+[2018-09-05 22:25:58] [INFO   ] Params file - example-files/params.xml 
+[2018-09-05 22:25:58] [INFO   ] Running tasks before task - task-7
+[2018-09-05 22:25:58] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
+[2018-09-05 22:25:58] [INFO   ] > Started loop task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-05 22:25:58] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-05 22:25:58] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-05 22:25:58] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-05 22:25:58] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
+[2018-09-05 22:25:59] [INFO   ] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
+[2018-09-05 22:25:59] [INFO   ] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 1) 
+[2018-09-05 22:26:01] [INFO   ] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) 
+[2018-09-05 22:26:05] [INFO   ] << Finished loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) 
+[2018-09-05 22:26:05] [INFO   ] < Finished loop task task-1 (command: example-files/execute/execute.sh p1 7) 
+[2018-09-05 22:26:05] [INFO   ] > Started task task-2 (command: example-files/execute/execute.sh p2 2) 
+[2018-09-05 22:26:07] [INFO   ] < Finished task task-2 (command: example-files/execute/execute.sh p2 2) 
+[2018-09-05 22:26:07] [INFO   ] > Started task task-4 (command: example-files/execute/execute.sh p4 2) 
+[2018-09-05 22:26:07] [INFO   ] > Started task task-5 (command: example-files/execute/execute.sh p5 2) 
+[2018-09-05 22:26:09] [INFO   ] < Finished task task-5 (command: example-files/execute/execute.sh p5 2) 
+[2018-09-05 22:26:09] [INFO   ] < Finished task task-4 (command: example-files/execute/execute.sh p4 2) 
 ```
 </details>
 
@@ -344,33 +346,109 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 
 <details><summary>Command output</summary>
 ```
-[2018-09-05 22:29:16] [INFORMACIÓN] Compi running with:  
-[2018-09-05 22:29:16] [INFORMACIÓN] Pipeline file - example-files/pipeline.xml 
-[2018-09-05 22:29:16] [INFORMACIÓN] Max number of parallel tasks - 6 
-[2018-09-05 22:29:16] [INFORMACIÓN] Params file - example-files/params.xml 
-[2018-09-05 22:29:16] [INFORMACIÓN] From task - task-7
-[2018-09-05 22:29:16] [ADVERTENCIA] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
-[2018-09-05 22:29:16] [INFORMACIÓN] > Started loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
-[2018-09-05 22:29:16] [INFORMACIÓN] >> Started loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
-[2018-09-05 22:29:16] [INFORMACIÓN] > Started task task-3 (command: example-files/execute/execute.sh p3 2) 
-[2018-09-05 22:29:16] [INFORMACIÓN] > Started loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
-[2018-09-05 22:29:16] [INFORMACIÓN] >> Started loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
-[2018-09-05 22:29:18] [INFORMACIÓN] < Finished task task-3 (command: example-files/execute/execute.sh p3 2) 
-[2018-09-05 22:29:18] [INFORMACIÓN] > Started task task-6 (command: example-files/execute/execute.sh p6 3) 
-[2018-09-05 22:29:18] [INFORMACIÓN] << Finished loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
-[2018-09-05 22:29:18] [INFORMACIÓN] < Finished loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
-[2018-09-05 22:29:19] [INFORMACIÓN] << Finished loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
-[2018-09-05 22:29:19] [INFORMACIÓN] < Finished loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
-[2018-09-05 22:29:21] [INFORMACIÓN] < Finished task task-6 (command: example-files/execute/execute.sh p6 3) 
-[2018-09-05 22:29:21] [INFORMACIÓN] > Started loop task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
-[2018-09-05 22:29:21] [INFORMACIÓN] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
-[2018-09-05 22:29:21] [INFORMACIÓN] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
-[2018-09-05 22:29:21] [INFORMACIÓN] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
-[2018-09-05 22:29:22] [INFORMACIÓN] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
-[2018-09-05 22:29:22] [INFORMACIÓN] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
-[2018-09-05 22:29:26] [INFORMACIÓN] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) 
-[2018-09-05 22:29:26] [INFORMACIÓN] < Finished loop task task-8 (command: example-files/execute/execute.sh p8 5) 
-[2018-09-05 22:29:26] [INFORMACIÓN] > Started task task-9 (command: example-files/execute/execute.sh p9 2) 
-[2018-09-05 22:29:28] [INFORMACIÓN] < Finished task task-9 (command: example-files/execute/execute.sh p9 2) 
+[2018-09-05 22:29:16] [INFO   ] Compi running with:  
+[2018-09-05 22:29:16] [INFO   ] Pipeline file - example-files/pipeline.xml 
+[2018-09-05 22:29:16] [INFO   ] Max number of parallel tasks - 6 
+[2018-09-05 22:29:16] [INFO   ] Params file - example-files/params.xml 
+[2018-09-05 22:29:16] [INFO   ] From task - task-7
+[2018-09-05 22:29:16] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
+[2018-09-05 22:29:16] [INFO   ] > Started loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
+[2018-09-05 22:29:16] [INFO   ] >> Started loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
+[2018-09-05 22:29:16] [INFO   ] > Started task task-3 (command: example-files/execute/execute.sh p3 2) 
+[2018-09-05 22:29:16] [INFO   ] > Started loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
+[2018-09-05 22:29:16] [INFO   ] >> Started loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
+[2018-09-05 22:29:18] [INFO   ] < Finished task task-3 (command: example-files/execute/execute.sh p3 2) 
+[2018-09-05 22:29:18] [INFO   ] > Started task task-6 (command: example-files/execute/execute.sh p6 3) 
+[2018-09-05 22:29:18] [INFO   ] << Finished loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
+[2018-09-05 22:29:18] [INFO   ] < Finished loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
+[2018-09-05 22:29:19] [INFO   ] << Finished loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
+[2018-09-05 22:29:19] [INFO   ] < Finished loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
+[2018-09-05 22:29:21] [INFO   ] < Finished task task-6 (command: example-files/execute/execute.sh p6 3) 
+[2018-09-05 22:29:21] [INFO   ] > Started loop task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-05 22:29:21] [INFO   ] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-05 22:29:21] [INFO   ] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-05 22:29:21] [INFO   ] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-05 22:29:22] [INFO   ] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
+[2018-09-05 22:29:22] [INFO   ] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
+[2018-09-05 22:29:26] [INFO   ] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) 
+[2018-09-05 22:29:26] [INFO   ] < Finished loop task task-8 (command: example-files/execute/execute.sh p8 5) 
+[2018-09-05 22:29:26] [INFO   ] > Started task task-9 (command: example-files/execute/execute.sh p9 2) 
+[2018-09-05 22:29:28] [INFO   ] < Finished task task-9 (command: example-files/execute/execute.sh p9 2) 
 ```
 </details>
+
+## 10. Start the pipeline execution after a specific task
+It is possible start the pipeline execution after a specific task (e.g. in order to resume the execution after an error or in combination with `before`, `until` and `single-task` executions). This is similar to the previous example, with the difference that the task specified with `after` is not executed.
+
+Run the following command to execute the `example-files/pipeline.xml` file using the example parameters file (`example-files/params.xml`) starting after task `task-7`. This command will run all tasks that do not depend on `task-7`, that is: `task-3`, `task-10`, `task-6`, `task-8`, and `task-9`.
+```
+target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml -a task-7
+```
+
+<details><summary>Command output</summary>
+```
+[2018-09-07 09:25:48] [INFO   ] Compi running with:  
+[2018-09-07 09:25:48] [INFO   ] Pipeline file - example-files/pipeline.xml 
+[2018-09-07 09:25:48] [INFO   ] Max number of parallel tasks - 6 
+[2018-09-07 09:25:48] [INFO   ] Params file - example-files/params.xml 
+[2018-09-07 09:25:48] [INFO   ] Running after task(s) - [task-7] 
+[2018-09-07 09:25:48] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
+[2018-09-07 09:25:48] [INFO   ] > Started task task-3 (command: example-files/execute/execute.sh p3 2) 
+[2018-09-07 09:25:48] [INFO   ] > Started loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
+[2018-09-07 09:25:48] [INFO   ] >> Started loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
+[2018-09-07 09:25:50] [INFO   ] < Finished task task-3 (command: example-files/execute/execute.sh p3 2) 
+[2018-09-07 09:25:50] [INFO   ] > Started task task-6 (command: example-files/execute/execute.sh p6 3) 
+[2018-09-07 09:25:51] [INFO   ] << Finished loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
+[2018-09-07 09:25:51] [INFO   ] < Finished loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
+[2018-09-07 09:25:53] [INFO   ] < Finished task task-6 (command: example-files/execute/execute.sh p6 3) 
+[2018-09-07 09:25:53] [INFO   ] > Started loop task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-07 09:25:53] [INFO   ] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-07 09:25:53] [INFO   ] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-07 09:25:53] [INFO   ] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-07 09:25:54] [INFO   ] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
+[2018-09-07 09:25:54] [INFO   ] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
+[2018-09-07 09:25:58] [INFO   ] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) 
+[2018-09-07 09:25:58] [INFO   ] < Finished loop task task-8 (command: example-files/execute/execute.sh p8 5) 
+[2018-09-07 09:25:58] [INFO   ] > Started task task-9 (command: example-files/execute/execute.sh p9 2) 
+[2018-09-07 09:26:00] [INFO   ] < Finished task task-9 (command: example-files/execute/execute.sh p9 2) 
+```
+</details>
+
+## 11. Starting the pipeline execution using both `after` and `from`
+It is possible to specify multiple `after` and `from` tasks and even specify both of them in the same execution.
+
+Run the following command to execute the `example-files/pipeline.xml` file using the example parameters file (`example-files/params.xml`) starting at task `task-7` and also starting after `task-3`. This command will run all tasks that do not depend on `task-7`, including it, and that do not depend on `task-3`, that is: `task-10`, `task-7`, `task-6`, `task-8`, and `task-9`.
+```
+target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml -f task-7 -a task-3
+```
+
+<details><summary>Command output</summary>
+```
+[2018-09-07 10:58:40] [INFO   ] Compi running with:  
+[2018-09-07 10:58:40] [INFO   ] Pipeline file - example-files/pipeline.xml 
+[2018-09-07 10:58:40] [INFO   ] Max number of parallel tasks - 6 
+[2018-09-07 10:58:40] [INFO   ] Params file - example-files/params.xml 
+[2018-09-07 10:58:40] [INFO   ] Running from task(s) - task-7 
+[2018-09-07 10:58:40] [INFO   ] Running after task(s) - task-3 
+[2018-09-07 10:58:40] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
+[2018-09-07 10:58:40] [INFO   ] > Started loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
+[2018-09-07 10:58:40] [INFO   ] >> Started loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
+[2018-09-07 10:58:40] [INFO   ] > Started task task-6 (command: example-files/execute/execute.sh p6 3) 
+[2018-09-07 10:58:40] [INFO   ] > Started loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
+[2018-09-07 10:58:40] [INFO   ] >> Started loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) (stdout log: /tmp/task7.txt, stderr log: none) 
+[2018-09-07 10:58:42] [INFO   ] << Finished loop iteration of task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
+[2018-09-07 10:58:42] [INFO   ] < Finished loop task task-7 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p7 2) 
+[2018-09-07 10:58:43] [INFO   ] << Finished loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
+[2018-09-07 10:58:43] [INFO   ] < Finished loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
+[2018-09-07 10:58:43] [INFO   ] < Finished task task-6 (command: example-files/execute/execute.sh p6 3) 
+[2018-09-07 10:58:43] [INFO   ] > Started loop task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-07 10:58:43] [INFO   ] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-07 10:58:43] [INFO   ] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-07 10:58:43] [INFO   ] >> Started loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) (stdout log: /tmp/task8.txt, stderr log: /tmp/error8.txt) 
+[2018-09-07 10:58:44] [INFO   ] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
+[2018-09-07 10:58:44] [INFO   ] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 1) 
+[2018-09-07 10:58:48] [INFO   ] << Finished loop iteration of task task-8 (command: example-files/execute/execute.sh p8 5) 
+[2018-09-07 10:58:48] [INFO   ] < Finished loop task task-8 (command: example-files/execute/execute.sh p8 5) 
+[2018-09-07 10:58:48] [INFO   ] > Started task task-9 (command: example-files/execute/execute.sh p9 2) 
+[2018-09-07 10:58:50] [INFO   ] < Finished task task-9 (command: example-files/execute/execute.sh p9 2) 
+```

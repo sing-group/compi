@@ -66,7 +66,7 @@ public class RunnerTest {
       final String pipelineFile = ClassLoader.getSystemResource("runners-pipeline.xml").getFile();
       final String runnersFile = ClassLoader.getSystemResource("runners-example.xml").getFile();
 
-      final CompiApp compi = new CompiApp(pipelineFile, 1, (var) -> var.equals("my-var")?"hello":null, null, null, null, null);
+      final CompiApp compi = new CompiApp(pipelineFile, 1, (var) -> var.equals("my-var")?"hello":null, null, null, null, null, null);
       compi.setRunnersConfiguration(new File(runnersFile));
 
       compi.run();

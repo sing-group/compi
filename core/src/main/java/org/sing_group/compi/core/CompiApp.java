@@ -6,9 +6,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -77,17 +79,26 @@ public class CompiApp implements TaskExecutionHandler {
    */
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final List<String> fromTasks,
-    final String singleTask, final String untilTask, final String beforeTask, List<ValidationError> errors
+    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String singleTask,
+    final List<String> fromTasks, List<String> afterTasks, final String untilTask, final String beforeTask,
+    List<ValidationError> errors
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    
-    if (singleTask != null && (fromTasks!=null || untilTask!=null || beforeTask!=null)) {
+
+    if (singleTask != null && (fromTasks != null || afterTasks != null || untilTask != null || beforeTask != null)) {
       throw new IllegalArgumentException("singleTask is incompatible with any of fromTask, untilTask and beforeTask");
     }
     if (untilTask != null && beforeTask != null) {
       throw new IllegalArgumentException("untilTask is incompatible with beforeTask");
     }
-    
+
+    if (afterTasks != null && fromTasks != null) {
+      Set<String> afterTasksSet = new HashSet<>(afterTasks);
+      afterTasksSet.retainAll(new HashSet<>(fromTasks));
+      if (afterTasksSet.size() > 0) {
+        throw new IllegalArgumentException("afterTasks and untilTasks cannot have tasks in common");
+      }
+    }
+
     this.pipelineFile = new File(pipelineFile);
 
     PipelineValidator validator = new PipelineValidator(this.pipelineFile);
@@ -107,13 +118,19 @@ public class CompiApp implements TaskExecutionHandler {
     this.taskManager = new TaskManager(this, this.pipeline, this.resolver);
 
     initializePipeline();
-    
+
     if (singleTask != null) {
       skipAllBut(singleTask);
     } else {
       if (fromTasks != null) {
-        for (String fromTask: fromTasks) {
+        for (String fromTask : fromTasks) {
           skipTasksBefore(fromTask);
+        }
+      }
+      if (afterTasks != null) {
+        for (String afterTask : afterTasks) {
+          skipTasksBefore(afterTask);
+          skipTask(afterTask);
         }
       }
       if (untilTask != null) {
@@ -127,26 +144,28 @@ public class CompiApp implements TaskExecutionHandler {
   }
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final List<String> fromTasks,
-    final String singleTask, final String until, String beforeTask
+    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String singleTask,
+    final List<String> fromTasks, final List<String> afterTasks, final String untilTask, String beforeTask
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    this(pipelineFile, threadNumber, resolver, fromTasks, singleTask, until, beforeTask, null);
+    this(pipelineFile, threadNumber, resolver, singleTask, fromTasks, afterTasks, untilTask, beforeTask, null);
   }
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, String paramsFile, final List<String> fromTasks,
-    final String singleTask, final String until, String beforeTask, final List<ValidationError> errors
+    final String pipelineFile, final int threadNumber, String paramsFile,
+    final String singleTask, final List<String> fromTasks, final List<String> afterTasks, final String untilTask,
+    String beforeTask, final List<ValidationError> errors
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
     this(
-      pipelineFile, threadNumber, new XMLParamsFileVariableResolver(paramsFile), fromTasks, singleTask, until, beforeTask, errors
+      pipelineFile, threadNumber, new XMLParamsFileVariableResolver(paramsFile), singleTask, fromTasks, afterTasks, untilTask, beforeTask, errors
     );
   }
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, String paramsFile, final List<String> fromTasks,
-    final String singleTask, final String until, final String beforeTask
+    final String pipelineFile, final int threadNumber, String paramsFile,
+    final String singleTask, final List<String> fromTasks, final List<String> afterTasks, final String untilTask,
+    final String beforeTask
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    this(pipelineFile, threadNumber, paramsFile, fromTasks, singleTask, until, beforeTask, null);
+    this(pipelineFile, threadNumber, paramsFile, singleTask, fromTasks, afterTasks, untilTask, beforeTask, null);
   }
 
   /**
@@ -192,7 +211,7 @@ public class CompiApp implements TaskExecutionHandler {
                   }
                   )
                 );
-            } else {
+                } else {
               for (final ForeachIteration lp : taskManager.getForEachTasks().get(taskToRun.getId())) {
                 final Task cloned = taskToRun.clone();
                 ((Foreach) cloned).setForeachIteration(lp);
@@ -203,7 +222,7 @@ public class CompiApp implements TaskExecutionHandler {
                 executorService.submit(
                   new TaskRunnable(cloned, this, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()))
                   );
-              }
+                  }
             }
           } else {
             if (!taskToRun.isSkipped())
@@ -212,7 +231,7 @@ public class CompiApp implements TaskExecutionHandler {
             executorService.submit(
               new TaskRunnable(taskToRun, this, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()))
               );
-          }
+              }
         }
         this.wait();
       }
@@ -284,6 +303,22 @@ public class CompiApp implements TaskExecutionHandler {
       throw new IllegalArgumentException("The thread number must be higher than 0");
     } else {
       executorService = Executors.newFixedThreadPool(threadNumber);
+    }
+  }
+
+  /**
+   * Skips {@link Task}
+   * 
+   * @param task
+   *          Indicates the {@link Task} ID
+   * @throws IllegalArgumentException
+   *           If the {@link Task} ID doesn't exist
+   */
+  private void skipTask(final String task) throws IllegalArgumentException {
+    if (!taskManager.getTasksLeft().contains(task)) {
+      throw new IllegalArgumentException("The task ID " + task + " doesn't exist");
+    } else {
+      this.getTaskManager().skipTask(task);
     }
   }
 
