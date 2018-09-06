@@ -58,7 +58,7 @@ public class CompiApp implements TaskExecutionHandler {
    *          the size of the thread pool
    * @param resolver
    *          an object to resolve variables
-   * @param fromTask
+   * @param fromTasks
    *          the task to start the pipeline from, all previous dependencies are
    *          skipped
    * @param singleTask
@@ -77,11 +77,11 @@ public class CompiApp implements TaskExecutionHandler {
    */
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String fromTask,
+    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final List<String> fromTasks,
     final String singleTask, final String untilTask, final String beforeTask, List<ValidationError> errors
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
     
-    if (singleTask != null && (fromTask!=null || untilTask!=null || beforeTask!=null)) {
+    if (singleTask != null && (fromTasks!=null || untilTask!=null || beforeTask!=null)) {
       throw new IllegalArgumentException("singleTask is incompatible with any of fromTask, untilTask and beforeTask");
     }
     if (untilTask != null && beforeTask != null) {
@@ -111,8 +111,10 @@ public class CompiApp implements TaskExecutionHandler {
     if (singleTask != null) {
       skipAllBut(singleTask);
     } else {
-      if (fromTask != null) {
-        skipTasksBefore(fromTask);
+      if (fromTasks != null) {
+        for (String fromTask: fromTasks) {
+          skipTasksBefore(fromTask);
+        }
       }
       if (untilTask != null) {
         runUntil(untilTask);
@@ -125,26 +127,26 @@ public class CompiApp implements TaskExecutionHandler {
   }
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String fromTask,
+    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final List<String> fromTasks,
     final String singleTask, final String until, String beforeTask
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    this(pipelineFile, threadNumber, resolver, fromTask, singleTask, until, beforeTask, null);
+    this(pipelineFile, threadNumber, resolver, fromTasks, singleTask, until, beforeTask, null);
   }
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, String paramsFile, final String fromTask,
+    final String pipelineFile, final int threadNumber, String paramsFile, final List<String> fromTasks,
     final String singleTask, final String until, String beforeTask, final List<ValidationError> errors
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
     this(
-      pipelineFile, threadNumber, new XMLParamsFileVariableResolver(paramsFile), fromTask, singleTask, until, beforeTask, errors
+      pipelineFile, threadNumber, new XMLParamsFileVariableResolver(paramsFile), fromTasks, singleTask, until, beforeTask, errors
     );
   }
 
   public CompiApp(
-    final String pipelineFile, final int threadNumber, String paramsFile, final String fromTask,
+    final String pipelineFile, final int threadNumber, String paramsFile, final List<String> fromTasks,
     final String singleTask, final String until, final String beforeTask
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    this(pipelineFile, threadNumber, paramsFile, fromTask, singleTask, until, beforeTask, null);
+    this(pipelineFile, threadNumber, paramsFile, fromTasks, singleTask, until, beforeTask, null);
   }
 
   /**

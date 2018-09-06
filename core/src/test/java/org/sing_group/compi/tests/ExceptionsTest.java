@@ -1,5 +1,9 @@
 package org.sing_group.compi.tests;
 
+import static java.util.Arrays.asList;
+
+import java.util.Arrays;
+
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.PipelineValidationException;
@@ -28,8 +32,7 @@ public class ExceptionsTest {
 	public void testNegativeNumberOfThreads() throws Exception {
 		final String pipelineFile = ClassLoader.getSystemResource("pipelineParamsException.xml").getFile();
 		final int threadNumber = -2;
-		final String advanceToProgam = null;
-		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, simpleVariableResolver, advanceToProgam, null, null, null);
+		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, simpleVariableResolver, null, null, null, null);
 		compi.run();
 	}
 
@@ -37,8 +40,7 @@ public class ExceptionsTest {
 	public void testZeroNumberOfThreads() throws Exception {
 		final String pipelineFile = ClassLoader.getSystemResource("pipelineParamsException.xml").getFile();
 		final int threadNumber = 0;
-		final String advanceToProgam = null;
-		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, simpleVariableResolver, advanceToProgam, null, null, null);
+		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, simpleVariableResolver, null, null, null, null);
 		compi.run();
 	}
 
@@ -47,8 +49,7 @@ public class ExceptionsTest {
 		final String pipelineFile = ClassLoader.getSystemResource("pipelineParamsException.xml").getFile();
 		final String paramsFile = ClassLoader.getSystemResource("testParams.xml").getFile();
 		final int threadNumber = 10;
-		final String advanceToProgam = null;
-		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, paramsFile, advanceToProgam, null, null, null);
+		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, paramsFile, null, null, null, null);
 		compi.run();
 	}
 
@@ -57,8 +58,7 @@ public class ExceptionsTest {
 		final String pipelineFile = ClassLoader.getSystemResource("pipelineForEachNotFoundException.xml").getFile();
 		final String paramsFile = ClassLoader.getSystemResource("testParams.xml").getFile();
 		final int threadNumber = 10;
-		final String advanceToProgam = null;
-		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, paramsFile, advanceToProgam, null, null, null);
+		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, paramsFile, null, null, null, null);
 		compi.run();
 	}
 
@@ -67,8 +67,8 @@ public class ExceptionsTest {
 		final String pipelineFile = ClassLoader.getSystemResource("pipeline.xml").getFile();
 		final String paramsFile = ClassLoader.getSystemResource("testParams.xml").getFile();
 		final int threadNumber = 10;
-		final String advanceToProgam = "NonExistantId";
-		final CompiApp compi = new CompiApp(pipelineFile,threadNumber, paramsFile, advanceToProgam, null, null, null);
+		final String fromTasks = "NonExistantId";
+		final CompiApp compi = new CompiApp(pipelineFile,threadNumber, paramsFile, Arrays.asList(fromTasks), null, null, null);
 		compi.run();
 	}
 
@@ -76,8 +76,7 @@ public class ExceptionsTest {
 	public void testNonExistantDependsOnID() throws Exception {
 		final String pipelineFile = ClassLoader.getSystemResource("pipelineNonExistantDependsOnID.xml").getFile();
 		final int threadNumber = 10;
-		final String advanceToProgam = null;
-		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, simpleVariableResolver, advanceToProgam, null, null, null);
+		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, simpleVariableResolver, null, null, null, null);
 		compi.run();
 	}
 
@@ -86,9 +85,8 @@ public class ExceptionsTest {
 		final String pipelineFile = ClassLoader.getSystemResource("pipelineNonExistantDirectory.xml").getFile();
 		final String paramsFile = ClassLoader.getSystemResource("testParams.xml").getFile();
 		final int threadNumber = 10;
-		final String advanceToProgam = null;
 		try {
-		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, paramsFile, advanceToProgam, null, null, null);
+		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, paramsFile, null, null, null, null);
 		compi.run();
 		} catch(PipelineValidationException e) {
 		  System.err.println(e.getErrors());
@@ -104,7 +102,7 @@ public class ExceptionsTest {
 		final int threadNumber = -2;
 		final String advanceToProgam = "ID2";
 		final String singleTask = "ID2";
-		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, paramsFile, advanceToProgam, singleTask, null, null);
+		final CompiApp compi = new CompiApp(pipelineFile, threadNumber, paramsFile, asList(advanceToProgam), singleTask, null, null);
 		compi.run();
 	}
 }

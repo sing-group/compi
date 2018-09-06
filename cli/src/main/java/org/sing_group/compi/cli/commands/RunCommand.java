@@ -50,9 +50,8 @@ public class RunCommand extends AbstractCommand {
     "maximum number of tasks that can be run in parallel. This is not equivalent to the number of threads the pipeline "
       + "will use, because some tasks can be parallel processes themselves";
   private static final String FROM_DESCRIPTION =
-    "from task. Runs the "
-      + "pipeline from the specific without running its dependencies. This "
-      + "option is incompatible with --" + SINGLE_TASK_LONG;
+    "from task(s). Runs the "
+      + "pipeline from the specific task(s) without running its/their dependencies. This option is incompatible with --" + SINGLE_TASK_LONG;
   private static final String SINGLE_TASK_DESCRIPTION =
     "runs a single task "
       + "without its depencendies. This option is incompatible with --"
@@ -105,10 +104,10 @@ public class RunCommand extends AbstractCommand {
     if (parameters.hasOption(super.getOption(PARAMS_FILE))) {
       LOGGER.info("Params file - " + parameters.getSingleValue(super.getOption(PARAMS_FILE)));
     }
-    
-    String from =
+
+    List<String> fromTasks =
       hasFrom
-        ? parameters.getSingleValueString(super.getOption(FROM))
+        ? parameters.getAllValuesString(super.getOption(FROM))
         : null;
     String singleTask =
       hasSingleTask
@@ -126,9 +125,9 @@ public class RunCommand extends AbstractCommand {
     if (singleTask != null) {
       LOGGER.info("Running single task - " + singleTask);
     }
-    
-    if (from != null) {
-      LOGGER.info("Running from task - " + from);
+
+    if (fromTasks != null) {
+      LOGGER.info("Running from task(s) - " + fromTasks);
     }
     if (untilTask != null) {
       LOGGER.info("Running until task - " + untilTask);
@@ -142,7 +141,7 @@ public class RunCommand extends AbstractCommand {
       compi =
         new CompiApp(
           pipelineFile, compiThreads, (VariableResolver) null,
-          from, singleTask, untilTask, beforeTask, errors
+          fromTasks, singleTask, untilTask, beforeTask, errors
         );
       logValidationErrors(errors);
 
@@ -192,8 +191,8 @@ public class RunCommand extends AbstractCommand {
     options.add(getPipelineFile());
     options.add(getParamsFile());
     options.add(getNumParallelTasks());
-    options.add(getRunFromTask());
     options.add(getRunSingleTask());
+    options.add(getRunFromTask());
     options.add(getRunUntilTask());
     options.add(getRunBeforeTask());
     options.add(getRunnersConfigFile());
@@ -223,7 +222,7 @@ public class RunCommand extends AbstractCommand {
   }
 
   private Option<?> getRunFromTask() {
-    return new StringOption(FROM_LONG, FROM, FROM_DESCRIPTION, true, true);
+    return new StringOption(FROM_LONG, FROM, FROM_DESCRIPTION, true, true, true);
   }
 
   private Option<?> getRunSingleTask() {

@@ -1,5 +1,7 @@
 package org.sing_group.compi.gui;
 
+import static java.util.Arrays.asList;
+
 import java.io.IOException;
 
 import javax.swing.JButton;
@@ -162,7 +164,7 @@ public class SwingDemo {
 		}
 
 		try {
-			compi = new CompiApp(pipelineText.getText(), threadNumber, paramsFile, skipTask, null, null, null, null);
+			compi = new CompiApp(pipelineText.getText(), threadNumber, paramsFile, skipTask!=null?asList(skipTask):null, null, null, null, null);
 			compi.addTaskExecutionHandler(new TaskExecutionHandler() {
 
 				@Override
