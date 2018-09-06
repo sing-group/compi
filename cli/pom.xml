@@ -264,9 +264,13 @@
 						<configuration>
 							<skip>${should.skip.installer}</skip>
 							<artifactItems>
+								<!--
+								a custom JRE for compi, generated with jlink (JRE 10+) and uploaded to SING maven repo with the following command:
+								jlink - -add-modules java.base,java.logging,java.xml,java.naming,java.scripting,java.desktop,jdk.scripting.nashorn - -output /tmp/myjre
+								-->
 								<artifactItem>
 									<groupId>com.oracle.java</groupId>
-									<artifactId>jre-mod.java.base-mod.java.logging-mod.java.xml-mod.java.naming</artifactId>
+									<artifactId>jre-mod.java.base-mod.java.logging-mod.java.xml-mod.java.naming-mod.java.desktop-mod.java.scripting-mod.java.scripting.nashorn</artifactId>
 									<version>10.0.1</version>
 									<type>tgz</type>
 									<overWrite>false</overWrite>
