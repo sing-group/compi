@@ -2,6 +2,8 @@ package org.sing_group.compi.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -95,7 +97,7 @@ public class CompiApp implements TaskExecutionHandler {
     this.resolver = resolver;
 
     this.taskManager = new TaskManager(this, this.pipeline, this.resolver);
-    
+
     initializePipeline();
     if (skipToTask != null) {
       skipTasks(skipToTask);
@@ -106,7 +108,7 @@ public class CompiApp implements TaskExecutionHandler {
     } else if (beforeTask != null) {
       runBefore(beforeTask);
     }
-    
+
     initializeExecutorService(threadNumber);
   }
 
@@ -121,7 +123,9 @@ public class CompiApp implements TaskExecutionHandler {
     final String pipelineFile, final int threadNumber, String paramsFile, final String skipToTask,
     final String singleTask, final String until, String beforeTask, final List<ValidationError> errors
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    this(pipelineFile, threadNumber, new XMLParamsFileVariableResolver(paramsFile), skipToTask, singleTask, until, beforeTask, errors);
+    this(
+      pipelineFile, threadNumber, new XMLParamsFileVariableResolver(paramsFile), skipToTask, singleTask, until, beforeTask, errors
+    );
   }
 
   public CompiApp(
@@ -161,16 +165,30 @@ public class CompiApp implements TaskExecutionHandler {
                 taskManager.getForEachTasks().get(taskToRun.getId()).size()
               )
             );
-            for (final ForeachIteration lp : taskManager.getForEachTasks().get(taskToRun.getId())) {
-              final Task cloned = taskToRun.clone();
-              ((Foreach) cloned).setForeachIteration(lp);
-              if (!cloned.isSkipped()) {
-                resolveTask(cloned);
-              }
-              parentTask.put(cloned, taskToRun);
+            if (taskManager.getForEachTasks().get(taskToRun.getId()).size() == 0) {
+              // for loops without iterations, we need to add a dummy process, because we expect the foreach task itself
+              // is in taskLeft and we need to be notified that it has finished
+              this.parentTask.put(taskToRun, taskToRun);
               executorService.submit(
-                new TaskRunnable(cloned, this, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()))
+                new TaskRunnable(
+                  taskToRun, this,
+                  (task) -> {
+                    return new DummyProcess();
+                  }
+                )
               );
+            } else {
+              for (final ForeachIteration lp : taskManager.getForEachTasks().get(taskToRun.getId())) {
+                final Task cloned = taskToRun.clone();
+                ((Foreach) cloned).setForeachIteration(lp);
+                if (!cloned.isSkipped()) {
+                  resolveTask(cloned);
+                }
+                parentTask.put(cloned, taskToRun);
+                executorService.submit(
+                  new TaskRunnable(cloned, this, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()))
+                );
+              }
             }
           } else {
             if (!taskToRun.isSkipped())
@@ -230,7 +248,7 @@ public class CompiApp implements TaskExecutionHandler {
 
   /**
    * Initializes all the parameters to allow the {@link Task} execution
-   */ 
+   */
   private void initializePipeline() {
     taskManager.checkAfterIds();
     // PipelineParser.solveExec(pipeline.getTasks());
@@ -285,7 +303,7 @@ public class CompiApp implements TaskExecutionHandler {
       this.getTaskManager().skipAllTasksBut(singleTask);
     }
   }
-  
+
   /**
    * Runs until {@link Task} including its dependencies
    * 
@@ -318,7 +336,7 @@ public class CompiApp implements TaskExecutionHandler {
       this.getTaskManager().skipAllButDependencies(beforeTask);
     }
   }
-  
+
   /**
    * Resolves the command to execute of a given task
    *
@@ -342,7 +360,7 @@ public class CompiApp implements TaskExecutionHandler {
       }
       return resolver.resolveVariable(var);
     });
-    
+
     t.setToExecute(textVariableResolver.resolveAllVariables(t.getToExecute()));
   }
 
@@ -382,7 +400,7 @@ public class CompiApp implements TaskExecutionHandler {
   synchronized public void taskFinished(final Task task) {
     if (taskHasForEach(task)) {
       final Task parent = this.parentTask.get(task);
-      if (loopCount.get(parent).decrementAndGet() == 0) {
+      if (loopCount.get(parent).decrementAndGet() <= 0) {
         this.getTaskManager().taskFinished(parent);
         this.notify();
       }
@@ -469,6 +487,37 @@ public class CompiApp implements TaskExecutionHandler {
 
   public void setRunnersConfiguration(File runnersXML) throws IllegalArgumentException, IOException {
     this.runnersManager = new RunnersManager(runnersXML, this.pipeline, this.resolver);
+  }
+
+  private static class DummyProcess extends Process {
+
+    @Override
+    public OutputStream getOutputStream() {
+      return null;
+    }
+
+    @Override
+    public InputStream getInputStream() {
+      return null;
+    }
+
+    @Override
+    public InputStream getErrorStream() {
+      return null;
+    }
+
+    @Override
+    public int waitFor() throws InterruptedException {
+      return 0;
+    }
+
+    @Override
+    public int exitValue() {
+      return 0;
+    }
+
+    @Override
+    public void destroy() {}
   }
 
 }
