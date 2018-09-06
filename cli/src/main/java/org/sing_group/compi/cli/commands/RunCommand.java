@@ -28,7 +28,7 @@ public class RunCommand extends AbstractCommand {
 
   private static final String PIPELINE_FILE = CommonParameters.PIPELINE_FILE;
   private static final String PARAMS_FILE = "pa";
-  private static final String NUM_THREADS = "t";
+  private static final String NUM_PARALLEL_TASKS = "n";
   private static final String FROM = "f";
   private static final String SINGLE_TASK = "st";
   private static final String UNTIL_TASK = "ut";
@@ -37,7 +37,7 @@ public class RunCommand extends AbstractCommand {
 
   private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;
   private static final String PARAMS_FILE_LONG = "params";
-  private static final String NUM_THREADS_LONG = "num-threads";
+  private static final String NUM_PARALLEL_TASKS_LONG = "num-tasks";
   private static final String FROM_LONG = "from";
   private static final String SINGLE_TASK_LONG = "single-task";
   private static final String UNTIL_TASK_LONG = "until";
@@ -46,23 +46,30 @@ public class RunCommand extends AbstractCommand {
 
   private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
   private static final String PARAMS_FILE_DESCRIPTION = "XML params file";
-  private static final String NUM_THEADS_DESCRIPTION = "number of threads to use";
-  private static final String FROM_DESCRIPTION = "from task. Runs the "
-    + "pipeline from the specific without running its dependencies. This "
-    + "option is incompatible with --" + SINGLE_TASK_LONG + ", --" + UNTIL_TASK_LONG + " and --" + BEFORE_TASK_LONG;
-  private static final String SINGLE_TASK_DESCRIPTION = "runs a single task "
-    + "without its depencendies. This option is incompatible with --"
-    + FROM_LONG + ", --" + UNTIL_TASK_LONG + " and --" + BEFORE_TASK_LONG;
-  private static final String UNTIL_TASK_DESCRIPTION = "runs until a task (inclusive) "
-    + "including its depencendies. This option is incompatible with --"
-    + SINGLE_TASK_LONG + ", --" + FROM_LONG + " and --" + BEFORE_TASK_LONG;
-  private static final String BEFORE_TASK_DESCRIPTION = "runs all tasks which are dependencies of a given task. "
-    + "This option is incompatible with --"
-    + SINGLE_TASK_LONG + ", --" + FROM_LONG + " and --" + UNTIL_TASK_LONG;
-  private static final String RUNNERS_CONFIG_DESCRIPTION = "XML file configuring custom runners for tasks. See the "
-    + "Compi documentation for more details";
+  private static final String NUM_PARALLEL_TASKS_DESCRIPTION =
+    "maximum number of tasks that can be run in parallel. This is not equivalent to the number of threads the pipeline "
+      + "will use, because some tasks can be parallel processes themselves";
+  private static final String FROM_DESCRIPTION =
+    "from task. Runs the "
+      + "pipeline from the specific without running its dependencies. This "
+      + "option is incompatible with --" + SINGLE_TASK_LONG + ", --" + UNTIL_TASK_LONG + " and --" + BEFORE_TASK_LONG;
+  private static final String SINGLE_TASK_DESCRIPTION =
+    "runs a single task "
+      + "without its depencendies. This option is incompatible with --"
+      + FROM_LONG + ", --" + UNTIL_TASK_LONG + " and --" + BEFORE_TASK_LONG;
+  private static final String UNTIL_TASK_DESCRIPTION =
+    "runs until a task (inclusive) "
+      + "including its depencendies. This option is incompatible with --"
+      + SINGLE_TASK_LONG + ", --" + FROM_LONG + " and --" + BEFORE_TASK_LONG;
+  private static final String BEFORE_TASK_DESCRIPTION =
+    "runs all tasks which are dependencies of a given task. "
+      + "This option is incompatible with --"
+      + SINGLE_TASK_LONG + ", --" + FROM_LONG + " and --" + UNTIL_TASK_LONG;
+  private static final String RUNNERS_CONFIG_DESCRIPTION =
+    "XML file configuring custom runners for tasks. See the "
+      + "Compi documentation for more details";
 
-  private static final String NUM_THREADS_DEFAULT = "6";
+  private static final String DEFAULT_NUM_PARALLEL_TASKS = "6";
 
   private String[] commandLineArgs;
   private CompiApp compi;
@@ -74,11 +81,11 @@ public class RunCommand extends AbstractCommand {
   @Override
   public void execute(final Parameters parameters) throws Exception {
     String pipelineFile = parameters.getSingleValueString(super.getOption(PIPELINE_FILE));
-    Integer threads = parameters.getSingleValue(super.getOption(NUM_THREADS));
+    Integer compiThreads = parameters.getSingleValue(super.getOption(NUM_PARALLEL_TASKS));
 
     LOGGER.info("Compi running with: ");
     LOGGER.info("Pipeline file - " + pipelineFile);
-    LOGGER.info("Number of threads - " + threads);
+    LOGGER.info("Max number of parallel tasks - " + compiThreads);
 
     if (parameters.hasOption(super.getOption(PARAMS_FILE))) {
       LOGGER.info("Params file - " + parameters.getSingleValue(super.getOption(PARAMS_FILE)));
@@ -89,7 +96,7 @@ public class RunCommand extends AbstractCommand {
     boolean hasUntilTask = parameters.hasOption(super.getOption(UNTIL_TASK));
     boolean hasBeforeTask = parameters.hasOption(super.getOption(BEFORE_TASK));
 
-    int taskSpecsCount = (hasFrom?1:0) + (hasSingleTask?1:0) + (hasUntilTask?1:0) + (hasBeforeTask?1:0);
+    int taskSpecsCount = (hasFrom ? 1 : 0) + (hasSingleTask ? 1 : 0) + (hasUntilTask ? 1 : 0) + (hasBeforeTask ? 1 : 0);
 
     if (taskSpecsCount > 1) {
       throw new IllegalArgumentException(
@@ -98,18 +105,22 @@ public class RunCommand extends AbstractCommand {
       );
     }
 
-    String from = hasFrom
-      ? parameters.getSingleValueString(super.getOption(FROM))
-      : null;
-    String singleTask = hasSingleTask
-      ? parameters.getSingleValueString(super.getOption(SINGLE_TASK))
-      : null;
-    String untilTask = hasUntilTask
+    String from =
+      hasFrom
+        ? parameters.getSingleValueString(super.getOption(FROM))
+        : null;
+    String singleTask =
+      hasSingleTask
+        ? parameters.getSingleValueString(super.getOption(SINGLE_TASK))
+        : null;
+    String untilTask =
+      hasUntilTask
         ? parameters.getSingleValueString(super.getOption(UNTIL_TASK))
         : null;
-    String beforeTask = hasBeforeTask
-      ? parameters.getSingleValueString(super.getOption(BEFORE_TASK))
-      : null;
+    String beforeTask =
+      hasBeforeTask
+        ? parameters.getSingleValueString(super.getOption(BEFORE_TASK))
+        : null;
 
     if (from != null) {
       LOGGER.info("From task - " + from);
@@ -123,10 +134,11 @@ public class RunCommand extends AbstractCommand {
 
     try {
       List<ValidationError> errors = new ArrayList<>();
-      compi = new CompiApp(
-        pipelineFile, threads, (VariableResolver) null,
-        from, singleTask, untilTask, beforeTask, errors
-      );
+      compi =
+        new CompiApp(
+          pipelineFile, compiThreads, (VariableResolver) null,
+          from, singleTask, untilTask, beforeTask, errors
+        );
       logValidationErrors(errors);
 
       if (parameters.hasOption(super.getOption(RUNNERS_CONFIG_FILE))) {
@@ -138,8 +150,10 @@ public class RunCommand extends AbstractCommand {
         compi.setRunnersConfiguration(runnersFile);
       }
 
-      CLIApplication pipelineApplication = newPipelineCLIApplication(
-        pipelineFile, compi, this.createOptions(), this.commandLineArgs);
+      CLIApplication pipelineApplication =
+        newPipelineCLIApplication(
+          pipelineFile, compi, this.createOptions(), this.commandLineArgs
+        );
 
       pipelineApplication.run(getPipelineParameters(this.commandLineArgs));
 
@@ -172,7 +186,7 @@ public class RunCommand extends AbstractCommand {
     final List<Option<?>> options = new ArrayList<>();
     options.add(getPipelineFile());
     options.add(getParamsFile());
-    options.add(getNumThreads());
+    options.add(getNumParallelTasks());
     options.add(getRunFromTask());
     options.add(getRunSingleTask());
     options.add(getRunUntilTask());
@@ -183,18 +197,24 @@ public class RunCommand extends AbstractCommand {
   }
 
   private Option<?> getPipelineFile() {
-    return new StringOption(PIPELINE_FILE_LONG, PIPELINE_FILE,
-      PIPELINE_FILE_DESCRIPTION, false, true, false);
+    return new StringOption(
+      PIPELINE_FILE_LONG, PIPELINE_FILE,
+      PIPELINE_FILE_DESCRIPTION, false, true, false
+    );
   }
 
   private Option<?> getParamsFile() {
-    return new StringOption(PARAMS_FILE_LONG, PARAMS_FILE,
-      PARAMS_FILE_DESCRIPTION, true, true, false);
+    return new StringOption(
+      PARAMS_FILE_LONG, PARAMS_FILE,
+      PARAMS_FILE_DESCRIPTION, true, true, false
+    );
   }
 
-  private Option<?> getNumThreads() {
-    return new IntegerDefaultValuedStringConstructedOption(NUM_THREADS_LONG,
-      NUM_THREADS, NUM_THEADS_DESCRIPTION, NUM_THREADS_DEFAULT);
+  private Option<?> getNumParallelTasks() {
+    return new IntegerDefaultValuedStringConstructedOption(
+      NUM_PARALLEL_TASKS_LONG,
+      NUM_PARALLEL_TASKS, NUM_PARALLEL_TASKS_DESCRIPTION, DEFAULT_NUM_PARALLEL_TASKS
+    );
   }
 
   private Option<?> getRunFromTask() {
@@ -202,23 +222,31 @@ public class RunCommand extends AbstractCommand {
   }
 
   private Option<?> getRunSingleTask() {
-    return new StringOption(SINGLE_TASK_LONG, SINGLE_TASK,
-      SINGLE_TASK_DESCRIPTION, true, true);
+    return new StringOption(
+      SINGLE_TASK_LONG, SINGLE_TASK,
+      SINGLE_TASK_DESCRIPTION, true, true
+    );
   }
 
   private Option<?> getRunUntilTask() {
-    return new StringOption(UNTIL_TASK_LONG, UNTIL_TASK,
-      UNTIL_TASK_DESCRIPTION, true, true);
+    return new StringOption(
+      UNTIL_TASK_LONG, UNTIL_TASK,
+      UNTIL_TASK_DESCRIPTION, true, true
+    );
   }
 
   private Option<?> getRunBeforeTask() {
-    return new StringOption(BEFORE_TASK_LONG, BEFORE_TASK,
-      BEFORE_TASK_DESCRIPTION, true, true);
+    return new StringOption(
+      BEFORE_TASK_LONG, BEFORE_TASK,
+      BEFORE_TASK_DESCRIPTION, true, true
+    );
   }
 
   private Option<?> getRunnersConfigFile() {
-    return new StringOption(RUNNERS_CONFIG_FILE_LONG, RUNNERS_CONFIG_FILE,
-      RUNNERS_CONFIG_DESCRIPTION, true, true, false);
+    return new StringOption(
+      RUNNERS_CONFIG_FILE_LONG, RUNNERS_CONFIG_FILE,
+      RUNNERS_CONFIG_DESCRIPTION, true, true, false
+    );
   }
 
   private void logValidationErrors(List<ValidationError> errors) {
@@ -235,14 +263,21 @@ public class RunCommand extends AbstractCommand {
     int paramsDelimiterIndex = asList(args).indexOf(ARGS_DELIMITER);
 
     // after --
-    String[] pipelineParameters = new String[] { "run" };
-    if (paramsDelimiterIndex > 0
-      && paramsDelimiterIndex < args.length - 1) {
-      pipelineParameters = new String[args.length - paramsDelimiterIndex
-        - 1 + 1];
+    String[] pipelineParameters = new String[] {
+      "run"
+    };
+    if (
+      paramsDelimiterIndex > 0
+        && paramsDelimiterIndex < args.length - 1
+    ) {
+      pipelineParameters =
+        new String[args.length - paramsDelimiterIndex
+          - 1 + 1];
       pipelineParameters[0] = "run";
-      arraycopy(args, paramsDelimiterIndex + 1, pipelineParameters, 1,
-        pipelineParameters.length - 1);
+      arraycopy(
+        args, paramsDelimiterIndex + 1, pipelineParameters, 1,
+        pipelineParameters.length - 1
+      );
     }
 
     return pipelineParameters;

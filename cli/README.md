@@ -24,13 +24,13 @@ Write 'compi help <command>' to see command-specific help
 ### `run`
 ```
 Command run
-usage: compi run -p <pipeline> [-pa <params>] [-t <num-threads>] [-f <from>] [-st <single-task>] [-ut <until>] [-bt <before>] [-r <runners-config>]
+usage: compi run -p <pipeline> [-pa <params>] [-n <num-tasks>] [-f <from>] [-st <single-task>] [-ut <until>] [-bt <before>] [-r <runners-config>]
         --pipeline/-p
                 XML pipeline file
         --params/-pa
                 XML params file
-        --num-threads/-t
-                number of threads to use (default: 6)
+        --num-tasks/-n
+                maximum number of tasks that can be run in parallel. This is not equivalent to the number of threads the pipeline will use, because some tasks can be parallel processes themselves (default: 6)
         --from/-f
                 from task. Runs the pipeline from the specific without running its dependencies. This option is incompatible with --single-task, --until and --before
         --single-task/-st

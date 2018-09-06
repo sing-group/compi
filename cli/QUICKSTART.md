@@ -41,7 +41,7 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 hlfernandez@hlfernandez-mountain:~/Eclipse/workspace-oxygen/compi/cli$ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 [2018-08-17 11:27:57] [INFO   ] Compi running with:  
 [2018-08-17 11:27:57] [INFO   ] Pipeline file - example-files/pipeline.xml 
-[2018-08-17 11:27:57] [INFO   ] Number of threads - 6 
+[2018-08-17 11:27:57] [INFO   ] Max number of parallel tasks - 6 
 [2018-08-17 11:27:57] [INFO   ] Params file - example-files/params.xml 
 [2018-08-17 11:27:57] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-08-17 11:27:57] [INFO   ] > Started loop task task-1 (command: example-files/execute/execute.sh p1 7) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
@@ -95,7 +95,7 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 ```
 [2018-08-17 11:36:25] [INFO   ] Compi running with:  
 [2018-08-17 11:36:25] [INFO   ] Pipeline file - example-files/pipeline.xml 
-[2018-08-17 11:36:25] [INFO   ] Number of threads - 6 
+[2018-08-17 11:36:25] [INFO   ] Max number of parallel tasks - 6 
 [2018-08-17 11:36:25] [INFO   ] Params file - example-files/params.xml 
 [2018-08-17 11:36:25] [INFO   ] Running single task - task-10
 [2018-08-17 11:36:25] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
@@ -118,7 +118,7 @@ target/dist/compi run -p example-files/pipeline.xml -- --path example-files/exec
 ```
 [2018-08-17 11:40:07] [INFO   ] Compi running with:  
 [2018-08-17 11:40:07] [INFO   ] Pipeline file - example-files/pipeline.xml 
-[2018-08-17 11:40:07] [INFO   ] Number of threads - 6 
+[2018-08-17 11:40:07] [INFO   ] Max number of parallel tasks - 6 
 [2018-08-17 11:40:07] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-08-17 11:40:07] [INFO   ] > Started loop task task-1 (command: example-files/execute/execute.sh command-line-name 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
 [2018-08-17 11:40:07] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh command-line-name 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
@@ -189,7 +189,7 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 ```
 [2018-09-04 22:31:31] [INFORMACIÓN] Compi running with:  
 [2018-09-04 22:31:31] [INFORMACIÓN] Pipeline file - example-files/pipeline.xml 
-[2018-09-04 22:31:31] [INFORMACIÓN] Number of threads - 6 
+[2018-09-04 22:31:31] [INFORMACIÓN] Max number of parallel tasks - 6 
 [2018-09-04 22:31:31] [INFORMACIÓN] Params file - example-files/params.xml 
 [2018-09-04 22:31:31] [ADVERTENCIA] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-09-06 09:25:08] [INFORMACIÓN] Runners file - example-files/pipeline-runner.xml
@@ -272,7 +272,7 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 ```
 [2018-09-05 22:23:18] [INFORMACIÓN] Compi running with:  
 [2018-09-05 22:23:18] [INFORMACIÓN] Pipeline file - example-files/pipeline.xml 
-[2018-09-05 22:23:18] [INFORMACIÓN] Number of threads - 6 
+[2018-09-05 22:23:18] [INFORMACIÓN] Max number of parallel tasks - 6 
 [2018-09-05 22:23:18] [INFORMACIÓN] Params file - example-files/params.xml 
 [2018-09-05 22:23:18] [INFORMACIÓN] Running until task - task-7
 [2018-09-05 22:23:18] [ADVERTENCIA] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
@@ -311,7 +311,7 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 ```
 [2018-09-05 22:25:58] [INFORMACIÓN] Compi running with:  
 [2018-09-05 22:25:58] [INFORMACIÓN] Pipeline file - example-files/pipeline.xml 
-[2018-09-05 22:25:58] [INFORMACIÓN] Number of threads - 6 
+[2018-09-05 22:25:58] [INFORMACIÓN] Max number of parallel tasks - 6 
 [2018-09-05 22:25:58] [INFORMACIÓN] Params file - example-files/params.xml 
 [2018-09-05 22:25:58] [INFORMACIÓN] Running tasks before task - task-7
 [2018-09-05 22:25:58] [ADVERTENCIA] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
@@ -346,7 +346,7 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 ```
 [2018-09-05 22:29:16] [INFORMACIÓN] Compi running with:  
 [2018-09-05 22:29:16] [INFORMACIÓN] Pipeline file - example-files/pipeline.xml 
-[2018-09-05 22:29:16] [INFORMACIÓN] Number of threads - 6 
+[2018-09-05 22:29:16] [INFORMACIÓN] Max number of parallel tasks - 6 
 [2018-09-05 22:29:16] [INFORMACIÓN] Params file - example-files/params.xml 
 [2018-09-05 22:29:16] [INFORMACIÓN] From task - task-7
 [2018-09-05 22:29:16] [ADVERTENCIA] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
