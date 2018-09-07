@@ -25,7 +25,6 @@ target/dist/compi validate -p example-files/pipeline.xml
 <details><summary>Command output</summary>
 ```
 [2018-08-17 11:26:24] [INFO   ] Validating pipeline file: example-files/pipeline.xml 
-[2018-08-17 11:26:25] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-08-17 11:26:25] [INFO   ] Pipeline file is OK. 
 ```
 </details>
@@ -37,15 +36,10 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 ```
 <details><summary>Command output</summary>
 ```
-[2018-08-17 11:26:24] [INFO   ] Validating pipeline file: example-files/pipeline.xml 
-[2018-08-17 11:26:25] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
-[2018-08-17 11:26:25] [INFO   ] Pipeline file is OK. 
-hlfernandez@hlfernandez-mountain:~/Eclipse/workspace-oxygen/compi/cli$ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 [2018-08-17 11:27:57] [INFO   ] Compi running with:  
 [2018-08-17 11:27:57] [INFO   ] Pipeline file - example-files/pipeline.xml 
 [2018-08-17 11:27:57] [INFO   ] Max number of parallel tasks - 6 
 [2018-08-17 11:27:57] [INFO   ] Params file - example-files/params.xml 
-[2018-08-17 11:27:57] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-08-17 11:27:57] [INFO   ] > Started loop task task-1 (command: example-files/execute/execute.sh p1 7) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
 [2018-08-17 11:27:57] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
 [2018-08-17 11:27:57] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
@@ -100,7 +94,6 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 [2018-08-17 11:36:25] [INFO   ] Max number of parallel tasks - 6 
 [2018-08-17 11:36:25] [INFO   ] Params file - example-files/params.xml 
 [2018-08-17 11:36:25] [INFO   ] Running single task - task-10
-[2018-08-17 11:36:25] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-08-17 11:36:25] [INFO   ] > Started loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
 [2018-08-17 11:36:25] [INFO   ] >> Started loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
 [2018-08-17 11:36:28] [INFO   ] << Finished loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) 
@@ -121,7 +114,6 @@ target/dist/compi run -p example-files/pipeline.xml -- --path example-files/exec
 [2018-08-17 11:40:07] [INFO   ] Compi running with:  
 [2018-08-17 11:40:07] [INFO   ] Pipeline file - example-files/pipeline.xml 
 [2018-08-17 11:40:07] [INFO   ] Max number of parallel tasks - 6 
-[2018-08-17 11:40:07] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-08-17 11:40:07] [INFO   ] > Started loop task task-1 (command: example-files/execute/execute.sh command-line-name 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
 [2018-08-17 11:40:07] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh command-line-name 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
 [2018-08-17 11:40:07] [INFO   ] > Started loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
@@ -193,7 +185,6 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 [2018-09-04 22:31:31] [INFO   ] Pipeline file - example-files/pipeline.xml 
 [2018-09-04 22:31:31] [INFO   ] Max number of parallel tasks - 6 
 [2018-09-04 22:31:31] [INFO   ] Params file - example-files/params.xml 
-[2018-09-04 22:31:31] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-09-06 09:25:08] [INFO   ] Runners file - example-files/pipeline-runner.xml
 [2018-09-04 22:31:31] [INFO   ] > Started loop task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
 [2018-09-04 22:31:31] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
@@ -277,7 +268,6 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 [2018-09-05 22:23:18] [INFO   ] Max number of parallel tasks - 6 
 [2018-09-05 22:23:18] [INFO   ] Params file - example-files/params.xml 
 [2018-09-05 22:23:18] [INFO   ] Running until task - task-7
-[2018-09-05 22:23:18] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-09-05 22:23:18] [INFO   ] > Started loop task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
 [2018-09-05 22:23:18] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
 [2018-09-05 22:23:18] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
@@ -316,7 +306,6 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 [2018-09-05 22:25:58] [INFO   ] Max number of parallel tasks - 6 
 [2018-09-05 22:25:58] [INFO   ] Params file - example-files/params.xml 
 [2018-09-05 22:25:58] [INFO   ] Running tasks before task - task-7
-[2018-09-05 22:25:58] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-09-05 22:25:58] [INFO   ] > Started loop task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
 [2018-09-05 22:25:58] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 3) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
 [2018-09-05 22:25:58] [INFO   ] >> Started loop iteration of task task-1 (command: example-files/execute/execute.sh p1 7) (stdout log: /tmp/task1.txt, stderr log: /tmp/task1.txt) 
@@ -351,7 +340,6 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 [2018-09-05 22:29:16] [INFO   ] Max number of parallel tasks - 6 
 [2018-09-05 22:29:16] [INFO   ] Params file - example-files/params.xml 
 [2018-09-05 22:29:16] [INFO   ] From task - task-7
-[2018-09-05 22:29:16] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-09-05 22:29:16] [INFO   ] > Started loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
 [2018-09-05 22:29:16] [INFO   ] >> Started loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
 [2018-09-05 22:29:16] [INFO   ] > Started task task-3 (command: example-files/execute/execute.sh p3 2) 
@@ -392,7 +380,6 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 [2018-09-07 09:25:48] [INFO   ] Max number of parallel tasks - 6 
 [2018-09-07 09:25:48] [INFO   ] Params file - example-files/params.xml 
 [2018-09-07 09:25:48] [INFO   ] Running after task(s) - [task-7] 
-[2018-09-07 09:25:48] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-09-07 09:25:48] [INFO   ] > Started task task-3 (command: example-files/execute/execute.sh p3 2) 
 [2018-09-07 09:25:48] [INFO   ] > Started loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
 [2018-09-07 09:25:48] [INFO   ] >> Started loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
@@ -430,7 +417,6 @@ target/dist/compi run -p example-files/pipeline.xml -pa example-files/params.xml
 [2018-09-07 10:58:40] [INFO   ] Params file - example-files/params.xml 
 [2018-09-07 10:58:40] [INFO   ] Running from task(s) - task-7 
 [2018-09-07 10:58:40] [INFO   ] Running after task(s) - task-3 
-[2018-09-07 10:58:40] [WARNING] WARNING_MISSING_PARAM_DESCRIPTION: The parameter "name" has no <param> section for discribing it. 
 [2018-09-07 10:58:40] [INFO   ] > Started loop task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
 [2018-09-07 10:58:40] [INFO   ] >> Started loop iteration of task task-10 (command: /home/hlfernandez/Eclipse/workspace-oxygen/compi/cli/example-files/execute/execute.sh p10 3) (stdout log: none, stderr log: none) 
 [2018-09-07 10:58:40] [INFO   ] > Started task task-6 (command: example-files/execute/execute.sh p6 3) 

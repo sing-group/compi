@@ -11,10 +11,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.sing_group.compi.core.loops.CommandLoopValuesGenerator;
 import org.sing_group.compi.core.loops.FileLoopValuesGenerator;
-import org.sing_group.compi.core.loops.ListLoopValuesGenerator;
 import org.sing_group.compi.core.loops.ForeachIteration;
+import org.sing_group.compi.core.loops.ListLoopValuesGenerator;
 import org.sing_group.compi.core.loops.LoopValuesGenerator;
 import org.sing_group.compi.core.loops.ParameterLoopValuesGenerator;
+import org.sing_group.compi.core.loops.RangeLoopValuesGenerator;
 import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Task;
@@ -154,9 +155,11 @@ public class TaskManager implements TaskExecutionHandler {
         case "list":
           generator = new ListLoopValuesGenerator(this.variableResolver);
           break;
+        case "range":
+          generator = new RangeLoopValuesGenerator(this.variableResolver);
+          break;
         case "file":
           generator = new FileLoopValuesGenerator(this.variableResolver);
-
           break;
         case "param":
           generator = new ParameterLoopValuesGenerator(this.variableResolver);
