@@ -1,4 +1,6 @@
-package org.sing_group.compi.core;
+package org.sing_group.compi.core.resolver;
+
+import java.util.Set;
 
 /**
  * A Variable resolver obtains the value of a variable given its name
@@ -19,4 +21,9 @@ public interface VariableResolver {
 	String resolveVariable(String variable)
 			throws IllegalArgumentException;
 
+	/**
+	 * Get all resolvable variables that this resolver can resolve
+	 * @return The set of all resolvable variables
+	 */
+	Set<String> getVariableNames();
 }

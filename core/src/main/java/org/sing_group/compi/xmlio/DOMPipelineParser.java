@@ -8,7 +8,6 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.Node;
 
 import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.ParameterDescription;
@@ -16,6 +15,7 @@ import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Task;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -30,13 +30,11 @@ public class DOMPipelineParser extends AbstractPipelineParser {
   /**
    * Reads a pipeline XML file and returns it as a {@link Pipeline} object
    * 
-   * @param f
-   *          the XML input file
+   * @param f the XML input file
    * @return the parsed Pipeline
-   * @throws IllegalArgumentException
-   *           if a problem in XML parsing and validation occurs
-   * @throws IOException
-   *           if a problem reading the file f occurs
+   * @throws IllegalArgumentException if a problem in XML parsing and validation
+   *           occurs
+   * @throws IOException if a problem reading the file f occurs
    */
   public Pipeline parseXML(File f) throws IllegalArgumentException, IOException {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -60,9 +58,9 @@ public class DOMPipelineParser extends AbstractPipelineParser {
           description.setShortName(element.getAttribute("shortName"));
         if (element.hasAttribute("defaultValue"))
           description.setDefaultValue(element.getAttribute("defaultValue"));
-        
+
         description.setDescription(element.getTextContent());
-        
+
         parameterDescriptions.add(description);
       }
       pipeline.setParameterDescriptions(parameterDescriptions);
@@ -74,30 +72,10 @@ public class DOMPipelineParser extends AbstractPipelineParser {
         for (int i = 0; i < tasksChilds.getLength(); i++) {
           if (tasksChilds.item(i).getNodeType() == Node.ELEMENT_NODE) {
             Element element = (Element) tasksChilds.item(i);
-            if (element.getNodeName().equals("task")) {
-              Task task = new Task();
-              if (element.hasAttribute("id"))
-                task.setId(element.getAttribute("id"));
-              if (element.hasAttribute("after"))
-                task.setAfter(element.getAttribute("after"));
-              if (element.hasAttribute("fileErrorLog"))
-                task.setFileErrorLog(element.getAttribute("fileErrorLog"));
-              if (element.hasAttribute("fileLog"))
-                task.setFileLog(element.getAttribute("fileLog"));
-              task.setExec(element.getTextContent());
-
-              tasks.add(task);
-            } else if (element.getNodeName().equals("foreach")) {
-              Foreach foreach = new Foreach();
-              if (element.hasAttribute("id"))
-                foreach.setId(element.getAttribute("id"));
-              if (element.hasAttribute("after"))
-                foreach.setAfter(element.getAttribute("after"));
-              if (element.hasAttribute("fileErrorLog"))
-                foreach.setFileErrorLog(element.getAttribute("fileErrorLog"));
-              if (element.hasAttribute("fileLog"))
-                foreach.setFileLog(element.getAttribute("fileLog"));
-              foreach.setExec(element.getTextContent());
+            Task task = new Task();
+            if (element.getNodeName().equals("foreach")) {
+              task = new Foreach();
+              Foreach foreach = (Foreach) task;
 
               if (element.hasAttribute("of"))
                 foreach.setOf(element.getAttribute("of"));
@@ -106,8 +84,20 @@ public class DOMPipelineParser extends AbstractPipelineParser {
               if (element.hasAttribute("as"))
                 foreach.setAs(element.getAttribute("as"));
 
-              tasks.add(foreach);
             }
+            if (element.hasAttribute("id"))
+              task.setId(element.getAttribute("id"));
+            if (element.hasAttribute("after"))
+              task.setAfter(element.getAttribute("after"));
+            if (element.hasAttribute("fileErrorLog"))
+              task.setFileErrorLog(element.getAttribute("fileErrorLog"));
+            if (element.hasAttribute("fileLog"))
+              task.setFileLog(element.getAttribute("fileLog"));
+            if (element.hasAttribute("params"))
+              task.setParametersString(element.getAttribute("params"));
+            task.setExec(element.getTextContent());
+
+            tasks.add(task);
           }
         }
       }

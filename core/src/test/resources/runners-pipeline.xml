@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<params>
+		<param name="my_var" shortName="v">A variable to echo</param>
+	</params>
 	<tasks>
-		<task id="t1">
-				echo ${my-var} > /tmp/t1-result
+		<task id="t1" params="my_var">
+			echo ${my_var} > /tmp/t1-result
 		</task>
 		<task id="t2" after="t1">
-				echo task-2 > /tmp/t2-result
+			echo task-2 > /tmp/t2-result
 		</task>
-		<foreach id="t3" of="list" in="1,2,3" as="i" >
-				echo ${i} >> /tmp/t3-result
+		<foreach id="t3" of="list" in="1,2,3" as="i">
+			echo ${i} >> /tmp/t3-result
 		</foreach>
 	</tasks>
 </pipeline>

@@ -2,10 +2,13 @@ package org.sing_group.compi.tests;
 
 import static java.util.Arrays.asList;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.PipelineValidationException;
-import org.sing_group.compi.core.VariableResolver;
+import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.xmlio.DOMparsing;
 import org.xml.sax.SAXException;
 
@@ -13,11 +16,15 @@ public class ExceptionsTest {
 
 	private VariableResolver simpleVariableResolver = new VariableResolver() {
 
+	  @Override
+	  public Set<String> getVariableNames() {
+	    return new HashSet<>();
+	  }
+	  
 		@Override
 		public String resolveVariable(String variable) throws IllegalArgumentException {
 			return "a-simple-value";
 		}
-
 	};
 
 	@Test(expected = SAXException.class)

@@ -1,7 +1,6 @@
 package org.sing_group.compi.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.WARNING_MISSING_PARAM_DESCRIPTION;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.XML_SCHEMA_VALIDATION_ERROR;
 
 import java.io.File;
@@ -24,16 +23,6 @@ public class ValidationTests {
     List<ValidationError> errors = validatePipeline(pipelineName);
 
     assertEquals(1, numberOfErrorsOfType(XML_SCHEMA_VALIDATION_ERROR, errors));
-  }
-
-  
-  @Test
-  public void testParametersWithoutDescriptionRaisesWarning() {
-    String pipelineName = "pipelineNoParameterDescriptions.xml";
-    
-    List<ValidationError> errors = validatePipeline(pipelineName);
-
-    assertEquals(2, numberOfErrorsOfType(WARNING_MISSING_PARAM_DESCRIPTION, errors));
   }
   
   @Test

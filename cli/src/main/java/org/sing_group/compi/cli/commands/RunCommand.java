@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.PipelineValidationException;
-import org.sing_group.compi.core.VariableResolver;
+import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.core.validation.ValidationError;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;

@@ -7,7 +7,8 @@ import static java.util.stream.IntStream.rangeClosed;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.sing_group.compi.core.VariableResolver;
+import org.sing_group.compi.core.resolver.VariableResolver;
+import org.sing_group.compi.xmlio.entities.Foreach;
 
 /**
  * Obtains the values of the task foreach tag when the element attribute
@@ -19,8 +20,8 @@ import org.sing_group.compi.core.VariableResolver;
 public class RangeLoopValuesGenerator extends AbstractLoopValuesGenerator {
   private final List<String> toExecute;
 
-  public RangeLoopValuesGenerator(VariableResolver resolver) {
-    super(resolver);
+  public RangeLoopValuesGenerator(VariableResolver resolver, Foreach foreach) {
+    super(resolver, foreach);
     this.toExecute = new LinkedList<>();
   }
 

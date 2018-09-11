@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.sing_group.compi.core.VariableResolver;
+import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Task;
 import org.sing_group.compi.xmlio.entities.runners.Runner;
@@ -25,11 +25,13 @@ public class RunnersManager {
   private Runners runners;
   private Pipeline pipeline;
 
-  public RunnersManager() {}
+  public RunnersManager(VariableResolver resolver) {
+    this.resolver = resolver;
+  }
 
   public RunnersManager(File runnersXML, Pipeline pipeline, VariableResolver resolver) throws IllegalArgumentException, IOException {
+    this(resolver);
     this.runnersXML = runnersXML;
-    this.resolver = resolver;
     this.pipeline = pipeline;
     this.runners = createRunnersParser().parseXML(this.runnersXML);
 
@@ -69,7 +71,7 @@ public class RunnersManager {
     if (this.defaultProcessCreator != null) {
       return this.defaultProcessCreator;
     }
-    return new DefaultProcessCreator();
+    return new DefaultProcessCreator(this.resolver);
   }
 
   protected RunnersParser createRunnersParser() {

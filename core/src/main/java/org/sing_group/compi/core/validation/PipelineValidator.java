@@ -2,7 +2,6 @@ package org.sing_group.compi.core.validation;
 
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.SEMANTIC_ERROR_REPEATED_PARAM_DESCRIPTION_NAME;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.SEMANTIC_ERROR_REPEATED_PARAM_DESCRIPTION_SHORT_NAME;
-import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.WARNING_MISSING_PARAM_DESCRIPTION;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.XML_SCHEMA_VALIDATION_ERROR;
 
 import java.io.File;
@@ -21,7 +20,7 @@ import org.xml.sax.SAXException;
 public class PipelineValidator {
 
   public static enum ValidationErrorType {
-    WARNING_MISSING_PARAM_DESCRIPTION(false), XML_SCHEMA_VALIDATION_ERROR(true),
+    XML_SCHEMA_VALIDATION_ERROR(true),
     SEMANTIC_ERROR_RESERVED_PARAMETER_NAME(true), SEMANTIC_ERROR_REPEATED_PARAM_DESCRIPTION_NAME(true),
     SEMANTIC_ERROR_REPEATED_PARAM_DESCRIPTION_SHORT_NAME(true), SEMANTIC_ERROR_RESERVED_PARAMETER_DESCRIPTION_NAME(true),
     SEMANTIC_ERROR_RESERVED_PARAMETER_DESCRIPTION_SHORT_NAME(true);
@@ -60,8 +59,6 @@ public class PipelineValidator {
       
       this.pipeline = PipelineParserFactory.createPipelineParser().parsePipeline(this.pipelineFile);
 
-      checkThatAllParametersHaveDescription();
-
       checkThatParameterDescriptionNamesAreUnique();
 
     } catch (IllegalArgumentException | SAXException e) {
@@ -95,20 +92,6 @@ public class PipelineValidator {
       names.add(parameterDescription.getShortName());
     });
 
-  }
-
-  private void checkThatAllParametersHaveDescription() {
-    this.pipeline.getTasksByParameter().keySet().stream().forEach(parameterName -> {
-      
-      if (this.pipeline.getParameterDescription(parameterName) == null) {
-        this.errors.add(
-          new ValidationError(
-            WARNING_MISSING_PARAM_DESCRIPTION,
-            "The parameter \"" + parameterName + "\" has no <param> section for discribing it."
-          )
-        );
-      }
-    });
   }
 
   private void clearValidationStatus() {

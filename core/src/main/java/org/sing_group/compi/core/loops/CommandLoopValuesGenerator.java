@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import org.sing_group.compi.core.VariableResolver;
+import org.sing_group.compi.core.resolver.VariableResolver;
+import org.sing_group.compi.xmlio.entities.Foreach;
 
 public class CommandLoopValuesGenerator extends AbstractLoopValuesGenerator {
 
-	public CommandLoopValuesGenerator(VariableResolver resolver) {
-		super(resolver);
+	public CommandLoopValuesGenerator(VariableResolver resolver, Foreach foreach) {
+		super(resolver, foreach);
 	}
 
 	@Override

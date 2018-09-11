@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <runners xmlns="http://sing-group.org/compi-pipeline-runner" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<runner>
-		echo "[${task-id}] code: ${task-code}" >> /tmp/runner-output.txt
-		/bin/sh -c "${task-code}"
+		echo "[${task_id}] code: ${task_code}" >> /tmp/runner-output.txt
+		/bin/sh -c "${task_code}"
 	</runner>
 </runners>

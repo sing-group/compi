@@ -20,6 +20,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.sing_group.compi.core.loops.ForeachIteration;
+import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.core.runner.RunnersManager;
 import org.sing_group.compi.core.validation.PipelineValidator;
 import org.sing_group.compi.core.validation.ValidationError;
@@ -49,7 +50,7 @@ public class CompiApp implements TaskExecutionHandler {
   private final Map<Task, Task> parentTask = new HashMap<>();
   private final Map<Task, AtomicInteger> loopCount = new HashMap<>();
   private final List<TaskExecutionHandler> executionHandlers = new ArrayList<>();
-  private RunnersManager runnersManager = new RunnersManager();
+  private RunnersManager runnersManager;
 
   /**
    * Constructs the CompiApp
@@ -116,7 +117,8 @@ public class CompiApp implements TaskExecutionHandler {
     this.resolver = resolver;
 
     this.taskManager = new TaskManager(this, this.pipeline, this.resolver);
-
+    this.runnersManager = new RunnersManager(this.resolver);
+    
     initializePipeline();
 
     if (singleTask != null) {
@@ -215,9 +217,9 @@ public class CompiApp implements TaskExecutionHandler {
               for (final ForeachIteration lp : taskManager.getForEachTasks().get(taskToRun.getId())) {
                 final Task cloned = taskToRun.clone();
                 ((Foreach) cloned).setForeachIteration(lp);
-                if (!cloned.isSkipped()) {
+               /* if (!cloned.isSkipped()) {
                   resolveTask(cloned);
-                }
+                }*/
                 parentTask.put(cloned, taskToRun);
                 executorService.submit(
                   new TaskRunnable(cloned, this, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()))
@@ -225,8 +227,8 @@ public class CompiApp implements TaskExecutionHandler {
                   }
             }
           } else {
-            if (!taskToRun.isSkipped())
-              resolveTask(taskToRun);
+            /*if (!taskToRun.isSkipped())
+              resolveTask(taskToRun);*/
 
             executorService.submit(
               new TaskRunnable(taskToRun, this, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()))
@@ -385,35 +387,6 @@ public class CompiApp implements TaskExecutionHandler {
     } else {
       this.getTaskManager().skipAllButDependencies(beforeTask);
     }
-  }
-
-  /**
-   * Resolves the command to execute of a given task
-   *
-   * @param t
-   *          The task to resolve
-   * 
-   * @throws IllegalArgumentException
-   *           If the {@link Task} attribute "as" isn't contained in the exec
-   *           tag
-   * @throws IOException
-   * @throws SAXException
-   * @throws ParserConfigurationException
-   */
-  private void resolveTask(
-    Task t
-    )
-    throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException {
-
-    TextVariableResolver textVariableResolver = new TextVariableResolver((var) -> {
-      ForeachIteration fi = t instanceof Foreach ? ((Foreach) t).getForeachIteration() : null;
-      if (fi != null && var.equals(fi.getTask().getAs())) {
-        return fi.getIterationValue();
-      }
-      return resolver.resolveVariable(var);
-    });
-
-    t.setToExecute(textVariableResolver.resolveAllVariables(t.getToExecute()));
   }
 
   /**

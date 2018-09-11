@@ -16,6 +16,7 @@ import org.sing_group.compi.core.loops.ListLoopValuesGenerator;
 import org.sing_group.compi.core.loops.LoopValuesGenerator;
 import org.sing_group.compi.core.loops.ParameterLoopValuesGenerator;
 import org.sing_group.compi.core.loops.RangeLoopValuesGenerator;
+import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Task;
@@ -36,12 +37,9 @@ public class TaskManager implements TaskExecutionHandler {
   private VariableResolver variableResolver;
 
   /**
-   * @param handler
-   *          Indicates the {@link TaskExecutionHandler}
-   * @param pipeline
-   *          Indicates the {@link Pipeline}
-   * @param resolver
-   *          Indicates the {@link VariableResolver}
+   * @param handler Indicates the {@link TaskExecutionHandler}
+   * @param pipeline Indicates the {@link Pipeline}
+   * @param resolver Indicates the {@link VariableResolver}
    */
   public TaskManager(final TaskExecutionHandler handler, final Pipeline pipeline, final VariableResolver resolver) {
     this.handler = handler;
@@ -86,8 +84,7 @@ public class TaskManager implements TaskExecutionHandler {
    * Goes through all the {@link Task} dependencies to check if they are
    * finished
    * 
-   * @param task
-   *          Indicates the {@link Task}
+   * @param task Indicates the {@link Task}
    * @return <code>true</code> if all its dependencies are finished,
    *         <code>false</code> otherwise
    */
@@ -113,9 +110,8 @@ public class TaskManager implements TaskExecutionHandler {
    * Verifies that exist all the IDs contained in the {@link Task} attribute
    * "after"
    * 
-   * @throws IllegalArgumentException
-   *           If the {@link Task} ID contained in the after attribute doesn't
-   *           exist
+   * @throws IllegalArgumentException If the {@link Task} ID contained in the
+   *           after attribute doesn't exist
    */
   public void checkAfterIds() throws IllegalArgumentException {
     for (final String tasks : this.tasksLeft) {
@@ -137,49 +133,45 @@ public class TaskManager implements TaskExecutionHandler {
    * Creates the {@link ForeachIteration} to prepare the loop execution for a
    * task
    *
-   * @param foreach
-   *          The task to initialize
+   * @param foreach The task to initialize
    *
-   * @throws IllegalArgumentException
-   *           If the directory contained in the source attribute doesn't have
-   *           any file or if the element attribute contains a non existent
-   *           value
+   * @throws IllegalArgumentException If the directory contained in the source
+   *           attribute doesn't have any file or if the element attribute
+   *           contains a non existent value
    */
   public void initializeForEach(Foreach foreach) throws IllegalArgumentException {
-    if (this.getForEachTasks().containsKey(foreach.getId())) {
-      List<ForeachIteration> value = this.getForEachTasks().get(foreach.getId());
-      List<String> values = new LinkedList<>();
+    List<ForeachIteration> value = this.getForEachTasks().get(foreach.getId());
+    List<String> values = new LinkedList<>();
 
-      LoopValuesGenerator generator = null;
-      switch (foreach.getOf()) {
-        case "list":
-          generator = new ListLoopValuesGenerator(this.variableResolver);
-          break;
-        case "range":
-          generator = new RangeLoopValuesGenerator(this.variableResolver);
-          break;
-        case "file":
-          generator = new FileLoopValuesGenerator(this.variableResolver);
-          break;
-        case "param":
-          generator = new ParameterLoopValuesGenerator(this.variableResolver);
-          break;
-        case "command":
-          generator = new CommandLoopValuesGenerator(this.variableResolver);
-          break;
-        default:
-          throw new IllegalArgumentException(
-            "The element " + foreach.getOf()
-              + " of the task " + foreach.getId() + " doesn't exist"
-          );
-      }
+    LoopValuesGenerator generator = null;
+    switch (foreach.getOf()) {
+      case "list":
+        generator = new ListLoopValuesGenerator(this.variableResolver, foreach);
+        break;
+      case "range":
+        generator = new RangeLoopValuesGenerator(this.variableResolver, foreach);
+        break;
+      case "file":
+        generator = new FileLoopValuesGenerator(this.variableResolver, foreach);
+        break;
+      case "param":
+        generator = new ParameterLoopValuesGenerator(this.variableResolver, foreach);
+        break;
+      case "command":
+        generator = new CommandLoopValuesGenerator(this.variableResolver, foreach);
+        break;
+      default:
+        throw new IllegalArgumentException(
+          "The element " + foreach.getOf()
+            + " of the task " + foreach.getId() + " doesn't exist"
+        );
+    }
 
-      if (!foreach.isSkipped()) {
-        values = generator.getValues(foreach.getIn());
+    if (!foreach.isSkipped()) {
+      values = generator.getValues(foreach.getIn());
 
-        for (final String source : values) {
-          value.add(new ForeachIteration(foreach, source));
-        }
+      for (final String source : values) {
+        value.add(new ForeachIteration(foreach, source));
       }
     }
   }
@@ -214,8 +206,7 @@ public class TaskManager implements TaskExecutionHandler {
   /**
    * Marks a {@link Task} as skipped
    * 
-   * @param task
-   *          Indicates the {@link Task} ID which you want to skip
+   * @param task Indicates the {@link Task} ID which you want to skip
    */
   public void skipTask(String task) {
     this.getDAG().get(task).setSkipped(true);
@@ -224,8 +215,7 @@ public class TaskManager implements TaskExecutionHandler {
   /**
    * Marks a {@link Task} as not skipped
    * 
-   * @param task
-   *          Indicates the {@link Task} ID which you want not to skip
+   * @param task Indicates the {@link Task} ID which you want not to skip
    */
   public void unSkipTask(String task) {
     this.getDAG().get(task).setSkipped(false);
@@ -235,8 +225,7 @@ public class TaskManager implements TaskExecutionHandler {
    * Marks all the {@link Task} as skipped if they are dependencies of the
    * {@link Task} passed as parameter
    * 
-   * @param task
-   *          Indicates the {@link Task} ID which you want to skip its
+   * @param task Indicates the {@link Task} ID which you want to skip its
    *          dependencies
    */
   public void skipDependencies(final String task) {
@@ -251,8 +240,8 @@ public class TaskManager implements TaskExecutionHandler {
    * Marks all the {@link Task} as skipped if they are dependencies of the
    * {@link Task}
    * 
-   * @param task
-   *          Indicates the {@link Task} ID whose dependencies are not skipped
+   * @param task Indicates the {@link Task} ID whose dependencies are not
+   *          skipped
    */
   public void skipAllButDependencies(String task) {
     this.getDAG().keySet().forEach((taskId) -> {
@@ -266,8 +255,7 @@ public class TaskManager implements TaskExecutionHandler {
    * Marks all the {@link Task} as skipped except the {@link Task} passed as
    * parameter
    * 
-   * @param task
-   *          Indicates the only {@link Task} ID which will not be skipped
+   * @param task Indicates the only {@link Task} ID which will not be skipped
    */
   public void skipAllTasksBut(String task) {
     this.getDAG().forEach((k, v) -> {
@@ -281,8 +269,7 @@ public class TaskManager implements TaskExecutionHandler {
   /**
    * Marks a {@link Task} as started
    * 
-   * @param task
-   *          Indicates the {@link Task} which has been started
+   * @param task Indicates the {@link Task} which has been started
    */
   @Override
   synchronized public void taskStarted(final Task task) {
@@ -294,8 +281,7 @@ public class TaskManager implements TaskExecutionHandler {
   /**
    * Marks a {@link Task} as finished
    * 
-   * @param task
-   *          Indicates the {@link Task} which has been started
+   * @param task Indicates the {@link Task} which has been started
    */
   @Override
   synchronized public void taskFinished(final Task task) {
@@ -307,10 +293,8 @@ public class TaskManager implements TaskExecutionHandler {
    * Marks a {@link Task} as aborted and aborts all the {@link Task} which has
    * as dependency of the aborted {@link Task}
    * 
-   * @param task
-   *          Indicates the {@link Task} which has been aborted
-   * @param e
-   *          Indicates the {@link Exception} which causes the error
+   * @param task Indicates the {@link Task} which has been aborted
+   * @param e Indicates the {@link Exception} which causes the error
    */
   @Override
   public void taskAborted(final Task task, final Exception e) {

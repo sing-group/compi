@@ -22,6 +22,7 @@ public class Task implements Cloneable {
 	private String after;
 	private String exec;
 	private List<String> parameters = new LinkedList<>();
+	private String parametersString;
 	private String toExecute;
 	private String fileLog;
 	private String fileErrorLog;
@@ -68,7 +69,15 @@ public class Task implements Cloneable {
 	public void setAfter(final String after) {
 		this.after = after.replaceAll(" ", "");
 	}
-
+	
+	public void setParametersString(String parametersString) {
+    this.parametersString = parametersString;
+  }
+	
+	@XmlAttribute(name="params")
+	public String getParametersString() {
+    return parametersString;
+  }
 	/**
 	 * Getter of the fileLog attribute
 	 * 

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<params>
+		<param name="dirparam" shortName="d">a directory</param>
+	</params>
 	<tasks>
 		<foreach id="ID1" of="list" in="2,1,1" as="param">
 			echo ${param}
@@ -19,7 +22,7 @@
 			as="param">
 			touch ${param}
 		</foreach>
-		<foreach id="ID6" after="ID2,ID3" of="command"
+		<foreach id="ID6" params="dirparam" after="ID2,ID3" of="command"
 			in="find ${dirparam} -maxdepth 1 | grep '.txt$'" as="param">
 			touch "${param}.2"
 		</foreach>
