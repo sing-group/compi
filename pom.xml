@@ -37,6 +37,8 @@
 		<maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
 		<sphinx-maven-plugin.version>2.2.3</sphinx-maven-plugin.version>
 		<findbugs-maven-plugin.version>3.0.5</findbugs-maven-plugin.version>
+		<maven-antrun-plugin.version>1.6</maven-antrun-plugin.version>
+		<maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
 
 		<junit.version>4.12</junit.version>	
 		<javax.activation.activation.version>1.1</javax.activation.activation.version>
@@ -167,6 +169,26 @@
 					<groupId>kr.motd.maven</groupId>
 					<artifactId>sphinx-maven-plugin</artifactId>
 					<version>${sphinx-maven-plugin.version}</version>
+				</plugin>
+				<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>${maven-antrun-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>${maven-dependency-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>${maven.assembly.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>${maven.resources.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
