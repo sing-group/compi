@@ -372,6 +372,20 @@ public class PipelineTest {
     assertEquals(2, handler.getFinishedTasks().size());
     assertEquals(2, handler.getAbortedTasks().size());
   }
+  
+  @Test
+  public void testSingleTasksAborted() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("testTasksAborted.xml").getFile();
+
+    final CompiApp compi = new CompiApp(pipelineFile, THREAD_NUMBER, (String) null, "ID3", null, null, null, null);
+    TestExecutionHandler handler = new TestExecutionHandler(compi);
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+    assertEquals(1, handler.getStartedTasks().size());
+    assertEquals(0, handler.getFinishedTasks().size());
+    assertEquals(1, handler.getAbortedTasks().size());
+  }
 
   @Test
   public void testTasksAbortedWithLoops() throws Exception {

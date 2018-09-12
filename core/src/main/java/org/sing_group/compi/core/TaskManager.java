@@ -302,7 +302,8 @@ public class TaskManager implements TaskExecutionHandler {
     this.getDAG().get(task.getId()).setRunning(false);
     for (final String taskToAbort : this.getDependencies().get(task.getId())) {
       if (this.getTasksLeft().contains(taskToAbort)) {
-        handler.taskAborted(this.getDAG().get(taskToAbort), e);
+        if (!this.getDAG().get(taskToAbort).isSkipped())
+          handler.taskAborted(this.getDAG().get(taskToAbort), e);
         this.getTasksLeft().remove(taskToAbort);
       }
     }
