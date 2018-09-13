@@ -2,7 +2,7 @@
 <runners xmlns="http://sing-group.org/compi-pipeline-runner"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<runner tasks="t1">
-		echo "[${task_id}] my_var: ${my_var} code: ${task_code}" >>	/tmp/runner-output
+		echo "[${task_id}] my_var: ${my_var} code: ${task_code}" params: ${task_params} >>	/tmp/runner-output
 		/bin/sh -c "${task_code}"
 	</runner>
 	<runner tasks="t2">
@@ -10,7 +10,7 @@
 		/bin/sh -c "${task_code}"
 	</runner>
 	<runner tasks="t3">
-		echo "[${task_id}] iteration-value: ${i} code: ${task_code}" >> /tmp/runner-output
+		echo "[${task_id}] iteration-value: ${i} code: ${task_code}" params: ${task_params} >> /tmp/runner-output
 		/bin/sh -c "${task_code}"
 	</runner>
 </runners>

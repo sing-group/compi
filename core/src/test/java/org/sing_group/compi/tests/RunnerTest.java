@@ -91,6 +91,6 @@ public class RunnerTest {
 
     assertTrue(runner_results_contents.contains("[t1] my_var: hello code: echo ${my_var} > /tmp/t1-result"));
     assertTrue(runner_results_contents.contains("[t2] code: echo task-2 > /tmp/t2-result"));
-    assertTrue(runner_results_contents.contains("[t3] iteration-value: 2 code: echo ${i} >> /tmp/t3-result"));
+    assertTrue(runner_results_contents.contains("[t3] iteration-value: 2 code: echo ${i} ${my_var} >> /tmp/t3-result params: my_var i"));
   }
 }
