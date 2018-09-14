@@ -109,23 +109,23 @@ public class BuildCommand extends AbstractCommand {
     IllegalArgumentException, InvocationTargetException {
 
     try {
-    MainMethodRunner mainRunner =
-      new MainMethodRunner("org.sing_group.compi.cli.CompiCLI", getDownloadedCompiJarURL(pipelineDockerFile));
+      MainMethodRunner mainRunner =
+        new MainMethodRunner("org.sing_group.compi.cli.CompiCLI", getDownloadedCompiJarURL(pipelineDockerFile));
 
-    int returnValue = mainRunner.run(new String[] {
-      "validate", "-p", pipelineDockerFile.getBaseDirectory() + File.separator + "pipeline.xml"
-    });
+      int returnValue = mainRunner.run(new String[] {
+        "validate", "-p", pipelineDockerFile.getBaseDirectory() + File.separator + "pipeline.xml"
+      });
 
-    if (returnValue != 0) {
-      return false;
-    } else {
-      return true;
-    }
-    }catch(RuntimeException e) {
+      if (returnValue != 0) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (RuntimeException e) {
       e.printStackTrace();
       throw e;
     }
-    
+
   }
 
   private URL getDownloadedCompiJarURL(PipelineDockerFile pipelineDockerFile) {
@@ -142,7 +142,7 @@ public class BuildCommand extends AbstractCommand {
     throws IOException, InterruptedException {
     logger.info("Building docker image (dockerfile: " + dockerFile + ")");
     Process p = Runtime.getRuntime().exec(new String[] {
-      "/bin/sh", "-c", "docker build -t " + imageName + " " + directory.getAbsolutePath()
+      "/bin/bash", "-c", "docker build -t " + imageName + " " + directory.getAbsolutePath()
     });
     redirectOutputToLogger(p);
 
@@ -159,7 +159,7 @@ public class BuildCommand extends AbstractCommand {
     Thread stdoutThread = new Thread(() -> {
       try (Scanner sc = new Scanner(p.getInputStream())) {
         while (sc.hasNextLine()) {
-           logger.info("DOCKER BUILD: " + sc.nextLine());
+          logger.info("DOCKER BUILD: " + sc.nextLine());
         }
       }
     });
@@ -169,7 +169,7 @@ public class BuildCommand extends AbstractCommand {
     Thread stderrThread = new Thread(() -> {
       try (Scanner sc = new Scanner(p.getErrorStream())) {
         while (sc.hasNextLine()) {
-           logger.severe("DOCKER BUILD ERROR: " + sc.nextLine());
+          logger.severe("DOCKER BUILD ERROR: " + sc.nextLine());
         }
       }
     });
@@ -194,19 +194,19 @@ public class BuildCommand extends AbstractCommand {
         this.jarFile
       })) {
 
-      Class<?> clazz = loader.loadClass(this.className);
-      Method mainMethod = clazz.getMethod("main", String[].class);
-      forbidSystemExitCall();
-      try {
-        mainMethod.invoke(null, new Object[] {
-          args
-        });
-      } catch (ExitTrappedException e) {
-        restoreStdErr();
-      }
+        Class<?> clazz = loader.loadClass(this.className);
+        Method mainMethod = clazz.getMethod("main", String[].class);
+        forbidSystemExitCall();
+        try {
+          mainMethod.invoke(null, new Object[] {
+            args
+          });
+        } catch (ExitTrappedException e) {
+          restoreStdErr();
+        }
 
-      enableSystemExitCall();
-      return this.returnStatus;
+        enableSystemExitCall();
+        return this.returnStatus;
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
