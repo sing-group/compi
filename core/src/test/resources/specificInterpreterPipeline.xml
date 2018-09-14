@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<params>
+		<param name="input_file" shortName="i">File for awk</param>
+		<param name="output_file_awk" shortName="oawk">File for output</param>
+		<param name="output_file_python" shortName="opython">File for output</param>
+	</params>
+	<tasks>
+		<task id="ID-1" params="input_file, output_file_awk" interpreter="/usr/bin/awk -e '$task_code' $input_file > $output_file_awk" >
+			{
+			  print $1
+			}
+		</task>
+		<task id="ID-2" params="input_file, output_file_python" interpreter="/usr/bin/python -c &quot;$task_code&quot;" >
+import os
+f = open(os.environ['output_file_python'], "a")
+f.write(os.environ['input_file'])
+		</task>
+	</tasks>
+</pipeline>

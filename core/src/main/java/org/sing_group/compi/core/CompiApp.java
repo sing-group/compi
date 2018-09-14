@@ -110,6 +110,7 @@ public class CompiApp implements TaskExecutionHandler {
     }
 
     if (_errors.stream().filter(error -> error.getType().isError()).count() > 0) {
+      System.err.println(_errors);
       throw new PipelineValidationException(_errors);
     }
 

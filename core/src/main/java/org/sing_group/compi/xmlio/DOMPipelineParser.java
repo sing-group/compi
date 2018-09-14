@@ -89,6 +89,8 @@ public class DOMPipelineParser extends AbstractPipelineParser {
               task.setId(element.getAttribute("id"));
             if (element.hasAttribute("after"))
               task.setAfter(element.getAttribute("after"));
+            if (element.hasAttribute("interpreter"))
+              task.setInterpreter(element.getAttribute("interpreter"));
             if (element.hasAttribute("fileErrorLog"))
               task.setFileErrorLog(element.getAttribute("fileErrorLog"));
             if (element.hasAttribute("fileLog"))

@@ -14,9 +14,11 @@ public class DefaultProcessCreator implements ProcessCreator {
   public DefaultProcessCreator(VariableResolver resolver) {
     this.resolver = resolver;
   }
+  
   @Override
   public Process createProcess(Task task) {
-    String[] commandsToExecute = { "/bin/sh", "-c", task.getToExecute() };
+    String[] commandsToExecute = { "/bin/sh", "-c", task.getInterpreter()==null?task.getToExecute():task.getInterpreter() };
+    
     try {
       
       ProcessBuilder builder = new ProcessBuilder(asList(commandsToExecute));

@@ -21,6 +21,7 @@ public class Task implements Cloneable {
 	private String id;
 	private String after;
 	private String exec;
+	private String interpreter;
 	private List<String> parameters = new LinkedList<>();
 	private String parametersString;
 	private String toExecute;
@@ -60,7 +61,27 @@ public class Task implements Cloneable {
 	public String getAfter() {
 		return after;
 	}
+	
+	/**
+   * Getter of the interpreter attribute
+   * 
+   * @return The value of the interpreter attribute
+   */
+	@XmlAttribute
+	public String getInterpreter() {
+    return interpreter;
+  }
 
+	 /**
+   * Changes the value of the interpreter attribute
+   * 
+   * @param interpreter
+   *            attribute
+   */
+	public void setInterpreter(String interpreter) {
+    this.interpreter = interpreter;
+  }
+	
 	/**
 	 * Changes the value of the after attribute
 	 * 

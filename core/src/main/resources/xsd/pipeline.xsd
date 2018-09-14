@@ -8,6 +8,7 @@
 				<attribute name="id" type="ID" use="required" />
 				<attribute name="after" type="string" use="optional" />
 				<attribute name="params" type="string" use="optional" />
+				<attribute name="interpreter" type="string" use="optional" />
 				<attribute name="fileLog" type="string" use="optional" />
 				<attribute name="fileErrorLog" type="string" use="optional" />
 			</extension>

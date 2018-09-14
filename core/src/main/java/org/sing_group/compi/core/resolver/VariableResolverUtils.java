@@ -1,12 +1,17 @@
 package org.sing_group.compi.core.resolver;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import org.sing_group.compi.xmlio.entities.Foreach;
@@ -32,6 +37,22 @@ public class VariableResolverUtils {
         forEachTask.getForeachIteration().getTask().getAs(), forEachTask.getForeachIteration().getIterationValue()
       );
     }
+    
+    Map<String, String> runnerExtraVariables = new HashMap<>();
+    runnerExtraVariables.put("task_code", task.getToExecute());
+    runnerExtraVariables.put("task_id", task.getId());
+    if (task.getInterpreter() != null) {
+      runnerExtraVariables.put("task_interpreter", task.getInterpreter());
+    }
+
+    List<String> params = new ArrayList<>(task.getParameters());
+    if (task instanceof Foreach) {
+      params.add(((Foreach) task).getAs());
+    }
+    runnerExtraVariables.put("task_params", params.stream().collect(joining(" ")));
+
+    builder.environment().putAll(runnerExtraVariables);
+    
   }
 
   public String resolveAllVariables(String text, Task task) {
@@ -65,16 +86,6 @@ public class VariableResolverUtils {
         }
       });
     }
-
-    /*
-     * final Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}"); String
-     * resolvedString = text; final Matcher matcher = pattern.matcher(text);
-     * while (matcher.find()) { String varName = matcher.group(1); String
-     * resolvedVarName = this.resolver.resolveVariable(varName); if
-     * (resolvedVarName != null) { resolvedString =
-     * resolvedString.replaceFirst("\\$\\{"+varName+"\\}", resolvedVarName); } }
-     * return resolvedString;
-     */
   }
 
   private String getFileContents(File resolvedTextFile) throws FileNotFoundException {
