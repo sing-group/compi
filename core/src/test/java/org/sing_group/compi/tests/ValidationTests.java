@@ -1,6 +1,7 @@
 package org.sing_group.compi.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.NON_DECLARED_PARAMETER;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.XML_SCHEMA_VALIDATION_ERROR;
 
 import java.io.File;
@@ -32,6 +33,22 @@ public class ValidationTests {
     List<ValidationError> errors = validatePipeline(pipelineName);
 
     assertEquals(1, numberOfErrorsOfType(XML_SCHEMA_VALIDATION_ERROR, errors)); // ${pipeline}
+  }
+  
+  @Test
+  public void testInvalidParameterName() {
+    String pipelineName = "pipelineInvalidParameterName.xml";
+    
+    List<ValidationError> errors = validatePipeline(pipelineName);
+    assertEquals(1, numberOfErrorsOfType(XML_SCHEMA_VALIDATION_ERROR, errors)); // ${pipeline}
+  }
+  
+  @Test
+  public void testNonDeclaredParameter() {
+    String pipelineName = "pipelineNonDeclaredParameter.xml";
+    
+    List<ValidationError> errors = validatePipeline(pipelineName);
+    assertEquals(1, numberOfErrorsOfType(NON_DECLARED_PARAMETER, errors)); // ${pipeline}
   }
   
   private List<ValidationError> validatePipeline(String pipelineName) {

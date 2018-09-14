@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.esei.uvigo.es/compi-pipeline"
-	xmlns:cp="http://www.esei.uvigo.es/compi-pipeline" elementFormDefault="qualified">
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.esei.uvigo.es/compi-pipeline"
+	xmlns:cp="http://www.esei.uvigo.es/compi-pipeline"
+	elementFormDefault="qualified">
+
+	<simpleType name="paramName">
+		<restriction base="string">
+			<pattern value="[_a-zA-Z]+[_a-zA-Z0-9]*"></pattern>
+		</restriction>
+	</simpleType>
 
 	<complexType name="task">
 		<simpleContent>
 			<extension base="string">
 				<attribute name="id" type="ID" use="required" />
 				<attribute name="after" type="string" use="optional" />
-				<attribute name="params" type="string" use="optional" />
+				<attribute name="params" use="optional">
+					<simpleType>
+						<list itemType="cp:paramName" />
+					</simpleType>
+				</attribute>
 				<attribute name="interpreter" type="string" use="optional" />
 				<attribute name="fileLog" type="string" use="optional" />
-				<attribute name="fileErrorLog" type="string" use="optional" />
+				<attribute name="fileErrorLog" type="string"
+					use="optional" />
 			</extension>
 		</simpleContent>
 	</complexType>
@@ -28,8 +41,8 @@
 	<complexType name="param">
 		<simpleContent>
 			<extension base="string">
-				<attribute name="name" type="ID" use="required" />
-				<attribute name="shortName" type="string" use="required" />	
+				<attribute name="name" type="string" use="required" />
+				<attribute name="shortName" type="string" use="required" />
 				<attribute name="defaultValue" type="string" />
 			</extension>
 		</simpleContent>
@@ -60,6 +73,14 @@
 					maxOccurs="1" />
 			</all>
 		</complexType>
+	 	<unique name="paramNameKey">
+			<selector xpath="cp:params/cp:param" />
+			<field xpath="@name" />
+		</unique>
+		<unique name="paramShortNameKey">
+			<selector xpath="cp:params/cp:param" />
+			<field xpath="@shortName" />
+		</unique>
 	</element>
 
 </schema>

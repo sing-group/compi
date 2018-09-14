@@ -1,29 +1,24 @@
 package org.sing_group.compi.core.validation;
 
-import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.SEMANTIC_ERROR_REPEATED_PARAM_DESCRIPTION_NAME;
-import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.SEMANTIC_ERROR_REPEATED_PARAM_DESCRIPTION_SHORT_NAME;
+import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.NON_DECLARED_PARAMETER;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.XML_SCHEMA_VALIDATION_ERROR;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.sing_group.compi.xmlio.DOMparsing;
 import org.sing_group.compi.xmlio.PipelineParserFactory;
 import org.sing_group.compi.xmlio.entities.Pipeline;
+import org.sing_group.compi.xmlio.entities.Task;
 import org.xml.sax.SAXException;
 
 
 public class PipelineValidator {
 
   public static enum ValidationErrorType {
-    XML_SCHEMA_VALIDATION_ERROR(true),
-    SEMANTIC_ERROR_RESERVED_PARAMETER_NAME(true), SEMANTIC_ERROR_REPEATED_PARAM_DESCRIPTION_NAME(true),
-    SEMANTIC_ERROR_REPEATED_PARAM_DESCRIPTION_SHORT_NAME(true), SEMANTIC_ERROR_RESERVED_PARAMETER_DESCRIPTION_NAME(true),
-    SEMANTIC_ERROR_RESERVED_PARAMETER_DESCRIPTION_SHORT_NAME(true);
+    XML_SCHEMA_VALIDATION_ERROR(true), NON_DECLARED_PARAMETER(true);
 
     private boolean isError;
     
@@ -37,9 +32,8 @@ public class PipelineValidator {
   }
 
   private File pipelineFile;
-
-  private Pipeline pipeline;
   private List<ValidationError> errors = new ArrayList<>();
+  private Pipeline pipeline;
 
 
   public PipelineValidator(File pipelineFile) {
@@ -59,8 +53,8 @@ public class PipelineValidator {
       
       this.pipeline = PipelineParserFactory.createPipelineParser().parsePipeline(this.pipelineFile);
 
-      checkThatParameterDescriptionNamesAreUnique();
-
+      checkTaskParametersAreDeclared();
+      
     } catch (IllegalArgumentException | SAXException e) {
       errors.add(new ValidationError(XML_SCHEMA_VALIDATION_ERROR, e.getMessage()));
     } catch (IOException e) {
@@ -69,29 +63,14 @@ public class PipelineValidator {
     return errors;
   }
 
-  private void checkThatParameterDescriptionNamesAreUnique() {
-    Set<String> names = new HashSet<>();
-    this.pipeline.getParameterDescriptions().stream().forEach(parameterDescription -> {
-      if (names.contains(parameterDescription.getName())) {
-        this.errors.add(
-          new ValidationError(
-            SEMANTIC_ERROR_REPEATED_PARAM_DESCRIPTION_NAME,
-            "The <param name=\"" + parameterDescription.getName() + "\"> is not unique"
-          )
-        );
+  private void checkTaskParametersAreDeclared() {
+    for (Task t: this.pipeline.getTasks()) {
+      for (String parameter : t.getParameters()) {
+        if (this.pipeline.getParameterDescription(parameter) == null) {
+          errors.add(new ValidationError(NON_DECLARED_PARAMETER, "Parameter \""+parameter+"\" in task id: \""+t.getId()+"\" was not declared"));
+        }
       }
-      if (names.contains(parameterDescription.getShortName())) {
-        this.errors.add(
-          new ValidationError(
-            SEMANTIC_ERROR_REPEATED_PARAM_DESCRIPTION_SHORT_NAME,
-            "The <param shortName=\"" + parameterDescription.getName() + "\"> is not unique"
-          )
-        );
-      }
-      names.add(parameterDescription.getName());
-      names.add(parameterDescription.getShortName());
-    });
-
+    }
   }
 
   private void clearValidationStatus() {

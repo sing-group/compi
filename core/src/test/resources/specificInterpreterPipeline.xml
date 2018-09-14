@@ -6,12 +6,12 @@
 		<param name="output_file_python" shortName="opython">File for output</param>
 	</params>
 	<tasks>
-		<task id="ID-1" params="input_file, output_file_awk" interpreter="/usr/bin/awk -e '$task_code' $input_file > $output_file_awk" >
+		<task id="ID-1" params="input_file output_file_awk" interpreter="/usr/bin/awk -e '$task_code' $input_file > $output_file_awk" >
 			{
 			  print $1
 			}
 		</task>
-		<task id="ID-2" params="input_file, output_file_python" interpreter="/usr/bin/python -c &quot;$task_code&quot;" >
+		<task id="ID-2" params="input_file output_file_python" interpreter="/usr/bin/python -c &quot;$task_code&quot;" >
 import os
 f = open(os.environ['output_file_python'], "a")
 f.write(os.environ['input_file'])

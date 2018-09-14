@@ -22,21 +22,17 @@ public abstract class AbstractPipelineParser implements PipelineParser {
   /**
    * Obtain the content inside ${...} in the {@link Task} exec tag
    * 
-   * @param pipeline Contains all the {@link Task}
+   * @param pipeline
+   *          Contains all the {@link Task}
    */
   private static void addTaskParameters(Pipeline pipeline) {
 
     pipeline.getTasks().forEach(task -> {
       if (task.getParametersString() != null && task.getParametersString().trim().length() > 0) {
-          Arrays.asList(task.getParametersString().trim().split(",")).forEach(parameterName -> {
-            parameterName = parameterName.trim();
-
-            if (pipeline.getParameterDescription(parameterName) != null) {
-              task.addParameter(parameterName);
-            } else {
-              throw new IllegalArgumentException("parameter " + parameterName + " not declared");
-            }
-          });
+        Arrays.asList(task.getParametersString().trim().split("\\s+")).forEach(parameterName -> {
+          parameterName = parameterName.trim();
+          task.addParameter(parameterName);
+        });
       }
     });
   }
