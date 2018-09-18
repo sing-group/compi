@@ -4,6 +4,9 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +16,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.sing_group.compi.core.PipelineValidationException;
+import org.sing_group.compi.core.validation.PipelineValidator;
+import org.sing_group.compi.core.validation.ValidationError;
 
 /**
  * Represents the {@link Pipeline} obtained in the XML pipeline file
@@ -109,4 +116,29 @@ public class Pipeline {
 		return this.getParameterDescriptions().stream().collect(toMap(p -> p.getName(), p -> p)).get(parameterName);
 	}
 
+	public static Pipeline fromFile(File pipelineFile) throws IllegalArgumentException, IOException, PipelineValidationException {
+	  return fromFile(pipelineFile, null);
+	}
+	
+	public static Pipeline fromFile(File pipelineFile, List<ValidationError> errors) throws IllegalArgumentException, IOException, PipelineValidationException {
+	  return validateAndCreatePipeline(pipelineFile, errors);
+	}
+	
+	private static Pipeline validateAndCreatePipeline(final File pipelineFile, List<ValidationError> errors)
+    throws PipelineValidationException {
+    PipelineValidator validator = new PipelineValidator(pipelineFile);
+    
+    if (errors == null) {
+      errors = new ArrayList<>();
+    } else {
+      errors.clear();
+    }
+    
+    errors.addAll(validator.validate());
+
+    if (errors.stream().filter(error -> error.getType().isError()).count() > 0) {
+      throw new PipelineValidationException(errors);
+    }
+    return validator.getPipeline();
+  }
 }

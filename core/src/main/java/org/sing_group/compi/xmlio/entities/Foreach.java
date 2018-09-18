@@ -3,8 +3,6 @@ package org.sing_group.compi.xmlio.entities;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.sing_group.compi.core.loops.ForeachIteration;
-
 /**
  * Represents the {@link Foreach} tag obtained in the XML pipeline file
  * 
@@ -18,8 +16,6 @@ public class Foreach extends Task {
 	private String in;
 	private String as;
 
-	private ForeachIteration loopTask;
-	
 	/**
 	 * Getter of the element attribute
 	 * 
@@ -53,7 +49,8 @@ public class Foreach extends Task {
 	/**
 	 * Changes the value of the in attribute
 	 * 
-	 * @param in attribute
+	 * @param in
+	 *            attribute
 	 */
 	public void setIn(final String in) {
 		this.in = in;
@@ -78,12 +75,5 @@ public class Foreach extends Task {
 	public void setAs(final String as) {
 		this.as = as;
 	}
-	
-	public void setForeachIteration(ForeachIteration loopTask) {
-    this.loopTask = loopTask;
-  }
-	
-	public ForeachIteration getForeachIteration() {
-    return loopTask;
-  }
+
 }

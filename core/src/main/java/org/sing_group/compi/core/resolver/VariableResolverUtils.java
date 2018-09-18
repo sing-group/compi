@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.sing_group.compi.core.loops.ForeachIteration;
 import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Task;
 
@@ -31,10 +32,10 @@ public class VariableResolverUtils {
       builder.environment().put(parameter, this.resolver.resolveVariable(parameter));
     });
 
-    if (task instanceof Foreach && ((Foreach) task).getForeachIteration() != null) {
-      Foreach forEachTask = (Foreach) task;
+    if (task instanceof ForeachIteration && ((ForeachIteration) task).getParentForeachTask() != null) {
+      ForeachIteration forEachTask = (ForeachIteration) task;
       builder.environment().put(
-        forEachTask.getForeachIteration().getTask().getAs(), forEachTask.getForeachIteration().getIterationValue()
+        forEachTask.getAs(), forEachTask.getIterationValue()
       );
     }
 

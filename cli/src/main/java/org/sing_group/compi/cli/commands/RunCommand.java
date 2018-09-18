@@ -4,19 +4,21 @@ import static java.lang.System.arraycopy;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static org.sing_group.compi.cli.PipelineCLIApplication.newPipelineCLIApplication;
-import static org.sing_group.compi.core.CompiRunConfiguration.forFile;
+import static org.sing_group.compi.core.CompiRunConfiguration.forPipeline;
+import static org.sing_group.compi.xmlio.entities.Pipeline.fromFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.CompiRunConfiguration;
 import org.sing_group.compi.core.PipelineValidationException;
 import org.sing_group.compi.core.validation.ValidationError;
+import org.sing_group.compi.xmlio.entities.Pipeline;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
@@ -82,14 +84,13 @@ public class RunCommand extends AbstractCommand {
   private static final String DEFAULT_NUM_PARALLEL_TASKS = "6";
 
   private String[] commandLineArgs;
-  private CompiApp compi;
 
   public RunCommand(String[] commandLineArgs) {
     this.commandLineArgs = commandLineArgs;
   }
 
   @Override
-  public void execute(final Parameters parameters) throws Exception {
+  public void execute(final Parameters parameters) throws IOException  {
     String pipelineFile = parameters.getSingleValueString(super.getOption(PIPELINE_FILE));
     Integer compiThreads = parameters.getSingleValue(super.getOption(NUM_PARALLEL_TASKS));
 
@@ -135,9 +136,9 @@ public class RunCommand extends AbstractCommand {
       runnersFile = new File(parameters.getSingleValueString(super.getOption(RUNNERS_CONFIG_FILE)));
       if (!runnersFile.exists()) {
         throw new IllegalArgumentException("The runners file does not exist: " + runnersFile);
-      }      
+      }
     }
-    
+
     String singleTask =
       hasSingleTask
         ? parameters.getSingleValueString(super.getOption(SINGLE_TASK))
@@ -182,9 +183,9 @@ public class RunCommand extends AbstractCommand {
 
     try {
 
-      final List<ValidationError> errors = new ArrayList<>();
-      compi =
-        new CompiApp(
+      CLIApplication pipelineApplication =
+        newPipelineCLIApplication(
+          pipelineFile,
           buildConfiguration(
             pipelineFile,
             runnersFile,
@@ -194,40 +195,39 @@ public class RunCommand extends AbstractCommand {
             singleTask,
             untilTask,
             beforeTask
-          ),
-          errors
-        );
-
-      logValidationErrors(errors);
-
-      CLIApplication pipelineApplication =
-        newPipelineCLIApplication(
-          pipelineFile, compi, this.createOptions(), this.commandLineArgs
+          ), this.commandLineArgs
         );
 
       pipelineApplication.run(getPipelineParameters(this.commandLineArgs));
 
-    } catch (PipelineValidationException e) {
-      LOGGER.severe("Pipeline is not valid");
-      logValidationErrors(e.getErrors());
     } catch (IllegalArgumentException e) {
       e.printStackTrace();
       LOGGER.severe(e.getClass() + ": " + e.getMessage());
+    }catch (PipelineValidationException e) {
+      LOGGER.severe("Pipeline is not valid");
+      logValidationErrors(e.getErrors());
     }
   }
 
   private CompiRunConfiguration buildConfiguration(
-    String pipelineFile, File runnersFile, Integer compiThreads, List<String> fromTasks, List<String> afterTasks, String singleTask,
+    String pipelineFile, File runnersFile, Integer compiThreads, List<String> fromTasks, List<String> afterTasks,
+    String singleTask,
     String untilTask, String beforeTask
-  ) {
+  ) throws IllegalArgumentException, IOException, PipelineValidationException {
+
+    List<ValidationError> errors = new ArrayList<>();
     
-    final CompiRunConfiguration.Builder builder = forFile(new File(pipelineFile));
+    Pipeline pipeline = fromFile(new File(pipelineFile), errors);
+    
+    logValidationErrors(errors);
+    
+    final CompiRunConfiguration.Builder builder = forPipeline(pipeline);
     builder.whichRunsAMaximumOf(compiThreads);
-    
+
     if (runnersFile != null) {
       builder.whichRunsTasksUsingCustomRunners(runnersFile);
     }
-    
+
     if (singleTask != null) {
       builder.whichRunsTheSingleTask(singleTask);
     }
@@ -336,16 +336,6 @@ public class RunCommand extends AbstractCommand {
     );
   }
 
-  private void logValidationErrors(List<ValidationError> errors) {
-    errors.stream().forEach(error -> {
-      if (error.getType().isError()) {
-        LOGGER.severe(error.toString());
-      } else {
-        LOGGER.warning(error.toString());
-      }
-    });
-  }
-
   private static String[] getPipelineParameters(String[] args) {
     int paramsDelimiterIndex = asList(args).indexOf(ARGS_DELIMITER);
 
@@ -381,5 +371,15 @@ public class RunCommand extends AbstractCommand {
     }
 
     return compiParameters;
+  }
+  
+  private void logValidationErrors(List<ValidationError> errors) {
+    errors.stream().forEach(error -> {
+      if (error.getType().isError()) {
+        LOGGER.severe(error.toString());
+      } else {
+        LOGGER.warning(error.toString());
+      }
+    });
   }
 }

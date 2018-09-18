@@ -4,31 +4,32 @@ import static es.uvigo.ei.sing.yacli.command.CommandPrinter.printCommandOptionsE
 import static java.util.Arrays.asList;
 import static org.sing_group.compi.cli.commands.RunSpecificPipelineCommand.newRunSpecificPipelineCommand;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 
 import org.sing_group.compi.cli.commands.RunCommand;
 import org.sing_group.compi.cli.commands.RunSpecificPipelineCommand;
 import org.sing_group.compi.core.CompiApp;
+import org.sing_group.compi.core.CompiRunConfiguration;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.Command;
-import es.uvigo.ei.sing.yacli.command.option.Option;
 
 public class PipelineCLIApplication extends CLIApplication {
 
-	private static CompiApp compiApp;
-	private static List<Option<?>> compiGeneralOptions;
+	private static CompiRunConfiguration config;
 	private static String[] commandLineArgs;
 
 	private String pipelineName;
 
 	public static PipelineCLIApplication newPipelineCLIApplication(
-		String pipelineName, CompiApp compiApp,
-		List<Option<?>> compiGeneralOptions, String[] commandLineArgs
+	  String pipelineName,
+	  CompiRunConfiguration config,
+		String[] commandLineArgs
 	) {
-		PipelineCLIApplication.compiApp = compiApp;
-		PipelineCLIApplication.compiGeneralOptions = compiGeneralOptions;
+	  
+		PipelineCLIApplication.config = config;
 		PipelineCLIApplication.commandLineArgs = commandLineArgs;
 
 		return new PipelineCLIApplication(pipelineName);
@@ -55,9 +56,13 @@ public class PipelineCLIApplication extends CLIApplication {
 
 	@Override
 	protected List<Command> buildCommands() {
-		return asList( 
-			newRunSpecificPipelineCommand(compiApp, compiGeneralOptions, commandLineArgs)
-		);
+		try {
+      return asList( 
+      	newRunSpecificPipelineCommand(config, commandLineArgs)
+      );
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
 	}
 
 	@Override

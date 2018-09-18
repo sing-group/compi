@@ -5,11 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.sing_group.compi.core.resolver.VariableResolver;
+import org.sing_group.compi.xmlio.entities.Pipeline;
 
 /**
  * An object containing parameters for a pipeline run. This object is intended for instantiating {@link CompiApp}
  * 
- * To create objects of this class, a builder is provided if you call {@link CompiRunConfiguration#forFile(File)}
+ * To create objects of this class, a builder is provided if you call {@link CompiRunConfiguration#forPipeline(Pipeline)}
  * 
  * @author Daniel Glez-Peña
  * 
@@ -17,7 +18,7 @@ import org.sing_group.compi.core.resolver.VariableResolver;
  *
  */
 public class CompiRunConfiguration {
-  private File pipelineFile;
+  private Pipeline pipeline;
   private int maxTasks = 6;
   private VariableResolver resolver;
   private File paramsFile;
@@ -28,19 +29,19 @@ public class CompiRunConfiguration {
   private String untilTask;
   private String beforeTask;
 
-  public File getPipelineFile() {
-    return pipelineFile;
+  public Pipeline getPipeline() {
+    return pipeline;
   }
 
-  private void setPipelineFile(File pipelineFile) {
-    this.pipelineFile = pipelineFile;
+  public void setPipeline(Pipeline pipeline) {
+    this.pipeline = pipeline;
   }
 
   public int getMaxTasks() {
     return maxTasks;
   }
 
-  private void setMaxTasks(int maxTasks) {
+  public void setMaxTasks(int maxTasks) {
     this.maxTasks = maxTasks;
   }
 
@@ -48,7 +49,7 @@ public class CompiRunConfiguration {
     return resolver;
   }
 
-  private void setResolver(VariableResolver resolver) {
+  public void setResolver(VariableResolver resolver) {
     this.resolver = resolver;
   }
 
@@ -56,7 +57,7 @@ public class CompiRunConfiguration {
     return paramsFile;
   }
   
-  private void setParamsFile(File paramsFile) {
+  public void setParamsFile(File paramsFile) {
     this.paramsFile = paramsFile;
   }
   
@@ -64,7 +65,7 @@ public class CompiRunConfiguration {
     return runnersFile;
   }
   
-  private void setRunnersFile(File runnersFile) {
+  public void setRunnersFile(File runnersFile) {
     this.runnersFile = runnersFile;
   }
   
@@ -72,7 +73,7 @@ public class CompiRunConfiguration {
     return singleTask;
   }
 
-  private void setSingleTask(String singleTask) {
+  public void setSingleTask(String singleTask) {
     this.singleTask = singleTask;
   }
 
@@ -80,7 +81,7 @@ public class CompiRunConfiguration {
     return fromTasks;
   }
 
-  private void setFromTasks(List<String> fromTasks) {
+  public void setFromTasks(List<String> fromTasks) {
     this.fromTasks = fromTasks;
   }
 
@@ -88,7 +89,7 @@ public class CompiRunConfiguration {
     return afterTasks;
   }
 
-  private void setAfterTasks(List<String> afterTasks) {
+  public void setAfterTasks(List<String> afterTasks) {
     this.afterTasks = afterTasks;
   }
 
@@ -96,7 +97,7 @@ public class CompiRunConfiguration {
     return untilTask;
   }
 
-  private void setUntilTask(String untilTask) {
+  public void setUntilTask(String untilTask) {
     this.untilTask = untilTask;
   }
 
@@ -104,7 +105,7 @@ public class CompiRunConfiguration {
     return beforeTask;
   }
 
-  private void setBeforeTask(String beforeTask) {
+  public void setBeforeTask(String beforeTask) {
     this.beforeTask = beforeTask;
   }
 
@@ -117,8 +118,8 @@ public class CompiRunConfiguration {
   public static class Builder {
     private CompiRunConfiguration config = new CompiRunConfiguration();
 
-    private Builder forFile(File f) {
-      this.config.setPipelineFile(f);
+    private Builder forPipeline(Pipeline p) {
+      this.config.setPipeline(p);
       return this;
     }
     
@@ -182,9 +183,9 @@ public class CompiRunConfiguration {
     }
   }
   
-  public static Builder forFile(File file) {
+  public static Builder forPipeline(Pipeline pipeline) {
     Builder builder = new Builder();
-    builder.forFile(file);
+    builder.forPipeline(pipeline);
     return builder;
   }
 }

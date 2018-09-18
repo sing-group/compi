@@ -1,5 +1,7 @@
 package org.sing_group.compi.core;
 
+import static org.sing_group.compi.core.loops.ForeachIteration.createIterationForForeach;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -30,7 +32,7 @@ import org.sing_group.compi.xmlio.entities.Task;
 public class TaskManager implements TaskExecutionHandler {
 
   private final TaskExecutionHandler handler;
-  private final Map<String, Task> DAG = new ConcurrentHashMap<>();
+  private final Map<String, Task> tasksById = new ConcurrentHashMap<>();
   private final List<String> tasksLeft = new CopyOnWriteArrayList<>();
   private final Map<String, Set<String>> dependencies = new ConcurrentHashMap<>();
   private final Map<String, List<ForeachIteration>> forEachTasks = new ConcurrentHashMap<>();
@@ -45,7 +47,7 @@ public class TaskManager implements TaskExecutionHandler {
     this.handler = handler;
     this.variableResolver = resolver;
     for (final Task p : pipeline.getTasks()) {
-      this.DAG.put(p.getId(), p);
+      this.tasksById.put(p.getId(), p);
       this.tasksLeft.add(p.getId());
       this.dependencies.put(p.getId(), new HashSet<String>());
 
@@ -71,7 +73,7 @@ public class TaskManager implements TaskExecutionHandler {
      * }); } else {
      */
     for (final String taskId : this.tasksLeft) {
-      final Task task = DAG.get(taskId);
+      final Task task = tasksById.get(taskId);
       if (!task.isFinished() && checkTaskDependencies(task)) {
         runnableTasks.add(task);
       }
@@ -94,7 +96,7 @@ public class TaskManager implements TaskExecutionHandler {
       return true;
     final String[] dependsArray = task.getAfter().split(",");
     for (final String s : dependsArray) {
-      final Task taskToCheck = DAG.get(s);
+      final Task taskToCheck = tasksById.get(s);
       if (taskToCheck.isFinished()) {
         count++;
       }
@@ -115,10 +117,10 @@ public class TaskManager implements TaskExecutionHandler {
    */
   public void checkAfterIds() throws IllegalArgumentException {
     for (final String tasks : this.tasksLeft) {
-      final Task task = DAG.get(tasks);
+      final Task task = tasksById.get(tasks);
       if (task.getAfter() != null) {
         for (final String afterId : task.getAfter().split(",")) {
-          if (!DAG.containsKey(afterId)) {
+          if (!tasksById.containsKey(afterId)) {
             throw new IllegalArgumentException(
               "The IDs contained in the after attribute of the task " + task.getId()
                 + " aren't correct: " + task.getAfter()
@@ -140,7 +142,7 @@ public class TaskManager implements TaskExecutionHandler {
    *           contains a non existent value
    */
   public void initializeForEach(Foreach foreach) throws IllegalArgumentException {
-    List<ForeachIteration> value = this.getForEachTasks().get(foreach.getId());
+	  List<ForeachIteration> value = this.getForEachTasks().get(foreach.getId());
     List<String> values = new LinkedList<>();
 
     LoopValuesGenerator generator = null;
@@ -166,12 +168,10 @@ public class TaskManager implements TaskExecutionHandler {
             + " of the task " + foreach.getId() + " doesn't exist"
         );
     }
-
     if (!foreach.isSkipped()) {
       values = generator.getValues(foreach.getIn());
-
       for (final String source : values) {
-        value.add(new ForeachIteration(foreach, source));
+        value.add(createIterationForForeach(foreach, source));
       }
     }
   }
@@ -182,7 +182,7 @@ public class TaskManager implements TaskExecutionHandler {
    * dependency of another {@link Task}
    */
   public void initializeDependencies() {
-    DAG.forEach((key, value) -> {
+    tasksById.forEach((key, value) -> {
       if (value.getAfter() != null) {
         for (final String afterId : value.getAfter().split(",")) {
           dependencies.get(afterId).add(key);
@@ -190,7 +190,7 @@ public class TaskManager implements TaskExecutionHandler {
       }
     });
 
-    DAG.forEach((key, value) -> {
+    tasksById.forEach((key, value) -> {
       dependencies.forEach((key2, value2) -> {
         if (value2.contains(key)) {
           value2.addAll(dependencies.get(key));
@@ -209,7 +209,7 @@ public class TaskManager implements TaskExecutionHandler {
    * @param task Indicates the {@link Task} ID which you want to skip
    */
   public void skipTask(String task) {
-    this.getDAG().get(task).setSkipped(true);
+    this.getTasksById().get(task).setSkipped(true);
   }
 
   /**
@@ -218,7 +218,7 @@ public class TaskManager implements TaskExecutionHandler {
    * @param task Indicates the {@link Task} ID which you want not to skip
    */
   public void unSkipTask(String task) {
-    this.getDAG().get(task).setSkipped(false);
+    this.getTasksById().get(task).setSkipped(false);
   }
 
   /**
@@ -231,7 +231,7 @@ public class TaskManager implements TaskExecutionHandler {
   public void skipDependencies(final String task) {
     dependencies.forEach((key, value) -> {
       if (value.contains(task)) {
-        this.getDAG().get(key).setSkipped(true);
+        this.getTasksById().get(key).setSkipped(true);
       }
     });
   }
@@ -244,9 +244,9 @@ public class TaskManager implements TaskExecutionHandler {
    *          skipped
    */
   public void skipAllButDependencies(String task) {
-    this.getDAG().keySet().forEach((taskId) -> {
+    this.getTasksById().keySet().forEach((taskId) -> {
       if (!dependencies.get(taskId).contains(task)) {
-        this.getDAG().get(taskId).setSkipped(true);
+        this.getTasksById().get(taskId).setSkipped(true);
       }
     });
   }
@@ -258,7 +258,7 @@ public class TaskManager implements TaskExecutionHandler {
    * @param task Indicates the only {@link Task} ID which will not be skipped
    */
   public void skipAllTasksBut(String task) {
-    this.getDAG().forEach((k, v) -> {
+    this.getTasksById().forEach((k, v) -> {
       if (!v.getId().equals(task)) {
         v.setSkipped(true);
       }
@@ -273,7 +273,7 @@ public class TaskManager implements TaskExecutionHandler {
    */
   @Override
   synchronized public void taskStarted(final Task task) {
-    this.getDAG().get(task.getId()).setRunning(true);
+    this.getTasksById().get(task.getId()).setRunning(true);
 
     this.getTasksLeft().remove(task.getId());
   }
@@ -285,8 +285,8 @@ public class TaskManager implements TaskExecutionHandler {
    */
   @Override
   synchronized public void taskFinished(final Task task) {
-    this.getDAG().get(task.getId()).setFinished(true);
-    this.getDAG().get(task.getId()).setRunning(false);
+    this.getTasksById().get(task.getId()).setFinished(true);
+    this.getTasksById().get(task.getId()).setRunning(false);
   }
 
   /**
@@ -298,12 +298,12 @@ public class TaskManager implements TaskExecutionHandler {
    */
   @Override
   public void taskAborted(final Task task, final Exception e) {
-    this.getDAG().get(task.getId()).setAborted(true);
-    this.getDAG().get(task.getId()).setRunning(false);
+    this.getTasksById().get(task.getId()).setAborted(true);
+    this.getTasksById().get(task.getId()).setRunning(false);
     for (final String taskToAbort : this.getDependencies().get(task.getId())) {
       if (this.getTasksLeft().contains(taskToAbort)) {
-        if (!this.getDAG().get(taskToAbort).isSkipped())
-          handler.taskAborted(this.getDAG().get(taskToAbort), e);
+        if (!this.getTasksById().get(taskToAbort).isSkipped())
+          handler.taskAborted(this.getTasksById().get(taskToAbort), e);
         this.getTasksLeft().remove(taskToAbort);
       }
     }
@@ -314,8 +314,8 @@ public class TaskManager implements TaskExecutionHandler {
    * 
    * @return The value of the DAG attribute
    */
-  public Map<String, Task> getDAG() {
-    return DAG;
+  public Map<String, Task> getTasksById() {
+    return tasksById;
   }
 
   /**

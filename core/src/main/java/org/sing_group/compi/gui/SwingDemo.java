@@ -1,7 +1,8 @@
 package org.sing_group.compi.gui;
 
 import static java.util.Arrays.asList;
-import static org.sing_group.compi.core.CompiRunConfiguration.forFile;
+import static org.sing_group.compi.core.CompiRunConfiguration.forPipeline;
+import static org.sing_group.compi.xmlio.entities.Pipeline.fromFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.PipelineValidationException;
 import org.sing_group.compi.core.TaskExecutionHandler;
+import org.sing_group.compi.core.loops.ForeachIteration;
 import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Task;
 import org.xml.sax.SAXException;
@@ -128,9 +130,9 @@ public class SwingDemo {
         skipComboBox.addItem("-");
         skipComboBox.setSelectedIndex(0);
         consoleTextArea.append("Task IDs\n");
-        for (String taskID : compi.getTaskManager().getTasksLeft()) {
-          consoleTextArea.append("ID : " + taskID + "\n");
-          skipComboBox.addItem(taskID);
+        for (Task task: compi.getPipeline().getTasks()) {
+          consoleTextArea.append("ID : " + task.getId() + "\n");
+          skipComboBox.addItem(task.getId());
         }
         paramsButton.setEnabled(true);
         threadNumberText.setEnabled(true);
@@ -146,7 +148,7 @@ public class SwingDemo {
         consoleTextArea.setText(null);
         try {
           compiExecution(
-            (100 / compi.getTaskManager().getDAG().size()),
+            (100 / compi.getPipeline().getTasks().size()),
             model.getNumber().intValue(), paramsText.getText(),
             skipComboBox.getSelectedItem().toString(), consoleTextArea, progressBar
           );
@@ -175,7 +177,7 @@ public class SwingDemo {
     try {
       compi =
         new CompiApp(
-          forFile(new File(pipelineText.getText()))
+          forPipeline(fromFile(new File(pipelineText.getText())))
             .whichRunsAMaximumOf(threadNumber)
             .whichResolvesVariablesFromFile(new File(paramsFile))
             .whichStartsFromTasks(skipTask != null ? asList(skipTask) : null)
@@ -197,7 +199,7 @@ public class SwingDemo {
           if (task.isSkipped()) {
             if (task instanceof Foreach) {
               consoleTextArea.append("Task with id " + task.getId() + " skipped\n");
-              final Task parent = compi.getParentTask().get(task);
+              final Task parent = ((ForeachIteration)task).getParentForeachTask();
               if (parent.isFinished()) {
                 int percent = progressBar.getValue() + taskNumber;
                 progressBar.setValue(percent);
@@ -214,7 +216,7 @@ public class SwingDemo {
                 (System.currentTimeMillis() / 1000) + " - SubTask with id "
                   + task.getId() + " finished\n"
               );
-              final Task parent = compi.getParentTask().get(task);
+              final Task parent = ((ForeachIteration)task).getParentForeachTask();
               if (parent.isFinished()) {
                 int percent = progressBar.getValue() + taskNumber;
                 progressBar.setValue(percent);

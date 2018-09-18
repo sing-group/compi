@@ -1,6 +1,7 @@
 package org.sing_group.compi.tests;
 
-import static org.sing_group.compi.core.CompiRunConfiguration.forFile;
+import static org.sing_group.compi.core.CompiRunConfiguration.forPipeline;
+import static org.sing_group.compi.xmlio.entities.Pipeline.fromFile;
 
 import java.io.File;
 import java.util.HashSet;
@@ -41,7 +42,7 @@ public class ExceptionsTest {
     final int threadNumber = -2;
     final CompiApp compi =
       new CompiApp(
-        forFile(new File(pipelineFile))
+        forPipeline(fromFile(new File(pipelineFile)))
           .whichRunsAMaximumOf(threadNumber)
           .whichResolvesVariablesWith(simpleVariableResolver)
           .build()
@@ -55,7 +56,7 @@ public class ExceptionsTest {
     final int threadNumber = 0;
     final CompiApp compi =
       new CompiApp(
-        forFile(new File(pipelineFile))
+        forPipeline(fromFile(new File(pipelineFile)))
           .whichRunsAMaximumOf(threadNumber)
           .whichResolvesVariablesWith(simpleVariableResolver)
           .build()
@@ -69,7 +70,7 @@ public class ExceptionsTest {
     final String paramsFile = ClassLoader.getSystemResource("testParams.xml").getFile();
     final CompiApp compi =
       new CompiApp(
-        forFile(new File(pipelineFile))
+        forPipeline(fromFile(new File(pipelineFile)))
           .whichResolvesVariablesFromFile(new File(paramsFile))
           .build()
       );
@@ -82,7 +83,7 @@ public class ExceptionsTest {
     final String paramsFile = ClassLoader.getSystemResource("testParams.xml").getFile();
     final CompiApp compi =
       new CompiApp(
-        forFile(new File(pipelineFile))
+        forPipeline(fromFile(new File(pipelineFile)))
           .whichResolvesVariablesFromFile(new File(paramsFile))
           .build()
       );
@@ -96,21 +97,9 @@ public class ExceptionsTest {
     final String fromTask = "NonExistantId";
     final CompiApp compi =
       new CompiApp(
-        forFile(new File(pipelineFile))
+        forPipeline(fromFile(new File(pipelineFile)))
           .whichResolvesVariablesFromFile(new File(paramsFile))
           .whichStartsFromTask(fromTask)
-          .build()
-      );
-    compi.run();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNonExistantDependsOnID() throws Exception {
-    final String pipelineFile = ClassLoader.getSystemResource("pipelineNonExistantDependsOnID.xml").getFile();
-    final CompiApp compi =
-      new CompiApp(
-        forFile(new File(pipelineFile))
-          .whichResolvesVariablesWith(simpleVariableResolver)
           .build()
       );
     compi.run();
@@ -123,7 +112,7 @@ public class ExceptionsTest {
 
     final CompiApp compi =
       new CompiApp(
-        forFile(new File(pipelineFile))
+        forPipeline(fromFile(new File(pipelineFile)))
           .whichResolvesVariablesFromFile(new File(paramsFile))
           .build()
       );
@@ -138,7 +127,7 @@ public class ExceptionsTest {
     final String singleTask = "ID2";
     final CompiApp compi =
       new CompiApp(
-        forFile(new File(pipelineFile))
+        forPipeline(fromFile(new File(pipelineFile)))
           .whichRunsTheSingleTask(singleTask)
           .whichStartsFromTask(fromTask)
           .build()
@@ -153,7 +142,7 @@ public class ExceptionsTest {
     final String afterTask = "ID2";
     final CompiApp compi =
       new CompiApp(
-        forFile(new File(pipelineFile))
+        forPipeline(fromFile(new File(pipelineFile)))
           .whichStartsFromTask(fromTask)
           .whichRunsTasksAfterTask(afterTask)
           .build()

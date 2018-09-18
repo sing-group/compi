@@ -2,8 +2,9 @@ package org.sing_group.compi.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.sing_group.compi.core.CompiRunConfiguration.forFile;
+import static org.sing_group.compi.core.CompiRunConfiguration.forPipeline;
 import static org.sing_group.compi.tests.TestUtils.resolverFor;
+import static org.sing_group.compi.xmlio.entities.Pipeline.fromFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,7 +72,7 @@ public class RunnerTest {
 
     final CompiApp compi =
       new CompiApp(
-        forFile(new File(pipelineFile))
+        forPipeline(fromFile(new File(pipelineFile)))
           .whichRunsAMaximumOf(1)
           .whichRunsTasksUsingCustomRunners(new File(runnersFile))
           .whichResolvesVariablesWith(resolverFor("my_var", "hello"))

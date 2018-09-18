@@ -4,6 +4,7 @@ import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,7 +14,9 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.sing_group.compi.core.CompiApp;
+import org.sing_group.compi.core.CompiRunConfiguration;
 import org.sing_group.compi.core.TaskExecutionHandler;
+import org.sing_group.compi.core.loops.ForeachIteration;
 import org.sing_group.compi.core.resolver.MapVariableResolver;
 import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.xmlio.XMLParamsFileVariableResolver;
@@ -35,14 +38,20 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
   public static final String NAME = "run";
 
-  private static CompiApp compiApp;
+  private static CompiRunConfiguration config;
   private static String[] commandLineArgs;
-
+  private static CompiApp compiApp;
+  private static VariableResolver resolver = null;
+  
   public static RunSpecificPipelineCommand newRunSpecificPipelineCommand(
-    CompiApp compiApp, List<Option<?>> compiGeneralOptions, String[] commandLineArgs
-  ) {
-    RunSpecificPipelineCommand.compiApp = compiApp;
+    CompiRunConfiguration config, String[] commandLineArgs
+  ) throws IOException {
+    
+    config.setResolver(createPipelineVariableResolverProxy());
+    
+    RunSpecificPipelineCommand.config = config;
     RunSpecificPipelineCommand.commandLineArgs = commandLineArgs;
+    RunSpecificPipelineCommand.compiApp = new CompiApp(config);
 
     return new RunSpecificPipelineCommand();
   }
@@ -67,9 +76,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
   @Override
   public void execute(Parameters parameters) throws Exception {
 
-    VariableResolver pipelineVariableResolver = createPipelineVariableResolver(parameters);
-
-    compiApp.setResolver(pipelineVariableResolver);
+    RunSpecificPipelineCommand.resolver = createPipelineVariableResolver(parameters);
 
     compiApp.addTaskExecutionHandler(new TaskExecutionHandler() {
 
@@ -106,7 +113,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
               "<< Finished loop iteration of task " + task.getId() + " (command: " + task.getToExecute()
                 + ")"
             );
-            if (compiApp.getParentTask().get(task).isFinished()) {
+            if (((ForeachIteration)task).getParentForeachTask().isFinished()) {
               LOGGER.info(
                 "< Finished loop task " + task.getId() + " (command: " + task.getToExecute()
                   + ")"
@@ -128,6 +135,40 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
     });
     compiApp.run();
+  }
+
+  private static VariableResolver createPipelineVariableResolverProxy() {
+    // A proxy for the variable resolver. This proxy solves a tricky situation:
+    // 1. We need that CompiApp is created before the createOptions method is called, since we need that skipped tasks
+    // are computed (which is done inside CompiApp constructor)
+    // 2. The variableResolver, that is passed to CompiApp inside configuration, cannot be created until we receive the
+    // call to execute(Parameters), since the Parameters object is needed to create this variable resolver.
+    
+    // To solve this situation, we create CompiApp on the static newRunSpecificPipelineCommand (which is called before
+    // createOptions), but with a "proxy" variable resolver, that throws exceptions if its methods for resolving variables
+    // are called before we have the real resolver, which is constructed during execute(Parameters) call. Fortunately,
+    // nobody calls these variable resolving methods before execute, since we have not called CompiApp.run() yet.
+    return new VariableResolver() {
+  
+      @Override
+      public String resolveVariable(String variable) throws IllegalArgumentException {
+        if (resolver == null) {
+          // you should not see this, since resolveVariable is not called before compiApp.run() is called
+          throw new IllegalStateException("resolver has not been initialized");
+        }
+        return resolver.resolveVariable(variable);
+      }
+  
+      @Override
+      public Set<String> getVariableNames() {
+        if (resolver == null) {
+          // you should not see this, since resolveVariable is not called before compiApp.run() is called
+          throw new IllegalStateException("resolver has not been initialized");
+        }
+        return resolver.getVariableNames();
+      }
+      
+    };
   }
 
   private VariableResolver createPipelineVariableResolver(Parameters parameters) {
@@ -166,14 +207,9 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
   @Override
   protected List<Option<?>> createOptions() {
-    List<Option<?>> options = /* compiGeneralOptions; */ new ArrayList<>();
+    List<Option<?>> options = new ArrayList<>();
     try {
-      // find params file if it is available
-      /*
-       * for (int i = 0; i < CompiCLI.args.length; i++) { String arg =
-       * CompiCLI.args[i]; if (arg.equals("--pipeline") || arg.equals("-p")) {
-       */
-      Pipeline p = compiApp.getPipeline();
+      Pipeline p = config.getPipeline();
 
       p.getTasksByParameter().forEach((parameterName, tasks) -> {
         XMLParamsFileVariableResolver paramsFileResolver = getParamsFileResolver();
@@ -245,4 +281,6 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
     return resolver;
   }
+  
+  
 }

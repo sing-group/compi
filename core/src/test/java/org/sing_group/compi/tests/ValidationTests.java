@@ -2,6 +2,7 @@ package org.sing_group.compi.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.NON_DECLARED_PARAMETER;
+import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.NON_DECLARED_TASK_ID;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.XML_SCHEMA_VALIDATION_ERROR;
 
 import java.io.File;
@@ -20,43 +21,51 @@ public class ValidationTests {
   @Test
   public void testIncorrectXMLSyntaxRaisesError() {
     String pipelineName = "pipelineParsingException.xml";
-    
+
     List<ValidationError> errors = validatePipeline(pipelineName);
 
     assertEquals(1, numberOfErrorsOfType(XML_SCHEMA_VALIDATION_ERROR, errors));
   }
-  
+
   @Test
   public void testRepeatedParamDescriptionNameRaisesErrors() {
     String pipelineName = "pipelineRepeatedParamDescriptionName.xml";
-    
+
     List<ValidationError> errors = validatePipeline(pipelineName);
 
-    assertEquals(1, numberOfErrorsOfType(XML_SCHEMA_VALIDATION_ERROR, errors)); // ${pipeline}
+    assertEquals(1, numberOfErrorsOfType(XML_SCHEMA_VALIDATION_ERROR, errors));
   }
-  
+
   @Test
   public void testInvalidParameterName() {
     String pipelineName = "pipelineInvalidParameterName.xml";
-    
+
     List<ValidationError> errors = validatePipeline(pipelineName);
-    assertEquals(1, numberOfErrorsOfType(XML_SCHEMA_VALIDATION_ERROR, errors)); // ${pipeline}
+    assertEquals(1, numberOfErrorsOfType(XML_SCHEMA_VALIDATION_ERROR, errors));
   }
-  
+
   @Test
   public void testNonDeclaredParameter() {
     String pipelineName = "pipelineNonDeclaredParameter.xml";
-    
+
     List<ValidationError> errors = validatePipeline(pipelineName);
-    assertEquals(1, numberOfErrorsOfType(NON_DECLARED_PARAMETER, errors)); // ${pipeline}
+    assertEquals(1, numberOfErrorsOfType(NON_DECLARED_PARAMETER, errors));
   }
-  
+
+  @Test
+  public void testNonExistantAfterId() throws Exception {
+    String pipelineName = "pipelineNonExistantAfterID.xml";
+    List<ValidationError> errors = validatePipeline(pipelineName);
+
+    assertEquals(1, numberOfErrorsOfType(NON_DECLARED_TASK_ID, errors));
+  }
+
   private List<ValidationError> validatePipeline(String pipelineName) {
     PipelineValidator validator =
       new PipelineValidator(
         new File(ClassLoader.getSystemResource(pipelineName).getFile())
-        );
-    
+      );
+
     List<ValidationError> errors = validator.validate();
     return errors;
   }
