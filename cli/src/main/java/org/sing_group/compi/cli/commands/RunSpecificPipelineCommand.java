@@ -3,6 +3,7 @@ package org.sing_group.compi.cli.commands;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -143,7 +144,6 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
     });
 
     // options in the XML parameters file that have not been defined yet
-
     VariableResolver xmlResolver = getParamsFileResolver();
     if (xmlResolver != null) {
       xmlResolver.getVariableNames().forEach(variable -> {
@@ -238,7 +238,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
       if (arg.equals("--params") || arg.equals("-pa")) {
         resolver =
           new XMLParamsFileVariableResolver(
-            commandLineArgs[i + 1]
+            new File(commandLineArgs[i + 1])
           );
       }
     }

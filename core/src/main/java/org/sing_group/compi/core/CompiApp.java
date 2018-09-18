@@ -44,63 +44,43 @@ public class CompiApp implements TaskExecutionHandler {
   private VariableResolver resolver;
   private ExecutorService executorService;
   final File pipelineFile;
-  String paramsFile;
-  String threadNumber;
-  String advanceToTask;
   private final Map<Task, Task> parentTask = new HashMap<>();
   private final Map<Task, AtomicInteger> loopCount = new HashMap<>();
   private final List<TaskExecutionHandler> executionHandlers = new ArrayList<>();
   private RunnersManager runnersManager;
 
   /**
-   * Constructs the CompiApp
+   * Creates a Compi application for running a pipeline. The configuration of the execution is provided in a
+   * {@link CompiRunConfiguration} object.
    * 
-   * @param pipelineFile
-   *          the pipeline file
-   * @param threadNumber
-   *          the size of the thread pool
-   * @param resolver
-   *          an object to resolve variables
-   * @param fromTasks
-   *          the task to start the pipeline from, all previous dependencies are
-   *          skipped
-   * @param singleTask
-   *          run a single pipeline task
-   * @param errors
-   *          a list that will be filled with validation errors and warnings (if
-   *          any)
-   * @throws JAXBException
-   *           If there is an error in the XML unmarshal process
-   * @throws PipelineValidationException
-   *           If the validation process gives an error (not only warnings)
-   * @throws IOException
-   *           If a problem reading the pipeline file occurs
-   * @throws IllegalArgumentException
-   *           If the XML cannot be parsed or validated
+   * @param config The configuration of the execution
+   * @param errors An object to store pipeline validation errors
+   * 
+   * @throws PipelineValidationException If the pipeline cannot be executed due to a bad pipeline file
+   * @throws IllegalArgumentException If some of the configuration parameters are wrong
+   * @throws IOException If there is a problem accessing pipeline files, parameter files, etc.
    */
-
   public CompiApp(
-    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String singleTask,
-    final List<String> fromTasks, List<String> afterTasks, final String untilTask, final String beforeTask,
+    CompiRunConfiguration config,
     List<ValidationError> errors
-  ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
+  ) throws PipelineValidationException, IllegalArgumentException, IOException {
 
-    if (singleTask != null && (fromTasks != null || afterTasks != null || untilTask != null || beforeTask != null)) {
+    if (config.getSingleTask() != null && (config.getFromTasks() != null || config.getAfterTasks() != null || config.getUntilTask() != null || config.getBeforeTask() != null)) {
       throw new IllegalArgumentException("singleTask is incompatible with any of fromTask, untilTask and beforeTask");
     }
-    if (untilTask != null && beforeTask != null) {
+    if (config.getUntilTask() != null && config.getBeforeTask() != null) {
       throw new IllegalArgumentException("untilTask is incompatible with beforeTask");
     }
 
-    if (afterTasks != null && fromTasks != null) {
-      Set<String> afterTasksSet = new HashSet<>(afterTasks);
-      afterTasksSet.retainAll(new HashSet<>(fromTasks));
+    if (config.getAfterTasks() != null && config.getFromTasks() != null) {
+      Set<String> afterTasksSet = new HashSet<>(config.getAfterTasks());
+      afterTasksSet.retainAll(new HashSet<>(config.getFromTasks()));
       if (afterTasksSet.size() > 0) {
         throw new IllegalArgumentException("afterTasks and untilTasks cannot have tasks in common");
       }
     }
 
-    this.pipelineFile = new File(pipelineFile);
+    this.pipelineFile = config.getPipelineFile();
 
     PipelineValidator validator = new PipelineValidator(this.pipelineFile);
     List<ValidationError> _errors = validator.validate();
@@ -115,61 +95,52 @@ public class CompiApp implements TaskExecutionHandler {
     }
 
     this.pipeline = PipelineParserFactory.createPipelineParser().parsePipeline(this.pipelineFile);
-    this.resolver = resolver;
+    
+    if (config.getParamsFile() != null) {
+      this.resolver = new XMLParamsFileVariableResolver(config.getParamsFile());
+    } else {
+      this.resolver = config.getResolver();
+    }
 
     this.taskManager = new TaskManager(this, this.pipeline, this.resolver);
-    this.runnersManager = new RunnersManager(this.resolver);
+
+    if (config.getRunnersFile() != null) {
+      this.runnersManager = new RunnersManager(config.getRunnersFile(), this.pipeline, this.resolver);
+    } else {
+      this.runnersManager = new RunnersManager(this.resolver);
+    }
     
     initializePipeline();
 
-    if (singleTask != null) {
-      skipAllBut(singleTask);
+    if (config.getSingleTask() != null) {
+      skipAllBut(config.getSingleTask());
     } else {
-      if (fromTasks != null) {
-        for (String fromTask : fromTasks) {
+      if (config.getFromTasks() != null) {
+        for (String fromTask : config.getFromTasks()) {
           skipTasksBefore(fromTask);
         }
       }
-      if (afterTasks != null) {
-        for (String afterTask : afterTasks) {
+      if (config.getAfterTasks() != null) {
+        for (String afterTask : config.getAfterTasks()) {
           skipTasksBefore(afterTask);
           skipTask(afterTask);
         }
       }
-      if (untilTask != null) {
-        runUntil(untilTask);
-      } else if (beforeTask != null) {
-        runBefore(beforeTask);
+      if (config.getUntilTask() != null) {
+        runUntil(config.getUntilTask());
+      } else if (config.getBeforeTask() != null) {
+        runBefore(config.getBeforeTask());
       }
     }
 
-    initializeExecutorService(threadNumber);
+    initializeExecutorService(config.getMaxTasks());
   }
 
-  public CompiApp(
-    final String pipelineFile, final int threadNumber, final VariableResolver resolver, final String singleTask,
-    final List<String> fromTasks, final List<String> afterTasks, final String untilTask, String beforeTask
+  public CompiApp(CompiRunConfiguration config
   ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    this(pipelineFile, threadNumber, resolver, singleTask, fromTasks, afterTasks, untilTask, beforeTask, null);
+    this(config, null);
   }
 
-  public CompiApp(
-    final String pipelineFile, final int threadNumber, String paramsFile,
-    final String singleTask, final List<String> fromTasks, final List<String> afterTasks, final String untilTask,
-    String beforeTask, final List<ValidationError> errors
-  ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    this(
-      pipelineFile, threadNumber, new XMLParamsFileVariableResolver(paramsFile), singleTask, fromTasks, afterTasks, untilTask, beforeTask, errors
-    );
-  }
-
-  public CompiApp(
-    final String pipelineFile, final int threadNumber, String paramsFile,
-    final String singleTask, final List<String> fromTasks, final List<String> afterTasks, final String untilTask,
-    final String beforeTask
-  ) throws JAXBException, PipelineValidationException, IllegalArgumentException, IOException {
-    this(pipelineFile, threadNumber, paramsFile, singleTask, fromTasks, afterTasks, untilTask, beforeTask, null);
-  }
 
   /**
    * Executes all the {@link Task} in an {@link ExecutorService}. When a
@@ -509,10 +480,6 @@ public class CompiApp implements TaskExecutionHandler {
     this.resolver = resolver;
     this.taskManager.setResolver(resolver);
     this.runnersManager.setResolver(resolver);
-  }
-
-  public void setRunnersConfiguration(File runnersXML) throws IllegalArgumentException, IOException {
-    this.runnersManager = new RunnersManager(runnersXML, this.pipeline, this.resolver);
   }
 
   private static class DummyProcess extends Process {

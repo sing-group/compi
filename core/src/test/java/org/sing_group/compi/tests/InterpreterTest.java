@@ -1,6 +1,8 @@
 package org.sing_group.compi.tests;
 
 import static org.junit.Assert.assertTrue;
+import static org.sing_group.compi.core.CompiRunConfiguration.forFile;
+import static org.sing_group.compi.tests.TestUtils.resolverFor;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +27,6 @@ public class InterpreterTest {
     final File outputFileAwk = new File("/tmp/interpreter-output-awk");
     final File outputFilePython = new File("/tmp/interpreter-output-python");
 
-
     inputFile.delete();
     outputFileAwk.delete();
     outputFilePython.delete();
@@ -39,9 +40,15 @@ public class InterpreterTest {
 
     final CompiApp compi =
       new CompiApp(
-        pipelineFile, 1, TestUtils.resolverFor(
-          "input_file", inputFile.getAbsolutePath(), "output_file_awk", outputFileAwk.getAbsolutePath(), "output_file_python", outputFilePython.getAbsolutePath()
-        ), null, null, null, null, null
+        forFile(new File(pipelineFile))
+          .whichResolvesVariablesWith(
+            resolverFor(
+              "input_file", inputFile.getAbsolutePath(),
+              "output_file_awk", outputFileAwk.getAbsolutePath(),
+              "output_file_python", outputFilePython.getAbsolutePath()
+            )
+          )
+          .build()
       );
 
     compi.run();

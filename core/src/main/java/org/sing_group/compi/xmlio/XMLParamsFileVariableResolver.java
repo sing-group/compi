@@ -30,12 +30,12 @@ public class XMLParamsFileVariableResolver implements VariableResolver {
 
 	private MapVariableResolver mapResolver;
 	/**
-	 * @param xmlParamsPath
+	 * @param xmlParamsFile
 	 *            Indicates the path of the params file
 	 */
-	public XMLParamsFileVariableResolver(final String xmlParamsPath) {
-		if (xmlParamsPath != null) {
-		  this.xmlParamsFile = new File(xmlParamsPath);
+	public XMLParamsFileVariableResolver(final File xmlParamsFile) {
+		if (xmlParamsFile != null) {
+		  this.xmlParamsFile = xmlParamsFile;
 		  if (!this.xmlParamsFile.exists()) {
 	      throw new IllegalArgumentException("Params file " + this.xmlParamsFile.toString() + " does not exist");
 	    }

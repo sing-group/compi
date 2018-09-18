@@ -4,6 +4,7 @@ import static java.lang.System.arraycopy;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static org.sing_group.compi.cli.PipelineCLIApplication.newPipelineCLIApplication;
+import static org.sing_group.compi.core.CompiRunConfiguration.forFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,8 +14,8 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.sing_group.compi.core.CompiApp;
+import org.sing_group.compi.core.CompiRunConfiguration;
 import org.sing_group.compi.core.PipelineValidationException;
-import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.core.validation.ValidationError;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
@@ -64,7 +65,7 @@ public class RunCommand extends AbstractCommand {
       + "is incompatible with --" + SINGLE_TASK_LONG;
   private static final String SINGLE_TASK_DESCRIPTION =
     "runs a single task "
-      + "without its depencendies. This option is incompatible with --" + FROM_LONG + ", --" + AFTER_LONG + 
+      + "without its depencendies. This option is incompatible with --" + FROM_LONG + ", --" + AFTER_LONG +
       ", --" + UNTIL_TASK_LONG + " and --" + BEFORE_TASK_LONG;
   private static final String UNTIL_TASK_DESCRIPTION =
     "runs until a task (inclusive) "
@@ -129,6 +130,14 @@ public class RunCommand extends AbstractCommand {
       }
     }
 
+    File runnersFile = null;
+    if (parameters.hasOption(super.getOption(RUNNERS_CONFIG_FILE))) {
+      runnersFile = new File(parameters.getSingleValueString(super.getOption(RUNNERS_CONFIG_FILE)));
+      if (!runnersFile.exists()) {
+        throw new IllegalArgumentException("The runners file does not exist: " + runnersFile);
+      }      
+    }
+    
     String singleTask =
       hasSingleTask
         ? parameters.getSingleValueString(super.getOption(SINGLE_TASK))
@@ -150,6 +159,9 @@ public class RunCommand extends AbstractCommand {
       LOGGER.info("Params file - " + parameters.getSingleValue(super.getOption(PARAMS_FILE)));
     }
 
+    if (runnersFile != null) {
+      LOGGER.info("Runners file - " + runnersFile);
+    }
     if (singleTask != null) {
       LOGGER.info("Running single task - " + singleTask);
     }
@@ -169,22 +181,24 @@ public class RunCommand extends AbstractCommand {
     }
 
     try {
-      List<ValidationError> errors = new ArrayList<>();
+
+      final List<ValidationError> errors = new ArrayList<>();
       compi =
         new CompiApp(
-          pipelineFile, compiThreads, (VariableResolver) null,
-          singleTask, fromTasks, afterTasks, untilTask, beforeTask, errors
+          buildConfiguration(
+            pipelineFile,
+            runnersFile,
+            compiThreads,
+            fromTasks,
+            afterTasks,
+            singleTask,
+            untilTask,
+            beforeTask
+          ),
+          errors
         );
-      logValidationErrors(errors);
 
-      if (parameters.hasOption(super.getOption(RUNNERS_CONFIG_FILE))) {
-        File runnersFile = new File(parameters.getSingleValueString(super.getOption(RUNNERS_CONFIG_FILE)));
-        if (!runnersFile.exists()) {
-          throw new IllegalArgumentException("The runners file does not exist: " + runnersFile);
-        }
-        LOGGER.info("Runners file - " + runnersFile);
-        compi.setRunnersConfiguration(runnersFile);
-      }
+      logValidationErrors(errors);
 
       CLIApplication pipelineApplication =
         newPipelineCLIApplication(
@@ -200,6 +214,38 @@ public class RunCommand extends AbstractCommand {
       e.printStackTrace();
       LOGGER.severe(e.getClass() + ": " + e.getMessage());
     }
+  }
+
+  private CompiRunConfiguration buildConfiguration(
+    String pipelineFile, File runnersFile, Integer compiThreads, List<String> fromTasks, List<String> afterTasks, String singleTask,
+    String untilTask, String beforeTask
+  ) {
+    
+    final CompiRunConfiguration.Builder builder = forFile(new File(pipelineFile));
+    builder.whichRunsAMaximumOf(compiThreads);
+    
+    if (runnersFile != null) {
+      builder.whichRunsTasksUsingCustomRunners(runnersFile);
+    }
+    
+    if (singleTask != null) {
+      builder.whichRunsTheSingleTask(singleTask);
+    }
+    if (fromTasks != null) {
+      builder.whichStartsFromTasks(fromTasks);
+    }
+    if (afterTasks != null) {
+      builder.whichRunsTasksAfterTasks(afterTasks);
+    }
+    if (untilTask != null) {
+      builder.whichRunsUntilTask(untilTask);
+    }
+    if (beforeTask != null) {
+      builder.whichRunsTasksBeforeTask(beforeTask);
+    }
+
+    CompiRunConfiguration configuration = builder.build();
+    return configuration;
   }
 
   @Override
