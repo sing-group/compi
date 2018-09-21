@@ -2,10 +2,11 @@
 <pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<params>
-		<param name="param-1" shortName="p1">parameter 1</param>
+		<param name="param" shortName="p1">parameter 1</param>
+		<param name="param-2" shortName="p2">parameter 2</param>
 	</params>
 	<tasks>
-		<task id="ID-1" params="param-1">
+		<task id="ID-1" params="param">
 			echo "pipeline is an illegal parameter name" ${param-1}
 		</task>
 	</tasks>

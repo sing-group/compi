@@ -41,8 +41,8 @@
 	<complexType name="param">
 		<simpleContent>
 			<extension base="string">
-				<attribute name="name" type="string" use="required" />
-				<attribute name="shortName" type="string" use="required" />
+				<attribute name="name" type="cp:paramName" use="required" />
+				<attribute name="shortName" type="cp:paramName" use="required" />
 				<attribute name="defaultValue" type="string" />
 			</extension>
 		</simpleContent>
