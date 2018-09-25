@@ -2,6 +2,13 @@ package org.sing_group.compi.tests;
 
 import static java.io.File.createTempFile;
 import static java.util.Arrays.asList;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.capture;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.newCapture;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.sing_group.compi.core.CompiRunConfiguration.forPipeline;
@@ -13,8 +20,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.easymock.Capture;
+import org.easymock.EasyMock;
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.TaskExecutionHandler;
@@ -171,6 +183,115 @@ public class PipelineTest {
     }
   }
 
+  @Test
+  public void testTaskExecutionHandler() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("testExecutionHandler.xml").getFile();
+    final CompiApp compi =
+      new CompiApp(
+        forPipeline(fromFile(new File(pipelineFile)))
+        .whichRunsUntilTask("ID4") //so we check that do not receive any event from ID5
+        .whichRunsAMaximumOf(1)
+          .build()
+      );
+
+    Map<String, Task> tasksById = compi.getPipeline().getTasks().stream().collect(Collectors.toMap(Task::getId, Function.identity()));
+  
+//    TestExecutionHandler handler = new TestExecutionHandler();
+    
+    @SuppressWarnings("unchecked")
+    final Capture<ForeachIteration>[] capturesForTaskID1 = new Capture[6];
+    for (int i = 0; i < capturesForTaskID1.length; i++) {
+      capturesForTaskID1[i] = newCapture();
+    }
+    @SuppressWarnings("unchecked")
+    final Capture<ForeachIteration>[] capturesForTaskID3 = new Capture[4];
+    for (int i = 0; i < capturesForTaskID3.length; i++) {
+      capturesForTaskID3[i] = newCapture();
+    }
+    @SuppressWarnings("unchecked")
+    final Capture<ForeachIteration>[] capturesForTaskID4 = new Capture[6];
+    for (int i = 0; i < capturesForTaskID4.length; i++) {
+      capturesForTaskID4[i] = newCapture();
+    }
+    
+    TaskExecutionHandler handler = EasyMock.mock(TaskExecutionHandler.class);
+    
+    // ID1
+    
+    // the whole loop task ID1 starts...
+    handler.taskStarted(tasksById.get("ID1"));
+    expectLastCall();
+    
+    // ID1: iteration 1, which ends normally
+    handler.taskIterationStarted(capture(capturesForTaskID1[0]));
+    expectLastCall();
+    handler.taskIterationFinished(capture(capturesForTaskID1[1]));
+    expectLastCall();
+    
+    // ID1: iteration 2, which ends normally
+    handler.taskIterationStarted(capture(capturesForTaskID1[2]));
+    expectLastCall();
+    handler.taskIterationFinished(capture(capturesForTaskID1[3]));
+    expectLastCall();
+    
+    // ID1: iteration 3, which ends normally
+    handler.taskIterationStarted(capture(capturesForTaskID1[4]));
+    expectLastCall();
+    handler.taskIterationFinished(capture(capturesForTaskID1[5]));
+    expectLastCall();
+    
+    // The whole task ID1 ends normally
+    handler.taskFinished(tasksById.get("ID1"));
+    expectLastCall();
+    
+    // ID2, a simple task which starts and ends normally
+    handler.taskStarted(tasksById.get("ID2"));
+    expectLastCall();
+    handler.taskFinished(tasksById.get("ID2"));
+    expectLastCall();
+    
+    // ID3
+    handler.taskStarted(tasksById.get("ID3"));
+    expectLastCall();
+    handler.taskIterationStarted(capture(capturesForTaskID3[0]));
+    expectLastCall();
+    
+    // ID3: iteration 1, which aborts so the whole task will abort
+    handler.taskIterationAborted(capture(capturesForTaskID3[1]), anyObject());
+    expectLastCall();
+    
+    // the whole task ID3 aborts...
+    handler.taskAborted(eq(tasksById.get("ID3")), anyObject());
+    expectLastCall();
+    
+    // ID3: iteration 2, which aborts because ID3 aborted
+    handler.taskIterationStarted(capture(capturesForTaskID3[2]));
+    expectLastCall();
+    handler.taskIterationAborted(capture(capturesForTaskID3[3]), anyObject());
+    expectLastCall();
+    
+    // task ID4 aborts because it depends on ID3
+    handler.taskAborted(eq(tasksById.get("ID4")), anyObject());
+    expectLastCall();
+    
+    replay(handler);
+    
+    compi.addTaskExecutionHandler(handler);
+    compi.run();
+    
+    verify(handler);
+    
+    for (int i = 0; i < capturesForTaskID1.length; i++) {
+		assertEquals("ID1", capturesForTaskID1[i].getValue().getId());
+	}
+	for (int i = 0; i < capturesForTaskID3.length; i++) {
+		assertEquals("ID3", capturesForTaskID3[i].getValue().getId());
+	}
+	assertEquals("2", capturesForTaskID1[0].getValue().getIterationValue());
+	assertEquals("2", capturesForTaskID1[1].getValue().getIterationValue());
+	assertEquals("-errorj", capturesForTaskID3[0].getValue().getIterationValue());
+  }
+  
   @Test
   public void testSkipTasks() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("testSkipTasks.xml").getFile();
@@ -565,7 +686,7 @@ public class PipelineTest {
 
     assertEquals(4, handler.getStartedTasks().size());
     assertEquals(3, handler.getFinishedTasksIncludingLoopChildren().size());
-    assertEquals(4, handler.getAbortedTasks().size());
+    assertEquals(3, handler.getAbortedTasks().size());
   }
 
   private static class TestExecutionHandler implements TaskExecutionHandler {
@@ -577,26 +698,13 @@ public class PipelineTest {
 
     @Override
     synchronized public void taskStarted(Task task) {
-      if (task instanceof Foreach && !startedForeachs.contains(task.getId())) {
-        startedTasks.add(task.getId());
-        startedForeachs.add(task.getId());
-      } else if (!(task instanceof Foreach)) {
-        startedTasks.add(task.getId());
-      }
+      startedTasks.add(task.getId());
     }
 
     @Override
     public void taskFinished(Task task) {
-      if (task instanceof Foreach) {
-        final Task parent = ((ForeachIteration)task).getParentForeachTask();
-        if (parent.isFinished()) {
-          finishedTasks.add(parent.getId());
-        }
-      } else {
-        finishedTasks.add(task.getId());
-      }
-
-      finishedTasksIncludingLoopChildren.add(task.getId());
+      finishedTasks.add(task.getId());
+      if (!(task instanceof Foreach)) finishedTasksIncludingLoopChildren.add(task.getId());
     }
 
     @Override
@@ -618,6 +726,21 @@ public class PipelineTest {
 
     public List<String> getFinishedTasksIncludingLoopChildren() {
       return finishedTasksIncludingLoopChildren;
+    }
+    
+    @Override
+    public void taskIterationStarted(ForeachIteration iteration) {
+      startedForeachs.add(iteration.getParentForeachTask().getId());
+      
+    }
+
+    @Override
+    public void taskIterationFinished(ForeachIteration iteration) {
+      finishedTasksIncludingLoopChildren.add(iteration.getParentForeachTask().getId());
+    }
+
+    @Override
+    public void taskIterationAborted(ForeachIteration iteration, Exception e) {
     }
   }
 

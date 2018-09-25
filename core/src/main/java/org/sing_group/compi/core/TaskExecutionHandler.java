@@ -1,37 +1,76 @@
 package org.sing_group.compi.core;
 
+import org.sing_group.compi.core.loops.ForeachIteration;
+import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Task;
 
 /**
- * Indicates when a {@link Task} is started/finished/aborted
+ * An interface to listen to pipeline task's execution lifecycle
  * 
- * @author Jesus Alvarez Casanova
- *
+ * You can add objects of this interface in
+ * {@link CompiApp#addTaskExecutionHandler(TaskExecutionHandler)}
+ * 
  */
 public interface TaskExecutionHandler {
+	
 	/**
-	 * Indicates when a {@link Task} has been started
+	 * Called when a {@link Task} has been started
+	 * 
+	 * If the task is a foreach loop, this is called once per loop
 	 * 
 	 * @param task
-	 *            Indicates the {@link Task} which has been started
+	 *            the task that has been started. If the task
+	 *            is a loop, the concrete class will be {@link Foreach}
 	 */
 	void taskStarted(Task task);
-
+	
 	/**
-	 * Indicates when a {@link Task} has been finished
+	 * Called when a {@link Task} has been finished
+	 * 
+	 * If the task is a foreach loop, this is called once per loop
 	 * 
 	 * @param task
-	 *            Indicates the {@link Task} which has been finished
+	 *            the task that has been finished. If the task
+	 *            is a loop, the concrete class will be {@link Foreach}
 	 */
 	void taskFinished(Task task);
 
 	/**
-	 * Indicates when a {@link Task} has been aborted
+	 * Called when a {@link Task} has been aborted
+	 * 
+	 * If the task is a foreach loop, this is called once per loop
 	 * 
 	 * @param task
-	 *            Indicates the {@link Task} which has been aborted
+	 *            The task that has been aborted. If the task
+	 *            is a loop, the concrete class will be {@link Foreach}
 	 * @param e
-	 *            Indicates the {@link Exception} which causes the error
+	 * 			  The error that caused the task abortion
 	 */
 	void taskAborted(Task task, Exception e);
+	
+	/**
+	 * Called when a {@link Foreach} iteration has started
+	 * 
+	 * @param iteration
+	 *            the iteration that has been started.
+	 */
+	void taskIterationStarted(ForeachIteration iteration);
+
+	/**
+	 * Called when a {@link Foreach} iteration has finished
+	 * 
+	 * @param iteration
+	 *            the iteration that has been finished.
+	 */
+	void taskIterationFinished(ForeachIteration iteration);
+
+	/**
+	 * Called when a {@link Foreach} iteration has aborted
+	 * 
+	 * @param iteration
+	 *            the iteration that has been finished.
+	 * @param e
+	 * 			  The error that caused the task abortion
+	 */
+	void taskIterationAborted(ForeachIteration iteration, Exception e);
 }

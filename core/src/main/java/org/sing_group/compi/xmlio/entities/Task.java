@@ -291,5 +291,10 @@ public class Task implements Cloneable {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	@Override
+	public String toString() {
+	  return "Task[class: "+this.getClass().getSimpleName()+" id: "+this.id+"]";
+	}
 
 }

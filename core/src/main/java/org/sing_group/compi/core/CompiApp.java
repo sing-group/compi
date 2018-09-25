@@ -139,7 +139,7 @@ public class CompiApp {
     synchronized (syncMonitor) {
       while (!taskManager.getTasksLeft().isEmpty()) {
         for (final Task taskToRun : taskManager.getRunnableTasks()) {
-          taskManager.taskStarted(taskToRun);
+          taskManager.setRunning(taskToRun);
           if (taskToRun instanceof Foreach) {
             taskManager.initializeForEach((Foreach) taskToRun);
             loopCounterOfTask.put(
@@ -213,7 +213,7 @@ public class CompiApp {
   }
 
   private void initializeTaskManager() {
-    this.taskManager = new TaskManager(this.executionHandler, this.pipeline, this.resolver);
+    this.taskManager = new TaskManager(this.pipeline, this.resolver);
     this.taskManager.initializeDependencies();
   }
 
@@ -339,6 +339,10 @@ public class CompiApp {
   }
 
   private class CompiExecutionHandler implements TaskExecutionHandler {
+    
+    private Set<Foreach> foreachStartNotificationsSent = new HashSet<>();
+    private Set<Foreach> foreachAbortedNotificationsSent = new HashSet<>();
+    
     /**
      * Indicates that a {@link Task} is started
      * 
@@ -360,16 +364,8 @@ public class CompiApp {
     @Override
     public void taskFinished(final Task task) {
       synchronized (syncMonitor) {
-        if (task instanceof ForeachIteration) {
-          final Task parent = ((ForeachIteration) task).getParentForeachTask();
-          if (loopCounterOfTask.get(parent).decrementAndGet() <= 0) {
-            taskManager.taskFinished(parent);
-            syncMonitor.notify();
-          }
-        } else {
-          taskManager.taskFinished(task);
-          syncMonitor.notify();
-        }
+        taskManager.setFinished(task);
+        syncMonitor.notify();
         if (!task.isSkipped()) {
           this.notifyTaskFinished(task);
         }
@@ -388,10 +384,67 @@ public class CompiApp {
     public void taskAborted(final Task task, final Exception e) {
       synchronized (syncMonitor) {
         notifyTaskAborted(task, e);
-        taskManager.taskAborted(task, e);
+        taskManager.setAborted(task, e);
+        abortDependencies(task, e);
         syncMonitor.notify();
       }
     }
+    
+    @Override
+    public void taskIterationStarted(ForeachIteration iteration) {
+      synchronized (syncMonitor) {
+      if (!foreachStartNotificationsSent.contains(iteration.getParentForeachTask())) {
+        this.notifyTaskStarted(iteration.getParentForeachTask());
+        foreachStartNotificationsSent.add(iteration.getParentForeachTask());
+      }
+      if (!iteration.isSkipped())
+        this.notifyTaskIterationStarted(iteration);
+      }
+    }
+
+
+    @Override
+    public void taskIterationFinished(ForeachIteration iteration) {
+      synchronized (syncMonitor) {
+        final Task parent = iteration.getParentForeachTask();
+        if (loopCounterOfTask.get(parent).decrementAndGet() <= 0) {
+          taskManager.setFinished(parent);
+          if (!iteration.isSkipped()) {
+            this.notifyTaskFinished(iteration.getParentForeachTask());
+          }
+          syncMonitor.notify();
+        }
+        if (!iteration.isSkipped()) {
+          this.notifyTaskIterationFinished(iteration);
+        }
+      }
+    }
+
+    @Override
+    public void taskIterationAborted(ForeachIteration iteration, Exception e) {
+      synchronized (syncMonitor) {
+        this.notifyTaskIterationAborted(iteration, e);
+        if (!foreachAbortedNotificationsSent.contains(iteration.getParentForeachTask())) {
+          this.notifyTaskAborted(iteration.getParentForeachTask(), e);
+          taskManager.setAborted(iteration.getParentForeachTask(), e);
+          abortDependencies(iteration, e);
+          foreachAbortedNotificationsSent.add(iteration.getParentForeachTask());
+          syncMonitor.notify();
+        }
+      }
+    }
+
+    private void abortDependencies(Task task, Exception e) {
+      for (final String taskToAbort : taskManager.getDependencies().get(task.getId())) {
+        if (taskManager.getTasksLeft().contains(taskToAbort)) {
+          if (!taskManager.getTasksById().get(taskToAbort).isSkipped()) {
+            notifyTaskAborted(taskManager.getTasksById().get(taskToAbort), e);
+          }
+          taskManager.setAborted(taskManager.getTasksById().get(taskToAbort), e);
+        }
+      }
+    }
+
 
     /**
      * Indicates that a {@link Task} is started to an external
@@ -432,6 +485,24 @@ public class CompiApp {
     private void notifyTaskAborted(final Task task, final Exception e) {
       for (final TaskExecutionHandler handler : executionHandlers) {
         handler.taskAborted(task, e);
+      }
+    }
+    
+    private void notifyTaskIterationFinished(ForeachIteration iteration) {
+      for (final TaskExecutionHandler handler : executionHandlers) {
+        handler.taskIterationFinished(iteration);
+      }
+    }
+    
+    private void notifyTaskIterationAborted(ForeachIteration iteration, Exception e) {
+      for (final TaskExecutionHandler handler : executionHandlers) {
+        handler.taskIterationAborted(iteration, e);
+      }
+    }
+
+    private void notifyTaskIterationStarted(ForeachIteration iteration) {
+      for (final TaskExecutionHandler handler : executionHandlers) {
+        handler.taskIterationStarted(iteration);
       }
     }
   }

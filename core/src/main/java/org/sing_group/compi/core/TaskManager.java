@@ -29,9 +29,8 @@ import org.sing_group.compi.xmlio.entities.Task;
  * @author Jesus Alvarez Casanova
  * @author Daniel Glez-Peña
  */
-public class TaskManager implements TaskExecutionHandler {
+public class TaskManager {
 
-  private final TaskExecutionHandler handler;
   private final Map<String, Task> tasksById = new ConcurrentHashMap<>();
   private final List<String> tasksLeft = new CopyOnWriteArrayList<>();
   private final Map<String, Set<String>> dependencies = new ConcurrentHashMap<>();
@@ -39,12 +38,10 @@ public class TaskManager implements TaskExecutionHandler {
   private VariableResolver variableResolver;
 
   /**
-   * @param handler Indicates the {@link TaskExecutionHandler}
    * @param pipeline Indicates the {@link Pipeline}
    * @param resolver Indicates the {@link VariableResolver}
    */
-  public TaskManager(final TaskExecutionHandler handler, final Pipeline pipeline, final VariableResolver resolver) {
-    this.handler = handler;
+  public TaskManager(final Pipeline pipeline, final VariableResolver resolver) {
     this.variableResolver = resolver;
     for (final Task p : pipeline.getTasks()) {
       this.tasksById.put(p.getId(), p);
@@ -67,11 +64,6 @@ public class TaskManager implements TaskExecutionHandler {
    */
   public List<Task> getRunnableTasks() {
     List<Task> runnableTasks = new ArrayList<Task>();
-    /*
-     * if (this.firstExecution) { this.firstExecution = false; DAG.forEach((key,
-     * value) -> { if (value.getAfter() == null) { runnableTasks.add(value); }
-     * }); } else {
-     */
     for (final String taskId : this.tasksLeft) {
       final Task task = tasksById.get(taskId);
       if (!task.isFinished() && checkTaskDependencies(task)) {
@@ -109,26 +101,39 @@ public class TaskManager implements TaskExecutionHandler {
   }
 
   /**
-   * Verifies that exist all the IDs contained in the {@link Task} attribute
-   * "after"
+   * Getter of the DAG attribute
    * 
-   * @throws IllegalArgumentException If the {@link Task} ID contained in the
-   *           after attribute doesn't exist
+   * @return The value of the DAG attribute
    */
-  public void checkAfterIds() throws IllegalArgumentException {
-    for (final String tasks : this.tasksLeft) {
-      final Task task = tasksById.get(tasks);
-      if (task.getAfter() != null) {
-        for (final String afterId : task.getAfter().split(",")) {
-          if (!tasksById.containsKey(afterId)) {
-            throw new IllegalArgumentException(
-              "The IDs contained in the after attribute of the task " + task.getId()
-                + " aren't correct: " + task.getAfter()
-            );
-          }
-        }
-      }
-    }
+  public Map<String, Task> getTasksById() {
+    return tasksById;
+  }
+
+  /**
+   * Getter of the tasksLeft attribute
+   * 
+   * @return The value of the tasksLeft attribute
+   */
+  public List<String> getTasksLeft() {
+    return tasksLeft;
+  }
+
+  /**
+   * Getter of the dependencies attribute
+   * 
+   * @return The value of the dependencies attribute
+   */
+  public Map<String, Set<String>> getDependencies() {
+    return dependencies;
+  }
+
+  /**
+   * Getter of the forEachTasks attribute
+   * 
+   * @return The value of the forEachTasks attribute
+   */
+  public Map<String, List<ForeachIteration>> getForEachTasks() {
+    return forEachTasks;
   }
 
   /**
@@ -262,90 +267,23 @@ public class TaskManager implements TaskExecutionHandler {
       if (!v.getId().equals(task)) {
         v.setSkipped(true);
       }
-
     });
   }
 
-  /**
-   * Marks a {@link Task} as started
-   * 
-   * @param task Indicates the {@link Task} which has been started
-   */
-  @Override
-  synchronized public void taskStarted(final Task task) {
+  synchronized public void setRunning(final Task task) {
     this.getTasksById().get(task.getId()).setRunning(true);
-
     this.getTasksLeft().remove(task.getId());
   }
 
-  /**
-   * Marks a {@link Task} as finished
-   * 
-   * @param task Indicates the {@link Task} which has been started
-   */
-  @Override
-  synchronized public void taskFinished(final Task task) {
+  synchronized public void setFinished(final Task task) {
     this.getTasksById().get(task.getId()).setFinished(true);
     this.getTasksById().get(task.getId()).setRunning(false);
   }
 
-  /**
-   * Marks a {@link Task} as aborted and aborts all the {@link Task} which has
-   * as dependency of the aborted {@link Task}
-   * 
-   * @param task Indicates the {@link Task} which has been aborted
-   * @param e Indicates the {@link Exception} which causes the error
-   */
-  @Override
-  public void taskAborted(final Task task, final Exception e) {
+  public void setAborted(final Task task, final Exception e) {
     this.getTasksById().get(task.getId()).setAborted(true);
     this.getTasksById().get(task.getId()).setRunning(false);
-    for (final String taskToAbort : this.getDependencies().get(task.getId())) {
-      if (this.getTasksLeft().contains(taskToAbort)) {
-        if (!this.getTasksById().get(taskToAbort).isSkipped())
-          handler.taskAborted(this.getTasksById().get(taskToAbort), e);
-        this.getTasksLeft().remove(taskToAbort);
-      }
-    }
+    this.getTasksLeft().remove(task.getId());
   }
 
-  /**
-   * Getter of the DAG attribute
-   * 
-   * @return The value of the DAG attribute
-   */
-  public Map<String, Task> getTasksById() {
-    return tasksById;
-  }
-
-  /**
-   * Getter of the tasksLeft attribute
-   * 
-   * @return The value of the tasksLeft attribute
-   */
-  public List<String> getTasksLeft() {
-    return tasksLeft;
-  }
-
-  /**
-   * Getter of the dependencies attribute
-   * 
-   * @return The value of the dependencies attribute
-   */
-  public Map<String, Set<String>> getDependencies() {
-    return dependencies;
-  }
-
-  /**
-   * Getter of the forEachTasks attribute
-   * 
-   * @return The value of the forEachTasks attribute
-   */
-  public Map<String, List<ForeachIteration>> getForEachTasks() {
-    return forEachTasks;
-  }
-
-  public void setResolver(VariableResolver variableResolver) {
-    this.variableResolver = variableResolver;
-  }
 }

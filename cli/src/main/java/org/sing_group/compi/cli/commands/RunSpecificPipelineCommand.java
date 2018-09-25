@@ -93,11 +93,6 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
             );
             startedForeachs.add(task.getId());
           }
-          LOGGER.info(
-            ">> Started loop iteration of task " + task.getId() + " (command: " + task.getToExecute()
-              + ") (stdout log: " + (task.getFileLog() == null ? "none" : task.getFileLog()) + ", stderr log: "
-              + (task.getFileErrorLog() == null ? "none" : task.getFileErrorLog()) + ")"
-          );
         } else {
           LOGGER.info("> Started task " + task.getId() + " (command: " + task.getToExecute() + ")");
         }
@@ -110,15 +105,9 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
         } else {
           if (task instanceof Foreach) {
             LOGGER.info(
-              "<< Finished loop iteration of task " + task.getId() + " (command: " + task.getToExecute()
+              "< Finished loop task " + task.getId() + " (command: " + task.getToExecute()
                 + ")"
             );
-            if (((ForeachIteration)task).getParentForeachTask().isFinished()) {
-              LOGGER.info(
-                "< Finished loop task " + task.getId() + " (command: " + task.getToExecute()
-                  + ")"
-              );
-            }
           } else {
             LOGGER.info("< Finished task " + task.getId() + " (command: " + task.getToExecute() + ")");
           }
@@ -133,6 +122,31 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
         );
       }
 
+      @Override
+      public void taskIterationStarted(ForeachIteration iteration) {
+        LOGGER.info(
+          ">> Started loop iteration of task " + iteration.getId() + " (command: " + iteration.getToExecute()
+            + ") (stdout log: " + (iteration.getFileLog() == null ? "none" : iteration.getFileLog()) + ", stderr log: "
+            + (iteration.getFileErrorLog() == null ? "none" : iteration.getFileErrorLog()) + ")"
+        );
+      }
+
+      @Override
+      public void taskIterationFinished(ForeachIteration iteration) {
+        LOGGER.info(
+          "<< Finished loop iteration of task " + iteration.getId() + " (command: " + iteration.getToExecute()
+            + ")"
+        );
+      }
+
+      @Override
+      public void taskIterationAborted(ForeachIteration iteration, Exception e) {
+        LOGGER.severe(
+          "X Aborted loop iteration of task " + iteration.getId() + " (command: " + iteration.getToExecute() + ") Cause - "
+            + e.getClass() + ": " + e.getMessage()
+        );
+        
+      }
     });
     compiApp.run();
   }

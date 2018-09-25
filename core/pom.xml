@@ -48,13 +48,20 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-		    <groupId>guru.nidi</groupId>
-		    <artifactId>graphviz-java</artifactId>
+			<groupId>guru.nidi</groupId>
+			<artifactId>graphviz-java</artifactId>
 		</dependency>
 		<dependency>
-		   <groupId>ch.qos.logback</groupId>
-		   <artifactId>logback-classic</artifactId>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymock</artifactId>
+			<version>3.6</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -244,6 +244,24 @@ public class SwingDemo {
           consoleTextArea.update(consoleTextArea.getGraphics());
         }
 
+        @Override
+        public void taskIterationStarted(ForeachIteration iteration) {
+          // TODO Auto-generated method stub
+          
+        }
+
+        @Override
+        public void taskIterationFinished(ForeachIteration iteration) {
+          // TODO Auto-generated method stub
+          
+        }
+
+        @Override
+        public void taskIterationAborted(ForeachIteration iteration, Exception e) {
+          // TODO Auto-generated method stub
+          
+        }
+
       });
       compi.run();
     } catch (
