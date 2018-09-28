@@ -1,8 +1,10 @@
 package org.sing_group.compi.io.graph;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import org.sing_group.compi.io.graph.PipelineGraphExporter.DrawParams;
@@ -30,6 +32,8 @@ public class PipelineGraphExporterBuilder {
   private int lineWidth = DEFAULT_LINE_WIDTH;
   private Map<String, String> taskToRgbColor = emptyMap();
   private Map<String, String> taskToStyle = emptyMap();
+  private List<String> tasksToIncludeParams = emptyList();
+  private List<String> tasksToExcludeParams = emptyList();
 
   public PipelineGraphExporterBuilder(File pipeline, File output) {
     this.pipeline = pipeline;
@@ -81,6 +85,18 @@ public class PipelineGraphExporterBuilder {
     return this;
   }
 
+  public PipelineGraphExporterBuilder tasksToIncludeParams(List<String> taskToIncludeParams) {
+    this.tasksToIncludeParams = taskToIncludeParams;
+    this.tasksToExcludeParams = emptyList();
+    return this;
+  }
+
+  public PipelineGraphExporterBuilder tasksToExcludeParams(List<String> taskToExcludeParams) {
+    this.tasksToExcludeParams = taskToExcludeParams;
+    this.tasksToIncludeParams = emptyList();
+    return this;
+  }
+
   public PipelineGraphExporter build() {
     PipelineGraphExporter toret =
       new PipelineGraphExporter(
@@ -94,6 +110,12 @@ public class PipelineGraphExporterBuilder {
 
     if (this.height > 0) {
       toret.setHeight(this.height);
+    }
+
+    if (!this.tasksToExcludeParams.isEmpty()) {
+      toret.setTasksToExcludeParams(this.tasksToExcludeParams);
+    } if (!this.tasksToIncludeParams.isEmpty()) {
+      toret.setTasksToIncludeParams(this.tasksToIncludeParams);
     }
 
     return toret;

@@ -5,12 +5,14 @@ import static guru.nidi.graphviz.engine.Graphviz.fromGraph;
 import static guru.nidi.graphviz.model.Factory.graph;
 import static guru.nidi.graphviz.model.Factory.node;
 import static guru.nidi.graphviz.model.Factory.to;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 import static org.sing_group.compi.xmlio.PipelineParserFactory.createPipelineParser;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.sing_group.compi.xmlio.entities.Foreach;
@@ -94,6 +96,8 @@ public class PipelineGraphExporter {
   private int lineWidth;
   private Map<String, String> taskToRgbColor;
   private Map<String, String> taskToStyle;
+  private List<String> tasksToIncludeParams = emptyList();
+  private List<String> tasksToExcludeParams = emptyList();
 
   public PipelineGraphExporter(
     File pipeline, File output, OutputFormat outputFormat, int fontSize, GraphOrientation graphOrientation,
@@ -151,7 +155,7 @@ public class PipelineGraphExporter {
 				}
 			}
 
-      if (isDrawParameters() && !task.getParameters().isEmpty()) {
+      if (isDrawParameters(task) && !task.getParameters().isEmpty()) {
         if (this.drawParams.equals(DrawParams.TASK)) {
           String paramsNodeName = task.getId() + "_params";
           Node params =
@@ -191,8 +195,16 @@ public class PipelineGraphExporter {
 		graphviz.render(this.outputFormat.getFormat()).toFile(this.output);
   }
 
-  private boolean isDrawParameters() {
-    return !drawParams.equals(DrawParams.NO);
+  private boolean isDrawParameters(Task task) {
+    if (drawParams.equals(DrawParams.NO)) {
+      return false;
+    }else if (!this.tasksToIncludeParams.isEmpty()) {
+      return this.tasksToIncludeParams.contains(task.getId());
+    } else if (!this.tasksToExcludeParams.isEmpty()) {
+      return !this.tasksToExcludeParams.contains(task.getId());
+    } else {
+      return true;
+    }
   }
 
   private Attributes getTaskStyle(String taskId, boolean isForeach) {
@@ -211,5 +223,15 @@ public class PipelineGraphExporter {
     return new Attributes[] {
       getLineWidhStyle().and(Style.FILLED), Color.GRAY
     };
+  }
+
+  public void setTasksToExcludeParams(List<String> tasksToExcludeParams) {
+    this.tasksToExcludeParams = tasksToExcludeParams;
+    this.tasksToIncludeParams = emptyList();
+  }
+
+  public void setTasksToIncludeParams(List<String> tasksToIncludeParams) {
+    this.tasksToIncludeParams = tasksToIncludeParams;
+    this.tasksToExcludeParams = emptyList();
   }
 }

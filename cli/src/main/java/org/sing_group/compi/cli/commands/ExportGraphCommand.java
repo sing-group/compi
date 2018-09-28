@@ -12,6 +12,7 @@ import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.isValid
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,8 @@ public class ExportGraphCommand extends AbstractCommand {
   private static final String LINE_WIDTH = "lw";
   private static final String TASK_STYLES = "te";
   private static final String TASK_COLORS = "tc";
+  private static final String PARAMS_INCLUDE_TASKS ="it";
+  private static final String PARAMS_EXCLUDE_TASKS ="et";
 
   private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;
   private static final String OUTPUT_FILE_LONG = "output";
@@ -60,6 +63,8 @@ public class ExportGraphCommand extends AbstractCommand {
   private static final String LINE_WIDTH_LONG = "line-width";
   private static final String TASK_STYLES_LONG = "task-styles";
   private static final String TASK_COLORS_LONG = "task-colors";
+  private static final String PARAMS_INCLUDE_TASKS_LONG ="include-task-params";
+  private static final String PARAMS_EXCLUDE_TASKS_LONG ="exclude-task-params";
 
   private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
   private static final String OUTPUT_FILE_DESCRIPTION = "output file";
@@ -83,6 +88,14 @@ public class ExportGraphCommand extends AbstractCommand {
   private static final String TASK_COLORS_DESCRIPTION = "the colors to the draw the task nodes. Colors must be "
     + "specified using their corresponding hexadecimal codes. Use the following format: "
     + "task-id-1:color;task-id-2,task-id-3:color";
+  private static final String PARAMS_INCLUDE_TASKS_DESCRIPTION = "when draw parameters options (" 
+    + DRAW_PIPELINE_PARAMS_LONG + " or " + DRAW_TASK_PARAMS_LONG + ") are used, this option specifies the tasks for "
+    + "which parameter nodes should be created or parameters should be linked to. Task identifiers must be separated "
+    + "by commas. This option is incompatible with --" + PARAMS_EXCLUDE_TASKS_LONG;
+  private static final String PARAMS_EXCLUDE_TASKS_DESCRIPTION = "when draw parameters options (" 
+    + DRAW_PIPELINE_PARAMS_LONG + " or " + DRAW_TASK_PARAMS_LONG + ") are used, this option specifies the tasks for "
+    + "which parameter nodes should not be created or parameters should not be linked to. Task identifiers must be "
+    + "separated by commas. This option is incompatible with --" + PARAMS_INCLUDE_TASKS_LONG;
 
   private static final String DEFAULT_OUTPUT_FORMAT_STRING = DEFAULT_OUTPUT_FORMAT.toString().toLowerCase();
 
@@ -179,13 +192,38 @@ public class ExportGraphCommand extends AbstractCommand {
       DrawParams drawParams = DrawParams.NO;
       if (hasDrawPipelineParams) {
         drawParams = DrawParams.PIPELINE;
-        LOGGER.info("Draw pipeline params");
+        LOGGER.info("Draw pipeline parameters");
       }
       if (hasDrawTaskParams) {
         drawParams = DrawParams.TASK;
-        LOGGER.info("Draw task params");
+        LOGGER.info("Draw task parameters");
       }
       graphExporterBuilder = graphExporterBuilder.drawParams(drawParams);
+    }
+
+    boolean hasIncludeParamsTasks = parameters.hasOption(super.getOption(PARAMS_INCLUDE_TASKS));
+    boolean hasExcludeParamsTasks = parameters.hasOption(super.getOption(PARAMS_EXCLUDE_TASKS));
+
+    if (hasIncludeParamsTasks && hasExcludeParamsTasks) {
+      throw new IllegalArgumentException(
+        "You can specify " + PARAMS_INCLUDE_TASKS_LONG + " or "
+          + PARAMS_EXCLUDE_TASKS_LONG + ", but not both at the same time."
+      );
+    } else if (hasDrawPipelineParams || hasDrawTaskParams) {
+      if (hasIncludeParamsTasks) {
+        List<String> tasksToIncludeParams = parseTasksList(parameters.getSingleValue(super.getOption(PARAMS_INCLUDE_TASKS)));
+        graphExporterBuilder = graphExporterBuilder.tasksToIncludeParams(tasksToIncludeParams);
+        LOGGER.info("Draw parameters only for these tasks: " + tasksToIncludeParams.stream().collect(joining(", ")));
+      } else if (hasExcludeParamsTasks) {
+        List<String> tasksToExcludeParams = parseTasksList(parameters.getSingleValue(super.getOption(PARAMS_EXCLUDE_TASKS)));
+        graphExporterBuilder = graphExporterBuilder.tasksToExcludeParams(tasksToExcludeParams);
+        LOGGER.info("Tasks for which parameters are not shown: " + tasksToExcludeParams.stream().collect(joining(", ")));
+      } else {
+        if (hasIncludeParamsTasks) {
+          LOGGER.warning("Ignoring --" + PARAMS_INCLUDE_TASKS_LONG + " because " + DRAW_PIPELINE_PARAMS_LONG + " or "
+            + DRAW_TASK_PARAMS_LONG + " are not present");
+        }
+      }
     }
 
     Integer lineWidth = parameters.getSingleValue(super.getOption(LINE_WIDTH));
@@ -204,7 +242,7 @@ public class ExportGraphCommand extends AbstractCommand {
       String taskStyles = parameters.getSingleValueString(super.getOption(TASK_STYLES));
       graphExporterBuilder = graphExporterBuilder.taskStyles(parseTaskStyles(taskStyles));
     }
-
+ 
     graphExporterBuilder.build().export();
   }
 
@@ -234,11 +272,13 @@ public class ExportGraphCommand extends AbstractCommand {
     options.add(getWidthOption());
     options.add(getHeightOption());
     options.add(getFontSizeOption());
-    options.add(getDrawPipelineParamsOption());
-    options.add(getDrawTaskParamsOption());
     options.add(getLineWidthOption());
     options.add(getTaskColorsOption());
     options.add(getNodeStylesOption());
+    options.add(getDrawPipelineParamsOption());
+    options.add(getDrawTaskParamsOption());
+    options.add(getParamsIncludeTasksOption());
+    options.add(getParamsExcludeTasksOption());
 
     return options;
   }
@@ -311,17 +351,31 @@ public class ExportGraphCommand extends AbstractCommand {
     );
   }
 
-  private Option<?> getTaskColorsOption() {
+  private Option<?> getParamsIncludeTasksOption() {
     return new StringOption(
-      TASK_COLORS_LONG, TASK_COLORS,
-      TASK_COLORS_DESCRIPTION, true, true, false
+      PARAMS_INCLUDE_TASKS_LONG, PARAMS_INCLUDE_TASKS,
+      PARAMS_INCLUDE_TASKS_DESCRIPTION, true, true, false
     );
+  }
+
+  private Option<?> getParamsExcludeTasksOption() {
+    return new StringOption(
+      PARAMS_EXCLUDE_TASKS_LONG, PARAMS_EXCLUDE_TASKS,
+      PARAMS_EXCLUDE_TASKS_DESCRIPTION, true, true, false
+      );
   }
 
   private Option<?> getNodeStylesOption() {
     return new StringOption(
       TASK_STYLES_LONG, TASK_STYLES,
       TASK_STYLES_DESCRIPTION, true, true, false
+    );
+  }
+
+  private Option<?> getTaskColorsOption() {
+    return new StringOption(
+      TASK_COLORS_LONG, TASK_COLORS,
+      TASK_COLORS_DESCRIPTION, true, true, false
     );
   }
 
@@ -372,5 +426,9 @@ public class ExportGraphCommand extends AbstractCommand {
     }
 
     return attributesMap;
+  }
+
+  private List<String> parseTasksList(String tasksList) {
+    return Arrays.asList(tasksList.split(","));
   }
 }

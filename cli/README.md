@@ -57,7 +57,7 @@ usage: compi validate -p <pipeline>
 ### `export-graph`
 ```
 Command export-graph
-usage: compi export-graph -p <pipeline> -o <output> [-f <format>] [-or <orientation>] [-w <width>] [-h <height>] [-fs <font-size>] [-dpp] [-dtp] [-lw <line-width>] [-tc <task-colors>] [-te <task-styles>]
+usage: compi export-graph -p <pipeline> -o <output> [-f <format>] [-or <orientation>] [-w <width>] [-h <height>] [-fs <font-size>] [-lw <line-width>] [-tc <task-colors>] [-te <task-styles>] [-dpp] [-dtp] [-it <include-task-params>] [-et <exclude-task-params>]
         --pipeline/-p
                 XML pipeline file
         --output/-o
@@ -72,14 +72,18 @@ usage: compi export-graph -p <pipeline> -o <output> [-f <format>] [-or <orientat
                 graph height. By default, no height is used so the graph takes the minimum required. This option is incompatible with --width
         --font-size/-fs
                 graph font size (default: 10)
-        --draw-pipeline-params/-dpp
-                use this flag to draw one node for each pipeline parameter. Each parameter node will be connected to the tasks using them. This flag is incompatible with --draw-task-params
-        --draw-task-params/-dtp
-                use this flag to draw one node for each task with all the task parameters. This flag is incompatible with --draw-pipeline-params
         --line-width/-lw
                 the line width of the graph nodes (default: 1)
         --task-colors/-tc
                 the colors to the draw the task nodes. Colors must be specified using their corresponding hexadecimal codes. Use the following format: task-id-1:color;task-id-2,task-id-3:color
         --task-styles/-te
                 the styles to the draw the task nodes. Use the following format: task-id-1:style;task-id-2,task-id-3:style. Possible values for styles: dashed, solid, invis, bold, filled, radial, diagonals, rounded
+        --draw-pipeline-params/-dpp
+                use this flag to draw one node for each pipeline parameter. Each parameter node will be connected to the tasks using them. This flag is incompatible with --draw-task-params
+        --draw-task-params/-dtp
+                use this flag to draw one node for each task with all the task parameters. This flag is incompatible with --draw-pipeline-params
+        --include-task-params/-it
+                when draw parameters options (draw-pipeline-params or draw-task-params) are used, this option specifies the tasks for which parameter nodes should be created or parameters should be linked to. Task identifiers must be separated by commas. This option is incompatible with --exclude-task-params
+        --exclude-task-params/-et
+                when draw parameters options (draw-pipeline-params or draw-task-params) are used, this option specifies the tasks for which parameter nodes should not be created or parameters should not be linked to. Task identifiers must be separated by commas. This option is incompatible with --include-task-params
 ```
