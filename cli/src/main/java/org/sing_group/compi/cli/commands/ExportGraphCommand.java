@@ -5,17 +5,21 @@ import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.joining;
 import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_FONT_SIZE;
 import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_GRAPH_ORIENTATION;
+import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_LINE_WIDTH;
 import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.DEFAULT_OUTPUT_FORMAT;
 import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.isValidGraphOrientation;
 import static org.sing_group.compi.io.graph.PipelineGraphExporterBuilder.isValidOutputFormat;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.sing_group.compi.io.graph.PipelineGraphExporter.DrawParams;
 import org.sing_group.compi.io.graph.PipelineGraphExporter.GraphOrientation;
+import org.sing_group.compi.io.graph.PipelineGraphExporter.NodeStyle;
 import org.sing_group.compi.io.graph.PipelineGraphExporter.OutputFormat;
 import org.sing_group.compi.io.graph.PipelineGraphExporterBuilder;
 
@@ -40,6 +44,9 @@ public class ExportGraphCommand extends AbstractCommand {
   private static final String GRAPH_FONT_SIZE = "fs";
   private static final String DRAW_PIPELINE_PARAMS = "dpp";
   private static final String DRAW_TASK_PARAMS = "dtp";
+  private static final String LINE_WIDTH = "lw";
+  private static final String TASK_STYLES = "te";
+  private static final String TASK_COLORS = "tc";
 
   private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;
   private static final String OUTPUT_FILE_LONG = "output";
@@ -50,6 +57,9 @@ public class ExportGraphCommand extends AbstractCommand {
   private static final String GRAPH_FONT_SIZE_LONG = "font-size";
   private static final String DRAW_PIPELINE_PARAMS_LONG = "draw-pipeline-params";
   private static final String DRAW_TASK_PARAMS_LONG = "draw-task-params";
+  private static final String LINE_WIDTH_LONG = "line-width";
+  private static final String TASK_STYLES_LONG = "task-styles";
+  private static final String TASK_COLORS_LONG = "task-colors";
 
   private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
   private static final String OUTPUT_FILE_DESCRIPTION = "output file";
@@ -67,12 +77,16 @@ public class ExportGraphCommand extends AbstractCommand {
     + DRAW_TASK_PARAMS_LONG;
   private static final String DRAW_TASK_PARAMS_DESCRIPTION = "use this flag to draw one node for each task with all the"
     + " task parameters. This flag is incompatible with --" + DRAW_PIPELINE_PARAMS_LONG;
+  private static final String LINE_WIDTH_DESCRIPTION = "the line width of the graph nodes";
+  private static final String TASK_STYLES_DESCRIPTION = "the styles to the draw the task nodes. Use the following "
+    + "format: task-id-1:style;task-id-2,task-id-3:style. Possible values for styles: " + getTaskStylesValues();
+  private static final String TASK_COLORS_DESCRIPTION = "the colors to the draw the task nodes. Colors must be "
+    + "specified using their corresponding hexadecimal codes. Use the following format: "
+    + "task-id-1:color;task-id-2,task-id-3:color";
 
-  private static final String DEFAULT_OUTPUT_FORMAT_STRING =
-    DEFAULT_OUTPUT_FORMAT.toString().toLowerCase();
+  private static final String DEFAULT_OUTPUT_FORMAT_STRING = DEFAULT_OUTPUT_FORMAT.toString().toLowerCase();
 
-  private static final String DEFAULT_GRAPH_ORIENTATION_STRING =
-    DEFAULT_GRAPH_ORIENTATION.toString().toLowerCase();
+  private static final String DEFAULT_GRAPH_ORIENTATION_STRING = DEFAULT_GRAPH_ORIENTATION.toString().toLowerCase();
 
   @Override
   public void execute(final Parameters parameters) throws Exception {
@@ -174,6 +188,23 @@ public class ExportGraphCommand extends AbstractCommand {
       graphExporterBuilder = graphExporterBuilder.drawParams(drawParams);
     }
 
+    Integer lineWidth = parameters.getSingleValue(super.getOption(LINE_WIDTH));
+    LOGGER.info("Line width - " + lineWidth);
+
+    if (lineWidth != DEFAULT_LINE_WIDTH) {
+      graphExporterBuilder = graphExporterBuilder.lineWidth(lineWidth);
+    }
+
+    if (parameters.hasOption(super.getOption(TASK_COLORS))) {
+      String taskColors = parameters.getSingleValueString(super.getOption(TASK_COLORS));
+      graphExporterBuilder = graphExporterBuilder.taskColors(parseTaskColors(taskColors));
+    }
+
+    if (parameters.hasOption(super.getOption(TASK_STYLES))) {
+      String taskStyles = parameters.getSingleValueString(super.getOption(TASK_STYLES));
+      graphExporterBuilder = graphExporterBuilder.taskStyles(parseTaskStyles(taskStyles));
+    }
+
     graphExporterBuilder.build().export();
   }
 
@@ -205,6 +236,9 @@ public class ExportGraphCommand extends AbstractCommand {
     options.add(getFontSizeOption());
     options.add(getDrawPipelineParamsOption());
     options.add(getDrawTaskParamsOption());
+    options.add(getLineWidthOption());
+    options.add(getTaskColorsOption());
+    options.add(getNodeStylesOption());
 
     return options;
   }
@@ -270,6 +304,27 @@ public class ExportGraphCommand extends AbstractCommand {
     );
   }
 
+  private Option<?> getLineWidthOption() {
+    return new IntegerDefaultValuedStringConstructedOption(
+      LINE_WIDTH_LONG, LINE_WIDTH,
+      LINE_WIDTH_DESCRIPTION, DEFAULT_LINE_WIDTH
+    );
+  }
+
+  private Option<?> getTaskColorsOption() {
+    return new StringOption(
+      TASK_COLORS_LONG, TASK_COLORS,
+      TASK_COLORS_DESCRIPTION, true, true, false
+    );
+  }
+
+  private Option<?> getNodeStylesOption() {
+    return new StringOption(
+      TASK_STYLES_LONG, TASK_STYLES,
+      TASK_STYLES_DESCRIPTION, true, true, false
+    );
+  }
+
   private static final String getOutputformatValues() {
     return asList(OutputFormat.values()).stream()
       .map(OutputFormat::toString).map(String::toLowerCase)
@@ -280,5 +335,42 @@ public class ExportGraphCommand extends AbstractCommand {
     return asList(GraphOrientation.values()).stream()
       .map(GraphOrientation::toString).map(String::toLowerCase)
       .collect(joining(", "));
+  }
+
+  private static final String getTaskStylesValues() {
+    return asList(NodeStyle.values()).stream()
+      .map(NodeStyle::toString).map(String::toLowerCase)
+      .collect(joining(", "));
+  }
+
+  private Map<String, String> parseTaskColors(String taskColors) {
+    return parseTaskAttributes(
+      taskColors, "Ignoring color definition string \" %s \" since it does not follow the required format."
+    );
+  }
+
+  private Map<String, String> parseTaskStyles(String taskStyles) {
+    return parseTaskAttributes(
+      taskStyles, "Ignoring style definition string \" %s \" since it does not follow the required format."
+    );
+  }
+
+  private Map<String, String> parseTaskAttributes(String taskAttributes, String ignoreDefinitionString) {
+    Map<String, String> attributesMap = new HashMap<>();
+    String[] attributesArray = taskAttributes.split(";");
+    for (String attributeDefinition : attributesArray) {
+      String[] attributeDefinitionSplit = attributeDefinition.split(":");
+      if (attributeDefinitionSplit.length != 2) {
+        LOGGER.warning(String.format(ignoreDefinitionString, attributeDefinition));
+      } else {
+        String tasksList = attributeDefinitionSplit[0];
+        String attribute = attributeDefinitionSplit[1];
+        for (String task : tasksList.split(",")) {
+          attributesMap.put(task, attribute);
+        }
+      }
+    }
+
+    return attributesMap;
   }
 }

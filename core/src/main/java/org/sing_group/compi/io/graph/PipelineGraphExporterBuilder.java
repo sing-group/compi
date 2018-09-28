@@ -1,6 +1,9 @@
 package org.sing_group.compi.io.graph;
 
+import static java.util.Collections.emptyMap;
+
 import java.io.File;
+import java.util.Map;
 
 import org.sing_group.compi.io.graph.PipelineGraphExporter.DrawParams;
 import org.sing_group.compi.io.graph.PipelineGraphExporter.GraphOrientation;
@@ -11,6 +14,7 @@ public class PipelineGraphExporterBuilder {
   public static final GraphOrientation DEFAULT_GRAPH_ORIENTATION = GraphOrientation.VERTICAL;
   public static final int DEFAULT_FONT_SIZE = 10;
   public static final DrawParams DEFAULT_DRAW_PARAMS = DrawParams.NO;
+  public static final int DEFAULT_LINE_WIDTH = 1;
 
   private static final int DEFAULT_WIDTH = -1;
   private static final int DEFAULT_HEIGHT = -1;
@@ -23,6 +27,9 @@ public class PipelineGraphExporterBuilder {
   private int height = DEFAULT_HEIGHT;
   private int fontSize = DEFAULT_FONT_SIZE;
   private DrawParams drawParams = DEFAULT_DRAW_PARAMS;
+  private int lineWidth = DEFAULT_LINE_WIDTH;
+  private Map<String, String> taskToRgbColor = emptyMap();
+  private Map<String, String> taskToStyle = emptyMap();
 
   public PipelineGraphExporterBuilder(File pipeline, File output) {
     this.pipeline = pipeline;
@@ -59,12 +66,26 @@ public class PipelineGraphExporterBuilder {
     return this;
   }
 
+  public PipelineGraphExporterBuilder lineWidth(int lineWidth) {
+    this.lineWidth = lineWidth;
+    return this;
+  }
+
+  public PipelineGraphExporterBuilder taskColors(Map<String, String> taskToRgbColor) {
+    this.taskToRgbColor = taskToRgbColor;
+    return this;
+  }
+
+  public PipelineGraphExporterBuilder taskStyles(Map<String, String> taskToStyle) {
+    this.taskToStyle = taskToStyle;
+    return this;
+  }
+
   public PipelineGraphExporter build() {
     PipelineGraphExporter toret =
       new PipelineGraphExporter(
-        this.pipeline,
-        this.output, this.outputFormat, this.fontSize,
-        this.graphOrientation, this.drawParams
+        this.pipeline, this.output, this.outputFormat, this.fontSize, this.graphOrientation, this.drawParams,
+        this.lineWidth, this.taskToRgbColor, this.taskToStyle
       );
 
     if (this.width > 0) {

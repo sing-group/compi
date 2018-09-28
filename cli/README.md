@@ -57,7 +57,7 @@ usage: compi validate -p <pipeline>
 ### `export-graph`
 ```
 Command export-graph
-usage: compi export-graph -p <pipeline> -o <output> [-f <format>] [-or <orientation>] [-w <width>] [-h <height>] [-fs <font-size>] [-dpp] [-dtp]
+usage: compi export-graph -p <pipeline> -o <output> [-f <format>] [-or <orientation>] [-w <width>] [-h <height>] [-fs <font-size>] [-dpp] [-dtp] [-lw <line-width>] [-tc <task-colors>] [-te <task-styles>]
         --pipeline/-p
                 XML pipeline file
         --output/-o
@@ -76,4 +76,10 @@ usage: compi export-graph -p <pipeline> -o <output> [-f <format>] [-or <orientat
                 use this flag to draw one node for each pipeline parameter. Each parameter node will be connected to the tasks using them. This flag is incompatible with --draw-task-params
         --draw-task-params/-dtp
                 use this flag to draw one node for each task with all the task parameters. This flag is incompatible with --draw-pipeline-params
+        --line-width/-lw
+                the line width of the graph nodes (default: 1)
+        --task-colors/-tc
+                the colors to the draw the task nodes. Colors must be specified using their corresponding hexadecimal codes. Use the following format: task-id-1:color;task-id-2,task-id-3:color
+        --task-styles/-te
+                the styles to the draw the task nodes. Use the following format: task-id-1:style;task-id-2,task-id-3:style. Possible values for styles: dashed, solid, invis, bold, filled, radial, diagonals, rounded
 ```

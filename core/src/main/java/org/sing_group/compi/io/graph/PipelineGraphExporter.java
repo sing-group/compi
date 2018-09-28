@@ -17,6 +17,7 @@ import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Task;
 
+import guru.nidi.graphviz.attribute.Attributes;
 import guru.nidi.graphviz.attribute.Color;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.RankDir;
@@ -61,19 +62,42 @@ public class PipelineGraphExporter {
     NO, TASK, PIPELINE;
   }
 
-	private File pipeline;
-	private File output;
-	private OutputFormat outputFormat;
-	private GraphOrientation graphOrientation;
-	private int width = -1;
-	private int height = -1;
-	private int fontSize;
-	private DrawParams drawParams;
+  public enum NodeStyle {
+    DASHED(Style.DASHED),
+    SOLID(Style.SOLID),
+    INVIS(Style.INVIS),
+    BOLD(Style.BOLD),
+    FILLED(Style.FILLED),
+    RADIAL(Style.RADIAL),
+    DIAGONALS(Style.DIAGONALS),
+    ROUNDED(Style.ROUNDED);
+
+    private Style style;
+
+    NodeStyle(Style style) {
+      this.style = style;
+    }
+
+    public Style getStyle() {
+      return style;
+    }
+  }
+
+  private File pipeline;
+  private File output;
+  private OutputFormat outputFormat;
+  private GraphOrientation graphOrientation;
+  private int width = -1;
+  private int height = -1;
+  private int fontSize;
+  private DrawParams drawParams;
+  private int lineWidth;
+  private Map<String, String> taskToRgbColor;
+  private Map<String, String> taskToStyle;
 
   public PipelineGraphExporter(
-    File pipeline, File output,
-    OutputFormat outputFormat, int fontSize,
-    GraphOrientation graphOrientation, DrawParams drawParams
+    File pipeline, File output, OutputFormat outputFormat, int fontSize, GraphOrientation graphOrientation,
+    DrawParams drawParams, int lineWidth, Map<String, String> taskToRgbColor, Map<String, String> taskToStyle
   ) {
     this.pipeline = pipeline;
     this.output = output;
@@ -81,6 +105,9 @@ public class PipelineGraphExporter {
     this.fontSize = fontSize;
     this.graphOrientation = graphOrientation;
     this.drawParams = drawParams;
+    this.lineWidth = lineWidth;
+    this.taskToRgbColor = taskToRgbColor;
+    this.taskToStyle = taskToStyle;
   }
 
 	public void setWidth(int width) {
@@ -91,29 +118,30 @@ public class PipelineGraphExporter {
 		this.height = height;
 	}
 
-	public void export() throws IOException {
-		Pipeline pipelineObject =
-			createPipelineParser().parsePipeline(this.pipeline);
+  public void export() throws IOException {
+    Pipeline pipelineObject = createPipelineParser().parsePipeline(this.pipeline);
 
-		Graphviz.useEngine(new GraphvizJdkEngine());
+    Graphviz.useEngine(new GraphvizJdkEngine());
 
-		Graph pipelineGraph = graph("compi").directed()
-			.graphAttr().with(this.graphOrientation.getRankDir());
+    Graph pipelineGraph = graph("compi").directed().graphAttr().with(this.graphOrientation.getRankDir());
 
-		pipelineGraph = pipelineGraph.nodeAttr()
-			.with(config("Arial", this.fontSize));
+    pipelineGraph = pipelineGraph.nodeAttr().with(config("Arial", this.fontSize));
 
-		Map<String, Node> idToNode = new HashMap<>();
+    Map<String, Node> idToNode = new HashMap<>();
 
-		for (Task task : pipelineObject.getTasks()) {
-			Node node = node(task.getId());
-			if (Foreach.class.isAssignableFrom(task.getClass())) {
-				node = node.with(Style.DASHED, Shape.RECTANGLE);
-			} else {
-				node = node.with(Shape.RECTANGLE);
-			}
-			idToNode.putIfAbsent(task.getId(), node);
-		}
+    for (Task task : pipelineObject.getTasks()) {
+      Node node = node(task.getId());
+
+      if (Foreach.class.isAssignableFrom(task.getClass())) {
+        node = node.with(Shape.RECTANGLE, getTaskStyle(task.getId(), true));
+      } else {
+        node = node.with(Shape.RECTANGLE, getTaskStyle(task.getId(), false));
+      }
+      if (taskToRgbColor.containsKey(task.getId())) {
+        node = node.with(Color.rgb(taskToRgbColor.get(task.getId())));
+      }
+      idToNode.putIfAbsent(task.getId(), node);
+    }
 
 		for (Task task : pipelineObject.getTasks()) {
 			Node node = idToNode.get(task.getId());
@@ -128,9 +156,8 @@ public class PipelineGraphExporter {
           String paramsNodeName = task.getId() + "_params";
           Node params =
             node(paramsNodeName).with(
-              html(task.getParameters().stream().collect(joining("<br/>"))), 
-              Style.FILLED, Color.GRAY
-            );
+              html(task.getParameters().stream().collect(joining("<br/>")))
+            ).with(getParamsNodeStyle());
           idToNode.put(paramsNodeName, params.link(to(node).with(Style.DOTTED)));
         } else {
           for (String p : task.getParameters()) {
@@ -139,9 +166,8 @@ public class PipelineGraphExporter {
             if (idToNode.containsKey(paramsNodeName)) {
               paramsNode = idToNode.get(paramsNodeName);
             } else {
-              paramsNode = node(paramsNodeName).with(Label.of(p), Style.FILLED, Color.GRAY);
+              paramsNode = node(paramsNodeName).with(Label.of(p)).with(getParamsNodeStyle());
             }
-            idToNode.remove(paramsNodeName);
             idToNode.put(paramsNodeName, paramsNode.link(to(node).with(Style.DOTTED)));
           }
         }
@@ -163,9 +189,27 @@ public class PipelineGraphExporter {
 		}
 
 		graphviz.render(this.outputFormat.getFormat()).toFile(this.output);
-	}
+  }
 
   private boolean isDrawParameters() {
     return !drawParams.equals(DrawParams.NO);
+  }
+
+  private Attributes getTaskStyle(String taskId, boolean isForeach) {
+    Style style = isForeach ? Style.DASHED : Style.SOLID;
+    if (this.taskToStyle.containsKey(taskId)) {
+      style = NodeStyle.valueOf(this.taskToStyle.get(taskId).toUpperCase()).getStyle();
+    }
+    return getLineWidhStyle().and(style);
+  }
+
+  private Style getLineWidhStyle() {
+    return Style.lineWidth(this.lineWidth);
+  }
+
+  private Attributes[] getParamsNodeStyle() {
+    return new Attributes[] {
+      getLineWidhStyle().and(Style.FILLED), Color.GRAY
+    };
   }
 }
