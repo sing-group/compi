@@ -57,7 +57,7 @@ usage: compi validate -p <pipeline>
 ### `export-graph`
 ```
 Command export-graph
-usage: compi export-graph -p <pipeline> -o <output> [-f <format>] [-w <width>] [-h <height>] [-fs <font-size>]
+usage: compi export-graph -p <pipeline> -o <output> [-f <format>] [-or <orientation>] [-w <width>] [-h <height>] [-fs <font-size>] [-dpp] [-dtp]
         --pipeline/-p
                 XML pipeline file
         --output/-o
@@ -72,4 +72,8 @@ usage: compi export-graph -p <pipeline> -o <output> [-f <format>] [-w <width>] [
                 graph height. By default, no height is used so the graph takes the minimum required. This option is incompatible with --width
         --font-size/-fs
                 graph font size (default: 10)
+        --draw-pipeline-params/-dpp
+                use this flag to draw one node for each pipeline parameter. Each parameter node will be connected to the tasks using them. This flag is incompatible with --draw-task-params
+        --draw-task-params/-dtp
+                use this flag to draw one node for each task with all the task parameters. This flag is incompatible with --draw-pipeline-params
 ```

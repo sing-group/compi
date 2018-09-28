@@ -171,6 +171,8 @@ target/dist/compi export-graph -p example-files/pipeline.xml -o pipeline.png -f 
 ```
 </details>
 
+If you want to draw also the task parameters, try options `--draw-task-params` or `--draw-pipeline-params`.
+
 ## 6. Executing the pipeline using a custom task runner
 It is possible to run pipeline tasks using custom runners, which must be defined in XML passed with the `-r` or `--runners-config` parameter. This mode is meant to allow users to run tasks using ways different than the default `/bin/sh -c` used by Compi, such as running tasks in Docker images or using work managers (e.g. Slurm, qsub).
 

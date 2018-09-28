@@ -1,9 +1,11 @@
 package org.sing_group.compi.io.graph;
-
 import static guru.nidi.graphviz.attribute.Font.config;
+import static guru.nidi.graphviz.attribute.Label.html;
 import static guru.nidi.graphviz.engine.Graphviz.fromGraph;
 import static guru.nidi.graphviz.model.Factory.graph;
 import static guru.nidi.graphviz.model.Factory.node;
+import static guru.nidi.graphviz.model.Factory.to;
+import static java.util.stream.Collectors.joining;
 import static org.sing_group.compi.xmlio.PipelineParserFactory.createPipelineParser;
 
 import java.io.File;
@@ -15,6 +17,8 @@ import org.sing_group.compi.xmlio.entities.Foreach;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Task;
 
+import guru.nidi.graphviz.attribute.Color;
+import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.RankDir;
 import guru.nidi.graphviz.attribute.Shape;
 import guru.nidi.graphviz.attribute.Style;
@@ -25,33 +29,37 @@ import guru.nidi.graphviz.model.Graph;
 import guru.nidi.graphviz.model.Node;
 
 public class PipelineGraphExporter {
-	public enum OutputFormat {
-		PNG(Format.PNG), SVG(Format.SVG), XDOT(Format.XDOT), JSON(Format.JSON);
+  public enum OutputFormat {
+    PNG(Format.PNG), SVG(Format.SVG), XDOT(Format.XDOT), JSON(Format.JSON);
 
-		private Format format;
+    private Format format;
 
-		OutputFormat(Format format) {
-			this.format = format;
-		}
+    OutputFormat(Format format) {
+      this.format = format;
+    }
 
-		public Format getFormat() {
-			return format;
-		}
-	}
+    public Format getFormat() {
+      return format;
+    }
+  }
 
-	public enum GraphOrientation {
-		HORIZONTAL(RankDir.LEFT_TO_RIGHT), VERTICAL(RankDir.TOP_TO_BOTTOM);
+  public enum GraphOrientation {
+    HORIZONTAL(RankDir.LEFT_TO_RIGHT), VERTICAL(RankDir.TOP_TO_BOTTOM);
 
-		private RankDir rankDir;
+    private RankDir rankDir;
 
-		GraphOrientation(RankDir rankDir) {
-			this.rankDir = rankDir;
-		}
+    GraphOrientation(RankDir rankDir) {
+      this.rankDir = rankDir;
+    }
 
-		public RankDir getRankDir() {
-			return rankDir;
-		}
-	}
+    public RankDir getRankDir() {
+      return rankDir;
+    }
+  }
+
+  public enum DrawParams {
+    NO, TASK, PIPELINE;
+  }
 
 	private File pipeline;
 	private File output;
@@ -60,17 +68,20 @@ public class PipelineGraphExporter {
 	private int width = -1;
 	private int height = -1;
 	private int fontSize;
+	private DrawParams drawParams;
 
-	public PipelineGraphExporter(File pipeline, File output,
-		OutputFormat outputFormat, int fontSize,
-		GraphOrientation graphOrientation
-	) {
-		this.pipeline = pipeline;
-		this.output = output;
-		this.outputFormat = outputFormat;
-		this.fontSize = fontSize;
-		this.graphOrientation = graphOrientation;
-	}
+  public PipelineGraphExporter(
+    File pipeline, File output,
+    OutputFormat outputFormat, int fontSize,
+    GraphOrientation graphOrientation, DrawParams drawParams
+  ) {
+    this.pipeline = pipeline;
+    this.output = output;
+    this.outputFormat = outputFormat;
+    this.fontSize = fontSize;
+    this.graphOrientation = graphOrientation;
+    this.drawParams = drawParams;
+  }
 
 	public void setWidth(int width) {
 		this.width = width;
@@ -111,7 +122,31 @@ public class PipelineGraphExporter {
 					idToNode.put(afterId, idToNode.get(afterId).link(node));
 				}
 			}
-		}
+
+      if (isDrawParameters() && !task.getParameters().isEmpty()) {
+        if (this.drawParams.equals(DrawParams.TASK)) {
+          String paramsNodeName = task.getId() + "_params";
+          Node params =
+            node(paramsNodeName).with(
+              html(task.getParameters().stream().collect(joining("<br/>"))), 
+              Style.FILLED, Color.GRAY
+            );
+          idToNode.put(paramsNodeName, params.link(to(node).with(Style.DOTTED)));
+        } else {
+          for (String p : task.getParameters()) {
+            String paramsNodeName = p;
+            Node paramsNode = null;
+            if (idToNode.containsKey(paramsNodeName)) {
+              paramsNode = idToNode.get(paramsNodeName);
+            } else {
+              paramsNode = node(paramsNodeName).with(Label.of(p), Style.FILLED, Color.GRAY);
+            }
+            idToNode.remove(paramsNodeName);
+            idToNode.put(paramsNodeName, paramsNode.link(to(node).with(Style.DOTTED)));
+          }
+        }
+      }
+    }
 
 		for (Node n : idToNode.values()) {
 			pipelineGraph = pipelineGraph.with(n);
@@ -129,4 +164,8 @@ public class PipelineGraphExporter {
 
 		graphviz.render(this.outputFormat.getFormat()).toFile(this.output);
 	}
+
+  private boolean isDrawParameters() {
+    return !drawParams.equals(DrawParams.NO);
+  }
 }
