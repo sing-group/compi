@@ -160,11 +160,11 @@ public class TaskRunnable implements Runnable {
    *           If an I/O exception of some sort has occurred
    */
   private void closeLogBuffers() throws IOException {
-    if (taskHasFileLog()) {
+    if (taskHasFileLog() && !this.task.isSkipped()) {
       out.flush();
       out.close();
     }
-    if (taskHasFileErrorLog()) {
+    if (taskHasFileErrorLog() && !this.task.isSkipped()) {
       err.flush();
       err.close();
     }
