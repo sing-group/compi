@@ -83,29 +83,6 @@
 	
 	<dependencyManagement>
 		<dependencies>
-			<!-- java 9 and beyond deps (JAXB) -->
-			<dependency>
-				<groupId>javax.activation</groupId>
-				<artifactId>activation</artifactId>
-				<version>${javax.activation.activation.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>javax.xml.bind</groupId>
-				<artifactId>jaxb-api</artifactId>
-				<version>${jaxb.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sun.xml.bind</groupId>
-				<artifactId>jaxb-impl</artifactId>
-				<version>${jaxb.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sun.xml.bind</groupId>
-				<artifactId>jaxb-core</artifactId>
-				<version>${jaxb.version}</version>
-			</dependency>
-			<!-- end of java 9 and beyond deps (JAXB) -->
-
 			<!-- compi modules -->
 			<dependency>
 				<groupId>org.sing_group</groupId>

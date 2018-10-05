@@ -12,11 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.sing_group.compi.core.PipelineValidationException;
 import org.sing_group.compi.core.validation.PipelineValidator;
 import org.sing_group.compi.core.validation.ValidationError;
@@ -27,7 +22,6 @@ import org.sing_group.compi.core.validation.ValidationError;
  * @author Jesus Alvarez Casanova
  *
  */
-@XmlRootElement(name = "pipeline")
 public class Pipeline {
 
 	private List<Task> tasks = new LinkedList<>();
@@ -38,11 +32,6 @@ public class Pipeline {
 	 * 
 	 * @return The value of the tasks attribute
 	 */
-	@XmlElementWrapper(name = "tasks")
-	@XmlElements({
-			@XmlElement(name = "task", type=Task.class),
-			@XmlElement(name = "foreach", type=Foreach.class)
-	})
 	public List<Task> getTasks() {
 		return tasks;
 	}
@@ -62,8 +51,6 @@ public class Pipeline {
 	 * 
 	 * @return The value of the params attribute
 	 */
-	@XmlElementWrapper(name = "params")
-	@XmlElement(name = "param")
 	public List<ParameterDescription> getParameterDescriptions() {
 		return parameterDescriptions;
 	}

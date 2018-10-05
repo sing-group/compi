@@ -1,10 +1,5 @@
 package org.sing_group.compi.xmlio.entities;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
-
-@XmlRootElement(name = "param")
 public class ParameterDescription implements Cloneable {
 
   
@@ -23,7 +18,6 @@ public class ParameterDescription implements Cloneable {
    * 
    * @return The value of the name attribute
    */
-  @XmlAttribute
   public String getName() {
     return name;
   }
@@ -37,7 +31,6 @@ public class ParameterDescription implements Cloneable {
    * 
    * @return The value of the shortName attribute
    */
-  @XmlAttribute
   public String getShortName() {
     return shortName;
   }
@@ -51,7 +44,6 @@ public class ParameterDescription implements Cloneable {
    * 
    * @return The value of the description attribute
    */
-  @XmlValue
   public String getDescription() {
     return description;
   }
@@ -65,7 +57,6 @@ public class ParameterDescription implements Cloneable {
    * 
    * @return The value of the defaultValue attribute
    */
-  @XmlAttribute
   public String getDefaultValue() {
     return defaultValue;
   }

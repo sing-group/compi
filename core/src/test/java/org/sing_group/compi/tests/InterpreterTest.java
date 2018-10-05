@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Scanner;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Test;
@@ -22,7 +21,7 @@ public class InterpreterTest {
 
   @SuppressWarnings("resource")
   @Test
-  public void testSimpleInterpreterConfiguration() throws IllegalArgumentException, JAXBException,
+  public void testSimpleInterpreterConfiguration() throws IllegalArgumentException,
     PipelineValidationException, IOException, ParserConfigurationException, SAXException, InterruptedException {
     final File inputFile = new File("/tmp/interpreter-input");
     final File outputFileAwk = new File("/tmp/interpreter-output-awk");

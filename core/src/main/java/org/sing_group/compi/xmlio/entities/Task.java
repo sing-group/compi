@@ -4,18 +4,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlValue;
-
 /**
  * Represents a {@link Task} obtained in the XML pipeline file
  * 
  * @author Jesus Alvarez Casanova
  *
  */
-@XmlRootElement(name = "task")
 public class Task implements Cloneable {
 
 	private String id;
@@ -37,7 +31,6 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the id attribute
 	 */
-	@XmlAttribute
 	public String getId() {
 		return id;
 	}
@@ -57,7 +50,6 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the after attribute
 	 */
-	@XmlAttribute
 	public String getAfter() {
 		return after;
 	}
@@ -67,7 +59,6 @@ public class Task implements Cloneable {
    * 
    * @return The value of the interpreter attribute
    */
-	@XmlAttribute
 	public String getInterpreter() {
     return interpreter;
   }
@@ -95,7 +86,6 @@ public class Task implements Cloneable {
     this.parametersString = parametersString;
   }
 	
-	@XmlAttribute(name="params")
 	public String getParametersString() {
     return parametersString;
   }
@@ -104,7 +94,6 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the fileLog attribute
 	 */
-	@XmlAttribute
 	public String getFileLog() {
 		return fileLog;
 	}
@@ -124,7 +113,6 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the fileErrorLog attribute
 	 */
-	@XmlAttribute
 	public String getFileErrorLog() {
 		return fileErrorLog;
 	}
@@ -145,7 +133,6 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the exec attribute
 	 */
-	@XmlValue
 	public String getExec() {
 		return exec;
 	}
@@ -166,7 +153,6 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the isRunning attribute
 	 */
-	@XmlTransient
 	public boolean isRunning() {
 		return isRunning;
 	}
@@ -186,7 +172,6 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the isFinished attribute
 	 */
-	@XmlTransient
 	public boolean isFinished() {
 		return isFinished;
 	}
@@ -206,7 +191,6 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the paramters attribute
 	 */
-	@XmlTransient
 	public List<String> getParameters() {
 		return Collections.unmodifiableList(parameters);
 	}
@@ -225,7 +209,6 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the toExecute attribute
 	 */
-	@XmlTransient
 	public String getToExecute() {
 		return toExecute;
 	}
@@ -245,7 +228,6 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the isAborted attribute
 	 */
-	@XmlTransient
 	public boolean isAborted() {
 		return isAborted;
 	}
@@ -265,7 +247,6 @@ public class Task implements Cloneable {
 	 * 
 	 * @return The value of the isSkipped attribute
 	 */
-	@XmlTransient
 	public boolean isSkipped() {
 		return isSkipped;
 	}

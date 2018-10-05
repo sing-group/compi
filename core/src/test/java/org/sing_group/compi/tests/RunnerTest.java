@@ -10,9 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Test;
@@ -31,20 +28,9 @@ public class RunnerTest {
     DOMparsing.validateXMLSchema(runnerFile, "xsd/runners.xsd");
   }
 
-  @Test
-  public void testJAXB() throws SAXException, IOException, JAXBException {
-    final JAXBContext jaxbContext = JAXBContext.newInstance(Runners.class);
-    final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-    Runners runners =
-      (Runners) jaxbUnmarshaller.unmarshal(new File(ClassLoader.getSystemResource("runners-example.xml").getFile()));
-
-    assertEquals(3, runners.getRunners().size());
-    assertEquals("t1", runners.getRunners().get(0).getTasks());
-    assertEquals("t2", runners.getRunners().get(1).getTasks());
-  }
 
   @Test
-  public void testDOMRunnersParser() throws SAXException, IOException, JAXBException {
+  public void testDOMRunnersParser() throws SAXException, IOException {
     DOMRunnersParser parser = new DOMRunnersParser();
     Runners runners = parser.parseXML(new File(ClassLoader.getSystemResource("runners-example.xml").getFile()));
 
@@ -55,7 +41,7 @@ public class RunnerTest {
 
   @SuppressWarnings("resource")
   @Test
-  public void testSimpleRunnerConfiguration() throws IllegalArgumentException, JAXBException,
+  public void testSimpleRunnerConfiguration() throws IllegalArgumentException,
     PipelineValidationException, IOException, ParserConfigurationException, SAXException, InterruptedException {
     final File t1ResultFile = new File("/tmp/t1-result");
     final File t2ResultFile = new File("/tmp/t2-result");

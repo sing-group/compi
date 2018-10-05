@@ -20,7 +20,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.sing_group.compi.core.CompiApp;
@@ -146,16 +145,11 @@ public class SwingDemo {
     runButton.addActionListener(actionListener -> {
       new Thread(() -> {
         consoleTextArea.setText(null);
-        try {
           compiExecution(
             (100 / compi.getPipeline().getTasks().size()),
             model.getNumber().intValue(), paramsText.getText(),
             skipComboBox.getSelectedItem().toString(), consoleTextArea, progressBar
           );
-        } catch (JAXBException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
       }).start();
 
     });
@@ -166,7 +160,7 @@ public class SwingDemo {
   private static void compiExecution(
     int taskNumber, int threadNumber, String paramsFile,
     String skipTask, JTextArea consoleTextArea, JProgressBar progressBar
-  ) throws JAXBException {
+  ) {
     if (skipTask.equals("-")) {
       skipTask = null;
     }
