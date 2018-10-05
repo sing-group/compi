@@ -26,7 +26,6 @@ public class Pipeline {
 
 	private List<Task> tasks = new LinkedList<>();
 	private List<ParameterDescription> parameterDescriptions = new LinkedList<>();
-
 	/**
 	 * Getter of the tasks attribute
 	 * 

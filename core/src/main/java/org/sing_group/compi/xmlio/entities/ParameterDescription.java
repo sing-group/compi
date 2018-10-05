@@ -10,6 +10,8 @@ public class ParameterDescription implements Cloneable {
   private String description;
   
   private String defaultValue;
+  
+  private boolean global;
 
   public ParameterDescription() {}
 
@@ -63,5 +65,13 @@ public class ParameterDescription implements Cloneable {
   
   public void setDefaultValue(String defaultValue) {
     this.defaultValue = defaultValue;
+  }
+  
+  public boolean isGlobal() {
+    return global;
+  }
+  
+  public void setGlobal(boolean global) {
+    this.global = global;
   }
 }

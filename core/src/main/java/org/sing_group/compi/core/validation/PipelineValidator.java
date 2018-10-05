@@ -20,7 +20,8 @@ import org.xml.sax.SAXException;
 public class PipelineValidator {
 
   public static enum ValidationErrorType {
-    XML_SCHEMA_VALIDATION_ERROR(true), NON_DECLARED_PARAMETER(true), NON_DECLARED_TASK_ID(true);
+    XML_SCHEMA_VALIDATION_ERROR(true), NON_DECLARED_PARAMETER(true),
+    NON_DECLARED_TASK_ID(true);
 
     private boolean isError;
 
@@ -69,6 +70,7 @@ public class PipelineValidator {
   private void checkTaskParametersAreDeclared() {
     for (Task t : this.pipeline.getTasks()) {
       for (String parameter : t.getParameters()) {
+        
         if (this.pipeline.getParameterDescription(parameter) == null) {
           errors.add(
             new ValidationError(
@@ -84,8 +86,9 @@ public class PipelineValidator {
   private void checkAfterIncludesOnlyExistentTasks() {
     Set<String> taskIds = this.pipeline.getTasks().stream().map(Task::getId).collect(Collectors.toSet());
     for (Task t : this.pipeline.getTasks()) {
-      if (t.getAfter() == null) continue;
-      
+      if (t.getAfter() == null)
+        continue;
+
       for (String afterTaskId : t.getAfter().split("\\s*,\\s*")) {
         if (!taskIds.contains(afterTaskId)) {
           errors.add(
@@ -104,7 +107,7 @@ public class PipelineValidator {
     this.wasValidated = false;
     this.pipeline = null;
   }
-  
+
   public Pipeline getPipeline() {
     if (!this.wasValidated) {
       this.validate();
@@ -112,7 +115,7 @@ public class PipelineValidator {
     if (this.pipeline == null) {
       throw new IllegalStateException("Could not parse the pipeline");
     }
-    
+
     return this.pipeline;
   }
 }

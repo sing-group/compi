@@ -58,6 +58,8 @@ public class DOMPipelineParser extends AbstractPipelineParser {
           description.setShortName(element.getAttribute("shortName"));
         if (element.hasAttribute("defaultValue"))
           description.setDefaultValue(element.getAttribute("defaultValue"));
+        if (element.hasAttribute("global"))
+          description.setGlobal(element.getAttribute("global").equals("true"));
 
         description.setDescription(element.getTextContent());
 

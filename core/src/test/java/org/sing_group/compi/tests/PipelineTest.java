@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -80,7 +81,9 @@ public class PipelineTest {
 
     assertTrue(outFile.exists());
     assertTrue(outFile.length() > 0);
-
+    try (Scanner outFileScanner = new Scanner(outFile)) {
+      assertEquals("hello", outFileScanner.nextLine());
+    }
     assertEquals(1, handler.getStartedTasks().size());
     assertEquals(1, handler.getFinishedTasks().size());
 

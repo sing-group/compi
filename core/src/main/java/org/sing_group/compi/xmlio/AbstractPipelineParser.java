@@ -1,11 +1,13 @@
 package org.sing_group.compi.xmlio;
 
+import static java.util.Arrays.asList;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.sing_group.compi.xmlio.entities.Pipeline;
-import org.sing_group.compi.xmlio.entities.Task;
 
 public abstract class AbstractPipelineParser implements PipelineParser {
 
@@ -19,22 +21,19 @@ public abstract class AbstractPipelineParser implements PipelineParser {
 
   protected abstract Pipeline parseXML(File f) throws IllegalArgumentException, IOException;
 
-  /**
-   * Obtain the content inside ${...} in the {@link Task} exec tag
-   * 
-   * @param pipeline
-   *          Contains all the {@link Task}
-   */
   private static void addTaskParameters(Pipeline pipeline) {
-
+    final List<String> globalParameters = new LinkedList<>();
+    pipeline.getParameterDescriptions().forEach(parameterDescription -> {
+      if (parameterDescription.isGlobal()) {
+        globalParameters.add(parameterDescription.getName());
+      }
+    });
+    
     pipeline.getTasks().forEach(task -> {
       if (task.getParametersString() != null && task.getParametersString().trim().length() > 0) {
-        Arrays.asList(task.getParametersString().trim().split("\\s+")).forEach(parameterName -> {
-          parameterName = parameterName.trim();
-          task.addParameter(parameterName);
-        });
+        asList(task.getParametersString().trim().split("\\s+")).forEach(task::addParameter);
+        globalParameters.forEach(task::addParameter);
       }
     });
   }
-
 }

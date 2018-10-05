@@ -42,8 +42,10 @@
 		<simpleContent>
 			<extension base="string">
 				<attribute name="name" type="cp:paramName" use="required" />
-				<attribute name="shortName" type="cp:paramName" use="required" />
+				<attribute name="shortName" type="cp:paramName"
+					use="required" />
 				<attribute name="defaultValue" type="string" />
+				<attribute name="global" type="boolean"/>
 			</extension>
 		</simpleContent>
 	</complexType>
@@ -73,7 +75,7 @@
 					maxOccurs="1" />
 			</all>
 		</complexType>
-	 	<unique name="paramNameKey">
+		<unique name="paramNameKey">
 			<selector xpath="cp:params/cp:param" />
 			<field xpath="@name" />
 		</unique>
