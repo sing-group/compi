@@ -21,9 +21,6 @@
 					</simpleType>
 				</attribute>
 				<attribute name="interpreter" type="string" use="optional" />
-				<attribute name="fileLog" type="string" use="optional" />
-				<attribute name="fileErrorLog" type="string"
-					use="optional" />
 			</extension>
 		</simpleContent>
 	</complexType>

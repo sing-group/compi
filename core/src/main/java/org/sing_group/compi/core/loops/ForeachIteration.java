@@ -11,13 +11,16 @@ import org.sing_group.compi.xmlio.entities.Foreach;
 public class ForeachIteration extends Foreach {
 
 	private String iterationValue;
+	private int iterationIndex;
 	private Foreach parentForeachTask;
-
-	public static ForeachIteration createIterationForForeach(Foreach foreach, String iterationValue) {
+	
+	
+	public static ForeachIteration createIterationForForeach(Foreach foreach, String iterationValue, int iterationIndex) {
 		ForeachIteration foreachIteration = cloneForeach(foreach);
 		
 		foreachIteration.parentForeachTask = foreach;
 		foreachIteration.iterationValue = iterationValue;
+		foreachIteration.iterationIndex = iterationIndex;
 		
 		return foreachIteration;
 	}
@@ -26,8 +29,6 @@ public class ForeachIteration extends Foreach {
 		ForeachIteration foreachIteration = new ForeachIteration();
 		
 		foreachIteration.setId(foreach.getId());
-		foreachIteration.setFileErrorLog(foreach.getFileErrorLog());
-		foreachIteration.setFileLog(foreach.getFileLog());
 		foreachIteration.setFinished(foreach.isFinished());
 		foreachIteration.setAborted(foreach.isAborted());
 		foreachIteration.setInterpreter(foreach.getInterpreter());
@@ -49,6 +50,10 @@ public class ForeachIteration extends Foreach {
 
 	public String getIterationValue() {
 		return iterationValue;
+	}
+	
+	public int getIterationIndex() {
+		return iterationIndex;
 	}
 
 }

@@ -87,9 +87,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
         if (task instanceof Foreach) {
           if (!startedForeachs.contains(task.getId())) {
             LOGGER.info(
-              "> Started loop task " + task.getId() + " (command: " + task.getToExecute() + ") (stdout log: "
-                + (task.getFileLog() == null ? "none" : task.getFileLog()) + ", stderr log: "
-                + (task.getFileErrorLog() == null ? "none" : task.getFileErrorLog()) + ")"
+              "> Started loop task " + task.getId() + " (command: " + task.getToExecute() + ")"
             );
             startedForeachs.add(task.getId());
           }
@@ -126,8 +124,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
       public void taskIterationStarted(ForeachIteration iteration) {
         LOGGER.info(
           ">> Started loop iteration of task " + iteration.getId() + " (command: " + iteration.getToExecute()
-            + ") (stdout log: " + (iteration.getFileLog() == null ? "none" : iteration.getFileLog()) + ", stderr log: "
-            + (iteration.getFileErrorLog() == null ? "none" : iteration.getFileErrorLog()) + ")"
+            + ")"
         );
       }
 

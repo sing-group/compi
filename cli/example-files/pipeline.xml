@@ -7,8 +7,8 @@
         <param name="name" shortName="n">The name parameter</param>
 	</params>
 	<tasks>
-		<foreach id="task-1" fileLog="/tmp/task1.txt"
-			fileErrorLog="/tmp/task1.txt" of="list" in="3,7,1,1" as="nonParamSeconds" params="path name">
+		<foreach id="task-1"
+			of="list" in="3,7,1,1" as="nonParamSeconds" params="path name">
 			${path} ${name} ${nonParamSeconds}
 		</foreach>
 		<task id="task-2" after="task-1">
@@ -23,19 +23,17 @@
 		<task id="task-5" after="task-2">
 			example-files/execute/execute.sh p5 2
 		</task>
-		<task id="task-6" after="task-3" fileLog="/tmp/task6.txt"
-			fileErrorLog="/tmp/error6.txt" params="seconds">
+		<task id="task-6" after="task-3" params="seconds">
 			example-files/execute/execute.sh p6 3
 		</task>
-		<foreach id="task-7" after="task-4,task-5" fileLog="/tmp/task7.txt"
+		<foreach id="task-7" after="task-4,task-5"
 			of="file" in="example-files/execute/" as="path" params="path seconds">
 			${path} p7 ${seconds}
 		</foreach>
-		<foreach id="task-8" after="task-6,task-7" fileLog="/tmp/task8.txt"
-			fileErrorLog="/tmp/error8.txt" of="list" in="1,1,5" as="nonParamSeconds" params="path seconds">
+		<foreach id="task-8" after="task-6,task-7" of="list" in="1,1,5" as="nonParamSeconds" params="path seconds">
 			${path} p8 ${nonParamSeconds}
 		</foreach>
-		<task id="task-9" after="task-8" fileLog="/tmp/task9.txt" fileErrorLog="/tmp/error9.txt">
+		<task id="task-9" after="task-8">
 			example-files/execute/execute.sh p9 2
 		</task>
 		<foreach id="task-10" of="file" in="example-files/execute/" as="path">

@@ -41,6 +41,9 @@ public class RunCommand extends AbstractCommand {
   private static final String UNTIL_TASK = "ut";
   private static final String BEFORE_TASK = "bt";
   private static final String RUNNERS_CONFIG_FILE = "r";
+  private static final String LOGS_DIR = "l";
+  private static final String LOG_ONLY_TASK = "lt";
+  private static final String LOG_EXCLUDE_TASK = "nl";
 
   private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;
   private static final String PARAMS_FILE_LONG = "params";
@@ -51,6 +54,9 @@ public class RunCommand extends AbstractCommand {
   private static final String UNTIL_TASK_LONG = "until";
   private static final String BEFORE_TASK_LONG = "before";
   private static final String RUNNERS_CONFIG_FILE_LONG = "runners-config";
+  private static final String LOGS_DIR_LONG = "logs";
+  private static final String LOG_ONLY_TASK_LONG = "log-only-task";
+  private static final String LOG_EXCLUDE_TASK_LONG = "no-log-task";
 
   private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
   private static final String PARAMS_FILE_DESCRIPTION = "XML parameters file";
@@ -81,6 +87,16 @@ public class RunCommand extends AbstractCommand {
     "XML file configuring custom runners for tasks. See the "
       + "Compi documentation for more details";
 
+  private static final String LOGS_DIR_DESCRIPTION =
+    "Directory to save tasks' output (stdout and stderr, in separated files). By default, no output is saved. If this option is provided, all task's output will be logged by default. You can select which tasks to log with --"
+      + LOG_ONLY_TASK_LONG + " or --" + LOG_EXCLUDE_TASK_LONG;
+  private static final String LOG_ONLY_TASK_DESCRIPTION =
+    "Log task(s). Task id(s) whose output will be logged, other tasks' output will be ignored. This parameter is incompatible with --"
+      + LOG_EXCLUDE_TASK_LONG + ". If you use this option, you must provide a log directory with --" + LOGS_DIR_LONG;
+  private static final String LOG_EXCLUDE_TASK_DESCRIPTION =
+    "Do not log task(s). Task id(s) whose output will be ignored, other tasks' output will be saved. This parameter is incompatible with --"
+      + LOG_ONLY_TASK_LONG + ". If you use this option, you must provide a log directory with --" + LOGS_DIR_LONG;
+
   private static final String DEFAULT_NUM_PARALLEL_TASKS = "6";
 
   private String[] commandLineArgs;
@@ -90,7 +106,7 @@ public class RunCommand extends AbstractCommand {
   }
 
   @Override
-  public void execute(final Parameters parameters) throws IOException  {
+  public void execute(final Parameters parameters) throws IOException {
     String pipelineFile = parameters.getSingleValueString(super.getOption(PIPELINE_FILE));
     Integer compiThreads = parameters.getSingleValue(super.getOption(NUM_PARALLEL_TASKS));
 
@@ -99,6 +115,9 @@ public class RunCommand extends AbstractCommand {
     boolean hasSingleTask = parameters.hasOption(super.getOption(SINGLE_TASK));
     boolean hasUntilTask = parameters.hasOption(super.getOption(UNTIL_TASK));
     boolean hasBeforeTask = parameters.hasOption(super.getOption(BEFORE_TASK));
+    boolean hasLogDir = parameters.hasOption(super.getOption(LOGS_DIR));
+    boolean hasLogOnlyTasks = parameters.hasOption(super.getOption(LOG_ONLY_TASK));
+    boolean hasExcludeLogTasks = parameters.hasOption(super.getOption(LOG_EXCLUDE_TASK));
 
     if (hasSingleTask && (hasFrom || hasAfter || hasUntilTask || hasBeforeTask)) {
       throw new IllegalArgumentException(
@@ -109,6 +128,14 @@ public class RunCommand extends AbstractCommand {
     }
     if (hasUntilTask && hasBeforeTask) {
       throw new IllegalArgumentException("--" + UNTIL_TASK_LONG + " is incompatible with --" + BEFORE_TASK_LONG);
+    }
+    if (hasLogOnlyTasks && hasExcludeLogTasks) {
+      throw new IllegalArgumentException("--" + LOG_ONLY_TASK_LONG + " and --" + LOG_EXCLUDE_TASK_LONG + " are incompatible");
+    }
+    if ((hasLogOnlyTasks || hasExcludeLogTasks) && !hasLogDir) {
+      throw new IllegalArgumentException(
+        "--" + LOGS_DIR_LONG + " is mandatory if --" + (hasLogOnlyTasks ? LOG_ONLY_TASK_LONG : LOG_EXCLUDE_TASK_LONG)
+        +" is used");
     }
 
     List<String> fromTasks =
@@ -152,6 +179,21 @@ public class RunCommand extends AbstractCommand {
         ? parameters.getSingleValueString(super.getOption(BEFORE_TASK))
         : null;
 
+    File logsDir = null;
+    if (parameters.hasOption(super.getOption(LOGS_DIR))) {
+      logsDir = new File(parameters.getSingleValueString(super.getOption(LOGS_DIR)));
+      if (!logsDir.exists()) {
+        throw new IllegalArgumentException("Log dir (" + logsDir + ") does not exist or is not accessible");
+      }
+      if (!logsDir.isDirectory()) {
+        throw new IllegalArgumentException("Log dir (" + logsDir + ") is not a directory");
+      }
+    }
+    List<String> logOnlyTasks =
+      hasLogOnlyTasks ? parameters.getAllValuesString(super.getOption(LOG_ONLY_TASK)) : null;
+    List<String> logExcludeTasks =
+      hasExcludeLogTasks ? parameters.getAllValuesString(super.getOption(LOG_EXCLUDE_TASK)) : null;
+
     LOGGER.info("Compi running with: ");
     LOGGER.info("Pipeline file - " + pipelineFile);
     LOGGER.info("Max number of parallel tasks - " + compiThreads);
@@ -180,6 +222,9 @@ public class RunCommand extends AbstractCommand {
     if (beforeTask != null) {
       LOGGER.info("Running tasks before task - " + beforeTask);
     }
+    if (logsDir != null) {
+      LOGGER.info("Logging task's output to dir - " + logsDir);
+    }
 
     try {
 
@@ -194,7 +239,10 @@ public class RunCommand extends AbstractCommand {
             afterTasks,
             singleTask,
             untilTask,
-            beforeTask
+            beforeTask,
+            logsDir,
+            logOnlyTasks,
+            logExcludeTasks
           ), this.commandLineArgs
         );
 
@@ -203,7 +251,7 @@ public class RunCommand extends AbstractCommand {
     } catch (IllegalArgumentException e) {
       e.printStackTrace();
       LOGGER.severe(e.getClass() + ": " + e.getMessage());
-    }catch (PipelineValidationException e) {
+    } catch (PipelineValidationException e) {
       LOGGER.severe("Pipeline is not valid");
       logValidationErrors(e.getErrors());
     }
@@ -212,15 +260,15 @@ public class RunCommand extends AbstractCommand {
   private CompiRunConfiguration buildConfiguration(
     String pipelineFile, File runnersFile, Integer compiThreads, List<String> fromTasks, List<String> afterTasks,
     String singleTask,
-    String untilTask, String beforeTask
+    String untilTask, String beforeTask, File logDir, List<String> logOnlyTasks, List<String> logExcludeTasks
   ) throws IllegalArgumentException, IOException, PipelineValidationException {
 
     List<ValidationError> errors = new ArrayList<>();
-    
+
     Pipeline pipeline = fromFile(new File(pipelineFile), errors);
-    
+
     logValidationErrors(errors);
-    
+
     final CompiRunConfiguration.Builder builder = forPipeline(pipeline);
     builder.whichRunsAMaximumOf(compiThreads);
 
@@ -242,6 +290,14 @@ public class RunCommand extends AbstractCommand {
     }
     if (beforeTask != null) {
       builder.whichRunsTasksBeforeTask(beforeTask);
+    }
+    if (logDir != null) {
+      builder.whichLogsOutputsToDir(logDir);
+      if (logOnlyTasks != null) {
+        builder.whichOnlyLogsTasks(logOnlyTasks);
+      } else if (logExcludeTasks != null) {
+        builder.whichDoesNotLogTasks(logExcludeTasks);
+      }
     }
 
     CompiRunConfiguration configuration = builder.build();
@@ -269,6 +325,9 @@ public class RunCommand extends AbstractCommand {
     options.add(getPipelineFile());
     options.add(getParamsFile());
     options.add(getNumParallelTasks());
+    options.add(getLogsDir());
+    options.add(getLogOnlyTasks());
+    options.add(getLogExcludeTasks());
     options.add(getRunSingleTask());
     options.add(getRunFromTasks());
     options.add(getRunAfterTasks());
@@ -297,6 +356,27 @@ public class RunCommand extends AbstractCommand {
     return new IntegerDefaultValuedStringConstructedOption(
       NUM_PARALLEL_TASKS_LONG,
       NUM_PARALLEL_TASKS, NUM_PARALLEL_TASKS_DESCRIPTION, DEFAULT_NUM_PARALLEL_TASKS
+    );
+  }
+
+  private Option<?> getLogsDir() {
+    return new StringOption(
+      LOGS_DIR_LONG, LOGS_DIR,
+      LOGS_DIR_DESCRIPTION, true, true, false
+    );
+  }
+
+  private Option<?> getLogOnlyTasks() {
+    return new StringOption(
+      LOG_ONLY_TASK_LONG, LOG_ONLY_TASK,
+      LOG_ONLY_TASK_DESCRIPTION, true, true, true
+    );
+  }
+
+  private Option<?> getLogExcludeTasks() {
+    return new StringOption(
+      LOG_EXCLUDE_TASK_LONG, LOG_EXCLUDE_TASK,
+      LOG_EXCLUDE_TASK_DESCRIPTION, true, true, true
     );
   }
 
@@ -372,7 +452,7 @@ public class RunCommand extends AbstractCommand {
 
     return compiParameters;
   }
-  
+
   private void logValidationErrors(List<ValidationError> errors) {
     errors.stream().forEach(error -> {
       if (error.getType().isError()) {

@@ -2,12 +2,14 @@ package org.sing_group.compi.core;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 
 import org.sing_group.compi.core.loops.ForeachIteration;
 import org.sing_group.compi.core.runner.ProcessCreator;
@@ -30,6 +32,9 @@ public class TaskRunnable implements Runnable {
   private BufferedWriter err;
   private Process process;
   private ProcessCreator processCreator;
+  private File stdOutLog;
+  private File stdErrorLog;
+  private boolean overwriteLog;
 
   /**
    * 
@@ -41,10 +46,16 @@ public class TaskRunnable implements Runnable {
    * @param processCreator
    *          an interface to create a process for running the task
    */
-  public TaskRunnable(final Task task, final TaskExecutionHandler executionHandler, ProcessCreator processCreator) {
+  public TaskRunnable(
+    final Task task, final TaskExecutionHandler executionHandler, ProcessCreator processCreator, File stdOutLog,
+    File stdErrorLog, boolean overwriteLog
+  ) {
     this.task = task;
     this.executionHandler = executionHandler;
     this.processCreator = processCreator;
+    this.stdOutLog = stdOutLog;
+    this.stdErrorLog = stdErrorLog;
+    this.overwriteLog = overwriteLog;
   }
 
   /**
@@ -57,14 +68,16 @@ public class TaskRunnable implements Runnable {
         if (!this.task.isSkipped()) {
           taskStarted(this.task);
 
-          if (this.task instanceof ForeachIteration &&
-        		  ((ForeachIteration) task).getParentForeachTask().isAborted()) {
-        	  taskAborted(this.task, null);
+          if (
+            this.task instanceof ForeachIteration &&
+              ((ForeachIteration) task).getParentForeachTask().isAborted()
+          ) {
+            taskAborted(this.task, null);
           } else {
-        	  this.process = this.getProcess(this.task);
-        	  openLogBuffers(this.process);
-        	  waitForProcess(this.process);
-        	  taskFinished(this.task);
+            this.process = this.getProcess(this.task);
+            openLogBuffers(this.process);
+            waitForProcess(this.process);
+            taskFinished(this.task);
           }
         } else {
           taskFinished(this.task);
@@ -117,8 +130,14 @@ public class TaskRunnable implements Runnable {
     if (taskHasFileLog()) {
       out =
         new BufferedWriter(
-          new OutputStreamWriter(new FileOutputStream(this.task.getFileLog(), true), "utf-8")
+          new OutputStreamWriter(new FileOutputStream(this.stdOutLog, !this.overwriteLog), "utf-8")
         );
+      try {
+        out.write("\n-- Starting compi stdout log on "+new Date()+" --\n");
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      
       final BufferedReader stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
       startFileLog(stdOut);
     }
@@ -126,8 +145,13 @@ public class TaskRunnable implements Runnable {
     if (taskHasFileErrorLog()) {
       err =
         new BufferedWriter(
-          new OutputStreamWriter(new FileOutputStream(this.task.getFileErrorLog(), true), "utf-8")
+          new OutputStreamWriter(new FileOutputStream(this.stdErrorLog, !this.overwriteLog), "utf-8")
         );
+      try {
+        err.write("\n-- Starting compi stderr log on "+new Date()+" --\n");
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
       final BufferedReader stdErr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
       startFileErrorLog(stdErr);
     }
@@ -140,7 +164,7 @@ public class TaskRunnable implements Runnable {
    *         otherwise
    */
   private boolean taskHasFileErrorLog() {
-    return this.task.getFileErrorLog() != null;
+    return this.stdErrorLog != null;
   }
 
   /**
@@ -150,7 +174,7 @@ public class TaskRunnable implements Runnable {
    *         otherwise
    */
   private boolean taskHasFileLog() {
-    return this.task.getFileLog() != null;
+    return this.stdOutLog != null;
   }
 
   /**

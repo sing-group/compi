@@ -175,8 +175,9 @@ public class TaskManager {
     }
     if (!foreach.isSkipped()) {
       values = generator.getValues(foreach.getIn());
+      int index = 0;
       for (final String source : values) {
-        value.add(createIterationForForeach(foreach, source));
+        value.add(createIterationForForeach(foreach, source, index++));
       }
     }
   }

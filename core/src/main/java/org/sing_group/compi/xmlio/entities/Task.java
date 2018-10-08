@@ -19,8 +19,6 @@ public class Task implements Cloneable {
 	private List<String> parameters = new LinkedList<>();
 	private String parametersString;
 	private String toExecute;
-	private String fileLog;
-	private String fileErrorLog;
 	private boolean isRunning = false;
 	private boolean isFinished = false;
 	private boolean isAborted = false;
@@ -89,44 +87,6 @@ public class Task implements Cloneable {
 	public String getParametersString() {
     return parametersString;
   }
-	/**
-	 * Getter of the fileLog attribute
-	 * 
-	 * @return The value of the fileLog attribute
-	 */
-	public String getFileLog() {
-		return fileLog;
-	}
-
-	/**
-	 * Changes the value of the fileLog attribute
-	 * 
-	 * @param fileLog
-	 *            attribute
-	 */
-	public void setFileLog(final String fileLog) {
-		this.fileLog = fileLog;
-	}
-
-	/**
-	 * Getter of the fileErrorLog attribute
-	 * 
-	 * @return The value of the fileErrorLog attribute
-	 */
-	public String getFileErrorLog() {
-		return fileErrorLog;
-	}
-
-	/**
-	 * Changes the value of the fileErrorLog attribute
-	 * 
-	 * @param fileErrorLog
-	 *            attribute
-	 */
-	public void setFileErrorLog(final String fileErrorLog) {
-		this.fileErrorLog = fileErrorLog;
-	}
-
 
 	/**
 	 * Getter of the exec attribute

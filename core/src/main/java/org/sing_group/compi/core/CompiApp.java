@@ -2,6 +2,7 @@ package org.sing_group.compi.core;
 
 import static org.sing_group.compi.core.loops.ForeachIteration.createIterationForForeach;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,6 +41,8 @@ import org.xml.sax.SAXException;
  */
 public class CompiApp {
 
+  private final CompiRunConfiguration config;
+  
   private final Pipeline pipeline;
   private final Map<Task, AtomicInteger> loopCounterOfTask = new HashMap<>();
   private final List<TaskExecutionHandler> executionHandlers = new ArrayList<>();
@@ -86,6 +89,8 @@ public class CompiApp {
 
     validateParameters(config);
 
+    this.config = config;
+    
     this.pipeline = config.getPipeline();
 
     if (config.getParamsFile() != null) {
@@ -96,11 +101,11 @@ public class CompiApp {
 
     initializeTaskManager();
 
-    initializeRunnersManager(config);
+    initializeRunnersManager();
 
-    disableTasksThatWillNotRun(config);
+    disableTasksThatWillNotRun();
 
-    initializeExecutorService(config.getMaxTasks());
+    initializeExecutorService();
   }
 
   /**
@@ -153,25 +158,31 @@ public class CompiApp {
               // is in taskLeft and we need to be notified that it has finished
               executorService.submit(
                 new TaskRunnable(
-                  createIterationForForeach((Foreach) taskToRun, null), this.executionHandler,
+                  createIterationForForeach((Foreach) taskToRun, null, 0), this.executionHandler,
                   (task) -> {
                     return new DummyProcess();
-                  }
+                  }, null, null, false
                   )
                 );
                 } else {
               for (final ForeachIteration lp : taskManager.getForEachTasks().get(taskToRun.getId())) {
+                final File stdOut = getLogFile(lp, ".out.log");
+                final File stdErr = getLogFile(lp, ".err.log");
+                      
                 executorService.submit(
                   new TaskRunnable(
-                    lp, this.executionHandler, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()))
+                    lp, this.executionHandler, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()),
+                    stdOut, stdErr, false)
                   );
                   }
             }
           } else {
+            final File stdOut = getLogFile(taskToRun, ".out.log");
+            final File stdErr = getLogFile(taskToRun, ".err.log");
             executorService.submit(
               new TaskRunnable(
-                taskToRun, this.executionHandler, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()))
-              );
+                taskToRun, this.executionHandler, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()),
+              stdOut, stdErr, false));
               }
         }
         syncMonitor.wait();
@@ -182,6 +193,17 @@ public class CompiApp {
 
     // wait for remaining tasks that are currently running
     executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+  }
+
+  private File getLogFile(final Task task, String suffix) {
+    final File stdOut = 
+      this.config.getLogsDir() != null && 
+        (
+          (this.config.getLogOnlyTasks()!=null && this.config.getLogOnlyTasks().contains(task.getId())) || 
+          (this.config.getDoNotLogTasks() !=null && !this.config.getDoNotLogTasks().contains(task.getId())) || 
+          (this.config.getDoNotLogTasks() == null && this.config.getLogOnlyTasks() == null)
+          )?new File(this.config.getLogsDir()+File.separator+task.getId()+(task instanceof ForeachIteration?"_"+((ForeachIteration)task).getIterationIndex():"")+suffix):null;
+    return stdOut;
   }
 
   private void validateParameters(CompiRunConfiguration config) {
@@ -202,9 +224,16 @@ public class CompiApp {
         throw new IllegalArgumentException("afterTasks and untilTasks cannot have tasks in common");
       }
     }
+    
+    if (config.getLogOnlyTasks() != null && config.getDoNotLogTasks() != null) {
+      throw new IllegalArgumentException("logOnlyTasks is incompatible with doNotLogTasks");
+    }
+    if ((config.getLogOnlyTasks() != null || config.getDoNotLogTasks() != null) && config.getLogsDir() == null) {
+      throw new IllegalArgumentException("logDir cannot be null if logOnlyTasks or doNotLogTasks are not null");
+    }
   }
 
-  private void initializeRunnersManager(CompiRunConfiguration config) throws IOException {
+  private void initializeRunnersManager() throws IOException {
     if (config.getRunnersFile() != null) {
       this.runnersManager = new RunnersManager(config.getRunnersFile(), this.pipeline, this.resolver);
     } else {
@@ -217,7 +246,7 @@ public class CompiApp {
     this.taskManager.initializeDependencies();
   }
 
-  private void disableTasksThatWillNotRun(CompiRunConfiguration config) {
+  private void disableTasksThatWillNotRun() {
     if (config.getSingleTask() != null) {
       skipAllBut(config.getSingleTask());
     } else {
@@ -249,11 +278,11 @@ public class CompiApp {
    *           If the number of threads is equal or less than 0 or if the number
    *           is a string instead of a number
    */
-  private void initializeExecutorService(final int threadNumber) throws IllegalArgumentException {
-    if (threadNumber <= 0) {
+  private void initializeExecutorService() throws IllegalArgumentException {
+    if (config.getMaxTasks() <= 0) {
       throw new IllegalArgumentException("The thread number must be higher than 0");
     } else {
-      executorService = Executors.newFixedThreadPool(threadNumber);
+      executorService = Executors.newFixedThreadPool(config.getMaxTasks());
     }
   }
 
