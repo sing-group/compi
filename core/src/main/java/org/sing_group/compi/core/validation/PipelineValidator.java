@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 import org.sing_group.compi.xmlio.DOMparsing;
 import org.sing_group.compi.xmlio.PipelineParserFactory;
+import org.sing_group.compi.xmlio.entities.Foreach;
+import org.sing_group.compi.xmlio.entities.ParameterDescription;
 import org.sing_group.compi.xmlio.entities.Pipeline;
 import org.sing_group.compi.xmlio.entities.Task;
 import org.xml.sax.SAXException;
@@ -20,8 +22,9 @@ import org.xml.sax.SAXException;
 public class PipelineValidator {
 
   public static enum ValidationErrorType {
-    XML_SCHEMA_VALIDATION_ERROR(true), NON_DECLARED_PARAMETER(true),
-    NON_DECLARED_TASK_ID(true);
+    XML_SCHEMA_VALIDATION_ERROR(true), NON_DECLARED_PARAMETER(true), NON_DECLARED_TASK_ID(
+      true
+    ), PARAMETER_NAME_FOUND_IN_CODE(false);
 
     private boolean isError;
 
@@ -57,6 +60,7 @@ public class PipelineValidator {
 
       checkTaskParametersAreDeclared();
       checkAfterIncludesOnlyExistentTasks();
+      checkParameterNamesFoundInCode();
 
       this.wasValidated = true;
     } catch (IllegalArgumentException | SAXException e) {
@@ -67,10 +71,33 @@ public class PipelineValidator {
     return errors;
   }
 
+  private void checkParameterNamesFoundInCode() {
+    for (Task t : this.pipeline.getTasks()) {
+      for (ParameterDescription pd : this.pipeline.getParameterDescriptions()) {
+        if (pd.isGlobal()) continue;
+        if (
+          t.getToExecute().contains(pd.getName()) &&
+            !t.getParameters().contains(pd.getName()) &&
+            (!(t instanceof Foreach && ((Foreach) t).getAs().equals(pd.getName())))
+        ) {
+
+          errors.add(
+            new ValidationError(
+              ValidationErrorType.PARAMETER_NAME_FOUND_IN_CODE,
+              "Parameter \"" + pd.getName() + "\" found in code of task " + t.getId()
+                + ", but it was not declared in the 'params' attribute. Is this correct?"
+            )
+          );
+        }
+      }
+    }
+
+  }
+
   private void checkTaskParametersAreDeclared() {
     for (Task t : this.pipeline.getTasks()) {
       for (String parameter : t.getParameters()) {
-        
+
         if (this.pipeline.getParameterDescription(parameter) == null) {
           errors.add(
             new ValidationError(

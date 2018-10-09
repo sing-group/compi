@@ -156,8 +156,6 @@ public class CompiRunConfiguration {
     return showStdOuts;
   }
 
-
-
   /**
    * A builder for {@link CompiRunConfiguration} objects
    * 

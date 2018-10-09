@@ -50,6 +50,7 @@ public class RunCommand extends AbstractCommand {
   private static final String LOG_EXCLUDE_TASK = "nl";
   private static final String SHOW_STD_OUTS = "o";
   private static final String QUIET = "q";
+  private static final String ABORT_IF_WARNINGS = "w";
 
   private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;
   private static final String PARAMS_FILE_LONG = "params";
@@ -65,6 +66,7 @@ public class RunCommand extends AbstractCommand {
   private static final String LOG_EXCLUDE_TASK_LONG = "no-log-task";
   private static final String SHOW_STD_OUTS_LONG = "show-std-outs";
   private static final String QUIET_LONG = "quiet";
+  private static final String ABORT_IF_WARNINGS_LONG = "abort-if-warinings";
 
   private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
   private static final String PARAMS_FILE_DESCRIPTION = "XML parameters file";
@@ -107,6 +109,7 @@ public class RunCommand extends AbstractCommand {
 
   private static final String SHOW_STD_OUTS_DESCRIPTION = "Forward task stdout/stderr to the compi stdout/stderr";
   private static final String QUIET_DESCRIPTION = "Do not output compi logs to the console";
+  private static final String ABORT_IF_WARNINGS_DESCRIPTION = "Abort pipeline run if there are warnings on pipeline validation";
 
   private static final String DEFAULT_NUM_PARALLEL_TASKS = "6";
 
@@ -131,6 +134,7 @@ public class RunCommand extends AbstractCommand {
     boolean hasExcludeLogTasks = parameters.hasOption(super.getOption(LOG_EXCLUDE_TASK));
     boolean hasShowStdOuts = parameters.hasOption(super.getOption(SHOW_STD_OUTS));
     boolean hasQuiet = parameters.hasOption(super.getOption(QUIET));
+    boolean hasAbortIfWarnings = parameters.hasOption(super.getOption(ABORT_IF_WARNINGS));
 
     if (hasQuiet) {
       silenceConsoleLog();
@@ -263,7 +267,8 @@ public class RunCommand extends AbstractCommand {
             logsDir,
             logOnlyTasks,
             logExcludeTasks,
-            hasShowStdOuts
+            hasShowStdOuts,
+            hasAbortIfWarnings
           ), this.commandLineArgs
         );
 
@@ -291,7 +296,7 @@ public class RunCommand extends AbstractCommand {
     String pipelineFile, File runnersFile, Integer compiThreads, List<String> fromTasks, List<String> afterTasks,
     String singleTask,
     String untilTask, String beforeTask, File logDir, List<String> logOnlyTasks, List<String> logExcludeTasks,
-    boolean showStdOuts
+    boolean showStdOuts, boolean abortIfWarnings
   ) throws IllegalArgumentException, IOException, PipelineValidationException {
 
     List<ValidationError> errors = new ArrayList<>();
@@ -300,6 +305,10 @@ public class RunCommand extends AbstractCommand {
 
     logValidationErrors(errors);
 
+    if (errors.stream().filter(error -> !error.getType().isError()).count() > 0 && abortIfWarnings) {
+      throw new IllegalArgumentException("Pipeline has warnings and --"+ABORT_IF_WARNINGS_LONG+" option was used. Aborting");
+    }
+    
     final CompiRunConfiguration.Builder builder = forPipeline(pipeline);
     builder.whichRunsAMaximumOf(compiThreads);
 
@@ -370,8 +379,16 @@ public class RunCommand extends AbstractCommand {
     options.add(getRunnersConfigFile());
     options.add(getShowStdOuts());
     options.add(getQuiet());
+    options.add(getAbortIfWarnings());
 
     return options;
+  }
+
+  private Option<?> getAbortIfWarnings() {
+    return new FlagOption(
+      ABORT_IF_WARNINGS_LONG, ABORT_IF_WARNINGS,
+      ABORT_IF_WARNINGS_DESCRIPTION
+    );
   }
 
   private Option<?> getShowStdOuts() {
