@@ -108,11 +108,9 @@ public class TaskRunnable implements Runnable {
    *           If the {@link Process} ends with an error
    */
   private void waitForProcess(final Process process) throws InterruptedException {
-    if (process.waitFor() == 0) {
-
-      return;
-    } else {
-      throw new InterruptedException();
+    int exitStatus = 0;
+    if ((exitStatus = process.waitFor()) != 0) {
+      throw new InterruptedException("The process has exited with a non-zero status: "+exitStatus);
     }
   }
 
