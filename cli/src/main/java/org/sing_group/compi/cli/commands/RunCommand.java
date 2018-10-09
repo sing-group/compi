@@ -48,6 +48,7 @@ public class RunCommand extends AbstractCommand {
   private static final String LOGS_DIR = "l";
   private static final String LOG_ONLY_TASK = "lt";
   private static final String LOG_EXCLUDE_TASK = "nl";
+  private static final String SHOW_STD_OUTS = "o";
   private static final String QUIET = "q";
 
   private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;
@@ -62,6 +63,7 @@ public class RunCommand extends AbstractCommand {
   private static final String LOGS_DIR_LONG = "logs";
   private static final String LOG_ONLY_TASK_LONG = "log-only-task";
   private static final String LOG_EXCLUDE_TASK_LONG = "no-log-task";
+  private static final String SHOW_STD_OUTS_LONG = "show-std-outs";
   private static final String QUIET_LONG = "quiet";
 
   private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
@@ -103,6 +105,7 @@ public class RunCommand extends AbstractCommand {
     "Do not log task(s). Task id(s) whose output will be ignored, other tasks' output will be saved. This parameter is incompatible with --"
       + LOG_ONLY_TASK_LONG + ". If you use this option, you must provide a log directory with --" + LOGS_DIR_LONG;
 
+  private static final String SHOW_STD_OUTS_DESCRIPTION = "Forward task stdout/stderr to the compi stdout/stderr";
   private static final String QUIET_DESCRIPTION = "Do not output compi logs to the console";
 
   private static final String DEFAULT_NUM_PARALLEL_TASKS = "6";
@@ -126,6 +129,7 @@ public class RunCommand extends AbstractCommand {
     boolean hasLogDir = parameters.hasOption(super.getOption(LOGS_DIR));
     boolean hasLogOnlyTasks = parameters.hasOption(super.getOption(LOG_ONLY_TASK));
     boolean hasExcludeLogTasks = parameters.hasOption(super.getOption(LOG_EXCLUDE_TASK));
+    boolean hasShowStdOuts = parameters.hasOption(super.getOption(SHOW_STD_OUTS));
     boolean hasQuiet = parameters.hasOption(super.getOption(QUIET));
 
     if (hasQuiet) {
@@ -258,7 +262,8 @@ public class RunCommand extends AbstractCommand {
             beforeTask,
             logsDir,
             logOnlyTasks,
-            logExcludeTasks
+            logExcludeTasks,
+            hasShowStdOuts
           ), this.commandLineArgs
         );
 
@@ -285,7 +290,8 @@ public class RunCommand extends AbstractCommand {
   private CompiRunConfiguration buildConfiguration(
     String pipelineFile, File runnersFile, Integer compiThreads, List<String> fromTasks, List<String> afterTasks,
     String singleTask,
-    String untilTask, String beforeTask, File logDir, List<String> logOnlyTasks, List<String> logExcludeTasks
+    String untilTask, String beforeTask, File logDir, List<String> logOnlyTasks, List<String> logExcludeTasks,
+    boolean showStdOuts
   ) throws IllegalArgumentException, IOException, PipelineValidationException {
 
     List<ValidationError> errors = new ArrayList<>();
@@ -324,7 +330,10 @@ public class RunCommand extends AbstractCommand {
         builder.whichDoesNotLogTasks(logExcludeTasks);
       }
     }
-
+    if (showStdOuts) {
+      builder.whichShowsStdOuts();
+    }
+    
     CompiRunConfiguration configuration = builder.build();
     return configuration;
   }
@@ -359,9 +368,17 @@ public class RunCommand extends AbstractCommand {
     options.add(getRunUntilTask());
     options.add(getRunBeforeTask());
     options.add(getRunnersConfigFile());
+    options.add(getShowStdOuts());
     options.add(getQuiet());
 
     return options;
+  }
+
+  private Option<?> getShowStdOuts() {
+    return new FlagOption(
+      SHOW_STD_OUTS_LONG, SHOW_STD_OUTS,
+      SHOW_STD_OUTS_DESCRIPTION
+    );
   }
 
   private Option<?> getQuiet() {

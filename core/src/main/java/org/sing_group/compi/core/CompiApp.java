@@ -162,7 +162,7 @@ public class CompiApp {
                   createIterationForForeach((Foreach) taskToRun, null, 0), this.executionHandler,
                   (task) -> {
                     return new DummyProcess();
-                  }, null, null, false
+                  }, null, null, false, this.config.isShowStdOuts()
                   )
                 );
                 } else {
@@ -173,7 +173,7 @@ public class CompiApp {
                 executorService.submit(
                   new TaskRunnable(
                     lp, this.executionHandler, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()),
-                    stdOut, stdErr, false)
+                    stdOut, stdErr, false, this.config.isShowStdOuts())
                   );
                   }
             }
@@ -183,7 +183,7 @@ public class CompiApp {
             executorService.submit(
               new TaskRunnable(
                 taskToRun, this.executionHandler, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()),
-              stdOut, stdErr, false));
+              stdOut, stdErr, false, this.config.isShowStdOuts()));
               }
         }
         syncMonitor.wait();

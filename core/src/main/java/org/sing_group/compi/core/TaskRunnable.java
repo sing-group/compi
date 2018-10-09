@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.LinkedList;
@@ -41,6 +42,7 @@ public class TaskRunnable implements Runnable {
   private final LinkedList<String> stdErrLastMessages = new LinkedList<>();
   private Thread stdErrThread;
   private Thread stdOutThread;
+  private boolean showStdOuts;
 
   /**
    * 
@@ -54,7 +56,7 @@ public class TaskRunnable implements Runnable {
    */
   public TaskRunnable(
     final Task task, final TaskExecutionHandler executionHandler, ProcessCreator processCreator, File stdOutLog,
-    File stdErrorLog, boolean overwriteLog
+    File stdErrorLog, boolean overwriteLog, boolean showStdOuts
   ) {
     this.task = task;
     this.executionHandler = executionHandler;
@@ -62,6 +64,7 @@ public class TaskRunnable implements Runnable {
     this.stdOutLog = stdOutLog;
     this.stdErrorLog = stdErrorLog;
     this.overwriteLog = overwriteLog;
+    this.showStdOuts = showStdOuts;
   }
 
   /**
@@ -161,7 +164,7 @@ public class TaskRunnable implements Runnable {
       task.setStdOutLogFile(this.stdOutLog);
     }
     final BufferedReader stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
-    this.stdOutThread = startLog(stdOut, this.out, this.stdOutLastMessages);
+    this.stdOutThread = startLog(stdOut, this.out, this.stdOutLastMessages, System.out);
 
     if (taskHasFileErrorLog()) {
       err =
@@ -172,7 +175,7 @@ public class TaskRunnable implements Runnable {
     }
     
     final BufferedReader stdErr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-    this.stdErrThread = startLog(stdErr, this.err, this.stdErrLastMessages);
+    this.stdErrThread = startLog(stdErr, this.err, this.stdErrLastMessages, System.err);
   }
 
   /**
@@ -217,7 +220,7 @@ public class TaskRunnable implements Runnable {
     }
   }
 
-  private Thread startLog(final BufferedReader in, final BufferedWriter out, final LinkedList<String> lastMessages)
+  private Thread startLog(final BufferedReader in, final BufferedWriter out, final LinkedList<String> lastMessages, PrintStream stdOut)
     throws UnsupportedEncodingException, FileNotFoundException {
     if (out != null) {
       try {
@@ -231,6 +234,9 @@ public class TaskRunnable implements Runnable {
       try {
         
         while ((line = in.readLine()) != null) {
+          if (showStdOuts) {
+            stdOut.println(line);
+          }
           if (out != null) {
             out.write(line + System.getProperty("line.separator"));
           }

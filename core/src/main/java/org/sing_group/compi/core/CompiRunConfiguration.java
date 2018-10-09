@@ -34,6 +34,7 @@ public class CompiRunConfiguration {
   private boolean overwriteLogs = false;
   private List<String> logOnlyTasks;
   private List<String> doNotLogTasks;
+  private boolean showStdOuts = false;
 
   public Pipeline getPipeline() {
     return pipeline;
@@ -146,6 +147,14 @@ public class CompiRunConfiguration {
   public void setOverwriteLogs(boolean overwriteLogs) {
     this.overwriteLogs = overwriteLogs;
   }
+  
+  public void setShowStdOuts(boolean showStdOuts) {
+    this.showStdOuts = showStdOuts;
+  }
+  
+  public boolean isShowStdOuts() {
+    return showStdOuts;
+  }
 
 
 
@@ -237,6 +246,12 @@ public class CompiRunConfiguration {
       this.config.overwriteLogs = true;
       return this;
     }
+    
+    public Builder whichShowsStdOuts() {
+      this.config.showStdOuts = true;
+      return this;
+    }
+    
     public CompiRunConfiguration build() {
       return config;
     }
