@@ -1,5 +1,6 @@
 package org.sing_group.compi.xmlio.entities;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,6 +24,7 @@ public class Task implements Cloneable {
 	private boolean isFinished = false;
 	private boolean isAborted = false;
 	private boolean isSkipped = false;
+	private File stdOutLogFile, stdErrLogFile;
 
 	/**
 	 * Getter of the id attribute
@@ -221,7 +223,24 @@ public class Task implements Cloneable {
 		this.isSkipped = isSkipped;
 	}
 
-	/**
+	
+	public File getStdOutLogFile() {
+    return stdOutLogFile;
+  }
+
+  public void setStdOutLogFile(File stdOutLogFile) {
+    this.stdOutLogFile = stdOutLogFile;
+  }
+
+  public File getStdErrLogFile() {
+    return stdErrLogFile;
+  }
+
+  public void setStdErrLogFile(File stdErrLogFile) {
+    this.stdErrLogFile = stdErrLogFile;
+  }
+
+  /**
 	 * Creates a clone of a {@link Task}
 	 */
 	@Override

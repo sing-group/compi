@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.CompiRunConfiguration;
+import org.sing_group.compi.core.CompiTaskAbortedException;
 import org.sing_group.compi.core.TaskExecutionHandler;
 import org.sing_group.compi.core.loops.ForeachIteration;
 import org.sing_group.compi.core.resolver.MapVariableResolver;
@@ -42,13 +43,13 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
   private static String[] commandLineArgs;
   private static CompiApp compiApp;
   private static VariableResolver resolver = null;
-  
+
   public static RunSpecificPipelineCommand newRunSpecificPipelineCommand(
     CompiRunConfiguration config, String[] commandLineArgs
   ) throws IOException {
-    
+
     config.setResolver(createPipelineVariableResolverProxy());
-    
+
     RunSpecificPipelineCommand.config = config;
     RunSpecificPipelineCommand.commandLineArgs = commandLineArgs;
     RunSpecificPipelineCommand.compiApp = new CompiApp(config);
@@ -87,62 +88,87 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
         if (task instanceof Foreach) {
           if (!startedForeachs.contains(task.getId())) {
             LOGGER.info(
-              "> Started loop task " + task.getId() + " (command: " + task.getToExecute() + ")"
+              "> Started loop task " + task.getId()
             );
             startedForeachs.add(task.getId());
           }
         } else {
-          LOGGER.info("> Started task " + task.getId() + " (command: " + task.getToExecute() + ")");
+          LOGGER.info("> Started task " + task.getId());
         }
       }
 
       @Override
       synchronized public void taskFinished(Task task) {
-        if (task.isSkipped()) {
-          LOGGER.fine("Task with id " + task.getId() + " skipped");
+        if (task instanceof Foreach) {
+          LOGGER.info(
+            "< Finished loop task " + task.getId()
+          );
         } else {
-          if (task instanceof Foreach) {
-            LOGGER.info(
-              "< Finished loop task " + task.getId() + " (command: " + task.getToExecute()
-                + ")"
-            );
-          } else {
-            LOGGER.info("< Finished task " + task.getId() + " (command: " + task.getToExecute() + ")");
-          }
+          LOGGER.info("< Finished task " + task.getId());
         }
       }
 
       @Override
-      synchronized public void taskAborted(Task task, Exception e) {
+      synchronized public void taskAborted(Task task, CompiTaskAbortedException e) {
         LOGGER.severe(
-          "X Aborted task " + task.getId() + " (command: " + task.getToExecute() + ") Cause - "
-            + e.getClass() + ": " + e.getMessage()
+          "X Aborted task " + task.getId() + ". Cause: " + e.getMessage() + getLogInfo(e) 
         );
       }
 
       @Override
       public void taskIterationStarted(ForeachIteration iteration) {
         LOGGER.info(
-          ">> Started loop iteration of task " + iteration.getId() + " (command: " + iteration.getToExecute()
-            + ")"
+          ">> Started loop iteration of task " + iteration.getId()
         );
       }
 
       @Override
       public void taskIterationFinished(ForeachIteration iteration) {
         LOGGER.info(
-          "<< Finished loop iteration of task " + iteration.getId() + " (command: " + iteration.getToExecute()
-            + ")"
+          "<< Finished loop iteration of task " + iteration.getId()
         );
       }
 
       @Override
-      public void taskIterationAborted(ForeachIteration iteration, Exception e) {
+      public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
         LOGGER.severe(
-          "X Aborted loop iteration of task " + iteration.getId() + " (command: " + iteration.getToExecute() + ") Cause - "
-            + e.getClass() + ": " + e.getMessage()
+          "X Aborted loop iteration of task " + iteration.getId() + ". Cause: " + e.getMessage() + getLogInfo(e)
         );
+
+      }
+
+      private String getLogInfo(CompiTaskAbortedException e) {        
+        StringBuilder builder = new StringBuilder();
         
+        if (e.getLastStdOut().size() > 0) {
+          builder.append("\n");
+          builder.append("--- Last "+e.getLastStdOut().size()+" stdout lines ---\n");
+          e.getLastStdOut().forEach(line -> {
+            builder.append(line+"\n");
+          });
+          builder.append("--- End of stdout lines ---\n");
+        }
+        
+        if (e.getLastStdErr().size() > 0) {
+          builder.append("\n");
+          builder.append("--- Last "+e.getLastStdErr().size()+" stderr lines ---\n");
+          e.getLastStdErr().forEach(line -> {
+            builder.append(line+"\n");
+          });
+          builder.append("--- End of stderr lines ---\n");
+        }
+        
+        if (e.getLastStdOut().size() > 0 && e.getTask().getStdOutLogFile() != null) {
+          builder.append("\nComplete stdout log file: "+e.getTask().getStdOutLogFile());
+        } else if (e.getLastStdOut().size() > 0) {
+          builder.append("\nTask "+e.getTask().getId()+" was not recording the complete stdout in a log file. Enable logging if you want and run again. ");
+        }
+        if (e.getLastStdErr().size() > 0 && e.getTask().getStdErrLogFile() != null) {
+          builder.append("\nComplete stderr log file: "+e.getTask().getStdErrLogFile());
+        } else if (e.getLastStdErr().size() > 0) {
+          builder.append("\nTask "+e.getTask().getId()+" was not recording the complete stderr in a log file. Enable logging if you want and run again. ");
+        }
+        return builder.toString();
       }
     });
     compiApp.run();
@@ -150,35 +176,44 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
   private static VariableResolver createPipelineVariableResolverProxy() {
     // A proxy for the variable resolver. This proxy solves a tricky situation:
-    // 1. We need that CompiApp is created before the createOptions method is called, since we need that skipped tasks
+    // 1. We need that CompiApp is created before the createOptions method is
+    // called, since we need that skipped tasks
     // are computed (which is done inside CompiApp constructor)
-    // 2. The variableResolver, that is passed to CompiApp inside configuration, cannot be created until we receive the
-    // call to execute(Parameters), since the Parameters object is needed to create this variable resolver.
-    
-    // To solve this situation, we create CompiApp on the static newRunSpecificPipelineCommand (which is called before
-    // createOptions), but with a "proxy" variable resolver, that throws exceptions if its methods for resolving variables
-    // are called before we have the real resolver, which is constructed during execute(Parameters) call. Fortunately,
-    // nobody calls these variable resolving methods before execute, since we have not called CompiApp.run() yet.
+    // 2. The variableResolver, that is passed to CompiApp inside configuration,
+    // cannot be created until we receive the
+    // call to execute(Parameters), since the Parameters object is needed to
+    // create this variable resolver.
+
+    // To solve this situation, we create CompiApp on the static
+    // newRunSpecificPipelineCommand (which is called before
+    // createOptions), but with a "proxy" variable resolver, that throws
+    // exceptions if its methods for resolving variables
+    // are called before we have the real resolver, which is constructed during
+    // execute(Parameters) call. Fortunately,
+    // nobody calls these variable resolving methods before execute, since we
+    // have not called CompiApp.run() yet.
     return new VariableResolver() {
-  
+
       @Override
       public String resolveVariable(String variable) throws IllegalArgumentException {
         if (resolver == null) {
-          // you should not see this, since resolveVariable is not called before compiApp.run() is called
+          // you should not see this, since resolveVariable is not called before
+          // compiApp.run() is called
           throw new IllegalStateException("resolver has not been initialized");
         }
         return resolver.resolveVariable(variable);
       }
-  
+
       @Override
       public Set<String> getVariableNames() {
         if (resolver == null) {
-          // you should not see this, since resolveVariable is not called before compiApp.run() is called
+          // you should not see this, since resolveVariable is not called before
+          // compiApp.run() is called
           throw new IllegalStateException("resolver has not been initialized");
         }
         return resolver.getVariableNames();
       }
-      
+
     };
   }
 
@@ -188,8 +223,19 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
     // options defined as CLI parameters
     RunSpecificPipelineCommand.this.getOptions().forEach((option) -> {
       if (
-        parameters.hasOption(option) && (!(option instanceof DefaultValuedOption) ||
-          !((DefaultValuedOption<?>) option).getDefaultValue().equals(parameters.getSingleValue(option)))
+          parameters
+            .hasOption(
+              option
+        ) && (!(option instanceof DefaultValuedOption)
+          ||
+          !((DefaultValuedOption<?>) option)
+            .getDefaultValue()
+            .equals(
+              parameters
+                .getSingleValue(
+                  option
+          )
+          ))
       ) {
         variables.put(option.getParamName(), parameters.getSingleValueString(option));
       }
@@ -227,7 +273,8 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
         ParameterDescription description = p.getParameterDescription(parameterName);
         List<OptionCategory> categories =
           tasks.stream().filter(task -> !task.isSkipped())
-            .map(task -> new OptionCategory(task.getId())).collect(toList());
+            .map(task -> new OptionCategory(task.getId())).collect(toList()
+        );
 
         if (categories.size() > 0) {
           if (description != null) {
@@ -240,37 +287,40 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
                     categories, description.getName(),
                     description.getShortName(), description.getDescription(),
                     description.getDefaultValue()
-                  );
+                    );
               } else {
                 option =
                   new StringOption(
                     categories, description.getName(),
                     description.getShortName(), description.getDescription(),
                     paramsFileResolver != null
-                      && paramsFileResolver.resolveVariable(parameterName) != null ? true
-                        : false,
+                      && paramsFileResolver.resolveVariable(parameterName
+                ) != null ? true
+                  : false,
                     true, false
-                  );
+                    );
               }
-              options.add(option);
+              options.add(option
+          );
             }
           } else {
             options.add(
               new StringOption(
                 categories, parameterName, parameterName, "",
                 paramsFileResolver != null
-                  && paramsFileResolver.resolveVariable(parameterName) != null ? true
-                    : false,
+                  && paramsFileResolver.resolveVariable(parameterName
+            ) != null ? true
+              : false,
                 true, false
-              )
-            );
+                )
+                );
           }
         }
 
       });
-      /*
-       * } }
-       */
+                /*
+                 * } }
+                 */
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -286,12 +336,11 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
         resolver =
           new XMLParamsFileVariableResolver(
             new File(commandLineArgs[i + 1])
-          );
-      }
-    }
+            );
+            }
+            }
 
-    return resolver;
-  }
-  
-  
+            return resolver;
+            }
+
 }

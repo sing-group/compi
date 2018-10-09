@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.LinkedList;
 
 import org.sing_group.compi.core.loops.ForeachIteration;
 import org.sing_group.compi.core.runner.ProcessCreator;
@@ -35,6 +36,11 @@ public class TaskRunnable implements Runnable {
   private File stdOutLog;
   private File stdErrorLog;
   private boolean overwriteLog;
+  private final int MAX_OUTPUT_MESSAGES = 100;
+  private final LinkedList<String> stdOutLastMessages = new LinkedList<>();
+  private final LinkedList<String> stdErrLastMessages = new LinkedList<>();
+  private Thread stdErrThread;
+  private Thread stdOutThread;
 
   /**
    * 
@@ -82,8 +88,15 @@ public class TaskRunnable implements Runnable {
         } else {
           taskFinished(this.task);
         }
-      } catch (IOException | InterruptedException e) {
+      } catch (CompiTaskAbortedException e) {
         taskAborted(this.task, e);
+      } catch (IOException e) {
+        taskAborted(
+          this.task,
+          new CompiTaskAbortedException(
+            "An I/O error ocurred: " + e.getMessage(), e, this.task, this.stdOutLastMessages, this.stdErrLastMessages
+          )
+        );
       } finally {
         try {
           closeLogBuffers();
@@ -107,10 +120,25 @@ public class TaskRunnable implements Runnable {
    * @throws InterruptedException
    *           If the {@link Process} ends with an error
    */
-  private void waitForProcess(final Process process) throws InterruptedException {
+  private void waitForProcess(final Process process) throws CompiTaskAbortedException {
     int exitStatus = 0;
-    if ((exitStatus = process.waitFor()) != 0) {
-      throw new InterruptedException("The process has exited with a non-zero status: "+exitStatus);
+    try {
+      exitStatus = process.waitFor();
+      
+      if (stdErrThread != null) stdErrThread.join();
+      if (stdOutThread != null) stdOutThread.join();
+      
+      if ((exitStatus) != 0) {
+        throw new CompiTaskAbortedException(
+          "The process has exited with a non-zero status: " + exitStatus, null, this.task, this.stdOutLastMessages,
+          this.stdErrLastMessages
+        );
+      }
+    } catch (InterruptedException e) {
+      throw new CompiTaskAbortedException(
+        "The process has been interrupted", e, this.task, this.stdOutLastMessages,
+        this.stdErrLastMessages
+      );
     }
   }
 
@@ -130,29 +158,21 @@ public class TaskRunnable implements Runnable {
         new BufferedWriter(
           new OutputStreamWriter(new FileOutputStream(this.stdOutLog, !this.overwriteLog), "utf-8")
         );
-      try {
-        out.write("\n-- Starting compi stdout log on "+new Date()+" --\n");
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      
-      final BufferedReader stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
-      startFileLog(stdOut);
+      task.setStdOutLogFile(this.stdOutLog);
     }
+    final BufferedReader stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
+    this.stdOutThread = startLog(stdOut, this.out, this.stdOutLastMessages);
 
     if (taskHasFileErrorLog()) {
       err =
         new BufferedWriter(
           new OutputStreamWriter(new FileOutputStream(this.stdErrorLog, !this.overwriteLog), "utf-8")
         );
-      try {
-        err.write("\n-- Starting compi stderr log on "+new Date()+" --\n");
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      final BufferedReader stdErr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-      startFileErrorLog(stdErr);
+      task.setStdErrLogFile(this.stdErrorLog);
     }
+    
+    final BufferedReader stdErr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+    this.stdErrThread = startLog(stdErr, this.err, this.stdErrLastMessages);
   }
 
   /**
@@ -182,6 +202,11 @@ public class TaskRunnable implements Runnable {
    *           If an I/O exception of some sort has occurred
    */
   private void closeLogBuffers() throws IOException {
+    try {
+      if (stdErrThread != null) stdErrThread.join();
+      if (stdOutThread != null) stdOutThread.join();
+    } catch (InterruptedException e) {e.printStackTrace();}
+    
     if (taskHasFileLog() && !this.task.isSkipped()) {
       out.flush();
       out.close();
@@ -192,49 +217,32 @@ public class TaskRunnable implements Runnable {
     }
   }
 
-  /**
-   * Creates a {@link Thread} to read the {@link Process} standard output and
-   * write it in a {@link BufferedWriter}
-   * 
-   * @param stdOut
-   *          Indicates the {@link BufferedReader} where the output will be read
-   * @throws UnsupportedEncodingException
-   *           If the character encoding is not supported
-   * @throws FileNotFoundException
-   *           If the file can't be opened
-   */
-  private void startFileLog(final BufferedReader stdOut) throws UnsupportedEncodingException, FileNotFoundException {
-    new Thread(() -> {
-      String line;
-      try {
-        while ((line = stdOut.readLine()) != null) {
-          out.write(line + System.getProperty("line.separator"));
-        }
-      } catch (final Exception e) {}
-    }).start();
-  }
-
-  /**
-   * Creates a {@link Thread} to read the {@link Process} error output and write
-   * it in a {@link BufferedWriter}
-   * 
-   * @param stdOut
-   *          Indicates the {@link BufferedReader} where the output will be read
-   * @throws UnsupportedEncodingException
-   *           If the character encoding is not supported
-   * @throws FileNotFoundException
-   *           If the file can't be opened
-   */
-  private void startFileErrorLog(final BufferedReader stdErr)
+  private Thread startLog(final BufferedReader in, final BufferedWriter out, final LinkedList<String> lastMessages)
     throws UnsupportedEncodingException, FileNotFoundException {
-    new Thread(() -> {
+    if (out != null) {
+      try {
+        out.write("\n-- Starting log on " + new Date() + " --\n");
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    Thread logThread = new Thread(() -> {
       String line;
       try {
-        while ((line = stdErr.readLine()) != null) {
-          err.write(line + System.getProperty("line.separator"));
+        
+        while ((line = in.readLine()) != null) {
+          if (out != null) {
+            out.write(line + System.getProperty("line.separator"));
+          }
+          if (lastMessages.size() == MAX_OUTPUT_MESSAGES) {
+            lastMessages.poll();
+          }
+          lastMessages.offer(line);
         }
       } catch (final Exception e) {}
-    }).start();
+    });
+    logThread.start();
+    return logThread;
   }
 
   /**
@@ -273,7 +281,7 @@ public class TaskRunnable implements Runnable {
    * @param e
    *          the error causing the abortion
    */
-  private void taskAborted(final Task task, final Exception e) {
+  private void taskAborted(final Task task, final CompiTaskAbortedException e) {
     if (task instanceof Foreach) {
       executionHandler.taskIterationAborted((ForeachIteration) task, e);
     } else {

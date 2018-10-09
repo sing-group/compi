@@ -30,6 +30,7 @@ import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
+import org.sing_group.compi.core.CompiTaskAbortedException;
 import org.sing_group.compi.core.TaskExecutionHandler;
 import org.sing_group.compi.core.loops.ForeachIteration;
 import org.sing_group.compi.xmlio.entities.Foreach;
@@ -711,7 +712,7 @@ public class PipelineTest {
     }
 
     @Override
-    public void taskAborted(Task task, Exception e) {
+    public void taskAborted(Task task, CompiTaskAbortedException e) {
       abortedTasks.add(task.getId());
     }
 
@@ -743,7 +744,7 @@ public class PipelineTest {
     }
 
     @Override
-    public void taskIterationAborted(ForeachIteration iteration, Exception e) {
+    public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
     }
   }
 

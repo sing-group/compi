@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -410,7 +411,7 @@ public class CompiApp {
      *          Indicates the {@link Exception} which causes the error
      */
     @Override
-    public void taskAborted(final Task task, final Exception e) {
+    public void taskAborted(final Task task, final CompiTaskAbortedException e) {
       synchronized (syncMonitor) {
         notifyTaskAborted(task, e);
         taskManager.setAborted(task, e);
@@ -450,7 +451,7 @@ public class CompiApp {
     }
 
     @Override
-    public void taskIterationAborted(ForeachIteration iteration, Exception e) {
+    public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
       synchronized (syncMonitor) {
         this.notifyTaskIterationAborted(iteration, e);
         if (!foreachAbortedNotificationsSent.contains(iteration.getParentForeachTask())) {
@@ -463,11 +464,13 @@ public class CompiApp {
       }
     }
 
-    private void abortDependencies(Task task, Exception e) {
+    private void abortDependencies(Task task, CompiTaskAbortedException e) {
       for (final String taskToAbort : taskManager.getDependencies().get(task.getId())) {
         if (taskManager.getTasksLeft().contains(taskToAbort)) {
           if (!taskManager.getTasksById().get(taskToAbort).isSkipped()) {
-            notifyTaskAborted(taskManager.getTasksById().get(taskToAbort), e);
+            notifyTaskAborted(taskManager.getTasksById().get(taskToAbort), 
+              new CompiTaskAbortedException("Aborted because a dependency of this task has aborted ("+e.getTask().getId()+")",
+                e, taskManager.getTasksById().get(taskToAbort), new LinkedList<>(), new LinkedList<>()));
           }
           taskManager.setAborted(taskManager.getTasksById().get(taskToAbort), e);
         }
@@ -511,7 +514,7 @@ public class CompiApp {
      * @param e
      *          Indicates the {@link Exception} which causes the error
      */
-    private void notifyTaskAborted(final Task task, final Exception e) {
+    private void notifyTaskAborted(final Task task, final CompiTaskAbortedException e) {
       for (final TaskExecutionHandler handler : executionHandlers) {
         handler.taskAborted(task, e);
       }
@@ -523,7 +526,7 @@ public class CompiApp {
       }
     }
     
-    private void notifyTaskIterationAborted(ForeachIteration iteration, Exception e) {
+    private void notifyTaskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
       for (final TaskExecutionHandler handler : executionHandlers) {
         handler.taskIterationAborted(iteration, e);
       }

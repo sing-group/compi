@@ -23,6 +23,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.sing_group.compi.core.CompiApp;
+import org.sing_group.compi.core.CompiTaskAbortedException;
 import org.sing_group.compi.core.PipelineValidationException;
 import org.sing_group.compi.core.TaskExecutionHandler;
 import org.sing_group.compi.core.loops.ForeachIteration;
@@ -230,7 +231,7 @@ public class SwingDemo {
         }
 
         @Override
-        public void taskAborted(Task task, Exception e) {
+        public void taskAborted(Task task, CompiTaskAbortedException e) {
           consoleTextArea.append(
             (System.currentTimeMillis() / 1000) + " - Task with id " + task.getId()
               + " aborted - Cause - " + e.getClass() + "\n"
@@ -251,7 +252,7 @@ public class SwingDemo {
         }
 
         @Override
-        public void taskIterationAborted(ForeachIteration iteration, Exception e) {
+        public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
           // TODO Auto-generated method stub
           
         }

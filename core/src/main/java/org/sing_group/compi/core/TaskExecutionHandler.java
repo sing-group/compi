@@ -46,7 +46,7 @@ public interface TaskExecutionHandler {
 	 * @param e
 	 * 			  The error that caused the task abortion
 	 */
-	void taskAborted(Task task, Exception e);
+	void taskAborted(Task task, CompiTaskAbortedException e);
 	
 	/**
 	 * Called when a {@link Foreach} iteration has started
@@ -72,5 +72,5 @@ public interface TaskExecutionHandler {
 	 * @param e
 	 * 			  The error that caused the task abortion
 	 */
-	void taskIterationAborted(ForeachIteration iteration, Exception e);
+	void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e);
 }
