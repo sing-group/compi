@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.sing_group.compi.core.CompiRunConfiguration;
@@ -22,6 +25,7 @@ import org.sing_group.compi.xmlio.entities.Pipeline;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
+import es.uvigo.ei.sing.yacli.command.option.FlagOption;
 import es.uvigo.ei.sing.yacli.command.option.IntegerDefaultValuedStringConstructedOption;
 import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.option.StringOption;
@@ -44,6 +48,7 @@ public class RunCommand extends AbstractCommand {
   private static final String LOGS_DIR = "l";
   private static final String LOG_ONLY_TASK = "lt";
   private static final String LOG_EXCLUDE_TASK = "nl";
+  private static final String QUIET = "q";
 
   private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;
   private static final String PARAMS_FILE_LONG = "params";
@@ -57,6 +62,7 @@ public class RunCommand extends AbstractCommand {
   private static final String LOGS_DIR_LONG = "logs";
   private static final String LOG_ONLY_TASK_LONG = "log-only-task";
   private static final String LOG_EXCLUDE_TASK_LONG = "no-log-task";
+  private static final String QUIET_LONG = "quiet";
 
   private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
   private static final String PARAMS_FILE_DESCRIPTION = "XML parameters file";
@@ -97,6 +103,8 @@ public class RunCommand extends AbstractCommand {
     "Do not log task(s). Task id(s) whose output will be ignored, other tasks' output will be saved. This parameter is incompatible with --"
       + LOG_ONLY_TASK_LONG + ". If you use this option, you must provide a log directory with --" + LOGS_DIR_LONG;
 
+  private static final String QUIET_DESCRIPTION = "Do not output compi logs to the console";
+
   private static final String DEFAULT_NUM_PARALLEL_TASKS = "6";
 
   private String[] commandLineArgs;
@@ -107,9 +115,9 @@ public class RunCommand extends AbstractCommand {
 
   @Override
   public void execute(final Parameters parameters) throws IOException {
+
     String pipelineFile = parameters.getSingleValueString(super.getOption(PIPELINE_FILE));
     Integer compiThreads = parameters.getSingleValue(super.getOption(NUM_PARALLEL_TASKS));
-
     boolean hasFrom = parameters.hasOption(super.getOption(FROM));
     boolean hasAfter = parameters.hasOption(super.getOption(AFTER));
     boolean hasSingleTask = parameters.hasOption(super.getOption(SINGLE_TASK));
@@ -118,6 +126,11 @@ public class RunCommand extends AbstractCommand {
     boolean hasLogDir = parameters.hasOption(super.getOption(LOGS_DIR));
     boolean hasLogOnlyTasks = parameters.hasOption(super.getOption(LOG_ONLY_TASK));
     boolean hasExcludeLogTasks = parameters.hasOption(super.getOption(LOG_EXCLUDE_TASK));
+    boolean hasQuiet = parameters.hasOption(super.getOption(QUIET));
+
+    if (hasQuiet) {
+      silenceConsoleLog();
+    }
 
     if (hasSingleTask && (hasFrom || hasAfter || hasUntilTask || hasBeforeTask)) {
       throw new IllegalArgumentException(
@@ -130,12 +143,15 @@ public class RunCommand extends AbstractCommand {
       throw new IllegalArgumentException("--" + UNTIL_TASK_LONG + " is incompatible with --" + BEFORE_TASK_LONG);
     }
     if (hasLogOnlyTasks && hasExcludeLogTasks) {
-      throw new IllegalArgumentException("--" + LOG_ONLY_TASK_LONG + " and --" + LOG_EXCLUDE_TASK_LONG + " are incompatible");
+      throw new IllegalArgumentException(
+        "--" + LOG_ONLY_TASK_LONG + " and --" + LOG_EXCLUDE_TASK_LONG + " are incompatible"
+      );
     }
     if ((hasLogOnlyTasks || hasExcludeLogTasks) && !hasLogDir) {
       throw new IllegalArgumentException(
         "--" + LOGS_DIR_LONG + " is mandatory if --" + (hasLogOnlyTasks ? LOG_ONLY_TASK_LONG : LOG_EXCLUDE_TASK_LONG)
-        +" is used");
+          + " is used"
+      );
     }
 
     List<String> fromTasks =
@@ -257,6 +273,15 @@ public class RunCommand extends AbstractCommand {
     }
   }
 
+  private void silenceConsoleLog() {
+    Logger root = Logger.getLogger("");
+    for (Handler handler : root.getHandlers()) {
+      if (handler instanceof ConsoleHandler) {
+        handler.setLevel(Level.OFF);
+      }
+    }
+  }
+
   private CompiRunConfiguration buildConfiguration(
     String pipelineFile, File runnersFile, Integer compiThreads, List<String> fromTasks, List<String> afterTasks,
     String singleTask,
@@ -334,8 +359,16 @@ public class RunCommand extends AbstractCommand {
     options.add(getRunUntilTask());
     options.add(getRunBeforeTask());
     options.add(getRunnersConfigFile());
+    options.add(getQuiet());
 
     return options;
+  }
+
+  private Option<?> getQuiet() {
+    return new FlagOption(
+      QUIET_LONG, QUIET,
+      QUIET_DESCRIPTION
+    );
   }
 
   private Option<?> getPipelineFile() {
