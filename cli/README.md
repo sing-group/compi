@@ -23,14 +23,19 @@ Write 'compi help <command>' to see command-specific help
 
 ### `run`
 ```
-Command run
-usage: compi run -p <pipeline> [-pa <params>] [-n <num-tasks>] [-st <single-task>] [-f <from>] [-a <after>] [-ut <until>] [-bt <before>] [-r <runners-config>]
+sage: compi run -p <pipeline> [-pa <params>] [-n <num-tasks>] [-l <logs>] [-lt <log-only-task>] [-nl <no-log-task>] [-st <single-task>] [-f <from>] [-a <after>] [-ut <until>] [-bt <before>] [-r <runners-config>] [-o] [-q] [-w]
         --pipeline/-p
                 XML pipeline file
         --params/-pa
                 XML parameters file
         --num-tasks/-n
                 maximum number of tasks that can be run in parallel. This is not equivalent to the number of threads the pipeline will use, because some tasks can be parallel processes themselves (default: 6)
+        --logs/-l
+                Directory to save tasks' output (stdout and stderr, in separated files). By default, no output is saved. If this option is provided, all task's output will be logged by default. You can select which tasks to log with --log-only-task or --no-log-task
+        --log-only-task/-lt
+                Log task(s). Task id(s) whose output will be logged, other tasks' output will be ignored. This parameter is incompatible with --no-log-task. If you use this option, you must provide a log directory with --logs. This option can be specified multiple times
+        --no-log-task/-nl
+                Do not log task(s). Task id(s) whose output will be ignored, other tasks' output will be saved. This parameter is incompatible with --log-only-task. If you use this option, you must provide a log directory with --logs. This option can be specified multiple times
         --single-task/-st
                 runs a single task without its depencendies. This option is incompatible with --from, --after, --until and --before
         --from/-f
@@ -43,6 +48,12 @@ usage: compi run -p <pipeline> [-pa <params>] [-n <num-tasks>] [-st <single-task
                 runs all tasks which are dependencies of a given task. This option is incompatible with --single-task and --until
         --runners-config/-r
                 XML file configuring custom runners for tasks. See the Compi documentation for more details
+        --show-std-outs/-o
+                Forward task stdout/stderr to the compi stdout/stderr
+        --quiet/-q
+                Do not output compi logs to the console
+        --abort-if-warinings/-w
+                Abort pipeline run if there are warnings on pipeline validation
 ```
 
 ### `validate`

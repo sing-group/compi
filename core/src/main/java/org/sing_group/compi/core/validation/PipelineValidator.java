@@ -85,7 +85,8 @@ public class PipelineValidator {
             new ValidationError(
               ValidationErrorType.PARAMETER_NAME_FOUND_IN_CODE,
               "Parameter \"" + pd.getName() + "\" found in code of task " + t.getId()
-                + ", but it was not declared in the 'params' attribute. Is this correct?"
+                + ", but it is neither declared in the 'params' attribute of the "
+                + "task nor defined as a 'global' parameter. Is this correct?"
             )
           );
         }
