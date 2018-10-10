@@ -26,29 +26,39 @@ import java.util.LinkedList;
 
 import org.sing_group.compi.xmlio.entities.Task;
 
+/**
+ * A class for representing exceptions thrown when a task aborts
+ * 
+ * This object gives access to the aborting {@link Task}, the underlying
+ * {@link Exception} and the last lines of the aborting process's stdin and
+ * stdout.
+ * 
+ */
 public class CompiTaskAbortedException extends Exception {
   private static final long serialVersionUID = 1L;
-  
+
   private Task task;
   private LinkedList<String> lastStdOut;
   private LinkedList<String> lastStdErr;
 
-  public CompiTaskAbortedException(String message, Exception cause, Task t, LinkedList<String> lastStdOut, LinkedList<String> lastStdErr) {
+  public CompiTaskAbortedException(
+    String message, Exception cause, Task t, LinkedList<String> lastStdOut, LinkedList<String> lastStdErr
+  ) {
     super(message, cause);
-    
+
     this.task = t;
     this.lastStdOut = lastStdOut;
     this.lastStdErr = lastStdErr;
   }
-  
+
   public Task getTask() {
     return task;
   }
-  
+
   public LinkedList<String> getLastStdOut() {
     return lastStdOut;
   }
-  
+
   public LinkedList<String> getLastStdErr() {
     return lastStdErr;
   }

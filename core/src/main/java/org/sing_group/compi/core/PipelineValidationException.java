@@ -24,17 +24,27 @@ package org.sing_group.compi.core;
 
 import java.util.List;
 
+import org.sing_group.compi.core.validation.PipelineValidator;
 import org.sing_group.compi.core.validation.ValidationError;
 
+/**
+ * A class for representing pipeline validation exceptions
+ * 
+ * This class gives access to the list of errors and/or warnings produced during
+ * validation.
+ * 
+ * @see PipelineValidator
+ * @see ValidationError
+ */
 @SuppressWarnings("serial")
 public class PipelineValidationException extends Exception {
 
   private List<ValidationError> errors;
-  
+
   public PipelineValidationException(List<ValidationError> errors) {
     this.errors = errors;
   }
-  
+
   public List<ValidationError> getErrors() {
     return errors;
   }
