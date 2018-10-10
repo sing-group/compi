@@ -40,10 +40,10 @@ import org.sing_group.compi.core.loops.ListLoopValuesGenerator;
 import org.sing_group.compi.core.loops.LoopValuesGenerator;
 import org.sing_group.compi.core.loops.ParameterLoopValuesGenerator;
 import org.sing_group.compi.core.loops.RangeLoopValuesGenerator;
+import org.sing_group.compi.core.pipeline.Foreach;
+import org.sing_group.compi.core.pipeline.Pipeline;
+import org.sing_group.compi.core.pipeline.Task;
 import org.sing_group.compi.core.resolver.VariableResolver;
-import org.sing_group.compi.xmlio.entities.Foreach;
-import org.sing_group.compi.xmlio.entities.Pipeline;
-import org.sing_group.compi.xmlio.entities.Task;
 
 /**
  * Manages the {@link Task} execution and manages the {@link Task} dependencies

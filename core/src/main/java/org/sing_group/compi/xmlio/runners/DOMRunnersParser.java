@@ -31,8 +31,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.sing_group.compi.xmlio.entities.runners.Runner;
-import org.sing_group.compi.xmlio.entities.runners.Runners;
+import org.sing_group.compi.core.runner.Runner;
+import org.sing_group.compi.core.runner.Runners;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

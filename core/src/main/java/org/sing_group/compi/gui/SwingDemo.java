@@ -24,7 +24,7 @@ package org.sing_group.compi.gui;
 
 import static java.util.Arrays.asList;
 import static org.sing_group.compi.core.CompiRunConfiguration.forPipeline;
-import static org.sing_group.compi.xmlio.entities.Pipeline.fromFile;
+import static org.sing_group.compi.core.pipeline.Pipeline.fromFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,8 +49,8 @@ import org.sing_group.compi.core.CompiTaskAbortedException;
 import org.sing_group.compi.core.PipelineValidationException;
 import org.sing_group.compi.core.TaskExecutionHandler;
 import org.sing_group.compi.core.loops.ForeachIteration;
-import org.sing_group.compi.xmlio.entities.Foreach;
-import org.sing_group.compi.xmlio.entities.Task;
+import org.sing_group.compi.core.pipeline.Foreach;
+import org.sing_group.compi.core.pipeline.Task;
 import org.xml.sax.SAXException;
 
 public class SwingDemo {

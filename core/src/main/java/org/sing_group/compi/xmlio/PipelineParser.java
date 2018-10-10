@@ -25,7 +25,7 @@ package org.sing_group.compi.xmlio;
 import java.io.File;
 import java.io.IOException;
 
-import org.sing_group.compi.xmlio.entities.Pipeline;
+import org.sing_group.compi.core.pipeline.Pipeline;
 
 public interface PipelineParser {
 

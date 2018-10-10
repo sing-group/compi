@@ -26,8 +26,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import org.sing_group.compi.core.pipeline.Pipeline;
 import org.sing_group.compi.core.resolver.VariableResolver;
-import org.sing_group.compi.xmlio.entities.Pipeline;
 
 /**
  * An object containing parameters for a pipeline run. This object is intended

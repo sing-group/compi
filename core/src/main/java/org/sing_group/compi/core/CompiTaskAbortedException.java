@@ -24,7 +24,7 @@ package org.sing_group.compi.core;
 
 import java.util.LinkedList;
 
-import org.sing_group.compi.xmlio.entities.Task;
+import org.sing_group.compi.core.pipeline.Task;
 
 /**
  * A class for representing exceptions thrown when a task aborts

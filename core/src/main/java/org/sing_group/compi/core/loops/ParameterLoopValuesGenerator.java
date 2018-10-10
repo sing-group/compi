@@ -26,8 +26,8 @@ import static java.util.Arrays.asList;
 
 import java.util.List;
 
+import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.resolver.VariableResolver;
-import org.sing_group.compi.xmlio.entities.Foreach;
 
 public class ParameterLoopValuesGenerator extends AbstractLoopValuesGenerator {
 

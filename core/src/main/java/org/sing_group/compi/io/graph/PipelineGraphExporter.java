@@ -37,9 +37,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.sing_group.compi.xmlio.entities.Foreach;
-import org.sing_group.compi.xmlio.entities.Pipeline;
-import org.sing_group.compi.xmlio.entities.Task;
+import org.sing_group.compi.core.pipeline.Foreach;
+import org.sing_group.compi.core.pipeline.Pipeline;
+import org.sing_group.compi.core.pipeline.Task;
 
 import guru.nidi.graphviz.attribute.Attributes;
 import guru.nidi.graphviz.attribute.Color;

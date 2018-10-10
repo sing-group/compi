@@ -24,9 +24,9 @@ package org.sing_group.compi.core.loops;
 
 import java.util.List;
 
+import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.core.resolver.VariableResolverUtils;
-import org.sing_group.compi.xmlio.entities.Foreach;
 
 public abstract class AbstractLoopValuesGenerator implements LoopValuesGenerator {
 

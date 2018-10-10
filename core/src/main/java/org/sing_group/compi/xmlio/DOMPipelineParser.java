@@ -31,10 +31,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.sing_group.compi.xmlio.entities.Foreach;
-import org.sing_group.compi.xmlio.entities.ParameterDescription;
-import org.sing_group.compi.xmlio.entities.Pipeline;
-import org.sing_group.compi.xmlio.entities.Task;
+import org.sing_group.compi.core.pipeline.Foreach;
+import org.sing_group.compi.core.pipeline.ParameterDescription;
+import org.sing_group.compi.core.pipeline.Pipeline;
+import org.sing_group.compi.core.pipeline.Task;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

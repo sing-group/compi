@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.sing_group.compi.xmlio.entities.Pipeline;
+import org.sing_group.compi.core.pipeline.Pipeline;
 
 public abstract class AbstractPipelineParser implements PipelineParser {
 

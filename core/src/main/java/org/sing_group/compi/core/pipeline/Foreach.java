@@ -20,7 +20,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package org.sing_group.compi.xmlio.entities;
+package org.sing_group.compi.core.pipeline;
 
 /**
  * Represents the {@link Foreach} tag obtained in the XML pipeline file

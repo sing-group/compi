@@ -44,12 +44,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.sing_group.compi.core.loops.ForeachIteration;
+import org.sing_group.compi.core.pipeline.Foreach;
+import org.sing_group.compi.core.pipeline.Pipeline;
+import org.sing_group.compi.core.pipeline.Task;
 import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.core.runner.RunnersManager;
 import org.sing_group.compi.xmlio.XMLParamsFileVariableResolver;
-import org.sing_group.compi.xmlio.entities.Foreach;
-import org.sing_group.compi.xmlio.entities.Pipeline;
-import org.sing_group.compi.xmlio.entities.Task;
 import org.xml.sax.SAXException;
 
 /**

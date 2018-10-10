@@ -34,8 +34,8 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.sing_group.compi.core.CompiRunConfiguration.forPipeline;
+import static org.sing_group.compi.core.pipeline.Pipeline.fromFile;
 import static org.sing_group.compi.tests.TestUtils.resolverFor;
-import static org.sing_group.compi.xmlio.entities.Pipeline.fromFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,8 +55,8 @@ import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.CompiTaskAbortedException;
 import org.sing_group.compi.core.TaskExecutionHandler;
 import org.sing_group.compi.core.loops.ForeachIteration;
-import org.sing_group.compi.xmlio.entities.Foreach;
-import org.sing_group.compi.xmlio.entities.Task;
+import org.sing_group.compi.core.pipeline.Foreach;
+import org.sing_group.compi.core.pipeline.Task;
 
 public class PipelineTest {
 

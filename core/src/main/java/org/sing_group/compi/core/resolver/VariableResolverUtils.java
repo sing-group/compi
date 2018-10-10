@@ -37,8 +37,8 @@ import java.util.Map;
 import java.util.Scanner;
 
 import org.sing_group.compi.core.loops.ForeachIteration;
-import org.sing_group.compi.xmlio.entities.Foreach;
-import org.sing_group.compi.xmlio.entities.Task;
+import org.sing_group.compi.core.pipeline.Foreach;
+import org.sing_group.compi.core.pipeline.Task;
 
 public class VariableResolverUtils {
 

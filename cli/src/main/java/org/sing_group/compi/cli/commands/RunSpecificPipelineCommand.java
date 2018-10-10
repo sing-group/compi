@@ -40,13 +40,13 @@ import org.sing_group.compi.core.CompiRunConfiguration;
 import org.sing_group.compi.core.CompiTaskAbortedException;
 import org.sing_group.compi.core.TaskExecutionHandler;
 import org.sing_group.compi.core.loops.ForeachIteration;
+import org.sing_group.compi.core.pipeline.Foreach;
+import org.sing_group.compi.core.pipeline.ParameterDescription;
+import org.sing_group.compi.core.pipeline.Pipeline;
+import org.sing_group.compi.core.pipeline.Task;
 import org.sing_group.compi.core.resolver.MapVariableResolver;
 import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.xmlio.XMLParamsFileVariableResolver;
-import org.sing_group.compi.xmlio.entities.Foreach;
-import org.sing_group.compi.xmlio.entities.ParameterDescription;
-import org.sing_group.compi.xmlio.entities.Pipeline;
-import org.sing_group.compi.xmlio.entities.Task;
 
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.option.DefaultValuedOption;

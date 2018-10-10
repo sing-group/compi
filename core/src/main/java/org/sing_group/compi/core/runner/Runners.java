@@ -20,26 +20,19 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package org.sing_group.compi.xmlio.entities.runners;
+package org.sing_group.compi.core.runner;
 
-public class Runner {
+import java.util.List;
 
-  private String tasks;
-  private String runnerCode;
-  
-  public String getTasks() {
-    return tasks;
+public class Runners {
+
+  private List<Runner> runners;
+
+  public List<Runner> getRunners() {
+    return runners;
   }
   
-  public void setTasks(String tasks) {
-    this.tasks = tasks;
-  }
-  
-  public String getRunnerCode() {
-    return runnerCode;
-  }
-  
-  public void setRunnerCode(String runnerCode) {
-    this.runnerCode = runnerCode;
+  public void setRunners(List<Runner> runners) {
+    this.runners = runners;
   }
 }

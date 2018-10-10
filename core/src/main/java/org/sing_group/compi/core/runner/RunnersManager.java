@@ -30,11 +30,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.sing_group.compi.core.pipeline.Pipeline;
+import org.sing_group.compi.core.pipeline.Task;
 import org.sing_group.compi.core.resolver.VariableResolver;
-import org.sing_group.compi.xmlio.entities.Pipeline;
-import org.sing_group.compi.xmlio.entities.Task;
-import org.sing_group.compi.xmlio.entities.runners.Runner;
-import org.sing_group.compi.xmlio.entities.runners.Runners;
 import org.sing_group.compi.xmlio.runners.DOMRunnersParser;
 import org.sing_group.compi.xmlio.runners.RunnersParser;
 

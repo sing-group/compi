@@ -26,8 +26,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.resolver.VariableResolver;
-import org.sing_group.compi.xmlio.entities.Foreach;
 
 /**
  * Obtains the values of the task foreach tag when the element

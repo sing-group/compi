@@ -22,7 +22,7 @@
  */
 package org.sing_group.compi.core.loops;
 
-import org.sing_group.compi.xmlio.entities.Foreach;
+import org.sing_group.compi.core.pipeline.Foreach;
 
 /**
  * Auxiliary class to obtain the task command to execute

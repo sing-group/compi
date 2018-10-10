@@ -27,7 +27,7 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static org.sing_group.compi.cli.PipelineCLIApplication.newPipelineCLIApplication;
 import static org.sing_group.compi.core.CompiRunConfiguration.forPipeline;
-import static org.sing_group.compi.xmlio.entities.Pipeline.fromFile;
+import static org.sing_group.compi.core.pipeline.Pipeline.fromFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,8 +42,8 @@ import java.util.logging.Logger;
 
 import org.sing_group.compi.core.CompiRunConfiguration;
 import org.sing_group.compi.core.PipelineValidationException;
+import org.sing_group.compi.core.pipeline.Pipeline;
 import org.sing_group.compi.core.validation.ValidationError;
-import org.sing_group.compi.xmlio.entities.Pipeline;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;

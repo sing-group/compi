@@ -36,9 +36,9 @@ import java.util.Date;
 import java.util.LinkedList;
 
 import org.sing_group.compi.core.loops.ForeachIteration;
+import org.sing_group.compi.core.pipeline.Foreach;
+import org.sing_group.compi.core.pipeline.Task;
 import org.sing_group.compi.core.runner.ProcessCreator;
-import org.sing_group.compi.xmlio.entities.Foreach;
-import org.sing_group.compi.xmlio.entities.Task;
 
 /**
  * Manage the {@link Task} execution.The {@link Task} starts and if there is no

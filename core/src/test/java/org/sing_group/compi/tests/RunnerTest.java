@@ -25,8 +25,8 @@ package org.sing_group.compi.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.sing_group.compi.core.CompiRunConfiguration.forPipeline;
+import static org.sing_group.compi.core.pipeline.Pipeline.fromFile;
 import static org.sing_group.compi.tests.TestUtils.resolverFor;
-import static org.sing_group.compi.xmlio.entities.Pipeline.fromFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,8 +37,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.PipelineValidationException;
+import org.sing_group.compi.core.runner.Runners;
 import org.sing_group.compi.xmlio.DOMparsing;
-import org.sing_group.compi.xmlio.entities.runners.Runners;
 import org.sing_group.compi.xmlio.runners.DOMRunnersParser;
 import org.xml.sax.SAXException;
 

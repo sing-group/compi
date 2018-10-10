@@ -24,8 +24,8 @@ package org.sing_group.compi.tests;
 
 import static org.junit.Assert.assertTrue;
 import static org.sing_group.compi.core.CompiRunConfiguration.forPipeline;
+import static org.sing_group.compi.core.pipeline.Pipeline.fromFile;
 import static org.sing_group.compi.tests.TestUtils.resolverFor;
-import static org.sing_group.compi.xmlio.entities.Pipeline.fromFile;
 
 import java.io.File;
 import java.io.IOException;
