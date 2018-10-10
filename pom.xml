@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
 	http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -8,17 +7,22 @@
 	<artifactId>compi</artifactId>
 	<packaging>pom</packaging>
 	<version>1.2.0-SNAPSHOT</version>
-	<!--
-		WARNING: change version using (in the parent project):
-		mvn versions:set -DnewVersion=[new_version]
-		mvn versions:commit
-
-		This will change the version in all modules at-once
-	-->
+	<!-- WARNING: change version using (in the parent project): mvn versions:set 
+		-DnewVersion=[new_version] mvn versions:commit This will change the version 
+		in all modules at-once -->
 
 	<name>Compi</name>
-	<description>Compi: Java Framework for Computational Pipelines</description>
+	<description>Application framework for portable computational pipelines</description>
 	<url>http://www.sing-group.org/compi</url>
+	<inceptionYear>2016</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>GNU GENERAL PUBLIC LICENSE, Version 3</name>
+			<url>http://www.gnu.org/licenses/gpl.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -39,13 +43,23 @@
 		<findbugs-maven-plugin.version>3.0.5</findbugs-maven-plugin.version>
 		<maven-antrun-plugin.version>1.6</maven-antrun-plugin.version>
 		<maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
+		<license-maven-plugin.version>1.14</license-maven-plugin.version>
 
-		<junit.version>4.12</junit.version>	
+		<junit.version>4.12</junit.version>
 		<javax.activation.activation.version>1.1</javax.activation.activation.version>
 		<jaxb.version>2.2.11</jaxb.version>
 		<yacli.version>2.1.0-SNAPSHOT</yacli.version>
 		<httpclient.version>4.5.5</httpclient.version>
 		<velocity.version>1.7</velocity.version>
+
+		<!-- license-maven-plugin configuration -->
+		<license.licenseName>gpl_v3</license.licenseName>
+		<license.copyrightOwners>Daniel Glez-Peña, Osvaldo Graña-Castro, Hugo
+			López-Fernández, Jesús Álvarez Casanova</license.copyrightOwners>
+		<license.organizationName>SING Group (University of Vigo)</license.organizationName>
+		<license.addJavaLicenseAfterPackage>false</license.addJavaLicenseAfterPackage>
+
+
 	</properties>
 
 	<modules>
@@ -80,7 +94,7 @@
 			<url>https://maven.sing-group.org/repository/maven-snapshots/</url>
 		</repository>
 	</repositories>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<!-- compi modules -->
@@ -89,7 +103,7 @@
 				<artifactId>compi-core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
@@ -112,14 +126,14 @@
 				<version>${velocity.version}</version>
 			</dependency>
 			<dependency>
-			    <groupId>guru.nidi</groupId>
-			    <artifactId>graphviz-java</artifactId>
-			    <version>0.5.4</version>
+				<groupId>guru.nidi</groupId>
+				<artifactId>graphviz-java</artifactId>
+				<version>0.5.4</version>
 			</dependency>
 			<dependency>
-			   <groupId>ch.qos.logback</groupId>
-			   <artifactId>logback-classic</artifactId>
-			   <version>1.2.3</version>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-classic</artifactId>
+				<version>1.2.3</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -148,9 +162,9 @@
 					<version>${sphinx-maven-plugin.version}</version>
 				</plugin>
 				<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<version>${maven-antrun-plugin.version}</version>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>${maven-antrun-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -181,6 +195,20 @@
 						<goals>
 							<goal>jar</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>${license-maven-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>first</id>
+						<goals>
+							<goal>update-file-header</goal>
+						</goals>
+						<phase>process-sources</phase>
 					</execution>
 				</executions>
 			</plugin>
