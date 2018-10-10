@@ -48,30 +48,30 @@ import org.sing_group.compi.xmlio.entities.Task;
 /**
  * Manages the {@link Task} execution and manages the {@link Task} dependencies
  * 
- * @author Jesus Alvarez Casanova
- * @author Daniel Glez-Peña
  */
 public class TaskManager {
 
   private final Map<String, Task> tasksById = new ConcurrentHashMap<>();
-  private final List<String> tasksLeft = new CopyOnWriteArrayList<>();
-  private final Map<String, Set<String>> dependencies = new ConcurrentHashMap<>();
-  private final Map<String, List<ForeachIteration>> forEachTasks = new ConcurrentHashMap<>();
+  private final List<Task> tasksLeft = new CopyOnWriteArrayList<>();
+  private final Map<Task, Set<Task>> dependencies = new ConcurrentHashMap<>();
+  private final Map<Foreach, List<ForeachIteration>> forEachTasks = new ConcurrentHashMap<>();
   private VariableResolver variableResolver;
 
   /**
-   * @param pipeline Indicates the {@link Pipeline}
-   * @param resolver Indicates the {@link VariableResolver}
+   * @param pipeline
+   *          Indicates the {@link Pipeline}
+   * @param resolver
+   *          Indicates the {@link VariableResolver}
    */
   public TaskManager(final Pipeline pipeline, final VariableResolver resolver) {
     this.variableResolver = resolver;
-    for (final Task p : pipeline.getTasks()) {
-      this.tasksById.put(p.getId(), p);
-      this.tasksLeft.add(p.getId());
-      this.dependencies.put(p.getId(), new HashSet<String>());
+    for (final Task task : pipeline.getTasks()) {
+      this.tasksById.put(task.getId(), task);
+      this.tasksLeft.add(task);
+      this.dependencies.put(task, new HashSet<Task>());
 
-      if (p instanceof Foreach) {
-        this.forEachTasks.put(p.getId(), new LinkedList<ForeachIteration>());
+      if (task instanceof Foreach) {
+        this.forEachTasks.put((Foreach) task, new LinkedList<ForeachIteration>());
       }
     }
   }
@@ -86,8 +86,7 @@ public class TaskManager {
    */
   public List<Task> getRunnableTasks() {
     List<Task> runnableTasks = new ArrayList<Task>();
-    for (final String taskId : this.tasksLeft) {
-      final Task task = tasksById.get(taskId);
+    for (final Task task : this.tasksLeft) {
       if (!task.isFinished() && checkTaskDependencies(task)) {
         runnableTasks.add(task);
       }
@@ -100,7 +99,8 @@ public class TaskManager {
    * Goes through all the {@link Task} dependencies to check if they are
    * finished
    * 
-   * @param task Indicates the {@link Task}
+   * @param task
+   *          Indicates the {@link Task}
    * @return <code>true</code> if all its dependencies are finished,
    *         <code>false</code> otherwise
    */
@@ -123,12 +123,14 @@ public class TaskManager {
   }
 
   /**
-   * Getter of the DAG attribute
+   * Gets a task given its id
    * 
-   * @return The value of the DAG attribute
+   * @param taskId
+   *          the task's Id
+   * @return
    */
-  public Map<String, Task> getTasksById() {
-    return tasksById;
+  public Task getTaskById(String taskId) {
+    return tasksById.get(taskId);
   }
 
   /**
@@ -136,17 +138,20 @@ public class TaskManager {
    * 
    * @return The value of the tasksLeft attribute
    */
-  public List<String> getTasksLeft() {
+  public List<Task> getTasksLeft() {
     return tasksLeft;
   }
 
   /**
-   * Getter of the dependencies attribute
+   * Gets the dependencies of a given task
    * 
-   * @return The value of the dependencies attribute
+   * @param t
+   *          The task whose dependencies will be retrived
+   * @return The dependencies of the given task
    */
-  public Map<String, Set<String>> getDependencies() {
-    return dependencies;
+
+  public Set<Task> getDependenciesOfTask(Task t) {
+    return dependencies.get(t);
   }
 
   /**
@@ -154,22 +159,24 @@ public class TaskManager {
    * 
    * @return The value of the forEachTasks attribute
    */
-  public Map<String, List<ForeachIteration>> getForEachTasks() {
-    return forEachTasks;
+  public List<ForeachIteration> getForeachIterations(Foreach foreach) {
+    return forEachTasks.get(foreach);
   }
 
   /**
    * Creates the {@link ForeachIteration} to prepare the loop execution for a
    * task
    *
-   * @param foreach The task to initialize
+   * @param foreach
+   *          The task to initialize
    *
-   * @throws IllegalArgumentException If the directory contained in the source
-   *           attribute doesn't have any file or if the element attribute
-   *           contains a non existent value
+   * @throws IllegalArgumentException
+   *           If the directory contained in the source attribute doesn't have
+   *           any file or if the element attribute contains a non existent
+   *           value
    */
   public void initializeForEach(Foreach foreach) throws IllegalArgumentException {
-	  List<ForeachIteration> value = this.getForEachTasks().get(foreach.getId());
+    List<ForeachIteration> value = this.getForeachIterations(foreach);
     List<String> values = new LinkedList<>();
 
     LoopValuesGenerator generator = null;
@@ -210,21 +217,21 @@ public class TaskManager {
    * dependency of another {@link Task}
    */
   public void initializeDependencies() {
-    tasksById.forEach((key, value) -> {
-      if (value.getAfter() != null) {
-        for (final String afterId : value.getAfter().split(",")) {
-          dependencies.get(afterId).add(key);
+    tasksById.values().forEach((task) -> {
+      if (task.getAfter() != null) {
+        for (final String afterId : task.getAfter().split(",")) {
+          dependencies.get(tasksById.get(afterId)).add(task);
         }
       }
     });
 
-    tasksById.forEach((key, value) -> {
-      dependencies.forEach((key2, value2) -> {
-        if (value2.contains(key)) {
-          value2.addAll(dependencies.get(key));
+    tasksById.values().forEach((task) -> {
+      dependencies.forEach((otherTask, otherTaskDependencies) -> {
+        if (otherTaskDependencies.contains(task)) {
+          otherTaskDependencies.addAll(dependencies.get(task));
         }
 
-        if (value2.contains(key2)) {
+        if (otherTaskDependencies.contains(otherTask)) {
           throw new IllegalArgumentException("The pipeline contains a cycle");
         }
       });
@@ -232,34 +239,16 @@ public class TaskManager {
   }
 
   /**
-   * Marks a {@link Task} as skipped
-   * 
-   * @param task Indicates the {@link Task} ID which you want to skip
-   */
-  public void skipTask(String task) {
-    this.getTasksById().get(task).setSkipped(true);
-  }
-
-  /**
-   * Marks a {@link Task} as not skipped
-   * 
-   * @param task Indicates the {@link Task} ID which you want not to skip
-   */
-  public void unSkipTask(String task) {
-    this.getTasksById().get(task).setSkipped(false);
-  }
-
-  /**
    * Marks all the {@link Task} as skipped if they are dependencies of the
    * {@link Task} passed as parameter
    * 
-   * @param task Indicates the {@link Task} ID which you want to skip its
-   *          dependencies
+   * @param task
+   *          Indicates the {@link Task} which you want to skip its dependencies
    */
-  public void skipDependencies(final String task) {
-    dependencies.forEach((key, value) -> {
-      if (value.contains(task)) {
-        this.getTasksById().get(key).setSkipped(true);
+  public void skipDependencies(final Task task) {
+    dependencies.forEach((otherTask, otherTaskDependencies) -> {
+      if (otherTaskDependencies.contains(task)) {
+        otherTask.setSkipped(true);
       }
     });
   }
@@ -268,45 +257,42 @@ public class TaskManager {
    * Marks all the {@link Task} as skipped if they are dependencies of the
    * {@link Task}
    * 
-   * @param task Indicates the {@link Task} ID whose dependencies are not
-   *          skipped
+   * @param task
+   *          Indicates the {@link Task} whose dependencies are not skipped
    */
-  public void skipAllButDependencies(String task) {
-    this.getTasksById().keySet().forEach((taskId) -> {
-      if (!dependencies.get(taskId).contains(task)) {
-        this.getTasksById().get(taskId).setSkipped(true);
-      }
-    });
+  public void skipAllButDependencies(Task task) {
+    this.tasksById.values().stream()
+    .filter(t -> !getDependenciesOfTask(t).contains(task))
+    .forEach(t -> t.setSkipped(true));
   }
 
   /**
    * Marks all the {@link Task} as skipped except the {@link Task} passed as
    * parameter
    * 
-   * @param task Indicates the only {@link Task} ID which will not be skipped
+   * @param task
+   *          Indicates the only {@link Task} ID which will not be skipped
    */
-  public void skipAllTasksBut(String task) {
-    this.getTasksById().forEach((k, v) -> {
-      if (!v.getId().equals(task)) {
-        v.setSkipped(true);
-      }
-    });
+  public void skipAllTasksBut(Task task) {
+    this.tasksById.values().stream()
+      .filter(t -> !t.getId().equals(task.getId()))
+      .forEach(t -> t.setSkipped(true));
   }
 
   synchronized public void setRunning(final Task task) {
-    this.getTasksById().get(task.getId()).setRunning(true);
-    this.getTasksLeft().remove(task.getId());
+    this.getTaskById(task.getId()).setRunning(true);
+    this.getTasksLeft().remove(task);
   }
 
   synchronized public void setFinished(final Task task) {
-    this.getTasksById().get(task.getId()).setFinished(true);
-    this.getTasksById().get(task.getId()).setRunning(false);
+    this.getTaskById(task.getId()).setFinished(true);
+    this.getTaskById(task.getId()).setRunning(false);
   }
 
   public void setAborted(final Task task, final Exception e) {
-    this.getTasksById().get(task.getId()).setAborted(true);
-    this.getTasksById().get(task.getId()).setRunning(false);
-    this.getTasksLeft().remove(task.getId());
+    this.getTaskById(task.getId()).setAborted(true);
+    this.getTaskById(task.getId()).setRunning(false);
+    this.getTasksLeft().remove(task);
   }
 
 }

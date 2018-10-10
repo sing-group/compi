@@ -172,10 +172,10 @@ public class CompiApp {
             taskManager.initializeForEach((Foreach) taskToRun);
             loopCounterOfTask.put(
               taskToRun, new AtomicInteger(
-                taskManager.getForEachTasks().get(taskToRun.getId()).size()
+                taskManager.getForeachIterations((Foreach) taskToRun).size()
               )
             );
-            if (taskManager.getForEachTasks().get(taskToRun.getId()).size() == 0) {
+            if (taskManager.getForeachIterations((Foreach) taskToRun).size() == 0) {
               // for loops without iterations, we need to add a dummy process,
               // because we expect the foreach task itself
               // is in taskLeft and we need to be notified that it has finished
@@ -188,7 +188,7 @@ public class CompiApp {
                   )
                 );
                 } else {
-              for (final ForeachIteration lp : taskManager.getForEachTasks().get(taskToRun.getId())) {
+              for (final ForeachIteration lp : taskManager.getForeachIterations((Foreach)taskToRun)) {
                 final File stdOut = getLogFile(lp, ".out.log");
                 final File stdErr = getLogFile(lp, ".err.log");
                       
@@ -312,30 +312,32 @@ public class CompiApp {
   /**
    * Skips {@link Task}
    * 
-   * @param task
+   * @param taskId
    *          Indicates the {@link Task} ID
    * @throws IllegalArgumentException
    *           If the {@link Task} ID doesn't exist
    */
-  private void skipTask(final String task) throws IllegalArgumentException {
+  private void skipTask(final String taskId) throws IllegalArgumentException {
+    Task task = taskManager.getTaskById(taskId);
     if (!taskManager.getTasksLeft().contains(task)) {
-      throw new IllegalArgumentException("The task ID " + task + " doesn't exist");
+      throw new IllegalArgumentException("The task ID " + taskId + " doesn't exist");
     } else {
-      taskManager.skipTask(task);
+      task.setSkipped(true);;
     }
   }
 
   /**
    * Skips {@link Task} until the {@link Task} where you want to start
    * 
-   * @param advanceToTask
+   * @param advanceToTaskId
    *          Indicates the {@link Task} ID
    * @throws IllegalArgumentException
    *           If the {@link Task} ID doesn't exist
    */
-  private void skipTasksBefore(final String advanceToTask) throws IllegalArgumentException {
+  private void skipTasksBefore(final String advanceToTaskId) throws IllegalArgumentException {
+    Task advanceToTask = taskManager.getTaskById(advanceToTaskId);
     if (!taskManager.getTasksLeft().contains(advanceToTask)) {
-      throw new IllegalArgumentException("The task ID " + advanceToTask + " doesn't exist");
+      throw new IllegalArgumentException("The task ID " + advanceToTaskId + " doesn't exist");
     } else {
       taskManager.skipDependencies(advanceToTask);
     }
@@ -344,14 +346,15 @@ public class CompiApp {
   /**
    * Skips all {@link Task} but {@link Task}
    * 
-   * @param singleTask
+   * @param singleTaskId
    *          Indicates the {@link Task} ID
    * @throws IllegalArgumentException
    *           If the {@link Task} ID doesn't exist
    */
-  private void skipAllBut(String singleTask) {
+  private void skipAllBut(String singleTaskId) {
+    Task singleTask = taskManager.getTaskById(singleTaskId);
     if (!taskManager.getTasksLeft().contains(singleTask)) {
-      throw new IllegalArgumentException("The task ID " + singleTask + " doesn't exist");
+      throw new IllegalArgumentException("The task ID " + singleTaskId + " doesn't exist");
     } else {
       taskManager.skipAllTasksBut(singleTask);
     }
@@ -365,12 +368,13 @@ public class CompiApp {
    * @throws IllegalArgumentException
    *           If the {@link Task} ID doesn't exist
    */
-  private void runUntil(String untilTask) {
+  private void runUntil(String untilTaskId) {
+    Task untilTask = taskManager.getTaskById(untilTaskId);
     if (!taskManager.getTasksLeft().contains(untilTask)) {
-      throw new IllegalArgumentException("The task ID " + untilTask + " doesn't exist");
+      throw new IllegalArgumentException("The task ID " + untilTaskId + " doesn't exist");
     } else {
       taskManager.skipAllButDependencies(untilTask);
-      taskManager.unSkipTask(untilTask);
+      untilTask.setSkipped(false);
     }
   }
 
@@ -382,9 +386,10 @@ public class CompiApp {
    * @throws IllegalArgumentException
    *           If the {@link Task} ID doesn't exist
    */
-  private void runBefore(String beforeTask) {
+  private void runBefore(String beforeTaskId) {
+    Task beforeTask = taskManager.getTaskById(beforeTaskId);
     if (!taskManager.getTasksLeft().contains(beforeTask)) {
-      throw new IllegalArgumentException("The task ID " + beforeTask + " doesn't exist");
+      throw new IllegalArgumentException("The task ID " + beforeTaskId + " doesn't exist");
     } else {
       taskManager.skipAllButDependencies(beforeTask);
     }
@@ -479,7 +484,7 @@ public class CompiApp {
         if (!foreachAbortedNotificationsSent.contains(iteration.getParentForeachTask())) {
           this.notifyTaskAborted(iteration.getParentForeachTask(), e);
           taskManager.setAborted(iteration.getParentForeachTask(), e);
-          abortDependencies(iteration, e);
+          abortDependencies(iteration.getParentForeachTask(), e);
           foreachAbortedNotificationsSent.add(iteration.getParentForeachTask());
           syncMonitor.notify();
         }
@@ -487,14 +492,14 @@ public class CompiApp {
     }
 
     private void abortDependencies(Task task, CompiTaskAbortedException e) {
-      for (final String taskToAbort : taskManager.getDependencies().get(task.getId())) {
+      for (final Task taskToAbort : taskManager.getDependenciesOfTask(task)) {
         if (taskManager.getTasksLeft().contains(taskToAbort)) {
-          if (!taskManager.getTasksById().get(taskToAbort).isSkipped()) {
-            notifyTaskAborted(taskManager.getTasksById().get(taskToAbort), 
+          if (!taskToAbort.isSkipped()) {
+            notifyTaskAborted(taskToAbort, 
               new CompiTaskAbortedException("Aborted because a dependency of this task has aborted ("+e.getTask().getId()+")",
-                e, taskManager.getTasksById().get(taskToAbort), new LinkedList<>(), new LinkedList<>()));
+                e, taskToAbort, new LinkedList<>(), new LinkedList<>()));
           }
-          taskManager.setAborted(taskManager.getTasksById().get(taskToAbort), e);
+          taskManager.setAborted(taskToAbort, e);
         }
       }
     }
