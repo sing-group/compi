@@ -58,14 +58,14 @@ import org.xml.sax.SAXException;
  * Instances can be created by using {@link CompiRunConfiguration} objects, which include all parameters for the
  * execution.
  * 
- * It is possible to subscribe to task execution events by using 
+ * It is possible to subscribe to task execution events by using
  * {@link CompiApp#addTaskExecutionHandler(TaskExecutionHandler)}
  * 
  */
 public class CompiApp {
 
   private final CompiRunConfiguration config;
-  
+
   private final Pipeline pipeline;
   private final Map<Task, AtomicInteger> loopCounterOfTask = new HashMap<>();
   private final List<TaskExecutionHandler> executionHandlers = new ArrayList<>();
@@ -94,17 +94,13 @@ public class CompiApp {
   }
 
   /**
-   * Creates a Compi application for running a pipeline. The configuration of
-   * the execution is provided in a {@link CompiRunConfiguration} object.
+   * Creates a Compi application for running a pipeline. The configuration of the execution is provided in a
+   * {@link CompiRunConfiguration} object.
    * 
-   * @param config
-   *          The configuration of the execution
+   * @param config The configuration of the execution
    *
-   * @throws IllegalArgumentException
-   *           If some of the configuration parameters are wrong
-   * @throws IOException
-   *           If there is a problem accessing pipeline files, parameter files,
-   *           etc.
+   * @throws IllegalArgumentException If some of the configuration parameters are wrong
+   * @throws IOException If there is a problem accessing pipeline files, parameter files, etc.
    */
   public CompiApp(
     CompiRunConfiguration config
@@ -113,7 +109,7 @@ public class CompiApp {
     validateParameters(config);
 
     this.config = config;
-    
+
     this.pipeline = config.getPipeline();
 
     if (config.getParamsFile() != null) {
@@ -134,8 +130,7 @@ public class CompiApp {
   /**
    * Adds a {@link TaskExecutionHandler}
    * 
-   * @param handler
-   *          Indicates the {@link TaskExecutionHandler}
+   * @param handler Indicates the {@link TaskExecutionHandler}
    */
   public void addTaskExecutionHandler(final TaskExecutionHandler handler) {
     this.executionHandlers.add(handler);
@@ -146,20 +141,14 @@ public class CompiApp {
   }
 
   /**
-   * Executes all the {@link Task} in an {@link ExecutorService}. When a
-   * {@link Task} is executed, this thread will wait until the {@link Task}
-   * notifies when it's finished or aborted
+   * Executes all the {@link Task} in an {@link ExecutorService}. When a {@link Task} is executed, this thread will wait
+   * until the {@link Task} notifies when it's finished or aborted
    * 
-   * @throws SAXException
-   *           If there is an error in the XML parsing
-   * @throws IOException
-   *           If an I/O exception of some sort has occurred
-   * @throws IllegalArgumentException
-   *           If there is an error in the XML pipeline/params file
-   * @throws InterruptedException
-   *           If there is an error while the thread is waiting
-   * @throws ParserConfigurationException
-   *           If there is a configuration error
+   * @throws SAXException If there is an error in the XML parsing
+   * @throws IOException If an I/O exception of some sort has occurred
+   * @throws IllegalArgumentException If there is an error in the XML pipeline/params file
+   * @throws InterruptedException If there is an error while the thread is waiting
+   * @throws ParserConfigurationException If there is a configuration error
    */
   public void run()
     throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException, InterruptedException {
@@ -188,14 +177,15 @@ public class CompiApp {
                   )
                 );
                 } else {
-              for (final ForeachIteration lp : taskManager.getForeachIterations((Foreach)taskToRun)) {
+              for (final ForeachIteration lp : taskManager.getForeachIterations((Foreach) taskToRun)) {
                 final File stdOut = getLogFile(lp, ".out.log");
                 final File stdErr = getLogFile(lp, ".err.log");
-                      
+
                 executorService.submit(
                   new TaskRunnable(
                     lp, this.executionHandler, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()),
-                    stdOut, stdErr, false, this.config.isShowStdOuts())
+                    stdOut, stdErr, false, this.config.isShowStdOuts()
+                    )
                   );
                   }
             }
@@ -205,7 +195,9 @@ public class CompiApp {
             executorService.submit(
               new TaskRunnable(
                 taskToRun, this.executionHandler, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()),
-              stdOut, stdErr, false, this.config.isShowStdOuts()));
+                stdOut, stdErr, false, this.config.isShowStdOuts()
+                )
+              );
               }
         }
         syncMonitor.wait();
@@ -218,24 +210,16 @@ public class CompiApp {
     executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
   }
 
-  private File getLogFile(final Task task, String suffix) {
-    final File stdOut = 
-      this.config.getLogsDir() != null && 
-        (
-          (this.config.getLogOnlyTasks()!=null && this.config.getLogOnlyTasks().contains(task.getId())) || 
-          (this.config.getDoNotLogTasks() !=null && !this.config.getDoNotLogTasks().contains(task.getId())) || 
-          (this.config.getDoNotLogTasks() == null && this.config.getLogOnlyTasks() == null)
-          )?new File(this.config.getLogsDir()+File.separator+task.getId()+(task instanceof ForeachIteration?"_"+((ForeachIteration)task).getIterationIndex():"")+suffix):null;
-    return stdOut;
-  }
-
   private void validateParameters(CompiRunConfiguration config) {
-    if (
-      config.getSingleTask() != null && (config.getFromTasks() != null || config.getAfterTasks() != null
-        || config.getUntilTask() != null || config.getBeforeTask() != null)
-      ) {
+    boolean singleTaskIsPresent = config.getSingleTask() != null;
+    boolean anyTaskExecutionModifierIsPresent =
+      config.getFromTasks() != null || config.getAfterTasks() != null || config.getUntilTask() != null
+        || config.getBeforeTask() != null;
+
+    if (singleTaskIsPresent && anyTaskExecutionModifierIsPresent) {
       throw new IllegalArgumentException("singleTask is incompatible with any of fromTask, untilTask and beforeTask");
     }
+
     if (config.getUntilTask() != null && config.getBeforeTask() != null) {
       throw new IllegalArgumentException("untilTask is incompatible with beforeTask");
     }
@@ -247,7 +231,7 @@ public class CompiApp {
         throw new IllegalArgumentException("afterTasks and untilTasks cannot have tasks in common");
       }
     }
-    
+
     if (config.getLogOnlyTasks() != null && config.getDoNotLogTasks() != null) {
       throw new IllegalArgumentException("logOnlyTasks is incompatible with doNotLogTasks");
     }
@@ -256,17 +240,31 @@ public class CompiApp {
     }
   }
 
+  private File getLogFile(final Task task, String suffix) {
+    final File stdOut =
+      this.config.getLogsDir() != null &&
+        ((this.config.getLogOnlyTasks() != null && this.config.getLogOnlyTasks().contains(task.getId())) ||
+          (this.config.getDoNotLogTasks() != null && !this.config.getDoNotLogTasks().contains(task.getId())) ||
+          (this.config.getDoNotLogTasks() == null && this.config.getLogOnlyTasks() == null))
+            ? new File(
+              this.config.getLogsDir() + File.separator + task.getId()
+                + (task instanceof ForeachIteration ? "_" + ((ForeachIteration) task).getIterationIndex() : "") + suffix
+              )
+            : null;
+    return stdOut;
+  }
+
+  private void initializeTaskManager() {
+    this.taskManager = new TaskManager(this.pipeline, this.resolver);
+    this.taskManager.initializeDependencies();
+  }
+
   private void initializeRunnersManager() throws IOException {
     if (config.getRunnersFile() != null) {
       this.runnersManager = new RunnersManager(config.getRunnersFile(), this.pipeline, this.resolver);
     } else {
       this.runnersManager = new RunnersManager(this.resolver);
     }
-  }
-
-  private void initializeTaskManager() {
-    this.taskManager = new TaskManager(this.pipeline, this.resolver);
-    this.taskManager.initializeDependencies();
   }
 
   private void disableTasksThatWillNotRun() {
@@ -295,11 +293,9 @@ public class CompiApp {
   /**
    * Initializes the {@link ExecutorService}
    * 
-   * @param threadNumber
-   *          Indicates the number of threads of the {@link ExecutorService}
-   * @throws IllegalArgumentException
-   *           If the number of threads is equal or less than 0 or if the number
-   *           is a string instead of a number
+   * @param threadNumber Indicates the number of threads of the {@link ExecutorService}
+   * @throws IllegalArgumentException If the number of threads is equal or less than 0 or if the number is a string
+   *           instead of a number
    */
   private void initializeExecutorService() throws IllegalArgumentException {
     if (config.getMaxTasks() <= 0) {
@@ -312,27 +308,24 @@ public class CompiApp {
   /**
    * Skips {@link Task}
    * 
-   * @param taskId
-   *          Indicates the {@link Task} ID
-   * @throws IllegalArgumentException
-   *           If the {@link Task} ID doesn't exist
+   * @param taskId Indicates the {@link Task} ID
+   * @throws IllegalArgumentException If the {@link Task} ID doesn't exist
    */
   private void skipTask(final String taskId) throws IllegalArgumentException {
     Task task = taskManager.getTaskById(taskId);
     if (!taskManager.getTasksLeft().contains(task)) {
       throw new IllegalArgumentException("The task ID " + taskId + " doesn't exist");
     } else {
-      task.setSkipped(true);;
+      task.setSkipped(true);
+      ;
     }
   }
 
   /**
    * Skips {@link Task} until the {@link Task} where you want to start
    * 
-   * @param advanceToTaskId
-   *          Indicates the {@link Task} ID
-   * @throws IllegalArgumentException
-   *           If the {@link Task} ID doesn't exist
+   * @param advanceToTaskId Indicates the {@link Task} ID
+   * @throws IllegalArgumentException If the {@link Task} ID doesn't exist
    */
   private void skipTasksBefore(final String advanceToTaskId) throws IllegalArgumentException {
     Task advanceToTask = taskManager.getTaskById(advanceToTaskId);
@@ -346,10 +339,8 @@ public class CompiApp {
   /**
    * Skips all {@link Task} but {@link Task}
    * 
-   * @param singleTaskId
-   *          Indicates the {@link Task} ID
-   * @throws IllegalArgumentException
-   *           If the {@link Task} ID doesn't exist
+   * @param singleTaskId Indicates the {@link Task} ID
+   * @throws IllegalArgumentException If the {@link Task} ID doesn't exist
    */
   private void skipAllBut(String singleTaskId) {
     Task singleTask = taskManager.getTaskById(singleTaskId);
@@ -363,10 +354,8 @@ public class CompiApp {
   /**
    * Runs until {@link Task} including its dependencies
    * 
-   * @param singleTask
-   *          Indicates the {@link Task} ID
-   * @throws IllegalArgumentException
-   *           If the {@link Task} ID doesn't exist
+   * @param singleTask Indicates the {@link Task} ID
+   * @throws IllegalArgumentException If the {@link Task} ID doesn't exist
    */
   private void runUntil(String untilTaskId) {
     Task untilTask = taskManager.getTaskById(untilTaskId);
@@ -381,10 +370,8 @@ public class CompiApp {
   /**
    * Runs all dependencies of a {@link Task}, excluding the task itself
    * 
-   * @param singleTask
-   *          Indicates the {@link Task} ID
-   * @throws IllegalArgumentException
-   *           If the {@link Task} ID doesn't exist
+   * @param singleTask Indicates the {@link Task} ID
+   * @throws IllegalArgumentException If the {@link Task} ID doesn't exist
    */
   private void runBefore(String beforeTaskId) {
     Task beforeTask = taskManager.getTaskById(beforeTaskId);
@@ -396,15 +383,14 @@ public class CompiApp {
   }
 
   private class CompiExecutionHandler implements TaskExecutionHandler {
-    
+
     private Set<Foreach> foreachStartNotificationsSent = new HashSet<>();
     private Set<Foreach> foreachAbortedNotificationsSent = new HashSet<>();
-    
+
     /**
      * Indicates that a {@link Task} is started
      * 
-     * @param task
-     *          Indicates the {@link Task} which has been started
+     * @param task Indicates the {@link Task} which has been started
      */
     @Override
     public void taskStarted(final Task task) {
@@ -415,8 +401,7 @@ public class CompiApp {
     /**
      * Indicates that a {@link Task} is finished and notifies
      * 
-     * @param task
-     *          Indicates the {@link Task} which has been started
+     * @param task Indicates the {@link Task} which has been started
      */
     @Override
     public void taskFinished(final Task task) {
@@ -432,10 +417,8 @@ public class CompiApp {
     /**
      * Indicates that a {@link Task} is aborted and notifies
      * 
-     * @param task
-     *          Indicates the {@link Task} which has been aborted
-     * @param e
-     *          Indicates the {@link Exception} which causes the error
+     * @param task Indicates the {@link Task} which has been aborted
+     * @param e Indicates the {@link Exception} which causes the error
      */
     @Override
     public void taskAborted(final Task task, final CompiTaskAbortedException e) {
@@ -446,19 +429,18 @@ public class CompiApp {
         syncMonitor.notify();
       }
     }
-    
+
     @Override
     public void taskIterationStarted(ForeachIteration iteration) {
       synchronized (syncMonitor) {
-      if (!foreachStartNotificationsSent.contains(iteration.getParentForeachTask())) {
-        this.notifyTaskStarted(iteration.getParentForeachTask());
-        foreachStartNotificationsSent.add(iteration.getParentForeachTask());
-      }
-      if (!iteration.isSkipped())
-        this.notifyTaskIterationStarted(iteration);
+        if (!foreachStartNotificationsSent.contains(iteration.getParentForeachTask())) {
+          this.notifyTaskStarted(iteration.getParentForeachTask());
+          foreachStartNotificationsSent.add(iteration.getParentForeachTask());
+        }
+        if (!iteration.isSkipped())
+          this.notifyTaskIterationStarted(iteration);
       }
     }
-
 
     @Override
     public void taskIterationFinished(ForeachIteration iteration) {
@@ -495,22 +477,23 @@ public class CompiApp {
       for (final Task taskToAbort : taskManager.getDependenciesOfTask(task)) {
         if (taskManager.getTasksLeft().contains(taskToAbort)) {
           if (!taskToAbort.isSkipped()) {
-            notifyTaskAborted(taskToAbort, 
-              new CompiTaskAbortedException("Aborted because a dependency of this task has aborted ("+e.getTask().getId()+")",
-                e, taskToAbort, new LinkedList<>(), new LinkedList<>()));
-          }
+            notifyTaskAborted(
+              taskToAbort,
+              new CompiTaskAbortedException(
+                "Aborted because a dependency of this task has aborted (" + e.getTask().getId() + ")",
+                e, taskToAbort, new LinkedList<>(), new LinkedList<>()
+                )
+              );
+              }
           taskManager.setAborted(taskToAbort, e);
         }
       }
     }
 
-
     /**
-     * Indicates that a {@link Task} is started to an external
-     * {@link TaskExecutionHandler}
+     * Indicates that a {@link Task} is started to an external {@link TaskExecutionHandler}
      * 
-     * @param task
-     *          Indicates the {@link Task} which has been started
+     * @param task Indicates the {@link Task} which has been started
      */
     private void notifyTaskStarted(final Task task) {
       for (final TaskExecutionHandler handler : executionHandlers) {
@@ -519,11 +502,9 @@ public class CompiApp {
     }
 
     /**
-     * Indicates that a {@link Task} is finished to an external
-     * {@link TaskExecutionHandler}
+     * Indicates that a {@link Task} is finished to an external {@link TaskExecutionHandler}
      * 
-     * @param task
-     *          Indicates the {@link Task} which has been finished
+     * @param task Indicates the {@link Task} which has been finished
      */
     private void notifyTaskFinished(final Task task) {
       for (final TaskExecutionHandler handler : executionHandlers) {
@@ -532,27 +513,24 @@ public class CompiApp {
     }
 
     /**
-     * Indicates that a {@link Task} is aborted to an external
-     * {@link TaskExecutionHandler}
+     * Indicates that a {@link Task} is aborted to an external {@link TaskExecutionHandler}
      * 
-     * @param task
-     *          Indicates the {@link Task} which has been aborted
+     * @param task Indicates the {@link Task} which has been aborted
      * 
-     * @param e
-     *          Indicates the {@link Exception} which causes the error
+     * @param e Indicates the {@link Exception} which causes the error
      */
     private void notifyTaskAborted(final Task task, final CompiTaskAbortedException e) {
       for (final TaskExecutionHandler handler : executionHandlers) {
         handler.taskAborted(task, e);
       }
     }
-    
+
     private void notifyTaskIterationFinished(ForeachIteration iteration) {
       for (final TaskExecutionHandler handler : executionHandlers) {
         handler.taskIterationFinished(iteration);
       }
     }
-    
+
     private void notifyTaskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
       for (final TaskExecutionHandler handler : executionHandlers) {
         handler.taskIterationAborted(iteration, e);
@@ -596,5 +574,4 @@ public class CompiApp {
     @Override
     public void destroy() {}
   }
-
 }
