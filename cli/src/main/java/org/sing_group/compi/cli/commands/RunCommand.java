@@ -88,7 +88,7 @@ public class RunCommand extends AbstractCommand {
   private static final String LOG_EXCLUDE_TASK_LONG = "no-log-task";
   private static final String SHOW_STD_OUTS_LONG = "show-std-outs";
   private static final String QUIET_LONG = "quiet";
-  private static final String ABORT_IF_WARNINGS_LONG = "abort-if-warinings";
+  private static final String ABORT_IF_WARNINGS_LONG = "abort-if-warnings";
 
   private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
   private static final String PARAMS_FILE_DESCRIPTION = "XML parameters file";
@@ -105,7 +105,7 @@ public class RunCommand extends AbstractCommand {
       + "is incompatible with --" + SINGLE_TASK_LONG;
   private static final String SINGLE_TASK_DESCRIPTION =
     "runs a single task "
-      + "without its depencendies. This option is incompatible with --" + FROM_LONG + ", --" + AFTER_LONG +
+      + "without its dependencies. This option is incompatible with --" + FROM_LONG + ", --" + AFTER_LONG +
       ", --" + UNTIL_TASK_LONG + " and --" + BEFORE_TASK_LONG;
   private static final String UNTIL_TASK_DESCRIPTION =
     "runs until a task (inclusive) "
