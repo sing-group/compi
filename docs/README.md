@@ -16,6 +16,10 @@ You need `sphinx` installed to generate the documentation. You also need to inst
 
 Placed in this directory, run `make html`. Documentation will be generated in `./build/html` directory.
 
+If you want that the documentation builds automatically when you change any file, use inotify:
+
+	inotifywait -e close_write -q -m -r source | while read events; do rm -rf build; make html; done
+
 ## Writing the documentation
 
 The documentation source files are located at the `./source` directory.
