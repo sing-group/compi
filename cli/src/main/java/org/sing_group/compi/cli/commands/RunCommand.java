@@ -109,7 +109,7 @@ public class RunCommand extends AbstractCommand {
       ", --" + UNTIL_TASK_LONG + " and --" + BEFORE_TASK_LONG;
   private static final String UNTIL_TASK_DESCRIPTION =
     "runs until a task (inclusive) "
-      + "including its depencendies. This option is incompatible with --"
+      + "including its dependencies. This option is incompatible with --"
       + SINGLE_TASK_LONG + " and --" + BEFORE_TASK_LONG;
   private static final String BEFORE_TASK_DESCRIPTION =
     "runs all tasks which are dependencies of a given task. "
