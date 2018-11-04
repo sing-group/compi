@@ -33,7 +33,7 @@
 		<task id="ID3" after="ID1">
 			echo "hello"
 		</task>
-		<task id="ID4" after="ID3,ID2">
+		<task id="ID4" after="ID3 ID2">
 			echo "hello"
 		</task>
 		<task id="ID5">

@@ -282,7 +282,7 @@ public class TaskManager {
   private void initializeDependencies() {
     tasksById.values().forEach((task) -> {
       if (task.getAfter() != null) {
-        for (final String afterId : task.getAfter().split("\\s*,\\s*")) {
+        for (final String afterId : task.getAfter().split("[\\s,]+")) {
           dependants.get(tasksById.get(afterId)).add(task);
         }
       }

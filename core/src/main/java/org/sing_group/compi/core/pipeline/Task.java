@@ -101,7 +101,7 @@ public class Task implements Cloneable {
 	 * @param after attribute
 	 */
 	public void setAfter(final String after) {
-		this.after = after.replaceAll(" ", "");
+		this.after = after;
 	}
 	
 	public void setParametersString(String parametersString) {

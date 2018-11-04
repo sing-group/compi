@@ -23,6 +23,7 @@
 package org.sing_group.compi.core;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.sing_group.compi.core.validation.PipelineValidator;
 import org.sing_group.compi.core.validation.ValidationError;
@@ -42,7 +43,9 @@ public class PipelineValidationException extends Exception {
   private List<ValidationError> errors;
 
   public PipelineValidationException(List<ValidationError> errors) {
+    super(errors.stream().map(e -> e.getMessage()).collect(Collectors.joining(", ")));
     this.errors = errors;
+    
   }
 
   public List<ValidationError> getErrors() {
