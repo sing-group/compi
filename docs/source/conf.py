@@ -162,6 +162,7 @@ html_context = {
         '_static/underscore.js', 
         '_static/doctools.js',
         '_static/fix-search-bug.js',
+        '_static/live-only-localhost.js',
     ]
 }
 

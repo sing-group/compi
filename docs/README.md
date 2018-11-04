@@ -18,7 +18,12 @@ Placed in this directory, run `make html`. Documentation will be generated in `.
 
 If you want that the documentation builds automatically when you change any file, use inotify:
 
-	inotifywait -e close_write -q -m -r source | while read events; do rm -rf build; make html; done
+	inotifywait -e close_write -q -m -r source |while read events; do rm -rf build/html/*; make html; done
+
+And if you want to see the browser reloading after each change in the documentation, serve it locally with (for example with npm serve). The documentation includes
+a JavaScript file based on live.js, which reloads the page when the source files change (polling the server with HEAD and only when it is served in localhost):
+
+	serve build/html
 
 ## Writing the documentation
 
