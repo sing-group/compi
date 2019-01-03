@@ -30,7 +30,7 @@
 			<extension base="cp:task">
 				<attribute name="of" type="string" use="required" />
 				<attribute name="in" type="string" use="required" />
-				<attribute name="as" type="string" use="required" />
+				<attribute name="as" type="cp:paramName" use="required" />
 			</extension>
 		</complexContent>
 	</complexType>
