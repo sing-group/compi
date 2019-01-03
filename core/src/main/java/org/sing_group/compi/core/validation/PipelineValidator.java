@@ -44,9 +44,10 @@ import org.xml.sax.SAXException;
 public class PipelineValidator {
 
   public static enum ValidationErrorType {
-    XML_SCHEMA_VALIDATION_ERROR(true), NON_DECLARED_PARAMETER(true), NON_DECLARED_TASK_ID(
-      true
-    ), PARAMETER_NAME_FOUND_IN_CODE(false);
+    XML_SCHEMA_VALIDATION_ERROR(true),
+    NON_DECLARED_PARAMETER(true),
+    NON_DECLARED_TASK_ID(true),
+    PARAMETER_NAME_FOUND_IN_CODE(false);
 
     private boolean isError;
 
@@ -72,7 +73,7 @@ public class PipelineValidator {
   }
 
   public List<ValidationError> validate() {
-    clearValidationStatus();
+    this.clearValidationStatus();
 
     try {
 
@@ -80,29 +81,56 @@ public class PipelineValidator {
 
       this.pipeline = PipelineParserFactory.createPipelineParser().parsePipeline(this.pipelineFile);
 
-      checkTaskParametersAreDeclared();
-      checkAfterIncludesOnlyExistentTasks();
-      checkParameterNamesFoundInCode();
+      this.checkTaskParametersAreDeclared();
+      this.checkAfterIncludesOnlyExistentTasks();
+      this.checkParameterNamesFoundInCode();
 
       this.wasValidated = true;
     } catch (IllegalArgumentException | SAXException e) {
-      errors.add(new ValidationError(XML_SCHEMA_VALIDATION_ERROR, e.getMessage()));
+      String errorLocation = extractErrorLocationMessage(e.toString());
+      errors.add(
+        new ValidationError(
+          XML_SCHEMA_VALIDATION_ERROR,
+          e.getMessage() + (errorLocation.isEmpty() ? "" : " " + errorLocation + ".")
+        )
+      );
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
     return errors;
   }
 
+  private static String extractErrorLocationMessage(String string) {
+    StringBuilder sb = new StringBuilder();
+    int lineNumberIndex = string.indexOf("lineNumber");
+    if (lineNumberIndex != -1) {
+      if (string.indexOf(":", lineNumberIndex) != -1 && string.indexOf(";", lineNumberIndex) != -1) {
+        sb.append("Line: ");
+        sb.append(string.substring(string.indexOf(":", lineNumberIndex) + 2, string.indexOf(";", lineNumberIndex)));
+      }
+      int columnNumberIndex = string.indexOf("columnNumber:");
+      if (columnNumberIndex != -1) {
+        if (string.indexOf(":", columnNumberIndex) != -1 && string.indexOf(";", columnNumberIndex) != -1) {
+          sb.append(", Column: ");
+          sb.append(
+            string.substring(string.indexOf(":", columnNumberIndex) + 2, string.indexOf(";", columnNumberIndex))
+          );
+        }
+      }
+    }
+    return sb.toString();
+  }
+
   private void checkParameterNamesFoundInCode() {
     for (Task t : this.pipeline.getTasks()) {
       for (ParameterDescription pd : this.pipeline.getParameterDescriptions()) {
-        if (pd.isGlobal()) continue;
+        if (pd.isGlobal())
+          continue;
         if (
           t.getToExecute().contains(pd.getName()) &&
             !t.getParameters().contains(pd.getName()) &&
             (!(t instanceof Foreach && ((Foreach) t).getAs().equals(pd.getName())))
         ) {
-
           errors.add(
             new ValidationError(
               ValidationErrorType.PARAMETER_NAME_FOUND_IN_CODE,
@@ -114,13 +142,11 @@ public class PipelineValidator {
         }
       }
     }
-
   }
 
   private void checkTaskParametersAreDeclared() {
     for (Task t : this.pipeline.getTasks()) {
       for (String parameter : t.getParameters()) {
-
         if (this.pipeline.getParameterDescription(parameter) == null) {
           errors.add(
             new ValidationError(
