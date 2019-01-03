@@ -25,6 +25,7 @@ package org.sing_group.compi.core;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableSet;
 import static org.sing_group.compi.core.loops.ForeachIteration.createIterationForForeach;
+import static org.sing_group.compi.core.runner.ProcessCreator.createProcess;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -48,6 +49,7 @@ import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.Pipeline;
 import org.sing_group.compi.core.pipeline.Task;
 import org.sing_group.compi.core.resolver.VariableResolver;
+import org.sing_group.compi.core.runner.ProcessCreator;
 
 /**
  * A class to assist {@link CompiApp} in pipeline execution
@@ -206,7 +208,8 @@ public class TaskManager {
    */
   public void setRunning(final Task task) {
     task.setRunning(true);
-    if (task instanceof Foreach) {
+    evaluateIf(task);
+    if (!task.isSkipped() && task instanceof Foreach) {
       initializeForEach((Foreach) task);
     }
     this.tasksLeft.remove(task);
@@ -301,4 +304,18 @@ public class TaskManager {
     });
   }
 
+  private void evaluateIf(Task task) {
+    if (task.getRunIf() != null) {
+      try {
+        Process runIfProcess = createProcess(task.getRunIf(), task, this.variableResolver);
+        runIfProcess.waitFor();
+        if (runIfProcess.exitValue() != 0) {
+          task.setSkipped(true);
+        }
+
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
 }

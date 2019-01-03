@@ -24,10 +24,13 @@ package org.sing_group.compi.core.runner;
 
 import static java.util.Arrays.asList;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.sing_group.compi.core.pipeline.Task;
+import org.sing_group.compi.core.resolver.VariableResolver;
+import org.sing_group.compi.core.resolver.VariableResolverUtils;
 
 public interface ProcessCreator {
   public Process createProcess(Task t);
@@ -37,5 +40,21 @@ public interface ProcessCreator {
     List<String> commandsToExecute = new ArrayList<>(SHELL_COMMAND);
     commandsToExecute.add(program);
     return commandsToExecute;
+  }
+  
+  public static Process createProcess(String source, Task task, VariableResolver resolver) {
+    try {
+      ProcessBuilder builder =
+        new ProcessBuilder(
+          createShellCommand(source)
+        );
+
+      VariableResolverUtils resolverUtils = new VariableResolverUtils(resolver);
+      resolverUtils.addVariablesToEnvironmentForTask(task, builder);
+
+      return builder.start();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

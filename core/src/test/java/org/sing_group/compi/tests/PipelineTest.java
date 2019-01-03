@@ -215,15 +215,17 @@ public class PipelineTest {
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
-        .whichRunsUntilTask("ID4") //so we check that do not receive any event from ID5
-        .whichRunsAMaximumOf(1)
+          .whichRunsUntilTask("ID4") // so we check that do not receive any
+                                     // event from ID5
+          .whichRunsAMaximumOf(1)
           .build()
       );
 
-    Map<String, Task> tasksById = compi.getPipeline().getTasks().stream().collect(Collectors.toMap(Task::getId, Function.identity()));
-  
-//    TestExecutionHandler handler = new TestExecutionHandler();
-    
+    Map<String, Task> tasksById =
+      compi.getPipeline().getTasks().stream().collect(Collectors.toMap(Task::getId, Function.identity()));
+
+    // TestExecutionHandler handler = new TestExecutionHandler();
+
     @SuppressWarnings("unchecked")
     final Capture<ForeachIteration>[] capturesForTaskID1 = new Capture[6];
     for (int i = 0; i < capturesForTaskID1.length; i++) {
@@ -239,97 +241,133 @@ public class PipelineTest {
     for (int i = 0; i < capturesForTaskID4.length; i++) {
       capturesForTaskID4[i] = newCapture();
     }
-    
+
     TaskExecutionHandler handler = EasyMock.mock(TaskExecutionHandler.class);
-    
+
     // ID1
-    
+
     // the whole loop task ID1 starts...
     handler.taskStarted(tasksById.get("ID1"));
     expectLastCall();
-    
+
     // ID1: iteration 1, which ends normally
     handler.taskIterationStarted(capture(capturesForTaskID1[0]));
     expectLastCall();
     handler.taskIterationFinished(capture(capturesForTaskID1[1]));
     expectLastCall();
-    
+
     // ID1: iteration 2, which ends normally
     handler.taskIterationStarted(capture(capturesForTaskID1[2]));
     expectLastCall();
     handler.taskIterationFinished(capture(capturesForTaskID1[3]));
     expectLastCall();
-    
+
     // ID1: iteration 3, which ends normally
     handler.taskIterationStarted(capture(capturesForTaskID1[4]));
     expectLastCall();
     handler.taskIterationFinished(capture(capturesForTaskID1[5]));
     expectLastCall();
-    
+
     // The whole task ID1 ends normally
     handler.taskFinished(tasksById.get("ID1"));
     expectLastCall();
-    
+
     // ID2, a simple task which starts and ends normally
     handler.taskStarted(tasksById.get("ID2"));
     expectLastCall();
     handler.taskFinished(tasksById.get("ID2"));
     expectLastCall();
-    
+
     // ID3
     handler.taskStarted(tasksById.get("ID3"));
     expectLastCall();
     handler.taskIterationStarted(capture(capturesForTaskID3[0]));
     expectLastCall();
-    
+
     // ID3: iteration 1, which aborts so the whole task will abort
     handler.taskIterationAborted(capture(capturesForTaskID3[1]), anyObject());
     expectLastCall();
-    
+
     // the whole task ID3 aborts...
     handler.taskAborted(eq(tasksById.get("ID3")), anyObject());
     expectLastCall();
-    
+
     // ID3: iteration 2, which aborts because ID3 aborted
     handler.taskIterationStarted(capture(capturesForTaskID3[2]));
     expectLastCall();
     handler.taskIterationAborted(capture(capturesForTaskID3[3]), anyObject());
     expectLastCall();
-    
+
     // task ID4 aborts because it depends on ID3
     handler.taskAborted(eq(tasksById.get("ID4")), anyObject());
     expectLastCall();
-    
+
     replay(handler);
-    
+
     compi.addTaskExecutionHandler(handler);
     compi.run();
-    
+
     verify(handler);
-    
+
     for (int i = 0; i < capturesForTaskID1.length; i++) {
-		assertEquals("ID1", capturesForTaskID1[i].getValue().getId());
-	}
-	for (int i = 0; i < capturesForTaskID3.length; i++) {
-		assertEquals("ID3", capturesForTaskID3[i].getValue().getId());
-	}
-	assertEquals("2", capturesForTaskID1[0].getValue().getIterationValue());
-	assertEquals("2", capturesForTaskID1[1].getValue().getIterationValue());
-	assertEquals("-errorj", capturesForTaskID3[0].getValue().getIterationValue());
+      assertEquals("ID1", capturesForTaskID1[i].getValue().getId());
+    }
+    for (int i = 0; i < capturesForTaskID3.length; i++) {
+      assertEquals("ID3", capturesForTaskID3[i].getValue().getId());
+    }
+    assertEquals("2", capturesForTaskID1[0].getValue().getIterationValue());
+    assertEquals("2", capturesForTaskID1[1].getValue().getIterationValue());
+    assertEquals("-errorj", capturesForTaskID3[0].getValue().getIterationValue());
   }
-  
+
+  @Test
+  public void testIf() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("testPipelineIf.xml").getFile();
+
+    for (boolean runId1 : asList(true, false)) {
+      for (boolean runId2 : asList(true, false)) {
+        final CompiApp compi =
+          new CompiApp(
+            forPipeline(fromFile(new File(pipelineFile)))
+              .whichResolvesVariablesWith(
+                resolverFor(
+                  "text", "hello",
+                  "destination", "/dev/null",
+                  "runId1", runId1 ? "yes" : "no",
+                  "runId2", runId2 ? "yes" : "no"
+                )
+              )
+              .build()
+          );
+
+        TestExecutionHandler handler = new TestExecutionHandler();
+        compi.addTaskExecutionHandler(handler);
+
+        compi.run();
+
+        List<String> exptectedRunningTasks = new ArrayList<>();
+        if (runId1) exptectedRunningTasks.add("ID1");
+        if (runId2) exptectedRunningTasks.add("ID2");
+        assertEquals(exptectedRunningTasks.size(), handler.getStartedTasks().size());
+        assertEquals(exptectedRunningTasks.size(), handler.getFinishedTasks().size());
+        assertTrue(handler.getFinishedTasks().containsAll(exptectedRunningTasks));
+
+      }
+    }
+  }
+
   @Test
   public void testSkipTasks() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("testSkipTasks.xml").getFile();
     final String fromTask = "ID3";
-    
+
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
           .whichStartsFromTask(fromTask)
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -345,14 +383,14 @@ public class PipelineTest {
     final String pipelineFile = ClassLoader.getSystemResource("testSkipTasksWithLoops.xml").getFile();
 
     final String fromTask = "ID4";
-    
+
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
           .whichStartsFromTask(fromTask)
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -374,7 +412,7 @@ public class PipelineTest {
           .whichRunsTheSingleTask(singleTask)
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -395,7 +433,7 @@ public class PipelineTest {
           .whichRunsUntilTask(untilTask)
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -412,7 +450,7 @@ public class PipelineTest {
 
     final String fromTask = "task-3";
     final String untilTask = "task-6";
-    
+
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
@@ -439,7 +477,7 @@ public class PipelineTest {
       "task-3", "task-7"
     };
     final String untilTask = "task-8";
-    
+
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
@@ -468,7 +506,7 @@ public class PipelineTest {
       "task-3", "task-7"
     };
     final String untilTask = "task-8";
-    
+
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
@@ -476,7 +514,7 @@ public class PipelineTest {
           .whichRunsUntilTask(untilTask)
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -494,7 +532,7 @@ public class PipelineTest {
     final String afterTask = "task-7";
     final String fromTask = "task-3";
     final String untilTask = "task-8";
-    
+
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
@@ -521,7 +559,7 @@ public class PipelineTest {
 
     final String fromTask = "task-3";
     final String beforeTask = "task-8";
-    
+
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
@@ -529,7 +567,7 @@ public class PipelineTest {
           .whichRunsTasksBeforeTask(beforeTask)
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -550,7 +588,7 @@ public class PipelineTest {
 
     final String fromTask = "task-8";
     final String untilTask = "task-8";
-    
+
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
@@ -558,7 +596,7 @@ public class PipelineTest {
           .whichRunsUntilTask(untilTask)
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -573,14 +611,14 @@ public class PipelineTest {
     final String pipelineFile = ClassLoader.getSystemResource("testRunUntilTask.xml").getFile();
 
     final String beforeTask = "ID4";
-    
+
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
           .whichRunsTasksBeforeTask(beforeTask)
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -601,7 +639,7 @@ public class PipelineTest {
         forPipeline(fromFile(new File(pipelineFile)))
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -621,7 +659,7 @@ public class PipelineTest {
         forPipeline(fromFile(new File(pipelineFile)))
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -636,14 +674,14 @@ public class PipelineTest {
     final String pipelineFile = ClassLoader.getSystemResource("testTasksAborted.xml").getFile();
 
     final String singleTask = "ID3";
-    
+
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
           .whichRunsTheSingleTask(singleTask)
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -662,7 +700,7 @@ public class PipelineTest {
         forPipeline(fromFile(new File(pipelineFile)))
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -682,7 +720,7 @@ public class PipelineTest {
         forPipeline(fromFile(new File(pipelineFile)))
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -698,13 +736,13 @@ public class PipelineTest {
     final String pipelineFile =
       ClassLoader.getSystemResource("testSomeTasksAbortedAndContinueWithLoops.xml")
         .getFile();
-    
+
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
           .build()
       );
-    
+
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
 
@@ -730,7 +768,8 @@ public class PipelineTest {
     @Override
     public void taskFinished(Task task) {
       finishedTasks.add(task.getId());
-      if (!(task instanceof Foreach)) finishedTasksIncludingLoopChildren.add(task.getId());
+      if (!(task instanceof Foreach))
+        finishedTasksIncludingLoopChildren.add(task.getId());
     }
 
     @Override
@@ -753,11 +792,11 @@ public class PipelineTest {
     public List<String> getFinishedTasksIncludingLoopChildren() {
       return finishedTasksIncludingLoopChildren;
     }
-    
+
     @Override
     public void taskIterationStarted(ForeachIteration iteration) {
       startedForeachs.add(iteration.getParentForeachTask().getId());
-      
+
     }
 
     @Override
@@ -766,8 +805,7 @@ public class PipelineTest {
     }
 
     @Override
-    public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
-    }
+    public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {}
   }
 
 }

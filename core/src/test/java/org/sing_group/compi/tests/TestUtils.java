@@ -50,4 +50,13 @@ public class TestUtils {
     variables.put(key3, value3);
     return new MapVariableResolver(variables);
   }
+  
+  public static VariableResolver resolverFor(String key, String value, String key2, String value2, String key3, String value3, String key4, String value4) {
+    Map<String, String> variables = new HashMap<>();
+    variables.put(key, value);
+    variables.put(key2, value2);
+    variables.put(key3, value3);
+    variables.put(key4, value4);
+    return new MapVariableResolver(variables);
+  }
 }

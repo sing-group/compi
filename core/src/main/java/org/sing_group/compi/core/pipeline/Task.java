@@ -39,6 +39,7 @@ public class Task implements Cloneable {
 	private String after;
 	private String exec;
 	private String interpreter;
+	private String runIf;
 	private List<String> parameters = new LinkedList<>();
 	private String parametersString;
 	private String toExecute;
@@ -95,6 +96,25 @@ public class Task implements Cloneable {
     this.interpreter = interpreter;
   }
 	
+	 /**
+   * Getter of the runIf attribute
+   * 
+   * @return The value of the runIf attribute
+   */
+  public String getRunIf() {
+    return runIf;
+  }
+
+   /**
+   * Changes the value of the runIf attribute
+   * 
+   * @param runIf
+   *            attribute
+   */
+  public void setRunIf(String runIf) {
+    this.runIf = runIf;
+  }
+  
 	/**
 	 * Changes the value of the after attribute
 	 * 
