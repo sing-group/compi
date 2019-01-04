@@ -47,7 +47,7 @@ public class RunnerTest {
   @Test
   public void testValidRunner() throws SAXException, IOException {
     String runnerFile = ClassLoader.getSystemResource("runners-example.xml").getFile();
-    DOMparsing.validateXMLSchema(runnerFile, "xsd/runners.xsd");
+    DOMparsing.validateXMLSchema(runnerFile, "xsd/runners-1.0.xsd");
   }
 
 

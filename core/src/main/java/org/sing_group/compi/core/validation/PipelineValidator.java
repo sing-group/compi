@@ -28,6 +28,7 @@ import static org.sing_group.compi.core.validation.PipelineValidator.ValidationE
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -76,8 +77,8 @@ public class PipelineValidator {
     this.clearValidationStatus();
 
     try {
-
-      DOMparsing.validateXMLSchema(this.pipelineFile.toString(), "xsd/pipeline.xsd");
+      String schemaVersion = DOMparsing.getSchemaVersion(this.pipelineFile.toString());
+      DOMparsing.validateXMLSchema(this.pipelineFile.toString(), "xsd/pipeline-"+schemaVersion+".xsd");
 
       this.pipeline = PipelineParserFactory.createPipelineParser().parsePipeline(this.pipelineFile);
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://sing-group.org/compi-pipeline-runner"
-	xmlns:cp="http://sing-group.org/compi-pipeline-runner" elementFormDefault="qualified">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://sing-group.org/compi/runners-1.0"
+	xmlns:cp="http://sing-group.org/compi/runners-1.0" elementFormDefault="qualified">
 
 	<complexType name="runner">
 		<simpleContent>

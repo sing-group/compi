@@ -21,8 +21,7 @@
   <http://www.gnu.org/licenses/gpl-3.0.html>.
   #L%
   -->
-
-<runners xmlns="http://sing-group.org/compi-pipeline-runner"
+<runners xmlns="http://sing-group.org/compi/runners-1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<runner tasks="t1">
 		echo "[${task_id}] my_var: ${my_var} code: ${task_code}" params: ${task_params} >>	/tmp/runner-output

@@ -22,7 +22,7 @@
   #L%
   -->
 
-<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<tasks>
 		<foreach id="ID-1" of="file" in="/tmp" as="path" >
 				${path} ${i}

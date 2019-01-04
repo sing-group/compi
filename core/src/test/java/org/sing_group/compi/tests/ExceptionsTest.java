@@ -54,7 +54,7 @@ public class ExceptionsTest {
   public void testXSDSAXException() throws Exception {
     DOMparsing.validateXMLSchema(
       ClassLoader.getSystemResource("pipelineParsingException.xml").getFile(),
-      "xsd/pipeline.xsd"
+      "xsd/pipeline-1.0.xsd"
     );
   }
 

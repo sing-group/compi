@@ -33,6 +33,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.sing_group.compi.core.runner.Runner;
 import org.sing_group.compi.core.runner.Runners;
+import org.sing_group.compi.xmlio.DOMparsing;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -43,7 +44,8 @@ public class DOMRunnersParser implements RunnersParser {
   @Override
   public Runners parseXML(File f) throws IllegalArgumentException, IOException {
     try {
-
+      String schemaVersion = DOMparsing.getSchemaVersion(f.toString());
+      DOMparsing.validateXMLSchema(f.toString(), "xsd/runners-"+schemaVersion+".xsd");
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
       DocumentBuilder db;
       db = dbf.newDocumentBuilder();

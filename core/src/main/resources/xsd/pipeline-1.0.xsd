@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="http://www.esei.uvigo.es/compi-pipeline"
-	xmlns:cp="http://www.esei.uvigo.es/compi-pipeline"
+	targetNamespace="http://www.sing-group.org/compi/pipeline-1.0"
+	xmlns:cp="http://www.sing-group.org/compi/pipeline-1.0"
 	elementFormDefault="qualified">
 
 	<simpleType name="paramName">
