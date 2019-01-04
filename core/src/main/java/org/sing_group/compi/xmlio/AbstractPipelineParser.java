@@ -54,8 +54,8 @@ public abstract class AbstractPipelineParser implements PipelineParser {
     pipeline.getTasks().forEach(task -> {
       if (task.getParametersString() != null && task.getParametersString().trim().length() > 0) {
         asList(task.getParametersString().trim().split("\\s+")).forEach(task::addParameter);
-        globalParameters.forEach(task::addParameter);
       }
+      globalParameters.forEach(task::addParameter);
     });
   }
 }
