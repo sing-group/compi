@@ -35,6 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.sing_group.compi.core.CompiRunConfiguration.forPipeline;
 import static org.sing_group.compi.core.pipeline.Pipeline.fromFile;
+import static org.sing_group.compi.tests.TestUtils.emptyResolver;
 import static org.sing_group.compi.tests.TestUtils.resolverFor;
 
 import java.io.File;
@@ -48,10 +49,13 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.swing.plaf.BorderUIResource.EmptyBorderUIResource;
+
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
+import org.sing_group.compi.core.CompiRunConfiguration;
 import org.sing_group.compi.core.CompiTaskAbortedException;
 import org.sing_group.compi.core.TaskExecutionHandler;
 import org.sing_group.compi.core.loops.ForeachIteration;
@@ -109,6 +113,30 @@ public class PipelineTest {
     }
     assertEquals(1, handler.getStartedTasks().size());
     assertEquals(1, handler.getFinishedTasks().size());
+
+  }
+
+  @Test
+  public void testFlagParameters() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("testFlagParams.xml").getFile();
+
+    for (boolean aFlag : asList(true, false)) {
+      final CompiApp compi =
+        new CompiApp(
+          forPipeline(
+            fromFile(new File(pipelineFile)))
+          .whichResolvesVariablesWith(
+            aFlag?resolverFor("aFlag", "yes"):emptyResolver()).build()
+        );
+
+      TestExecutionHandler handler = new TestExecutionHandler();
+      compi.addTaskExecutionHandler(handler);
+
+      compi.run();
+
+      assertEquals(aFlag ? 1 : 0, handler.getStartedTasks().size());
+      assertEquals(aFlag ? 1 : 0, handler.getFinishedTasks().size());
+    }
 
   }
 
@@ -335,10 +363,10 @@ public class PipelineTest {
                   "destination", "/dev/null",
                   "runId1", runId1 ? "yes" : "no",
                   "runId2", runId2 ? "yes" : "no"
+                  )
                 )
-              )
               .build()
-          );
+            );
 
         TestExecutionHandler handler = new TestExecutionHandler();
         compi.addTaskExecutionHandler(handler);
@@ -346,8 +374,10 @@ public class PipelineTest {
         compi.run();
 
         List<String> exptectedRunningTasks = new ArrayList<>();
-        if (runId1) exptectedRunningTasks.add("ID1");
-        if (runId2) exptectedRunningTasks.add("ID2");
+        if (runId1)
+          exptectedRunningTasks.add("ID1");
+        if (runId2)
+          exptectedRunningTasks.add("ID2");
         assertEquals(exptectedRunningTasks.size(), handler.getStartedTasks().size());
         assertEquals(exptectedRunningTasks.size(), handler.getFinishedTasks().size());
         assertTrue(handler.getFinishedTasks().containsAll(exptectedRunningTasks));
@@ -366,7 +396,7 @@ public class PipelineTest {
         forPipeline(fromFile(new File(pipelineFile)))
           .whichStartsFromTask(fromTask)
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -389,7 +419,7 @@ public class PipelineTest {
         forPipeline(fromFile(new File(pipelineFile)))
           .whichStartsFromTask(fromTask)
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -411,7 +441,7 @@ public class PipelineTest {
         forPipeline(fromFile(new File(pipelineFile)))
           .whichRunsTheSingleTask(singleTask)
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -432,7 +462,7 @@ public class PipelineTest {
         forPipeline(fromFile(new File(pipelineFile)))
           .whichRunsUntilTask(untilTask)
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -457,7 +487,7 @@ public class PipelineTest {
           .whichStartsFromTask(fromTask)
           .whichRunsUntilTask(untilTask)
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -484,7 +514,7 @@ public class PipelineTest {
           .whichStartsFromTasks(asList(fromTasks))
           .whichRunsUntilTask(untilTask)
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -513,7 +543,7 @@ public class PipelineTest {
           .whichRunsTasksAfterTasks(asList(afterTasks))
           .whichRunsUntilTask(untilTask)
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -540,7 +570,7 @@ public class PipelineTest {
           .whichStartsFromTask(fromTask)
           .whichRunsUntilTask(untilTask)
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -566,7 +596,7 @@ public class PipelineTest {
           .whichStartsFromTask(fromTask)
           .whichRunsTasksBeforeTask(beforeTask)
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -595,7 +625,7 @@ public class PipelineTest {
           .whichStartsFromTask(fromTask)
           .whichRunsUntilTask(untilTask)
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -617,7 +647,7 @@ public class PipelineTest {
         forPipeline(fromFile(new File(pipelineFile)))
           .whichRunsTasksBeforeTask(beforeTask)
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -638,7 +668,7 @@ public class PipelineTest {
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -658,7 +688,7 @@ public class PipelineTest {
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -680,7 +710,7 @@ public class PipelineTest {
         forPipeline(fromFile(new File(pipelineFile)))
           .whichRunsTheSingleTask(singleTask)
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -699,7 +729,7 @@ public class PipelineTest {
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -719,7 +749,7 @@ public class PipelineTest {
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);
@@ -741,7 +771,7 @@ public class PipelineTest {
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
           .build()
-      );
+        );
 
     TestExecutionHandler handler = new TestExecutionHandler();
     compi.addTaskExecutionHandler(handler);

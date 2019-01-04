@@ -23,6 +23,7 @@
 package org.sing_group.compi.core.loops;
 
 import org.sing_group.compi.core.pipeline.Foreach;
+import org.sing_group.compi.core.pipeline.Pipeline;
 
 /**
  * Auxiliary class to obtain the task command to execute
@@ -36,6 +37,9 @@ public class ForeachIteration extends Foreach {
 	private int iterationIndex;
 	private Foreach parentForeachTask;
 	
+	public ForeachIteration(Pipeline pipeline) {
+	  super(pipeline);
+	}
 	
 	public static ForeachIteration createIterationForForeach(Foreach foreach, String iterationValue, int iterationIndex) {
 		ForeachIteration foreachIteration = cloneForeach(foreach);
@@ -48,7 +52,7 @@ public class ForeachIteration extends Foreach {
 	}
 
 	private static ForeachIteration cloneForeach(Foreach foreach) {
-		ForeachIteration foreachIteration = new ForeachIteration();
+		ForeachIteration foreachIteration = new ForeachIteration(foreach.getPipeline());
 		
 		foreachIteration.setId(foreach.getId());
 		foreachIteration.setFinished(foreach.isFinished());

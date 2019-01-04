@@ -36,14 +36,21 @@
 		</complexContent>
 	</complexType>
 
-	<complexType name="param">
+	<complexType name="flag">
 		<simpleContent>
 			<extension base="string">
 				<attribute name="name" type="cp:paramName" use="required" />
 				<attribute name="shortName" type="cp:paramName"
 					use="required" />
+				<attribute name="global" type="boolean" />
+			</extension>
+		</simpleContent>
+	</complexType>
+
+	<complexType name="param">
+		<simpleContent>
+			<extension base="cp:flag">
 				<attribute name="defaultValue" type="string" />
-				<attribute name="global" type="boolean"/>
 			</extension>
 		</simpleContent>
 	</complexType>
@@ -60,6 +67,8 @@
 	<complexType name="params">
 		<sequence>
 			<element name="param" type="cp:param" minOccurs="0"
+				maxOccurs="unbounded" />
+			<element name="flag" type="cp:flag" minOccurs="0"
 				maxOccurs="unbounded" />
 		</sequence>
 	</complexType>

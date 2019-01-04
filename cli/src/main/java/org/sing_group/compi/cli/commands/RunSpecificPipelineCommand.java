@@ -51,6 +51,7 @@ import org.sing_group.compi.xmlio.XMLParamsFileVariableResolver;
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.option.DefaultValuedOption;
 import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;
+import es.uvigo.ei.sing.yacli.command.option.FlagOption;
 import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.option.OptionCategory;
 import es.uvigo.ei.sing.yacli.command.option.StringOption;
@@ -259,7 +260,8 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
           )
           ))
       ) {
-        variables.put(option.getParamName(), parameters.getSingleValueString(option));
+        
+        variables.put(option.getParamName(), option instanceof FlagOption? "yes": parameters.getSingleValueString(option));
       }
     });
 
@@ -302,8 +304,14 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
           if (description != null) {
 
             if (categories.size() > 0) {
-              Option<String> option = null;
-              if (description.getDefaultValue() != null) {
+              Option<?> option = null;
+              if (description.isFlag()) {
+                option = new FlagOption(
+                  categories, description.getName(), 
+                  description.getShortName(), 
+                  description.getDescription());
+              }
+              else if (description.getDefaultValue() != null) {
                 option =
                   new DefaultValuedStringOption(
                     categories, description.getName(),

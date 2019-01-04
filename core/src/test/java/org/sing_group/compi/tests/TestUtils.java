@@ -30,6 +30,11 @@ import org.sing_group.compi.core.resolver.VariableResolver;
 
 public class TestUtils {
 
+  public static VariableResolver emptyResolver() {
+    Map<String, String> variables = new HashMap<>();
+    return new MapVariableResolver(variables);
+  }
+  
   public static VariableResolver resolverFor(String key, String value) {
     Map<String, String> variables = new HashMap<>();
     variables.put(key, value);

@@ -48,7 +48,15 @@ public class Task implements Cloneable {
 	private boolean isAborted = false;
 	private boolean isSkipped = false;
 	private File stdOutLogFile, stdErrLogFile;
+  private Pipeline pipeline;
 
+	public Task(Pipeline pipeline) {
+	  this.pipeline = pipeline;
+	}
+	
+	public Pipeline getPipeline() {
+    return pipeline;
+  }
 	/**
 	 * Getter of the id attribute
 	 * 

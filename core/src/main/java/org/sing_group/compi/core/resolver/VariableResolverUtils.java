@@ -51,7 +51,13 @@ public class VariableResolverUtils {
   public void addVariablesToEnvironmentForTask(Task task, ProcessBuilder builder) {
 
     task.getParameters().forEach(parameter -> {
-      builder.environment().put(parameter, this.resolver.resolveVariable(parameter));
+      if (task.getPipeline().getParameterDescription(parameter).isFlag()) {
+        if (this.resolver.resolveVariable(parameter) != null) {
+          builder.environment().put(parameter, "yes");
+        }
+      } else {
+        builder.environment().put(parameter, this.resolver.resolveVariable(parameter));
+      }
     });
 
     if (task instanceof ForeachIteration && ((ForeachIteration) task).getParentForeachTask() != null) {

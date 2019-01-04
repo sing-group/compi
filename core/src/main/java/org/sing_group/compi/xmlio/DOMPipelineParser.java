@@ -68,25 +68,25 @@ public class DOMPipelineParser extends AbstractPipelineParser {
       Document doc = db.parse(f);
 
       // parameter descriptions
-
       List<ParameterDescription> parameterDescriptions = new LinkedList<>();
+      
       NodeList parameterDescriptionNodes = doc.getElementsByTagName("param");
       for (int i = 0; i < parameterDescriptionNodes.getLength(); i++) {
         Element element = (Element) parameterDescriptionNodes.item(i);
-        ParameterDescription description = new ParameterDescription();
-        if (element.hasAttribute("name"))
-          description.setName(element.getAttribute("name"));
-        if (element.hasAttribute("shortName"))
-          description.setShortName(element.getAttribute("shortName"));
+        ParameterDescription description = parseParameter(element);
         if (element.hasAttribute("defaultValue"))
           description.setDefaultValue(element.getAttribute("defaultValue"));
-        if (element.hasAttribute("global"))
-          description.setGlobal(element.getAttribute("global").equals("true"));
-
-        description.setDescription(element.getTextContent());
-
         parameterDescriptions.add(description);
       }
+      
+      parameterDescriptionNodes = doc.getElementsByTagName("flag");
+      for (int i = 0; i < parameterDescriptionNodes.getLength(); i++) {
+        Element element = (Element) parameterDescriptionNodes.item(i);
+        ParameterDescription description = parseParameter(element);
+        description.setFlag(true);
+        parameterDescriptions.add(description);
+      }
+      
       pipeline.setParameterDescriptions(parameterDescriptions);
 
       // tasks
@@ -96,9 +96,9 @@ public class DOMPipelineParser extends AbstractPipelineParser {
         for (int i = 0; i < tasksChilds.getLength(); i++) {
           if (tasksChilds.item(i).getNodeType() == Node.ELEMENT_NODE) {
             Element element = (Element) tasksChilds.item(i);
-            Task task = new Task();
+            Task task = new Task(pipeline);
             if (element.getNodeName().equals("foreach")) {
-              task = new Foreach();
+              task = new Foreach(pipeline);
               Foreach foreach = (Foreach) task;
 
               if (element.hasAttribute("of"))
@@ -135,6 +135,18 @@ public class DOMPipelineParser extends AbstractPipelineParser {
     } catch (IOException e) {
       throw e;
     }
+  }
+
+  private ParameterDescription parseParameter(Element element) {
+    ParameterDescription description = new ParameterDescription();
+    if (element.hasAttribute("name"))
+      description.setName(element.getAttribute("name"));
+    if (element.hasAttribute("shortName"))
+      description.setShortName(element.getAttribute("shortName"));
+    if (element.hasAttribute("global"))
+      description.setGlobal(element.getAttribute("global").equals("true"));
+    description.setDescription(element.getTextContent());
+    return description;
   }
 
 }

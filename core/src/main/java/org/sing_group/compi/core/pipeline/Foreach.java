@@ -34,6 +34,9 @@ public class Foreach extends Task {
 	private String in;
 	private String as;
 
+	public Foreach(Pipeline pipeline) {
+	  super(pipeline);
+	}
 	/**
 	 * Getter of the element attribute
 	 * 

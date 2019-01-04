@@ -34,6 +34,8 @@ public class ParameterDescription implements Cloneable {
   private String defaultValue;
   
   private boolean global;
+  
+  private boolean isFlag;
 
   public ParameterDescription() {}
 
@@ -95,5 +97,13 @@ public class ParameterDescription implements Cloneable {
   
   public void setGlobal(boolean global) {
     this.global = global;
+  }
+  
+  public boolean isFlag() {
+    return isFlag;
+  }
+
+  public void setFlag(boolean isFlag) {
+    this.isFlag = isFlag;
   }
 }
