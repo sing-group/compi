@@ -28,6 +28,7 @@ import static org.sing_group.compi.cli.commands.RunSpecificPipelineCommand.newRu
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.sing_group.compi.cli.commands.RunCommand;
@@ -36,73 +37,113 @@ import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.CompiRunConfiguration;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
+import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.Command;
+import es.uvigo.ei.sing.yacli.command.option.Option;
+import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class PipelineCLIApplication extends CLIApplication {
 
-	private static CompiRunConfiguration config;
-	private static String[] commandLineArgs;
+  private static CompiRunConfiguration config;
+  private static String[] commandLineArgs;
 
-	private String pipelineName;
+  private String pipelineName;
 
-	public static PipelineCLIApplication newPipelineCLIApplication(
-	  String pipelineName,
-	  CompiRunConfiguration config,
-		String[] commandLineArgs
-	) {
-	  
-		PipelineCLIApplication.config = config;
-		PipelineCLIApplication.commandLineArgs = commandLineArgs;
+  public static PipelineCLIApplication newPipelineCLIApplication(
+    String pipelineName,
+    CompiRunConfiguration config,
+    String[] commandLineArgs
+  ) {
 
-		return new PipelineCLIApplication(pipelineName);
-	}
+    PipelineCLIApplication.config = config;
+    PipelineCLIApplication.commandLineArgs = commandLineArgs;
 
-	private PipelineCLIApplication(String pipelineName) {
-		this.pipelineName = pipelineName;
-	}
+    return new PipelineCLIApplication(pipelineName);
+  }
 
-	@Override
-	protected String getApplicationName() {
-		return "Compi - pipeline: " + this.pipelineName;
-	}
+  private PipelineCLIApplication(String pipelineName) {
+    this.pipelineName = pipelineName;
+  }
 
-	@Override
-	protected String getApplicationVersion() {
-		return CompiApp.getCompiVersion();
-	}
+  @Override
+  protected String getApplicationName() {
+    return "Compi - pipeline: " + this.pipelineName;
+  }
 
-	@Override
-	protected String getApplicationCommand() {
-		return "compi";
-	}
+  @Override
+  protected String getApplicationVersion() {
+    return CompiApp.getCompiVersion();
+  }
 
-	@Override
-	protected List<Command> buildCommands() {
-		try {
-      return asList( 
-      	newRunSpecificPipelineCommand(config, commandLineArgs)
+  @Override
+  protected String getApplicationCommand() {
+    return "compi";
+  }
+
+  @Override
+  protected List<Command> buildCommands() {
+    try {
+      RunSpecificPipelineCommand runPipelineCommand = newRunSpecificPipelineCommand(config, commandLineArgs);
+      return asList(
+        runPipelineCommand,
+        new ShowPipelineHelp(runPipelineCommand)
       );
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-	}
+  }
 
-	@Override
-	protected void printCommandHelp(Command command, PrintStream out) {
-		if (command.getName().equals(RunSpecificPipelineCommand.NAME)) {
-			super.printCommandUsageLine(command, out);
-			out.println(" <general-options> -- <pipeline-parameters>");
-			out.print("  where <general-options>: ");
-			super.printCommandOptions(new RunCommand(commandLineArgs), out);
-			out.println();
-			printCommandOptionsExtended(new RunCommand(commandLineArgs), out);
-			out.println();
-			out.print("  where <pipeline-parameters>:");
-			super.printCommandOptions(command, out);
-			out.println();
-			printCommandOptionsExtended(command, out);
-		} else {
-			super.printCommandHelp(command, out);
-		}
-	}
+  @Override
+  protected void printCommandHelp(Command command, PrintStream out) {
+    if (command.getName().equals(RunSpecificPipelineCommand.NAME)) {
+      super.printCommandUsageLine(command, out);
+      out.println(" <general-options> -- <pipeline-parameters>");
+      out.print("  where <general-options>: ");
+      super.printCommandOptions(new RunCommand(commandLineArgs), out);
+      out.println();
+      printCommandOptionsExtended(new RunCommand(commandLineArgs), out);
+      out.println();
+      out.print("  where <pipeline-parameters>:");
+      super.printCommandOptions(command, out);
+      out.println();
+      printCommandOptionsExtended(command, out);
+    } else {
+      super.printCommandHelp(command, out);
+    }
+  }
+
+  private class ShowPipelineHelp extends AbstractCommand {
+
+    private RunSpecificPipelineCommand runPipelineCommand;
+
+    public ShowPipelineHelp(RunSpecificPipelineCommand runPipelineCommand) {
+      this.runPipelineCommand = runPipelineCommand;
+    }
+
+    @Override
+    public String getName() {
+      return "help-pipeline";
+    }
+
+    @Override
+    public String getDescriptiveName() {
+      return "shows help of the pipeline";
+    }
+
+    @Override
+    public String getDescription() {
+      return "shows help of the pipeline";
+    }
+
+    @Override
+    public void execute(Parameters parameters) throws Exception {
+      printCommandHelp(this.runPipelineCommand, System.err);
+    }
+
+    @Override
+    protected List<Option<?>> createOptions() {
+      return new ArrayList<>();
+    }
+
+  }
 }

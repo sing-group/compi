@@ -73,6 +73,7 @@ public class RunCommand extends AbstractCommand {
   private static final String SHOW_STD_OUTS = "o";
   private static final String QUIET = "q";
   private static final String ABORT_IF_WARNINGS = "w";
+  private static final String HELP = "h";
 
   private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;
   private static final String PARAMS_FILE_LONG = "params";
@@ -89,6 +90,7 @@ public class RunCommand extends AbstractCommand {
   private static final String SHOW_STD_OUTS_LONG = "show-std-outs";
   private static final String QUIET_LONG = "quiet";
   private static final String ABORT_IF_WARNINGS_LONG = "abort-if-warnings";
+  private static final String HELP_LONG = "help";
 
   private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
   private static final String PARAMS_FILE_DESCRIPTION = "XML parameters file";
@@ -131,7 +133,9 @@ public class RunCommand extends AbstractCommand {
 
   private static final String SHOW_STD_OUTS_DESCRIPTION = "Forward task stdout/stderr to the compi stdout/stderr";
   private static final String QUIET_DESCRIPTION = "Do not output compi logs to the console";
-  private static final String ABORT_IF_WARNINGS_DESCRIPTION = "Abort pipeline run if there are warnings on pipeline validation";
+  private static final String ABORT_IF_WARNINGS_DESCRIPTION =
+    "Abort pipeline run if there are warnings on pipeline validation";
+  private static final String HELP_DESCRIPTION = "Show help of the specified pipeline";
 
   private static final String DEFAULT_NUM_PARALLEL_TASKS = "6";
 
@@ -157,6 +161,7 @@ public class RunCommand extends AbstractCommand {
     boolean hasShowStdOuts = parameters.hasOption(super.getOption(SHOW_STD_OUTS));
     boolean hasQuiet = parameters.hasOption(super.getOption(QUIET));
     boolean hasAbortIfWarnings = parameters.hasOption(super.getOption(ABORT_IF_WARNINGS));
+    boolean hasHelp = parameters.hasOption(super.getOption(HELP));
 
     if (hasQuiet) {
       silenceConsoleLog();
@@ -240,40 +245,7 @@ public class RunCommand extends AbstractCommand {
     List<String> logExcludeTasks =
       hasExcludeLogTasks ? parameters.getAllValuesString(super.getOption(LOG_EXCLUDE_TASK)) : null;
 
-    LOGGER.info("Compi running with: ");
-    LOGGER.info("Pipeline file - " + pipelineFile);
-    LOGGER.info("Max number of parallel tasks - " + compiThreads);
-
-    if (parameters.hasOption(super.getOption(PARAMS_FILE))) {
-      LOGGER.info("Params file - " + parameters.getSingleValue(super.getOption(PARAMS_FILE)));
-    }
-
-    if (runnersFile != null) {
-      LOGGER.info("Runners file - " + runnersFile);
-    }
-    if (singleTask != null) {
-      LOGGER.info("Running single task - " + singleTask);
-    }
-
-    if (fromTasks != null) {
-      LOGGER.info("Running from task(s) - " + fromTasks.stream().collect(joining(", ")));
-    }
-    if (afterTasks != null) {
-      LOGGER.info("Running after task(s) - " + afterTasks.stream().collect(joining(", ")));
-    }
-
-    if (untilTask != null) {
-      LOGGER.info("Running until task - " + untilTask);
-    }
-    if (beforeTask != null) {
-      LOGGER.info("Running tasks before task - " + beforeTask);
-    }
-    if (logsDir != null) {
-      LOGGER.info("Logging task's output to dir - " + logsDir);
-    }
-
     try {
-
       CLIApplication pipelineApplication =
         newPipelineCLIApplication(
           pipelineFile,
@@ -293,6 +265,45 @@ public class RunCommand extends AbstractCommand {
             hasAbortIfWarnings
           ), this.commandLineArgs
         );
+
+      if (hasHelp) {
+        pipelineApplication.run(new String[] {
+          "help-pipeline"
+        });
+        return;
+      }
+      
+      LOGGER.info("Compi running with: ");
+      LOGGER.info("Pipeline file - " + pipelineFile);
+      LOGGER.info("Max number of parallel tasks - " + compiThreads);
+
+      if (parameters.hasOption(super.getOption(PARAMS_FILE))) {
+        LOGGER.info("Params file - " + parameters.getSingleValue(super.getOption(PARAMS_FILE)));
+      }
+
+      if (runnersFile != null) {
+        LOGGER.info("Runners file - " + runnersFile);
+      }
+      if (singleTask != null) {
+        LOGGER.info("Running single task - " + singleTask);
+      }
+
+      if (fromTasks != null) {
+        LOGGER.info("Running from task(s) - " + fromTasks.stream().collect(joining(", ")));
+      }
+      if (afterTasks != null) {
+        LOGGER.info("Running after task(s) - " + afterTasks.stream().collect(joining(", ")));
+      }
+
+      if (untilTask != null) {
+        LOGGER.info("Running until task - " + untilTask);
+      }
+      if (beforeTask != null) {
+        LOGGER.info("Running tasks before task - " + beforeTask);
+      }
+      if (logsDir != null) {
+        LOGGER.info("Logging task's output to dir - " + logsDir);
+      }
 
       pipelineApplication.run(getPipelineParameters(this.commandLineArgs));
 
@@ -328,9 +339,11 @@ public class RunCommand extends AbstractCommand {
     logValidationErrors(errors);
 
     if (errors.stream().filter(error -> !error.getType().isError()).count() > 0 && abortIfWarnings) {
-      throw new IllegalArgumentException("Pipeline has warnings and --"+ABORT_IF_WARNINGS_LONG+" option was used. Aborting");
+      throw new IllegalArgumentException(
+        "Pipeline has warnings and --" + ABORT_IF_WARNINGS_LONG + " option was used. Aborting"
+      );
     }
-    
+
     final CompiRunConfiguration.Builder builder = forPipeline(pipeline);
     builder.whichRunsAMaximumOf(compiThreads);
 
@@ -364,7 +377,7 @@ public class RunCommand extends AbstractCommand {
     if (showStdOuts) {
       builder.whichShowsStdOuts();
     }
-    
+
     CompiRunConfiguration configuration = builder.build();
     return configuration;
   }
@@ -402,6 +415,7 @@ public class RunCommand extends AbstractCommand {
     options.add(getShowStdOuts());
     options.add(getQuiet());
     options.add(getAbortIfWarnings());
+    options.add(getHelp());
 
     return options;
   }
@@ -410,6 +424,13 @@ public class RunCommand extends AbstractCommand {
     return new FlagOption(
       ABORT_IF_WARNINGS_LONG, ABORT_IF_WARNINGS,
       ABORT_IF_WARNINGS_DESCRIPTION
+    );
+  }
+
+  private Option<?> getHelp() {
+    return new FlagOption(
+      HELP_LONG, HELP,
+      HELP_DESCRIPTION
     );
   }
 
@@ -506,6 +527,7 @@ public class RunCommand extends AbstractCommand {
   }
 
   private static String[] getPipelineParameters(String[] args) {
+
     int paramsDelimiterIndex = asList(args).indexOf(ARGS_DELIMITER);
 
     // after --
