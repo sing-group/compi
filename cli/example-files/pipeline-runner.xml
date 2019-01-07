@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<runners xmlns="http://sing-group.org/compi-pipeline-runner" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<runners xmlns="http://sing-group.org/compi/runners-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<runner>
 		echo "[${task_id}] code: ${task_code}" >> /tmp/runner-output.txt
 		/bin/sh -c "${task_code}"
