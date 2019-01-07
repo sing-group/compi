@@ -44,6 +44,7 @@
 		<maven-antrun-plugin.version>1.6</maven-antrun-plugin.version>
 		<maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
 		<license-maven-plugin.version>1.14</license-maven-plugin.version>
+		<commons-compress.version>1.14</commons-compress.version>
 
 		<junit.version>4.12</junit.version>
 		<javax.activation.activation.version>1.1</javax.activation.activation.version>
@@ -134,6 +135,11 @@
 				<groupId>ch.qos.logback</groupId>
 				<artifactId>logback-classic</artifactId>
 				<version>1.2.3</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+            	<artifactId>commons-compress</artifactId>
+				<version>${commons-compress.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

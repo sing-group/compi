@@ -65,7 +65,7 @@
 									<target>
 										<chmod perm="ugo+x">
 											<fileset dir="${basedir}/target/dist">
-												<include name="compi"/>
+												<include name="compi" />
 											</fileset>
 										</chmod>
 									</target>
@@ -99,16 +99,17 @@
 									<target>
 										<chmod perm="ugo+x">
 											<fileset dir="${basedir}/target/dist">
-												<include name="compi"/>
+												<include name="compi" />
 											</fileset>
-											<fileset dir="${basedir}/target/installer/payload/compi">
-												<include name="compi"/>
+											<fileset
+												dir="${basedir}/target/installer/payload/compi">
+												<include name="compi" />
 											</fileset>
 											<fileset dir="${basedir}/target/installer/payload">
-												<include name="installer"/>
+												<include name="installer" />
 											</fileset>
 											<fileset dir="${basedir}/target/installer">
-												<include name="build"/>
+												<include name="build" />
 											</fileset>
 										</chmod>
 									</target>
@@ -122,7 +123,8 @@
 								<phase>package</phase>
 								<configuration>
 									<target>
-										<exec executable="${basedir}/target/installer/build" dir="${project.build.directory}/installer"></exec>
+										<exec executable="${basedir}/target/installer/build"
+											dir="${project.build.directory}/installer"></exec>
 									</target>
 								</configuration>
 								<goals>
@@ -136,7 +138,7 @@
 									<target>
 										<chmod perm="ugo+x">
 											<fileset dir="${basedir}/target/installer">
-												<include name="*.bsx"/>
+												<include name="*.bsx" />
 											</fileset>
 										</chmod>
 									</target>
@@ -153,18 +155,43 @@
 								</goals>
 								<configuration>
 									<target>
-										<tar destfile="${project.build.directory}/installer/compi-${project.version}.tar">
-											<tarfileset dir="${project.build.directory}/installer/payload/compi" filemode="775">
-												<include name="compi"/>
-												<include name="compi-files/**"/>
+										<tar
+											destfile="${project.build.directory}/installer/compi-${project.version}.tar">
+											<tarfileset
+												dir="${project.build.directory}/installer/payload/compi"
+												filemode="775">
+												<include name="compi" />
+												<include name="compi-files/**" />
 											</tarfileset>
 										</tar>
-										<gzip 
-											destfile="${project.build.directory}/installer/compi-${project.version}.tar.gz" 
-											src="${project.build.directory}/installer/compi-${project.version}.tar"
-										/>
-										<delete file="${project.build.directory}/installer/compi-${project.version}.tar"/>
+										<gzip
+											destfile="${project.build.directory}/installer/compi-${project.version}.tar.gz"
+											src="${project.build.directory}/installer/compi-${project.version}.tar" />
+										<delete
+											file="${project.build.directory}/installer/compi-${project.version}.tar" />
 									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>1.12</version>
+						<executions>
+							<execution>
+								<id>attach-artifacts</id>
+								<phase>package</phase>
+								<goals>
+									<goal>attach-artifact</goal>
+								</goals>
+								<configuration>
+									<artifacts>
+										<artifact>
+											<file>${project.build.directory}/installer/compi-${project.version}.tar.gz</file>
+											<type>tar.gz</type>
+										</artifact>
+									</artifacts>
 								</configuration>
 							</execution>
 						</executions>
@@ -282,8 +309,10 @@
 							<skip>${should.skip.installer}</skip>
 							<artifactItems>
 								<!--
-								a custom JRE for compi, generated with jlink (JRE 10+) and uploaded to SING maven repo with the following command:
-								jlink - -add-modules java.base,java.logging,java.xml,java.naming,java.scripting,java.desktop,jdk.scripting.nashorn - -output /tmp/myjre
+									a custom JRE for compi, generated with jlink (JRE 10+) and uploaded 
+									to SING maven repo with the following command:
+									jlink - -add-modules java.base,java.logging,java.xml,java.naming,java.scripting,java.desktop,jdk.scripting.nashorn 
+									- -output /tmp/myjre
 								-->
 								<artifactItem>
 									<groupId>com.oracle.java</groupId>

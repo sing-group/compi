@@ -2,8 +2,7 @@ FROM $baseImage
 LABEL maintainer="$maintainer"
 
 # INSTALL COMPI
-ADD image-files/jre.tgz /java
-ADD image-files/compi.jar compi.jar
+ADD image-files/compi.tar.gz /
 
 # PLACE HERE YOUR DEPENDENCIES (SOFTWARE NEEDED BY YOUR PIPELINE)
 
@@ -12,4 +11,4 @@ ADD image-files/compi.jar compi.jar
 
 # ADD PIPELINE
 ADD pipeline.xml pipeline.xml
-ENTRYPOINT ["/java/bin/java", "-jar",  "/compi.jar",  "run",  "-p", "/pipeline.xml"]
+ENTRYPOINT ["/compi", "run",  "-p", "/pipeline.xml"]

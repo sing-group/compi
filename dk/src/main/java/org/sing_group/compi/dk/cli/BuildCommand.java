@@ -152,7 +152,7 @@ public class BuildCommand extends AbstractCommand {
 
   private URL getDownloadedCompiJarURL(PipelineDockerFile pipelineDockerFile) {
     try {
-      return pipelineDockerFile.getDownloadedCompiJar().toURI().toURL();
+      return pipelineDockerFile.getCompiJar().toURI().toURL();
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }

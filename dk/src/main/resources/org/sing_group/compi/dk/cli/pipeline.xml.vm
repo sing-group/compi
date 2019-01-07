@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- This is an example file of a compi pipeline -->
-<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
+<pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	<!--
@@ -12,7 +12,7 @@
 	<params>
 		<param name="parameter1" shortName="p1">Parameter one</param>
 		<param name="parameter2" shortName="p2">Parameter two</param>
-		<param name="a-list" shortName="l">A list of comma separated values
+		<param name="alist" shortName="l">A list of comma separated values
 		</param>
 		<param name="out" shortName="o">Out file</param>
 	</params>
@@ -42,7 +42,7 @@
 			by the Bourne shell (sh)). You can use your parameters by placing
 			${parameter_name} anywhere in your code.
 		-->
-		<task id="task-1">
+		<task id="task-1" params="parameter1 parameter2 out">
 			echo ${parameter1} >> ${out}
 			echo ${parameter2} >> ${out}
 		</task>
@@ -60,7 +60,7 @@
 		    - in: The directory, list of values, parameter name or command, for each type of source (see "of").
 			- as: The name of the loop variable that will be accesible in the code as ${name}
 		-->
-		<foreach id="task-2" after="task-1" of="param" in="a-list" as="i">
+		<foreach id="task-2" after="task-1" of="param" in="alist" as="i" params="alist out">
 			echo ${i} >> ${out}
 		</foreach>
 	</tasks>

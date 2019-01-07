@@ -34,12 +34,17 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
+import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -49,14 +54,11 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 public class PipelineDockerFile {
-  private static final Logger logger = Logger.getLogger( PipelineDockerFile.class.getName() );
-  private static final String JRE_URL =
-    "https://maven.sing-group.org/repository/maven-releases/com/oracle/java/jre-mod.java.base-mod.java.logging-mod.java.xml-mod.java.naming/10.0.1/jre-mod.java.base-mod.java.logging-mod.java.xml-mod.java.naming-10.0.1.tgz";
+  private static final Logger logger = Logger.getLogger(PipelineDockerFile.class.getName());
   private static final String COMPI_URL_TEMPLATE =
-    "https://maven.sing-group.org/repository/maven-releases/org/sing_group/compi-cli/%version/compi-cli-%version-jar-with-dependencies.jar";
-
+    "https://maven.sing-group.org/repository/maven-releases/org/sing_group/compi-cli/%version/compi-cli-%version.tar.gz";
   private static final String COMPI_URL_TEMPLATE_SNAPSHOTS =
-    "https://maven.sing-group.org/repository/maven-snapshots/org/sing_group/compi-cli/%version-SNAPSHOT/compi-cli-%version-%timestamp-%build-jar-with-dependencies.jar";
+    "https://maven.sing-group.org/repository/maven-snapshots/org/sing_group/compi-cli/%version-SNAPSHOT/compi-cli-%version-%timestamp-%build.tar.gz";
   public static final String DEFAULT_BASE_IMAGE = "ubuntu:16.04";
   public static String DEFAULT_COMPI_VERSION;
   public static final String IMAGE_FILES_DIR = "image-files";
@@ -77,8 +79,9 @@ public class PipelineDockerFile {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    
+
   }
+
   public PipelineDockerFile(File directory) {
     this.baseDirectory = directory;
     this.dockerFile = new File(directory.toString() + File.separator + "Dockerfile");
@@ -94,8 +97,8 @@ public class PipelineDockerFile {
 
   public void downloadImageFilesIfNecessary() throws IOException, SAXException, ParserConfigurationException {
     createImageFilesDirIfNeccesary();
-    downloadJREIfNecessary();
-    downloadCompiJarIfNecessary();
+    // downloadJREIfNecessary();
+    downloadCompiTarGzIfNecessary();
   }
 
   public void createDockerFile() throws IOException {
@@ -114,13 +117,40 @@ public class PipelineDockerFile {
     return baseDirectory;
   }
 
-  public File getDownloadedCompiJar() {
-    File compiJar = new File(this.baseDirectory + File.separator + IMAGE_FILES_DIR + File.separator + "compi.jar");
+  public File getDownloadedCompiTarGz() {
+    File compiJar = new File(this.baseDirectory + File.separator + IMAGE_FILES_DIR + File.separator + "compi.tar.gz");
     if (compiJar.exists()) {
       return compiJar;
     } else {
       return null;
     }
+  }
+
+  public File getCompiJar() {
+    File imagesDir = new File(this.baseDirectory + File.separator + IMAGE_FILES_DIR);
+    File compiJar =
+      findFile(
+        (file) -> file.getName().startsWith("compi-cli") && file.getName().endsWith("jar"),
+        imagesDir
+      );
+
+    if (compiJar == null) {
+      throw new IllegalArgumentException("Compi jar not found in: " + imagesDir);
+    }
+
+    return compiJar;
+  }
+
+  private File findFile(Function<File, Boolean> filter, File directory) {
+    for (File file : directory.listFiles()) {
+      if (file.isDirectory()) {
+        return findFile(filter, file);
+      }
+      if (filter.apply(file)) {
+        return file;
+      }
+    }
+    return null;
   }
 
   private void createImageFilesDirIfNeccesary() {
@@ -130,22 +160,35 @@ public class PipelineDockerFile {
     }
   }
 
-  private void downloadJREIfNecessary() throws MalformedURLException, IOException {
-    File jreFile = new File(this.baseDirectory + File.separator + IMAGE_FILES_DIR + File.separator + "jre.tgz");
-    if (!jreFile.exists()) {
-      downloadToFile(new URL(JRE_URL), jreFile);
-    }
-
-  }
-
-  private void downloadCompiJarIfNecessary()
+  private void downloadCompiTarGzIfNecessary()
     throws MalformedURLException, IOException, SAXException, ParserConfigurationException {
     String currentCompiVersion = getCurrentDownloadedCompiVersion();
     if (!this.compiVersion.equals(currentCompiVersion)) {
       downloadToFile(
-        new URL(getCompiURL()), new File(baseDirectory.toString() + File.separator + IMAGE_FILES_DIR + File.separator + "compi.jar")
+        new URL(getCompiURL()), new File(baseDirectory.toString() + File.separator + IMAGE_FILES_DIR + File.separator + "compi.tar.gz")
+      );
+      uncompressTarGz(
+        new File(baseDirectory.toString() + File.separator + IMAGE_FILES_DIR + File.separator + "compi.tar.gz")
       );
       updateDownloadedCompiVersion();
+    }
+  }
+
+  private void uncompressTarGz(File file) throws FileNotFoundException, IOException {
+    logger.info("Uncompressing: " + file);
+    try (TarArchiveInputStream fin = new TarArchiveInputStream(new GZIPInputStream(new FileInputStream(file)))) {
+      TarArchiveEntry entry;
+      while ((entry = fin.getNextTarEntry()) != null) {
+        if (entry.isDirectory()) {
+          continue;
+        }
+        File curfile = new File(file.getParent(), entry.getName());
+        File parent = curfile.getParentFile();
+        if (!parent.exists()) {
+          parent.mkdirs();
+        }
+        IOUtils.copy(fin, new FileOutputStream(curfile));
+      }
     }
   }
 
