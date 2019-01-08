@@ -223,8 +223,9 @@ public class BuildCommand extends AbstractCommand {
           mainMethod.invoke(null, new Object[] {
             args
           });
-        } catch (ExitTrappedException e) {
+        } catch (InvocationTargetException e) {
           restoreStdErr();
+
         }
 
         enableSystemExitCall();
@@ -261,6 +262,6 @@ public class BuildCommand extends AbstractCommand {
     }
 
     @SuppressWarnings("serial")
-    private static class ExitTrappedException extends SecurityException {}
+    private static class ExitTrappedException extends Error {}
   }
 }
