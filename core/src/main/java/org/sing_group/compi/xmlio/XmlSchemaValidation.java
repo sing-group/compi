@@ -41,43 +41,50 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Validates the XML pipeline file with the XSD file
+ * This class offers methods related with XSD file validation.
  * 
  * @author Jesus Alvarez Casanova
+ * @author Hugo López-Fernández
  *
  */
-public class DOMparsing {
+public class XmlSchemaValidation {
 
   /**
-   * Validates the XML file with the XSD file
+   * Validates the XML file with the XSD file.
    * 
-   * @param xmlPath
-   *          Indicates the path of the XML pipeline file
-   * @param xsdFile
-   *          Indicates the XSD file
-   * @throws SAXException
-   *           If there is an error in the XML parsing
-   * @throws IOException
-   *           If an I/O exception of some sort has occurred
+   * @param xmlPath the path of the XML pipeline file
+   * @param xsdFile the XSD file
+   * @throws SAXException if there is an error in the XML parsing
+   * @throws IOException if an I/O exception of some sort has occurred
    */
-  public static void validateXMLSchema(final String xmlPath, final String xsdFile) throws SAXException, IOException {
+  public static void validateXmlSchema(final String xmlPath, final String xsdFile) throws SAXException, IOException {
     final SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
     final Schema schema =
       schemaFactory
-        .newSchema(DOMparsing.class.getClassLoader().getResource(xsdFile));
+        .newSchema(XmlSchemaValidation.class.getClassLoader().getResource(xsdFile));
     final Validator validator = schema.newValidator();
     validator.setErrorHandler(new SimpleErrorHandler());
     validator.validate(new StreamSource(new File(xmlPath)));
   }
 
   /**
-   * Obtains the schema name of a given XML (xmlns attribute in its root node)
+   * Returns {@code true} if the specified XSD file exists and {@code false} otherwise.
    * 
-   * @param xmlPath
-   * @return The xmlns attribute of the root node
-   * @throws FileNotFoundException
-   * @throws SAXException
-   * @throws IOException
+   * @param xsdFile the XSD file
+   * @return {@code true} if the specified XSD file exists and {@code false} otherwise
+   */
+  public static boolean existsSchema(final String xsdFile) {
+    return XmlSchemaValidation.class.getClassLoader().getResource(xsdFile) != null;
+  }
+
+  /**
+   * Returns the schema name of a given XML (xmlns attribute in its root node).
+   * 
+   * @param xmlPath the path of the XML pipeline file
+   * @return the xmlns attribute of the root node
+   * @throws FileNotFoundException if the pipeline file does not exist
+   * @throws SAXException if there is an error in the XML parsing
+   * @throws IOException if an I/O exception of some sort has occurred
    */
   public static String getSchemaName(final String xmlPath) throws FileNotFoundException, SAXException, IOException {
     SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
@@ -106,8 +113,17 @@ public class DOMparsing {
     }
   }
 
+  /**
+   * Returns the schema version of a given XML.
+   * 
+   * @param xmlPath the path of the XML pipeline file
+   * @return the schema version
+   * @throws FileNotFoundException if the pipeline file does not exist
+   * @throws SAXException if there is an error in the XML parsing
+   * @throws IOException if an I/O exception of some sort has occurred
+   */
   public static String getSchemaVersion(final String xmlPath) throws FileNotFoundException, SAXException, IOException {
-    String schemaName = DOMparsing.getSchemaName(xmlPath.toString());
+    String schemaName = XmlSchemaValidation.getSchemaName(xmlPath.toString());
     if (schemaName == null) {
       throw new IllegalArgumentException("file " + xmlPath + " must declare schema");
     }
@@ -115,7 +131,6 @@ public class DOMparsing {
 
     return schemaVersion;
   }
-  
 
   @SuppressWarnings("serial")
   private static class SAXTermination extends SAXException {}

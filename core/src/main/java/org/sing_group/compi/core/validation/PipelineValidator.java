@@ -22,13 +22,14 @@
  */
 package org.sing_group.compi.core.validation;
 
+import static java.util.Arrays.asList;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.NON_DECLARED_PARAMETER;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.NON_DECLARED_TASK_ID;
+import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.XML_SCHEMA_UNSUPPORTED;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.XML_SCHEMA_VALIDATION_ERROR;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -38,13 +39,14 @@ import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.ParameterDescription;
 import org.sing_group.compi.core.pipeline.Pipeline;
 import org.sing_group.compi.core.pipeline.Task;
-import org.sing_group.compi.xmlio.DOMparsing;
+import org.sing_group.compi.xmlio.XmlSchemaValidation;
 import org.sing_group.compi.xmlio.PipelineParserFactory;
 import org.xml.sax.SAXException;
 
 public class PipelineValidator {
 
   public static enum ValidationErrorType {
+    XML_SCHEMA_UNSUPPORTED(true),
     XML_SCHEMA_VALIDATION_ERROR(true),
     NON_DECLARED_PARAMETER(true),
     NON_DECLARED_TASK_ID(true),
@@ -77,8 +79,17 @@ public class PipelineValidator {
     this.clearValidationStatus();
 
     try {
-      String schemaVersion = DOMparsing.getSchemaVersion(this.pipelineFile.toString());
-      DOMparsing.validateXMLSchema(this.pipelineFile.toString(), "xsd/pipeline-"+schemaVersion+".xsd");
+      String schemaVersion = XmlSchemaValidation.getSchemaVersion(this.pipelineFile.toString());
+      String xsdFile = "xsd/pipeline-" + schemaVersion + ".xsd";
+
+      if (!XmlSchemaValidation.existsSchema(xsdFile)) {
+        String schemaName = XmlSchemaValidation.getSchemaName(this.pipelineFile.toString());
+        return asList(
+          new ValidationError(XML_SCHEMA_UNSUPPORTED, "Unsupported schema. Schema file not found for " + schemaName)
+        );
+      }
+
+      XmlSchemaValidation.validateXmlSchema(this.pipelineFile.toString(), xsdFile);
 
       this.pipeline = PipelineParserFactory.createPipelineParser().parsePipeline(this.pipelineFile);
 

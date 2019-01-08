@@ -49,7 +49,6 @@ import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.Pipeline;
 import org.sing_group.compi.core.pipeline.Task;
 import org.sing_group.compi.core.resolver.VariableResolver;
-import org.sing_group.compi.core.runner.ProcessCreator;
 
 /**
  * A class to assist {@link CompiApp} in pipeline execution

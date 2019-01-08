@@ -49,13 +49,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.swing.plaf.BorderUIResource.EmptyBorderUIResource;
-
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
-import org.sing_group.compi.core.CompiRunConfiguration;
 import org.sing_group.compi.core.CompiTaskAbortedException;
 import org.sing_group.compi.core.TaskExecutionHandler;
 import org.sing_group.compi.core.loops.ForeachIteration;

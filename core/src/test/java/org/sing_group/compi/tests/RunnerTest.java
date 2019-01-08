@@ -38,7 +38,7 @@ import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.PipelineValidationException;
 import org.sing_group.compi.core.runner.Runners;
-import org.sing_group.compi.xmlio.DOMparsing;
+import org.sing_group.compi.xmlio.XmlSchemaValidation;
 import org.sing_group.compi.xmlio.runners.DOMRunnersParser;
 import org.xml.sax.SAXException;
 
@@ -47,7 +47,7 @@ public class RunnerTest {
   @Test
   public void testValidRunner() throws SAXException, IOException {
     String runnerFile = ClassLoader.getSystemResource("runners-example.xml").getFile();
-    DOMparsing.validateXMLSchema(runnerFile, "xsd/runners-1.0.xsd");
+    XmlSchemaValidation.validateXmlSchema(runnerFile, "xsd/runners-1.0.xsd");
   }
 
 

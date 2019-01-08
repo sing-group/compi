@@ -32,7 +32,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.resolver.VariableResolver;
-import org.sing_group.compi.xmlio.DOMparsing;
+import org.sing_group.compi.xmlio.XmlSchemaValidation;
 import org.xml.sax.SAXException;
 
 public class ExceptionsTest {
@@ -52,7 +52,7 @@ public class ExceptionsTest {
 
   @Test(expected = SAXException.class)
   public void testXSDSAXException() throws Exception {
-    DOMparsing.validateXMLSchema(
+    XmlSchemaValidation.validateXmlSchema(
       ClassLoader.getSystemResource("pipelineParsingException.xml").getFile(),
       "xsd/pipeline-1.0.xsd"
     );
