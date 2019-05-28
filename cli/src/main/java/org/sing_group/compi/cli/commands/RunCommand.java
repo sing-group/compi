@@ -93,7 +93,7 @@ public class RunCommand extends AbstractCommand {
   private static final String HELP_LONG = "help";
 
   private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
-  private static final String PARAMS_FILE_DESCRIPTION = "XML parameters file";
+  private static final String PARAMS_FILE_DESCRIPTION = "parameters file";
   private static final String NUM_PARALLEL_TASKS_DESCRIPTION =
     "maximum number of tasks that can be run in parallel. This is not equivalent to the number of threads the pipeline "
       + "will use, because some tasks can be parallel processes themselves";

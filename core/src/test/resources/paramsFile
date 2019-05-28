@@ -1,0 +1,5 @@
+a=tmp/testingFile.txt
+b=touch
+c=10
+d_equal=at=ta
+e_empty=

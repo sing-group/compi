@@ -39,6 +39,7 @@ import static org.sing_group.compi.tests.TestUtils.emptyResolver;
 import static org.sing_group.compi.tests.TestUtils.resolverFor;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -110,8 +111,38 @@ public class PipelineTest {
     }
     assertEquals(1, handler.getStartedTasks().size());
     assertEquals(1, handler.getFinishedTasks().size());
-
   }
+  
+  @Test
+  public void testParametersFromFile() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("echoPipeline.xml").getFile();
+    File outFile = File.createTempFile("compi-test", ".txt");
+    
+    File parametersFile = File.createTempFile("compi-test-parameters", "");
+    Files.write(parametersFile.toPath(), new String("text=hello\ndestination=" + outFile.toString() + "\n").getBytes());
+
+    final CompiApp compi =
+      new CompiApp(
+        forPipeline(fromFile(new File(pipelineFile)))
+          .whichResolvesVariablesFromFile(parametersFile)
+          .build()
+      );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+    outFile.deleteOnExit();
+
+    compi.run();
+
+    assertTrue(outFile.exists());
+    assertTrue(outFile.length() > 0);
+    try (Scanner outFileScanner = new Scanner(outFile)) {
+      assertEquals("hello", outFileScanner.nextLine());
+    }
+    assertEquals(1, handler.getStartedTasks().size());
+    assertEquals(1, handler.getFinishedTasks().size());
+  }
+
 
   @Test
   public void testFlagParameters() throws Exception {

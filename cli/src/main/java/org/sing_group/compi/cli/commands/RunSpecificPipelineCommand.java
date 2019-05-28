@@ -46,7 +46,7 @@ import org.sing_group.compi.core.pipeline.Pipeline;
 import org.sing_group.compi.core.pipeline.Task;
 import org.sing_group.compi.core.resolver.MapVariableResolver;
 import org.sing_group.compi.core.resolver.VariableResolver;
-import org.sing_group.compi.xmlio.XMLParamsFileVariableResolver;
+import org.sing_group.compi.xmlio.ParamsFileVariableResolver;
 
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.option.DefaultValuedOption;
@@ -265,12 +265,12 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
       }
     });
 
-    // options in the XML parameters file that have not been defined yet
-    VariableResolver xmlResolver = getParamsFileResolver();
-    if (xmlResolver != null) {
-      xmlResolver.getVariableNames().forEach(variable -> {
+    // options in the parameters file that have not been defined yet
+    VariableResolver paramsFileResolver = getParamsFileResolver();
+    if (paramsFileResolver != null) {
+      paramsFileResolver.getVariableNames().forEach(variable -> {
         if (!variables.containsKey(variable)) {
-          variables.put(variable, xmlResolver.resolveVariable(variable));
+          variables.put(variable, paramsFileResolver.resolveVariable(variable));
         }
       });
     }
@@ -293,7 +293,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
       Pipeline p = config.getPipeline();
 
       p.getTasksByParameter().forEach((parameterName, tasks) -> {
-        XMLParamsFileVariableResolver paramsFileResolver = getParamsFileResolver();
+        ParamsFileVariableResolver paramsFileResolver = getParamsFileResolver();
         ParameterDescription description = p.getParameterDescription(parameterName);
         List<OptionCategory> categories =
           tasks.stream().filter(task -> !task.isSkipped())
@@ -348,9 +348,6 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
         }
 
       });
-                /*
-                 * } }
-                 */
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -358,19 +355,15 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
     return options;
   }
 
-  private XMLParamsFileVariableResolver getParamsFileResolver() {
-    XMLParamsFileVariableResolver resolver = null;
+  private ParamsFileVariableResolver getParamsFileResolver() {
+    ParamsFileVariableResolver resolver = null;
     for (int i = 0; i < commandLineArgs.length; i++) {
-      String arg = commandLineArgs[i];
-      if (arg.equals("--params") || arg.equals("-pa")) {
-        resolver =
-          new XMLParamsFileVariableResolver(
-            new File(commandLineArgs[i + 1])
-            );
+        String arg = commandLineArgs[i];
+            if (arg.equals("--params") || arg.equals("-pa")) {
+                resolver = new ParamsFileVariableResolver(new File(commandLineArgs[i + 1]));
             }
-            }
+    }
 
-            return resolver;
-            }
-
+    return resolver;
+  }
 }

@@ -49,7 +49,7 @@ import org.sing_group.compi.core.pipeline.Pipeline;
 import org.sing_group.compi.core.pipeline.Task;
 import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.core.runner.RunnersManager;
-import org.sing_group.compi.xmlio.XMLParamsFileVariableResolver;
+import org.sing_group.compi.xmlio.ParamsFileVariableResolver;
 import org.xml.sax.SAXException;
 
 /**
@@ -117,7 +117,7 @@ public class CompiApp {
     this.pipeline = config.getPipeline();
 
     if (config.getParamsFile() != null) {
-      this.resolver = new XMLParamsFileVariableResolver(config.getParamsFile());
+      this.resolver = new ParamsFileVariableResolver(config.getParamsFile());
     } else {
       this.resolver = config.getResolver();
     }

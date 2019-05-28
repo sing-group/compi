@@ -27,7 +27,7 @@ sage: compi run -p <pipeline> [-pa <params>] [-n <num-tasks>] [-l <logs>] [-lt <
         --pipeline/-p
                 XML pipeline file
         --params/-pa
-                XML parameters file
+                parameters file
         --num-tasks/-n
                 maximum number of tasks that can be run in parallel. This is not equivalent to the number of threads the pipeline will use, because some tasks can be parallel processes themselves (default: 6)
         --logs/-l

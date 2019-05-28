@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
+import org.sing_group.compi.core.resolver.MapVariableResolver;
 import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.xmlio.XmlSchemaValidation;
 import org.xml.sax.SAXException;
@@ -89,11 +90,10 @@ public class ExceptionsTest {
   @Test(expected = IllegalArgumentException.class)
   public void testParamsException() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("pipelineParamsException.xml").getFile();
-    final String paramsFile = ClassLoader.getSystemResource("testParams.xml").getFile();
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
-          .whichResolvesVariablesFromFile(new File(paramsFile))
+          .whichResolvesVariablesWith(simpleVariableResolver)
           .build()
       );
     compi.run();
@@ -102,11 +102,10 @@ public class ExceptionsTest {
   @Test(expected = IllegalArgumentException.class)
   public void testForEachAsNotFoundException() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("pipelineForEachNotFoundException.xml").getFile();
-    final String paramsFile = ClassLoader.getSystemResource("testParams.xml").getFile();
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
-          .whichResolvesVariablesFromFile(new File(paramsFile))
+          .whichResolvesVariablesWith(new MapVariableResolver())
           .build()
       );
     compi.run();
@@ -115,13 +114,12 @@ public class ExceptionsTest {
   @Test(expected = IllegalArgumentException.class)
   public void testRunFromNonExistantTask() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("pipeline.xml").getFile();
-    final String paramsFile = ClassLoader.getSystemResource("testParams.xml").getFile();
     final String fromTask = "NonExistantId";
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
-          .whichResolvesVariablesFromFile(new File(paramsFile))
           .whichStartsFromTask(fromTask)
+          .whichResolvesVariablesWith(simpleVariableResolver)
           .build()
       );
     compi.run();
@@ -130,15 +128,13 @@ public class ExceptionsTest {
   @Test(expected = IllegalArgumentException.class)
   public void testNonExistantDirectory() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("pipelineNonExistantDirectory.xml").getFile();
-    final String paramsFile = ClassLoader.getSystemResource("testParams.xml").getFile();
-
     final CompiApp compi =
       new CompiApp(
         forPipeline(fromFile(new File(pipelineFile)))
-          .whichResolvesVariablesFromFile(new File(paramsFile))
+          .whichResolvesVariablesWith(simpleVariableResolver)
           .build()
       );
-    
+
     compi.run();
   }
 
