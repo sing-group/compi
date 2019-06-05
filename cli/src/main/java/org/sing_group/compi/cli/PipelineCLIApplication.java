@@ -9,12 +9,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -39,6 +39,7 @@ import org.sing_group.compi.core.CompiRunConfiguration;
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.Command;
+import es.uvigo.ei.sing.yacli.command.CommandPrinterConfiguration;
 import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
@@ -86,7 +87,8 @@ public class PipelineCLIApplication extends CLIApplication {
       RunSpecificPipelineCommand runPipelineCommand = newRunSpecificPipelineCommand(config, commandLineArgs);
       return asList(
         runPipelineCommand,
-        new ShowPipelineHelp(runPipelineCommand)
+        new ShowPipelineHelp(runPipelineCommand),
+        new ShowTaskHelp(runPipelineCommand)
       );
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -110,6 +112,10 @@ public class PipelineCLIApplication extends CLIApplication {
     } else {
       super.printCommandHelp(command, out);
     }
+  }
+
+  protected void printTaskHelp(Command command, PrintStream out) {
+    printCommandOptionsExtended(command, out, new CommandPrinterConfiguration(false));
   }
 
   private class ShowPipelineHelp extends AbstractCommand {
@@ -144,6 +150,39 @@ public class PipelineCLIApplication extends CLIApplication {
     protected List<Option<?>> createOptions() {
       return new ArrayList<>();
     }
+  }
 
+  private class ShowTaskHelp extends AbstractCommand {
+
+    private RunSpecificPipelineCommand runPipelineCommand;
+
+    public ShowTaskHelp(RunSpecificPipelineCommand runPipelineCommand) {
+      this.runPipelineCommand = runPipelineCommand;
+    }
+
+    @Override
+    public String getName() {
+      return "help-task";
+    }
+
+    @Override
+    public String getDescriptiveName() {
+      return "shows help of a task";
+    }
+
+    @Override
+    public String getDescription() {
+      return "shows help of a task";
+    }
+
+    @Override
+    public void execute(Parameters parameters) throws Exception {
+      printTaskHelp(this.runPipelineCommand, System.err);
+    }
+
+    @Override
+    protected List<Option<?>> createOptions() {
+      return new ArrayList<>();
+    }
   }
 }

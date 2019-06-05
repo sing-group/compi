@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.logging.LogManager;
 
 import org.sing_group.compi.cli.commands.ExportGraphCommand;
+import org.sing_group.compi.cli.commands.HelpTaskCommand;
 import org.sing_group.compi.cli.commands.RunCommand;
 import org.sing_group.compi.cli.commands.ValidatePipelineCommand;
 
@@ -70,6 +71,7 @@ public abstract class CompiCLI extends CLIApplication {
 		commands.add(new RunCommand(getCommandLineArgs()));
 		commands.add(new ValidatePipelineCommand());
 		commands.add(new ExportGraphCommand());
+		commands.add(new HelpTaskCommand(getCommandLineArgs()));
 
 		return commands;
 	}

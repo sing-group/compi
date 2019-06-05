@@ -23,6 +23,7 @@
   -->
 
 <pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <version>1.0</version>
 	<params>
 		<param name="input_file" shortName="i">File for awk</param>
 		<param name="output_file_awk" shortName="oawk">File for output</param>

@@ -73,13 +73,32 @@
 		</sequence>
 	</complexType>
 
+    <complexType name="task-description">
+      <simpleContent>
+        <extension base="string">
+          <attribute name="id" type="IDREF" use="required" />
+        </extension>
+      </simpleContent>
+    </complexType>
+
+    <complexType name="metadata">
+      <sequence>
+        <element name="task-description" type="cp:task-description" minOccurs="0"
+        maxOccurs="unbounded" />
+      </sequence>
+    </complexType>
+
 	<element name="pipeline">
 		<complexType>
 			<all>
+                <element name="version" type="string" minOccurs="1" 
+                    maxOccurs="1" />
 				<element name="tasks" type="cp:tasks" minOccurs="1"
 					maxOccurs="1" />
 				<element name="params" type="cp:params" minOccurs="0"
 					maxOccurs="1" />
+                <element name="metadata" type="cp:metadata" minOccurs="0"
+                  maxOccurs="1" />
 			</all>
 		</complexType>
 		<unique name="paramNameKey">

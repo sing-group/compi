@@ -3,6 +3,7 @@
 <!-- This is an example file of a compi pipeline -->
 <pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<version>0.0.1</version>
 
 	<!--
 		Params section (<params>): this section contains parameter declarations
@@ -63,5 +64,14 @@
 		<foreach id="task-2" after="task-1" of="param" in="alist" as="i" params="alist out">
 			echo ${i} >> ${out}
 		</foreach>
+
+		<!--
+			The metadata section is optional and allows to define additional information about
+			the pipeline tasks.
+		<metadata>
+			<task-description id="task-1">Task 1 description.</task-description>
+			<task-description id="task-2">Task 2 description.</task-description>
+		</metadata>
+		-->
 	</tasks>
 </pipeline>

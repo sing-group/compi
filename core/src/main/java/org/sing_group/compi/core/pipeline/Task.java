@@ -28,253 +28,136 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Represents a {@link Task} obtained in the XML pipeline file
+ * Definition of a compi pipeline task.
  * 
  * @author Jesus Alvarez Casanova
+ * @author Hugo López-Fernández
  *
  */
 public class Task implements Cloneable {
 
-	private String id;
-	private String after;
-	private String exec;
-	private String interpreter;
-	private String runIf;
-	private List<String> parameters = new LinkedList<>();
-	private String parametersString;
-	private String toExecute;
-	private boolean isRunning = false;
-	private boolean isFinished = false;
-	private boolean isAborted = false;
-	private boolean isSkipped = false;
-	private File stdOutLogFile, stdErrLogFile;
+  private String id;
+  private String after;
+  private String exec;
+  private String interpreter;
+  private String runIf;
+  private List<String> parameters = new LinkedList<>();
+  private String parametersString;
+  private String toExecute;
+  private boolean isRunning = false;
+  private boolean isFinished = false;
+  private boolean isAborted = false;
+  private boolean isSkipped = false;
+  private File stdOutLogFile, stdErrLogFile;
   private Pipeline pipeline;
+  private TaskMetadata metadata;
 
-	public Task(Pipeline pipeline) {
-	  this.pipeline = pipeline;
-	}
-	
-	public Pipeline getPipeline() {
+  public Task(Pipeline pipeline) {
+    this.pipeline = pipeline;
+  }
+
+  public Pipeline getPipeline() {
     return pipeline;
   }
-	/**
-	 * Getter of the id attribute
-	 * 
-	 * @return The value of the id attribute
-	 */
-	public String getId() {
-		return id;
-	}
 
-	/**
-	 * Changes the value of the id attribute
-	 * 
-	 * @param id
-	 *            attribute
-	 */
-	public void setId(final String id) {
-		this.id = id.replaceAll(" ", "");
-	}
+  public String getId() {
+    return id;
+  }
 
-	/**
-	 * Getter of the after attribute
-	 * 
-	 * @return The value of the after attribute
-	 */
-	public String getAfter() {
-		return after;
-	}
-	
-	/**
-   * Getter of the interpreter attribute
-   * 
-   * @return The value of the interpreter attribute
-   */
-	public String getInterpreter() {
+  public void setId(final String id) {
+    this.id = id.replaceAll(" ", "");
+  }
+
+  public String getAfter() {
+    return after;
+  }
+
+  public String getInterpreter() {
     return interpreter;
   }
 
-	 /**
-   * Changes the value of the interpreter attribute
-   * 
-   * @param interpreter
-   *            attribute
-   */
-	public void setInterpreter(String interpreter) {
+  public void setInterpreter(String interpreter) {
     this.interpreter = interpreter;
   }
-	
-	 /**
-   * Getter of the runIf attribute
-   * 
-   * @return The value of the runIf attribute
-   */
+
   public String getRunIf() {
     return runIf;
   }
 
-   /**
-   * Changes the value of the runIf attribute
-   * 
-   * @param runIf
-   *            attribute
-   */
   public void setRunIf(String runIf) {
     this.runIf = runIf;
   }
-  
-	/**
-	 * Changes the value of the after attribute
-	 * 
-	 * @param after attribute
-	 */
-	public void setAfter(final String after) {
-		this.after = after;
-	}
-	
-	public void setParametersString(String parametersString) {
+
+  public void setAfter(final String after) {
+    this.after = after;
+  }
+
+  public void setParametersString(String parametersString) {
     this.parametersString = parametersString;
   }
-	
-	public String getParametersString() {
+
+  public String getParametersString() {
     return parametersString;
   }
 
-	/**
-	 * Getter of the exec attribute
-	 * 
-	 * @return The value of the exec attribute
-	 */
-	public String getExec() {
-		return exec;
-	}
+  public String getExec() {
+    return exec;
+  }
 
-	/**
-	 * Changes the value of the exec attribute
-	 * 
-	 * @param exec
-	 *            attribute
-	 */
-	public void setExec(final String exec) {
-		this.exec = exec.trim();
-		this.toExecute = this.exec;
-	}
+  public void setExec(final String exec) {
+    this.exec = exec.trim();
+    this.toExecute = this.exec;
+  }
 
-	/**
-	 * Getter of the isRunning attribute
-	 * 
-	 * @return The value of the isRunning attribute
-	 */
-	public boolean isRunning() {
-		return isRunning;
-	}
+  public boolean isRunning() {
+    return isRunning;
+  }
 
-	/**
-	 * Changes the value of the isRunning attribute
-	 * 
-	 * @param isRunning
-	 *            attribute
-	 */
-	public void setRunning(final boolean isRunning) {
-		this.isRunning = isRunning;
-	}
+  public void setRunning(final boolean isRunning) {
+    this.isRunning = isRunning;
+  }
 
-	/**
-	 * Getter of the isFinished attribute
-	 * 
-	 * @return The value of the isFinished attribute
-	 */
-	public boolean isFinished() {
-		return isFinished;
-	}
+  public boolean isFinished() {
+    return isFinished;
+  }
 
-	/**
-	 * Changes the value of the isFinished attribute
-	 * 
-	 * @param isFinished
-	 *            attribute
-	 */
-	public void setFinished(final boolean isFinished) {
-		this.isFinished = isFinished;
-	}
+  public void setFinished(final boolean isFinished) {
+    this.isFinished = isFinished;
+  }
 
-	/**
-	 * Getter of the parameters attribute
-	 * 
-	 * @return The value of the paramters attribute
-	 */
-	public List<String> getParameters() {
-		return Collections.unmodifiableList(parameters);
-	}
+  public List<String> getParameters() {
+    return Collections.unmodifiableList(parameters);
+  }
 
-	/**
-	 * Adds a parameter to the list of parameters
-	 * 
-	 * @param parameter to add to the list
-	 */
-	public void addParameter(final String parameter) {
-		this.parameters.add(parameter);
-	}
+  public void addParameter(final String parameter) {
+    this.parameters.add(parameter);
+  }
 
-	/**
-	 * Getter of the toExecute attribute
-	 * 
-	 * @return The value of the toExecute attribute
-	 */
-	public String getToExecute() {
-		return toExecute;
-	}
+  public String getToExecute() {
+    return toExecute;
+  }
 
-	/**
-	 * Changes the value of the toExecute attribute
-	 * 
-	 * @param toExecute
-	 *            attribute
-	 */
-	public void setToExecute(final String toExecute) {
-		this.toExecute = toExecute;
-	}
+  public void setToExecute(final String toExecute) {
+    this.toExecute = toExecute;
+  }
 
-	/**
-	 * Getter of the isAborted attribute
-	 * 
-	 * @return The value of the isAborted attribute
-	 */
-	public boolean isAborted() {
-		return isAborted;
-	}
+  public boolean isAborted() {
+    return isAborted;
+  }
 
-	/**
-	 * Changes the value of the isAborted attribute
-	 * 
-	 * @param isAborted
-	 *            attribute
-	 */
-	public void setAborted(final boolean isAborted) {
-		this.isAborted = isAborted;
-	}
+  public void setAborted(final boolean isAborted) {
+    this.isAborted = isAborted;
+  }
 
-	/**
-	 * Getter of the isSkipped attribute
-	 * 
-	 * @return The value of the isSkipped attribute
-	 */
-	public boolean isSkipped() {
-		return isSkipped;
-	}
+  public boolean isSkipped() {
+    return isSkipped;
+  }
 
-	/**
-	 * Changes the value of the isSkipped attribute
-	 * 
-	 * @param isSkipped
-	 *            attribute
-	 */
-	public void setSkipped(final boolean isSkipped) {
-		this.isSkipped = isSkipped;
-	}
+  public void setSkipped(final boolean isSkipped) {
+    this.isSkipped = isSkipped;
+  }
 
-	
-	public File getStdOutLogFile() {
+  public File getStdOutLogFile() {
     return stdOutLogFile;
   }
 
@@ -290,21 +173,25 @@ public class Task implements Cloneable {
     this.stdErrLogFile = stdErrLogFile;
   }
 
-  /**
-	 * Creates a clone of a {@link Task}
-	 */
-	@Override
-	public Task clone() {
-		try {
-			return (Task) super.clone();
-		} catch (final CloneNotSupportedException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	@Override
-	public String toString() {
-	  return "Task[class: "+this.getClass().getSimpleName()+" id: "+this.id+"]";
-	}
+  public void setMetadata(TaskMetadata metadata) {
+    this.metadata = metadata;
+  }
 
+  public TaskMetadata getMetadata() {
+    return metadata;
+  }
+
+  @Override
+  public Task clone() {
+    try {
+      return (Task) super.clone();
+    } catch (final CloneNotSupportedException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "Task[class: " + this.getClass().getSimpleName() + " id: " + this.id + "]";
+  }
 }

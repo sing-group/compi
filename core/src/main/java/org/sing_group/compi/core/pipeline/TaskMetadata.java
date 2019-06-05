@@ -2,7 +2,7 @@
  * #%L
  * Compi Core
  * %%
- * Copyright (C) 2016 - 2018 Daniel Glez-Peña, Osvaldo Graña-Castro, Hugo
+ * Copyright (C) 2016 - 2019 Daniel Glez-Peña, Osvaldo Graña-Castro, Hugo
  * 			López-Fernández, Jesús Álvarez Casanova
  * %%
  * This program is free software: you can redistribute it and/or modify
@@ -20,11 +20,23 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package org.sing_group.compi.xmlio;
+package org.sing_group.compi.core.pipeline;
 
-public class PipelineParserFactory {
+public class TaskMetadata {
 
-  public static PipelineParser createPipelineParser() {
-    return new DomPipelineParser();
+  public static final TaskMetadata EMPTY_METADATA;
+  
+  static {
+    EMPTY_METADATA = new TaskMetadata("");
+  }
+
+  private String description;
+
+  public TaskMetadata(String description) {
+    this.description = description;
+  }
+
+  public String getDescription() {
+    return description;
   }
 }

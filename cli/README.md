@@ -98,3 +98,13 @@ usage: compi export-graph -p <pipeline> -o <output> [-f <format>] [-or <orientat
         --exclude-task-params/-et
                 when draw parameters options (draw-pipeline-params or draw-task-params) are used, this option specifies the tasks for which parameter nodes should not be created or parameters should not be linked to. Task identifiers must be separated by commas. This option is incompatible with --include-task-params
 ```
+
+### `help-task`
+```
+Command help-task
+usage: compi help-task -p <pipeline> -t <task>
+        --pipeline/-p
+                XML pipeline file
+        --task/-t
+                Task identifier
+```

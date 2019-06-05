@@ -24,6 +24,7 @@
 
 <pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <version>1.0</version>
 	<params>
 		<param name="param" shortName="p1">parameter 1</param>
 		<param name="param-2" shortName="p2">parameter 2</param>

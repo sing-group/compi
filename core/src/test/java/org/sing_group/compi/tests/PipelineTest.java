@@ -79,6 +79,7 @@ public class PipelineTest {
 
     assertEquals(1, handler.getStartedTasks().size());
     assertEquals(1, handler.getFinishedTasks().size());
+    assertEquals("1.0", compi.getPipeline().getVersion());
   }
 
   @Test

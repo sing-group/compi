@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <version>1.0</version>
 	<params>
 		<param name="path" shortName="p2">A path to a program to execute</param>
 		<param name="seconds" shortName="se">The seconds parameter</param>

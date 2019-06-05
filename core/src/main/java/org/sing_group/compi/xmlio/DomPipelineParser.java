@@ -9,12 +9,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -24,8 +24,10 @@ package org.sing_group.compi.xmlio;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -35,6 +37,7 @@ import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.ParameterDescription;
 import org.sing_group.compi.core.pipeline.Pipeline;
 import org.sing_group.compi.core.pipeline.Task;
+import org.sing_group.compi.core.pipeline.TaskMetadata;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -42,20 +45,20 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Methods for building {@link Pipeline} objects from files
- * 
+ * Implementation of {@link AbstractPipelineParser} to construtct {@code Pipeline} objects from XML files.
+ *
  * @author Jesus Alvarez Casanova
+ * @author Hugo López-Fernández
  *
  */
-public class DOMPipelineParser extends AbstractPipelineParser {
+public class DomPipelineParser extends AbstractPipelineParser {
 
   /**
    * Reads a pipeline XML file and returns it as a {@link Pipeline} object
-   * 
+   *
    * @param f the XML input file
    * @return the parsed Pipeline
-   * @throws IllegalArgumentException if a problem in XML parsing and validation
-   *           occurs
+   * @throws IllegalArgumentException if a problem in XML parsing and validation occurs
    * @throws IOException if a problem reading the file f occurs
    */
   public Pipeline parseXML(File f) throws IllegalArgumentException, IOException {
@@ -67,9 +70,13 @@ public class DOMPipelineParser extends AbstractPipelineParser {
 
       Document doc = db.parse(f);
 
-      // parameter descriptions
+      NodeList versionNodes = doc.getElementsByTagName("version");
+      if (versionNodes.getLength() > 0) {
+        pipeline.setVersion(versionNodes.item(0).getTextContent());
+      }
+
       List<ParameterDescription> parameterDescriptions = new LinkedList<>();
-      
+
       NodeList parameterDescriptionNodes = doc.getElementsByTagName("param");
       for (int i = 0; i < parameterDescriptionNodes.getLength(); i++) {
         Element element = (Element) parameterDescriptionNodes.item(i);
@@ -78,7 +85,7 @@ public class DOMPipelineParser extends AbstractPipelineParser {
           description.setDefaultValue(element.getAttribute("defaultValue"));
         parameterDescriptions.add(description);
       }
-      
+
       parameterDescriptionNodes = doc.getElementsByTagName("flag");
       for (int i = 0; i < parameterDescriptionNodes.getLength(); i++) {
         Element element = (Element) parameterDescriptionNodes.item(i);
@@ -86,10 +93,24 @@ public class DOMPipelineParser extends AbstractPipelineParser {
         description.setFlag(true);
         parameterDescriptions.add(description);
       }
-      
+
       pipeline.setParameterDescriptions(parameterDescriptions);
 
-      // tasks
+      Map<String, TaskMetadata> taskDescriptions = new HashMap<>();
+      if (doc.getElementsByTagName("metadata").getLength() > 0) {
+        NodeList metadataNodes = doc.getElementsByTagName("metadata").item(0).getChildNodes();
+        for (int i = 0; i < metadataNodes.getLength(); i++) {
+          if (metadataNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
+            Element element = (Element) metadataNodes.item(i);
+            if (element.getTagName().equals("task-description")) {
+              String taskDescription = element.getTextContent();
+              String taskId = element.getAttribute("id");
+              taskDescriptions.put(taskId, new TaskMetadata(taskDescription));
+            }
+          }
+        }
+      }
+
       List<Task> tasks = new LinkedList<Task>();
       if (doc.getElementsByTagName("tasks").getLength() > 0) {
         NodeList tasksChilds = doc.getElementsByTagName("tasks").item(0).getChildNodes();
@@ -97,6 +118,7 @@ public class DOMPipelineParser extends AbstractPipelineParser {
           if (tasksChilds.item(i).getNodeType() == Node.ELEMENT_NODE) {
             Element element = (Element) tasksChilds.item(i);
             Task task = new Task(pipeline);
+
             if (element.getNodeName().equals("foreach")) {
               task = new Foreach(pipeline);
               Foreach foreach = (Foreach) task;
@@ -107,10 +129,13 @@ public class DOMPipelineParser extends AbstractPipelineParser {
                 foreach.setIn(element.getAttribute("in"));
               if (element.hasAttribute("as"))
                 foreach.setAs(element.getAttribute("as"));
-
             }
-            if (element.hasAttribute("id"))
+
+            if (element.hasAttribute("id")) {
+              task.setMetadata(taskDescriptions.getOrDefault(element.getAttribute("id"), TaskMetadata.EMPTY_METADATA));
               task.setId(element.getAttribute("id"));
+            }
+
             if (element.hasAttribute("after"))
               task.setAfter(element.getAttribute("after"));
             if (element.hasAttribute("interpreter"))
@@ -119,6 +144,7 @@ public class DOMPipelineParser extends AbstractPipelineParser {
               task.setRunIf(element.getAttribute("if"));
             if (element.hasAttribute("params"))
               task.setParametersString(element.getAttribute("params"));
+
             task.setExec(element.getTextContent());
 
             tasks.add(task);
@@ -148,5 +174,4 @@ public class DOMPipelineParser extends AbstractPipelineParser {
     description.setDescription(element.getTextContent());
     return description;
   }
-
 }
