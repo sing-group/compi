@@ -84,7 +84,7 @@ public class PipelineCLIApplication extends CLIApplication {
   @Override
   protected List<Command> buildCommands() {
     try {
-      RunSpecificPipelineCommand runPipelineCommand = newRunSpecificPipelineCommand(config, commandLineArgs);
+      RunSpecificPipelineCommand runPipelineCommand = newRunSpecificPipelineCommand(config);
       return asList(
         runPipelineCommand,
         new ShowPipelineHelp(runPipelineCommand),

@@ -148,7 +148,7 @@ public class RunCommand extends AbstractCommand {
   @Override
   public void execute(final Parameters parameters) throws IOException {
 
-    String pipelineFile = parameters.getSingleValueString(super.getOption(PIPELINE_FILE));
+    String pipelineFileName = parameters.getSingleValueString(super.getOption(PIPELINE_FILE));
     Integer compiThreads = parameters.getSingleValue(super.getOption(NUM_PARALLEL_TASKS));
     boolean hasFrom = parameters.hasOption(super.getOption(FROM));
     boolean hasAfter = parameters.hasOption(super.getOption(AFTER));
@@ -165,6 +165,13 @@ public class RunCommand extends AbstractCommand {
 
     if (hasQuiet) {
       silenceConsoleLog();
+    }
+
+    File pipelineFile = new File(pipelineFileName);
+
+    if (!pipelineFile.exists()) {
+      throw new IllegalArgumentException(
+        "Pipeline file not found: " + pipelineFileName);
     }
 
     if (hasSingleTask && (hasFrom || hasAfter || hasUntilTask || hasBeforeTask)) {
@@ -210,10 +217,20 @@ public class RunCommand extends AbstractCommand {
     }
 
     File runnersFile = null;
+
     if (parameters.hasOption(super.getOption(RUNNERS_CONFIG_FILE))) {
       runnersFile = new File(parameters.getSingleValueString(super.getOption(RUNNERS_CONFIG_FILE)));
       if (!runnersFile.exists()) {
         throw new IllegalArgumentException("The runners file does not exist: " + runnersFile);
+      }
+    }
+
+    File paramsFile = null;
+
+    if (parameters.hasOption(super.getOption(PARAMS_FILE))) {
+      paramsFile = new File(parameters.getSingleValueString(super.getOption(PARAMS_FILE)));
+      if (!paramsFile.exists()) {
+        throw new IllegalArgumentException("The params file does not exist: " + runnersFile);
       }
     }
 
@@ -240,6 +257,7 @@ public class RunCommand extends AbstractCommand {
         throw new IllegalArgumentException("Log dir (" + logsDir + ") is not a directory");
       }
     }
+
     List<String> logOnlyTasks =
       hasLogOnlyTasks ? parameters.getAllValuesString(super.getOption(LOG_ONLY_TASK)) : null;
     List<String> logExcludeTasks =
@@ -248,9 +266,10 @@ public class RunCommand extends AbstractCommand {
     try {
       CLIApplication pipelineApplication =
         newPipelineCLIApplication(
-          pipelineFile,
+          pipelineFileName,
           buildConfiguration(
-            pipelineFile,
+            pipelineFileName,
+            paramsFile,
             runnersFile,
             compiThreads,
             fromTasks,
@@ -277,13 +296,14 @@ public class RunCommand extends AbstractCommand {
       LOGGER.info("Pipeline file - " + pipelineFile);
       LOGGER.info("Max number of parallel tasks - " + compiThreads);
 
-      if (parameters.hasOption(super.getOption(PARAMS_FILE))) {
-        LOGGER.info("Params file - " + parameters.getSingleValue(super.getOption(PARAMS_FILE)));
+      if (paramsFile != null) {
+        LOGGER.info("Params file - " + paramsFile);
       }
 
       if (runnersFile != null) {
         LOGGER.info("Runners file - " + runnersFile);
       }
+      
       if (singleTask != null) {
         LOGGER.info("Running single task - " + singleTask);
       }
@@ -291,6 +311,7 @@ public class RunCommand extends AbstractCommand {
       if (fromTasks != null) {
         LOGGER.info("Running from task(s) - " + fromTasks.stream().collect(joining(", ")));
       }
+      
       if (afterTasks != null) {
         LOGGER.info("Running after task(s) - " + afterTasks.stream().collect(joining(", ")));
       }
@@ -298,9 +319,11 @@ public class RunCommand extends AbstractCommand {
       if (untilTask != null) {
         LOGGER.info("Running until task - " + untilTask);
       }
+      
       if (beforeTask != null) {
         LOGGER.info("Running tasks before task - " + beforeTask);
       }
+      
       if (logsDir != null) {
         LOGGER.info("Logging task's output to dir - " + logsDir);
       }
@@ -326,10 +349,9 @@ public class RunCommand extends AbstractCommand {
   }
 
   private CompiRunConfiguration buildConfiguration(
-    String pipelineFile, File runnersFile, Integer compiThreads, List<String> fromTasks, List<String> afterTasks,
-    String singleTask,
-    String untilTask, String beforeTask, File logDir, List<String> logOnlyTasks, List<String> logExcludeTasks,
-    boolean showStdOuts, boolean abortIfWarnings
+    String pipelineFile, File paramsFile, File runnersFile, Integer compiThreads, List<String> fromTasks,
+    List<String> afterTasks, String singleTask, String untilTask, String beforeTask, File logDir,
+    List<String> logOnlyTasks, List<String> logExcludeTasks, boolean showStdOuts, boolean abortIfWarnings
   ) throws IllegalArgumentException, IOException, PipelineValidationException {
 
     List<ValidationError> errors = new ArrayList<>();
@@ -346,6 +368,10 @@ public class RunCommand extends AbstractCommand {
 
     final CompiRunConfiguration.Builder builder = forPipeline(pipeline);
     builder.whichRunsAMaximumOf(compiThreads);
+
+    if (paramsFile != null) {
+      builder.whichResolvesVariablesFromFile(paramsFile);
+    }
 
     if (runnersFile != null) {
       builder.whichRunsTasksUsingCustomRunners(runnersFile);

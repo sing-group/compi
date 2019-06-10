@@ -25,7 +25,6 @@ package org.sing_group.compi.cli.commands;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,18 +62,16 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
   public static final String NAME = "run";
 
   private static CompiRunConfiguration config;
-  private static String[] commandLineArgs;
   private static CompiApp compiApp;
   private static VariableResolver resolver = null;
 
   public static RunSpecificPipelineCommand newRunSpecificPipelineCommand(
-    CompiRunConfiguration config, String[] commandLineArgs
+    CompiRunConfiguration config
   ) throws IOException {
 
     config.setResolver(createPipelineVariableResolverProxy());
 
     RunSpecificPipelineCommand.config = config;
-    RunSpecificPipelineCommand.commandLineArgs = commandLineArgs;
     RunSpecificPipelineCommand.compiApp = new CompiApp(config);
 
     return new RunSpecificPipelineCommand();
@@ -356,14 +353,10 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
   }
 
   private ParamsFileVariableResolver getParamsFileResolver() {
-    ParamsFileVariableResolver resolver = null;
-    for (int i = 0; i < commandLineArgs.length; i++) {
-        String arg = commandLineArgs[i];
-            if (arg.equals("--params") || arg.equals("-pa")) {
-                resolver = new ParamsFileVariableResolver(new File(commandLineArgs[i + 1]));
-            }
+    if(config.getParamsFile() != null) {
+      return new ParamsFileVariableResolver(config.getParamsFile());
+    } {
+      return null;
     }
-
-    return resolver;
   }
 }
