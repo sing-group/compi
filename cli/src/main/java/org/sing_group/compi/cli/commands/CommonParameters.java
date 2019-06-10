@@ -33,4 +33,5 @@ public class CommonParameters {
 	public static final String PIPELINE_FILE = "p";
 	public static final String PIPELINE_FILE_LONG = "pipeline";
 	public static final String PIPELINE_FILE_DESCRIPTION = "XML pipeline file";
+	public static final String PIPELINE_FILE_DEFAULT_VALUE = "pipeline.xml";
 }

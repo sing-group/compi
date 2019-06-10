@@ -47,6 +47,7 @@ import org.sing_group.compi.core.validation.ValidationError;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
+import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;
 import es.uvigo.ei.sing.yacli.command.option.FlagOption;
 import es.uvigo.ei.sing.yacli.command.option.IntegerDefaultValuedStringConstructedOption;
 import es.uvigo.ei.sing.yacli.command.option.Option;
@@ -426,126 +427,126 @@ public class RunCommand extends AbstractCommand {
   @Override
   protected List<Option<?>> createOptions() {
     final List<Option<?>> options = new ArrayList<>();
-    options.add(getPipelineFile());
-    options.add(getParamsFile());
-    options.add(getNumParallelTasks());
-    options.add(getLogsDir());
-    options.add(getLogOnlyTasks());
-    options.add(getLogExcludeTasks());
-    options.add(getRunSingleTask());
-    options.add(getRunFromTasks());
-    options.add(getRunAfterTasks());
-    options.add(getRunUntilTask());
-    options.add(getRunBeforeTask());
-    options.add(getRunnersConfigFile());
-    options.add(getShowStdOuts());
-    options.add(getQuiet());
-    options.add(getAbortIfWarnings());
-    options.add(getHelp());
+    options.add(getPipelineFileOption());
+    options.add(getParamsFileOption());
+    options.add(getNumParallelTasksOption());
+    options.add(getLogsDirOption());
+    options.add(getLogOnlyTasksOption());
+    options.add(getLogExcludeTasksOption());
+    options.add(getRunSingleTaskOption());
+    options.add(getRunFromTasksOption());
+    options.add(getRunAfterTasksOption());
+    options.add(getRunUntilTaskOption());
+    options.add(getRunBeforeTaskOption());
+    options.add(getRunnersConfigFileOption());
+    options.add(getShowStdOutsOption());
+    options.add(getQuietOption());
+    options.add(getAbortIfWarningsOption());
+    options.add(getHelpOption());
 
     return options;
   }
 
-  private Option<?> getAbortIfWarnings() {
+  private Option<?> getAbortIfWarningsOption() {
     return new FlagOption(
       ABORT_IF_WARNINGS_LONG, ABORT_IF_WARNINGS,
       ABORT_IF_WARNINGS_DESCRIPTION
     );
   }
 
-  private Option<?> getHelp() {
+  private Option<?> getHelpOption() {
     return new FlagOption(
       HELP_LONG, HELP,
       HELP_DESCRIPTION
     );
   }
 
-  private Option<?> getShowStdOuts() {
+  private Option<?> getShowStdOutsOption() {
     return new FlagOption(
       SHOW_STD_OUTS_LONG, SHOW_STD_OUTS,
       SHOW_STD_OUTS_DESCRIPTION
     );
   }
 
-  private Option<?> getQuiet() {
+  private Option<?> getQuietOption() {
     return new FlagOption(
       QUIET_LONG, QUIET,
       QUIET_DESCRIPTION
     );
   }
 
-  private Option<?> getPipelineFile() {
-    return new StringOption(
+  private Option<?> getPipelineFileOption() {
+    return new DefaultValuedStringOption(
       PIPELINE_FILE_LONG, PIPELINE_FILE,
-      PIPELINE_FILE_DESCRIPTION, false, true, false
+      PIPELINE_FILE_DESCRIPTION, CommonParameters.PIPELINE_FILE_DEFAULT_VALUE
     );
   }
 
-  private Option<?> getParamsFile() {
+  private Option<?> getParamsFileOption() {
     return new StringOption(
       PARAMS_FILE_LONG, PARAMS_FILE,
       PARAMS_FILE_DESCRIPTION, true, true, false
     );
   }
 
-  private Option<?> getNumParallelTasks() {
+  private Option<?> getNumParallelTasksOption() {
     return new IntegerDefaultValuedStringConstructedOption(
       NUM_PARALLEL_TASKS_LONG,
       NUM_PARALLEL_TASKS, NUM_PARALLEL_TASKS_DESCRIPTION, DEFAULT_NUM_PARALLEL_TASKS
     );
   }
 
-  private Option<?> getLogsDir() {
+  private Option<?> getLogsDirOption() {
     return new StringOption(
       LOGS_DIR_LONG, LOGS_DIR,
       LOGS_DIR_DESCRIPTION, true, true, false
     );
   }
 
-  private Option<?> getLogOnlyTasks() {
+  private Option<?> getLogOnlyTasksOption() {
     return new StringOption(
       LOG_ONLY_TASK_LONG, LOG_ONLY_TASK,
       LOG_ONLY_TASK_DESCRIPTION, true, true, true
     );
   }
 
-  private Option<?> getLogExcludeTasks() {
+  private Option<?> getLogExcludeTasksOption() {
     return new StringOption(
       LOG_EXCLUDE_TASK_LONG, LOG_EXCLUDE_TASK,
       LOG_EXCLUDE_TASK_DESCRIPTION, true, true, true
     );
   }
 
-  private Option<?> getRunFromTasks() {
+  private Option<?> getRunFromTasksOption() {
     return new StringOption(FROM_LONG, FROM, FROM_DESCRIPTION, true, true, true);
   }
 
-  private Option<?> getRunAfterTasks() {
+  private Option<?> getRunAfterTasksOption() {
     return new StringOption(AFTER_LONG, AFTER, AFTER_DESCRIPTION, true, true, true);
   }
 
-  private Option<?> getRunSingleTask() {
+  private Option<?> getRunSingleTaskOption() {
     return new StringOption(
       SINGLE_TASK_LONG, SINGLE_TASK,
       SINGLE_TASK_DESCRIPTION, true, true
     );
   }
 
-  private Option<?> getRunUntilTask() {
+  private Option<?> getRunUntilTaskOption() {
     return new StringOption(
       UNTIL_TASK_LONG, UNTIL_TASK,
       UNTIL_TASK_DESCRIPTION, true, true
     );
   }
 
-  private Option<?> getRunBeforeTask() {
+  private Option<?> getRunBeforeTaskOption() {
     return new StringOption(
       BEFORE_TASK_LONG, BEFORE_TASK,
       BEFORE_TASK_DESCRIPTION, true, true
     );
   }
 
-  private Option<?> getRunnersConfigFile() {
+  private Option<?> getRunnersConfigFileOption() {
     return new StringOption(
       RUNNERS_CONFIG_FILE_LONG, RUNNERS_CONFIG_FILE,
       RUNNERS_CONFIG_DESCRIPTION, true, true, false

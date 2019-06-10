@@ -38,6 +38,7 @@ import org.sing_group.compi.core.pipeline.Task;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
+import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;
 import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
@@ -122,16 +123,16 @@ public class HelpTaskCommand extends AbstractCommand {
   @Override
   protected List<Option<?>> createOptions() {
     final List<Option<?>> options = new ArrayList<>();
-    options.add(getPipelineOption());
+    options.add(getPipelineFileOption());
     options.add(getTaskName());
 
     return options;
   }
 
-  private Option<?> getPipelineOption() {
-    return new StringOption(
+  private Option<?> getPipelineFileOption() {
+    return new DefaultValuedStringOption(
       PIPELINE_FILE_LONG, PIPELINE_FILE,
-      PIPELINE_FILE_DESCRIPTION, false, true, false
+      PIPELINE_FILE_DESCRIPTION, CommonParameters.PIPELINE_FILE_DEFAULT_VALUE
     );
   }
 

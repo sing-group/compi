@@ -33,8 +33,8 @@ import org.sing_group.compi.core.validation.PipelineValidator;
 import org.sing_group.compi.core.validation.ValidationError;
 
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
+import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;
 import es.uvigo.ei.sing.yacli.command.option.Option;
-import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class ValidatePipelineCommand extends AbstractCommand {
@@ -88,15 +88,17 @@ public class ValidatePipelineCommand extends AbstractCommand {
 	@Override
 	protected List<Option<?>> createOptions() {
 		final List<Option<?>> options = new ArrayList<>();
-		options.add(getPipelineOption());
+		options.add(getPipelineFileOption());
 
 		return options;
 	}
 
-	private Option<?> getPipelineOption() {
-		return new StringOption(PIPELINE_FILE_LONG, PIPELINE_FILE,
-			PIPELINE_FILE_DESCRIPTION, false, true, false);
-	}
+  private Option<?> getPipelineFileOption() {
+    return new DefaultValuedStringOption(
+      PIPELINE_FILE_LONG, PIPELINE_FILE,
+      PIPELINE_FILE_DESCRIPTION, CommonParameters.PIPELINE_FILE_DEFAULT_VALUE
+    );
+  }
 
 	private void logValidationErrors(List<ValidationError> errors) {
 		errors.stream().forEach(error -> {
@@ -107,5 +109,4 @@ public class ValidatePipelineCommand extends AbstractCommand {
 			}
 		});
 	}
-
 }

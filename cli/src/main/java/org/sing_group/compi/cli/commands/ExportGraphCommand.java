@@ -306,9 +306,9 @@ public class ExportGraphCommand extends AbstractCommand {
   }
 
   private Option<?> getPipelineFileOption() {
-    return new StringOption(
+    return new DefaultValuedStringOption(
       PIPELINE_FILE_LONG, PIPELINE_FILE,
-      PIPELINE_FILE_DESCRIPTION, false, true, false
+      PIPELINE_FILE_DESCRIPTION, CommonParameters.PIPELINE_FILE_DEFAULT_VALUE
     );
   }
 
