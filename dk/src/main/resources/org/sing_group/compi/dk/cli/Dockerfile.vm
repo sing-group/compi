@@ -8,7 +8,6 @@ ADD image-files/compi.tar.gz /
 
 
 
-
 # ADD PIPELINE
-ADD pipeline.xml pipeline.xml
+ADD pipeline.xml /pipeline.xml
 ENTRYPOINT ["/compi", "run",  "-p", "/pipeline.xml"]
