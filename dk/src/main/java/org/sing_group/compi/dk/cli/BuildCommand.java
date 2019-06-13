@@ -22,6 +22,11 @@
  */
 package org.sing_group.compi.dk.cli;
 
+import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH;
+import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_DEFAULT_VALUE;
+import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_DESCRIPTION;
+import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_LONG;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -47,9 +52,7 @@ import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class BuildCommand extends AbstractCommand {
-  // private static final Logger logger =
-  // LogManager.getLogger(BuildCommand.class);
-  private static final Logger logger = Logger.getLogger(BuildCommand.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(BuildCommand.class.getName());
 
   public String getName() {
     return "build";
@@ -66,23 +69,29 @@ public class BuildCommand extends AbstractCommand {
   @Override
   protected List<Option<?>> createOptions() {
     return Arrays.asList(
-      new DefaultValuedStringOption("path", "p", "path the new project to build", ".")
-      );
+      getProjectPathOption()
+    );
+  }
+
+  private Option<?> getProjectPathOption() {
+    return new DefaultValuedStringOption(
+      PROJECT_PATH_LONG, PROJECT_PATH, PROJECT_PATH_DESCRIPTION, PROJECT_PATH_DEFAULT_VALUE
+    );
   }
 
   @Override
   public void execute(Parameters parameters) throws Exception {
     File directory = new File((String) parameters.getSingleValue(this.getOption("p")));
-    logger.info("Building project in directory: " + directory);
+    LOGGER.info("Building project in directory: " + directory);
 
     if (!directory.exists()) {
-      logger.severe("Directory " + directory + " does not exist");
+      LOGGER.severe("Directory " + directory + " does not exist");
       System.exit(1);
     }
 
     File compiProjectFile = new File(directory + File.separator + ProjectConfiguration.COMPI_PROJECT_FILENAME);
     if (!compiProjectFile.exists()) {
-      logger.severe("Compi project file does not exist: " + compiProjectFile);
+      LOGGER.severe("Compi project file does not exist: " + compiProjectFile);
       System.exit(1);
     }
 
@@ -95,20 +104,20 @@ public class BuildCommand extends AbstractCommand {
 
     String imageName = projectConfiguration.getImageName();
     if (imageName == null) {
-      logger.severe(
+      LOGGER.severe(
         "Image name not found in configuration file (" + PropertiesFileProjectConfiguration.IMAGE_NAME_PROPERTY
           + " property)"
-        );
+      );
       System.exit(1);
     }
 
     File dockerFile = new File(directory + File.separator + "Dockerfile");
 
     if (!dockerFile.exists()) {
-      logger.severe(
+      LOGGER.severe(
         "Dockerfile does not exist: " +
           dockerFile
-        );
+      );
       System.exit(1);
     }
 
@@ -118,7 +127,6 @@ public class BuildCommand extends AbstractCommand {
 
     boolean isValid = validatePipeline(pipelineDockerFile);
 
-    // build image
     if (isValid) {
       buildDockerImage(directory, imageName, dockerFile);
     }
@@ -126,7 +134,7 @@ public class BuildCommand extends AbstractCommand {
 
   private boolean validatePipeline(
     PipelineDockerFile pipelineDockerFile
-    )
+  )
     throws ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException,
     IllegalArgumentException, InvocationTargetException {
 
@@ -160,9 +168,9 @@ public class BuildCommand extends AbstractCommand {
 
   private void buildDockerImage(
     File directory, String imageName, File dockerFile
-    )
+  )
     throws IOException, InterruptedException {
-    logger.info("Building docker image (dockerfile: " + dockerFile + ")");
+    LOGGER.info("Building docker image (dockerfile: " + dockerFile + ")");
     Process p = Runtime.getRuntime().exec(new String[] {
       "/bin/bash", "-c", "docker build -t " + imageName + " " + directory.getAbsolutePath()
     });
@@ -170,18 +178,18 @@ public class BuildCommand extends AbstractCommand {
 
     int returnValue = p.waitFor();
     if (returnValue != 0) {
-      logger.severe("Docker build has returned a non-zero value: " + returnValue);
+      LOGGER.severe("Docker build has returned a non-zero value: " + returnValue);
       System.exit(1);
+    } {
+      LOGGER.info("Docker image has been built properly");
     }
-
-    // logger.info("Docker image built: " + imageName);
   }
 
   private void redirectOutputToLogger(Process p) {
     Thread stdoutThread = new Thread(() -> {
       try (Scanner sc = new Scanner(p.getInputStream())) {
         while (sc.hasNextLine()) {
-          logger.info("DOCKER BUILD: " + sc.nextLine());
+          LOGGER.info("DOCKER BUILD: " + sc.nextLine());
         }
       }
     });
@@ -191,7 +199,7 @@ public class BuildCommand extends AbstractCommand {
     Thread stderrThread = new Thread(() -> {
       try (Scanner sc = new Scanner(p.getErrorStream())) {
         while (sc.hasNextLine()) {
-          logger.severe("DOCKER BUILD ERROR: " + sc.nextLine());
+          LOGGER.severe("DOCKER BUILD ERROR: " + sc.nextLine());
         }
       }
     });

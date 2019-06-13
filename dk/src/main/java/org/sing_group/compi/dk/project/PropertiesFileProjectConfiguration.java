@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class PropertiesFileProjectConfiguration implements ProjectConfiguration {
-
   public static final String IMAGE_NAME_PROPERTY = "image.name";
   public static final String COMPI_VERSION_PROPERTY = "compi.version";
 
@@ -42,7 +41,6 @@ public class PropertiesFileProjectConfiguration implements ProjectConfiguration 
       read();
     }
   }
-
 
   @Override
   public String getImageName() {

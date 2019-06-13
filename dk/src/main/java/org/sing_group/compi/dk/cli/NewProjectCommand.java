@@ -23,6 +23,9 @@
 package org.sing_group.compi.dk.cli;
 
 import static java.lang.System.getProperty;
+import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH;
+import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_DEFAULT_VALUE;
+import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_LONG;
 import static org.sing_group.compi.dk.project.ProjectConfiguration.COMPI_PROJECT_FILENAME;
 
 import java.io.File;
@@ -47,7 +50,7 @@ import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class NewProjectCommand extends AbstractCommand {
-  private static final Logger logger = Logger.getLogger( NewProjectCommand.class.getName() );
+  private static final Logger LOGGER = Logger.getLogger( NewProjectCommand.class.getName() );
   
   public String getName() {
     return "new-project";
@@ -64,10 +67,32 @@ public class NewProjectCommand extends AbstractCommand {
   @Override
   protected List<Option<?>> createOptions() {
     return Arrays.asList(
-      new StringOption("path", "p", "path of the new project", false, true),
-      new StringOption("image-name", "n", "name for the docker image", false, true),
-      new DefaultValuedStringOption("base-image", "i", "base image for the docker image", PipelineDockerFile.DEFAULT_BASE_IMAGE),
-      new DefaultValuedStringOption("compi-version", "v", "compi version", PipelineDockerFile.DEFAULT_COMPI_VERSION)
+      getProjectPathOption(),
+      getImageNameOption(),
+      getBaseImageOption(),
+      getcompiVersionOption()
+    );
+  }
+
+  private Option<?> getProjectPathOption() {
+    return new DefaultValuedStringOption(
+      PROJECT_PATH_LONG, PROJECT_PATH, "path to create the compi-dk project", PROJECT_PATH_DEFAULT_VALUE
+    );
+  }
+
+  private StringOption getImageNameOption() {
+    return new StringOption("image-name", "n", "name for the docker image", false, true);
+  }
+
+  private DefaultValuedStringOption getBaseImageOption() {
+    return new DefaultValuedStringOption(
+      "base-image", "i", "base image for the docker image", PipelineDockerFile.DEFAULT_BASE_IMAGE
+    );
+  }
+
+  private DefaultValuedStringOption getcompiVersionOption() {
+    return new DefaultValuedStringOption(
+      "compi-version", "v", "compi version", PipelineDockerFile.DEFAULT_COMPI_VERSION
     );
   }
 
@@ -75,10 +100,10 @@ public class NewProjectCommand extends AbstractCommand {
   public void execute(Parameters parameters) throws Exception {
 
     File directory = new File((String) parameters.getSingleValue(this.getOption("p")));
-    logger.info("Creating project with path: " + parameters.getSingleValueString(getOption("p")));
+    LOGGER.info("Creating project with path: " + parameters.getSingleValueString(getOption("p")));
 
     if (directory.exists()) {
-      logger.severe("Directory " + directory + " already exists");
+      LOGGER.severe("Directory " + directory + " already exists");
       System.exit(1);
     }
 

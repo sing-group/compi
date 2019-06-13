@@ -76,10 +76,8 @@ public class PipelineDockerFile {
       p.load(PipelineDockerFile.class.getResourceAsStream("/compi-dk.version"));
       DEFAULT_COMPI_VERSION = p.getProperty("compi-dk.version").toString();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
   }
 
   public PipelineDockerFile(File directory) {

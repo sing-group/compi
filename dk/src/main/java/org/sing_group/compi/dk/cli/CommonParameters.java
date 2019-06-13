@@ -2,7 +2,7 @@
  * #%L
  * Compi Development Kit
  * %%
- * Copyright (C) 2016 - 2018 Daniel Glez-Peña, Osvaldo Graña-Castro, Hugo
+ * Copyright (C) 2016 - 2019 Daniel Glez-Peña, Osvaldo Graña-Castro, Hugo
  * 			López-Fernández, Jesús Álvarez Casanova
  * %%
  * This program is free software: you can redistribute it and/or modify
@@ -20,12 +20,17 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package org.sing_group.compi.dk.project;
+package org.sing_group.compi.dk.cli;
 
-public interface ProjectConfiguration {
-  public static final String COMPI_PROJECT_FILENAME = "compi.project";
-
-  public String getImageName();
-
-  public String getCompiVersion();
+/**
+ * This class provides names and descriptions for parameters shared across different commands.
+ * 
+ * @author hlfernandez
+ *
+ */
+public class CommonParameters {
+  public static final String PROJECT_PATH = "p";
+  public static final String PROJECT_PATH_LONG = "path";
+  public static final String PROJECT_PATH_DESCRIPTION = "path of the project";
+  public static final String PROJECT_PATH_DEFAULT_VALUE = ".";
 }
