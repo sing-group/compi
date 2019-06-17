@@ -22,6 +22,9 @@
  */
 package org.sing_group.compi.core.pipeline;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -65,11 +68,19 @@ public class Task implements Cloneable {
   }
 
   public void setId(final String id) {
-    this.id = id.replaceAll(" ", "");
+    this.id = id.trim();
   }
 
   public String getAfter() {
     return after;
+  }
+  
+  public List<String> getAfterList() {
+    if (this.after != null) {
+      return asList(this.after.split("[\\s,]+"));
+    } else {
+      return emptyList();
+    }
   }
 
   public String getInterpreter() {

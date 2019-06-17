@@ -177,7 +177,7 @@ public class PipelineValidator {
       if (t.getAfter() == null)
         continue;
 
-      for (String afterTaskId : t.getAfter().split("[\\s,]+")) {
+      for (String afterTaskId : t.getAfterList()) {
         if (!taskIds.contains(afterTaskId)) {
           errors.add(
             new ValidationError(

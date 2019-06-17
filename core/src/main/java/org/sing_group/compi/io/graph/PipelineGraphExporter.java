@@ -171,11 +171,9 @@ public class PipelineGraphExporter {
 
 		for (Task task : pipelineObject.getTasks()) {
 			Node node = idToNode.get(task.getId());
-			if (task.getAfter() != null) {
-				for (final String afterId : task.getAfter().split(",")) {
-					idToNode.put(afterId, idToNode.get(afterId).link(node));
-				}
-			}
+			for (final String afterId : task.getAfterList()) {
+        idToNode.put(afterId, idToNode.get(afterId).link(node));
+      }
 
       if (isDrawParameters(task) && !task.getParameters().isEmpty()) {
         if (this.drawParams.equals(DrawParams.TASK)) {
