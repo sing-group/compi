@@ -25,6 +25,7 @@ package org.sing_group.compi.cli.commands;
 import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,6 +65,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
   private static CompiRunConfiguration config;
   private static CompiApp compiApp;
   private static VariableResolver resolver = null;
+  private static File paramsFile = null;
 
   public static RunSpecificPipelineCommand newRunSpecificPipelineCommand(
     CompiRunConfiguration config
@@ -72,6 +74,15 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
     config.setResolver(createPipelineVariableResolverProxy());
 
     RunSpecificPipelineCommand.config = config;
+    RunSpecificPipelineCommand.paramsFile = config.getParamsFile();
+    /**
+     * It is necessary to store the params file in a variable and remove it from the 
+     * configuration in order to avoid that the CompiApp class uses it by creating a
+     * ParamsFileVariableResolver. By removing it, we will force the CompiApp to use
+     * the proxy variable resolver created here.
+     */
+    config.setParamsFile(null);
+
     RunSpecificPipelineCommand.compiApp = new CompiApp(config);
 
     return new RunSpecificPipelineCommand();
@@ -353,8 +364,8 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
   }
 
   private ParamsFileVariableResolver getParamsFileResolver() {
-    if(config.getParamsFile() != null) {
-      return new ParamsFileVariableResolver(config.getParamsFile());
+    if(paramsFile != null) {
+      return new ParamsFileVariableResolver(paramsFile);
     } {
       return null;
     }
