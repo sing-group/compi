@@ -44,6 +44,8 @@ import org.sing_group.compi.io.graph.PipelineGraphExporter.DrawParams;
 import org.sing_group.compi.io.graph.PipelineGraphExporter.GraphOrientation;
 import org.sing_group.compi.io.graph.PipelineGraphExporter.NodeStyle;
 import org.sing_group.compi.io.graph.PipelineGraphExporter.OutputFormat;
+import org.sing_group.compi.core.validation.PipelineValidator;
+import org.sing_group.compi.core.validation.ValidationError;
 import org.sing_group.compi.io.graph.PipelineGraphExporterBuilder;
 
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
@@ -132,6 +134,16 @@ public class ExportGraphCommand extends AbstractCommand {
     }
 
     LOGGER.info("Pipeline file - " + pipelineFile);
+    
+    List<ValidationError> errors = new PipelineValidator(pipelineFile).validate();
+    ValidatePipelineCommand.logValidationErrors(errors, LOGGER);
+
+    if (
+      errors.stream().filter(error -> error.getType().isError())
+        .count() > 0
+    ) {
+      System.exit(1);
+    }
 
     File outputFile = new File(parameters.getSingleValueString(super.getOption(OUTPUT_FILE)));
 

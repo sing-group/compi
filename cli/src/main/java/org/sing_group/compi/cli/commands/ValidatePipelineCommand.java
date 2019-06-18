@@ -56,19 +56,20 @@ public class ValidatePipelineCommand extends AbstractCommand {
 			throw new IllegalArgumentException(
 				"Pipeline file not found: " + pipelineNameFile);
 		}
-		
-		List<ValidationError> errors = new PipelineValidator(pipelineFile).validate();
-		logValidationErrors(errors);
 
-		if (errors.stream().filter(error -> error.getType().isError())
-			.count() > 0
-		) {
-			System.exit(1);
-		} else {
-			LOGGER.info("Pipeline file is OK.");
-			System.exit(0);
-		}
-	}
+    List<ValidationError> errors = new PipelineValidator(pipelineFile).validate();
+    logValidationErrors(errors, LOGGER);
+
+    if (
+      errors.stream().filter(error -> error.getType().isError())
+        .count() > 0
+    ) {
+      System.exit(1);
+    } else {
+      LOGGER.info("Pipeline file is OK.");
+      System.exit(0);
+    }
+  }
 
 	@Override
 	public String getDescription() {
@@ -100,12 +101,12 @@ public class ValidatePipelineCommand extends AbstractCommand {
     );
   }
 
-	private void logValidationErrors(List<ValidationError> errors) {
+	public static void logValidationErrors(List<ValidationError> errors, Logger logger) {
 		errors.stream().forEach(error -> {
 			if (error.getType().isError()) {
-				LOGGER.severe(error.toString());
+			  logger.severe(error.toString());
 			} else {
-				LOGGER.warning(error.toString());
+			  logger.warning(error.toString());
 			}
 		});
 	}
