@@ -65,12 +65,10 @@
 	</complexType>
 
 	<complexType name="params">
-		<sequence>
-			<element name="param" type="cp:param" minOccurs="0"
-				maxOccurs="unbounded" />
-			<element name="flag" type="cp:flag" minOccurs="0"
-				maxOccurs="unbounded" />
-		</sequence>
+		<choice minOccurs="0" maxOccurs="unbounded">
+			<element name="param" type="cp:param" />
+			<element name="flag" type="cp:flag" />
+		</choice>
 	</complexType>
 
     <complexType name="task-description">
