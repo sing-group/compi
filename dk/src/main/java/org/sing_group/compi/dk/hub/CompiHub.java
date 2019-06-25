@@ -20,22 +20,11 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package org.sing_group.compi.dk.cli;
+package org.sing_group.compi.dk.hub;
 
-/**
- * This class provides names and descriptions for parameters shared across different commands.
- * 
- * @author hlfernandez
- *
- */
-public class CommonParameters {
-  public static final String PROJECT_PATH = "p";
-  public static final String PROJECT_PATH_LONG = "path";
-  public static final String PROJECT_PATH_DESCRIPTION = "path of the project";
-  public static final String PROJECT_PATH_DEFAULT_VALUE = ".";
-  
-  public static final String PIPELINE_FILE = "p";
-  public static final String PIPELINE_FILE_LONG = "pipeline";
-  public static final String PIPELINE_FILE_DESCRIPTION = "XML pipeline file";
-  public static final String PIPELINE_FILE_DEFAULT_VALUE = "pipeline.xml";
+public class CompiHub {
+
+  public static final String getServerUrl(String path) {
+    return System.getProperty("compihub.backend.url", "https://sing-group.org/compihub-backend/") + path;
+  }
 }

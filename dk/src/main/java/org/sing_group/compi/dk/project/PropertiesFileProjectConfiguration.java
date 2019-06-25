@@ -31,6 +31,7 @@ import java.util.Properties;
 public class PropertiesFileProjectConfiguration implements ProjectConfiguration {
   public static final String IMAGE_NAME_PROPERTY = "image.name";
   public static final String COMPI_VERSION_PROPERTY = "compi.version";
+  public static final String COMPI_HUB_PIPELINE_ALIAS = "hub.pipeline.alias";
 
   private Properties prop = new Properties();
   private File configFile;
@@ -58,6 +59,15 @@ public class PropertiesFileProjectConfiguration implements ProjectConfiguration 
 
   public void setCompiVersion(String compiVersion) {
     prop.setProperty(COMPI_VERSION_PROPERTY, compiVersion);
+  }
+  
+  public void setProjectAlias(String alias) {
+    prop.setProperty(COMPI_HUB_PIPELINE_ALIAS, alias); 
+  }
+  
+  @Override
+  public String getHubAlias() {
+    return prop.getProperty(COMPI_HUB_PIPELINE_ALIAS);
   }
 
   public void save() {

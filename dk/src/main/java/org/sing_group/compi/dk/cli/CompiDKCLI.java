@@ -43,7 +43,8 @@ public class CompiDKCLI extends CLIApplication {
 	protected List<Command> buildCommands() {
 		return asList(
 			new NewProjectCommand(), 
-			new BuildCommand()
+			new BuildCommand(),
+			new HubInitCommand()
 		);
 	}
 
