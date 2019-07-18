@@ -64,16 +64,18 @@ public class FileLoopValuesGenerator extends AbstractLoopValuesGenerator {
 	 * @param folder
 	 *            Indicates the folder where the files are searched
 	 */
-	public void listFilesForFolder(final File folder) {
-		if (!folder.exists()) {
-			throw new IllegalArgumentException("The folder " + folder + " doesn't exist");
-		}
-		for (final File fileEntry : folder.listFiles()) {
-			if (fileEntry.isDirectory()) {
-				listFilesForFolder(fileEntry);
-			} else {
-				this.toExecute.add(fileEntry.getAbsolutePath());
-			}
-		}
-	}
+  public void listFilesForFolder(final File folder) {
+    if (!folder.exists()) {
+      throw new IllegalArgumentException("The folder " + folder + " doesn't exist");
+    }
+    for (final File fileEntry : folder.listFiles()) {
+      if (fileEntry.isDirectory()) {
+        if (fileEntry.canRead()) {
+          listFilesForFolder(fileEntry);
+        }
+      } else {
+        this.toExecute.add(fileEntry.getAbsolutePath());
+      }
+    }
+  }
 }
