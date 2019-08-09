@@ -44,7 +44,8 @@ public class CompiDKCLI extends CLIApplication {
 		return asList(
 			new NewProjectCommand(), 
 			new BuildCommand(),
-			new HubInitCommand()
+			new HubInitCommand(),
+			new HubMetadataCommand()
 		);
 	}
 
