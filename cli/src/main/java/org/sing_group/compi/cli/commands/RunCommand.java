@@ -231,7 +231,11 @@ public class RunCommand extends AbstractCommand {
     if (parameters.hasOption(super.getOption(PARAMS_FILE))) {
       paramsFile = new File(parameters.getSingleValueString(super.getOption(PARAMS_FILE)));
       if (!paramsFile.exists()) {
-        throw new IllegalArgumentException("The params file does not exist: " + runnersFile);
+        throw new IllegalArgumentException("The params file does not exist: " + paramsFile);
+      } else if (paramsFile.isDirectory()) {
+        throw new IllegalArgumentException(
+          "The specified params file is a directory and must be a file: " + paramsFile
+        );
       }
     }
 
