@@ -29,13 +29,27 @@ import java.io.IOException;
 import java.util.Properties;
 
 public abstract class AbstractPropertiesFile {
-  private Properties properties = new Properties();
+  private Properties properties;
   private File file;
 
   public AbstractPropertiesFile(File file) {
+    this(file, new Properties());
+  }
+
+  public AbstractPropertiesFile(File file, Properties properties) {
+    this.properties = properties;
     this.file = file;
     if (file.exists()) {
-      read();
+      this.loadPropertiesFromFile();
+    }
+  }
+
+  private void loadPropertiesFromFile() {
+    try (FileInputStream in = new FileInputStream(this.file)) {
+      this.properties.load(in);
+
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -47,14 +61,8 @@ public abstract class AbstractPropertiesFile {
     }
   }
 
-  private void read() {
-    try (FileInputStream in = new FileInputStream(this.file)) {
-      this.properties = new Properties();
-      this.properties.load(in);
-
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  protected String getProperty(String key) {
+    return getProperty(key, null);
   }
 
   protected String getProperty(String key, String defaultValue) {

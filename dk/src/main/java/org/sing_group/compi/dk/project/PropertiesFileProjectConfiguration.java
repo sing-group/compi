@@ -23,68 +23,52 @@
 package org.sing_group.compi.dk.project;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Properties;
 
-public class PropertiesFileProjectConfiguration implements ProjectConfiguration {
+import org.sing_group.compi.dk.AbstractPropertiesFile;
+
+public class PropertiesFileProjectConfiguration extends AbstractPropertiesFile implements ProjectConfiguration {
   public static final String IMAGE_NAME_PROPERTY = "image.name";
   public static final String COMPI_VERSION_PROPERTY = "compi.version";
   public static final String COMPI_HUB_PIPELINE_ALIAS = "hub.pipeline.alias";
-
-  private Properties prop = new Properties();
-  private File configFile;
+  public static final String COMPI_HUB_PIPELINE_ID = "hub.pipeline.id";
 
   public PropertiesFileProjectConfiguration(File configFile) {
-    this.configFile = configFile;
-    if (configFile.exists()) {
-      read();
-    }
+    super(configFile);
   }
 
   @Override
   public String getImageName() {
-    return prop.getProperty(IMAGE_NAME_PROPERTY);
+    return getProperty(IMAGE_NAME_PROPERTY);
   }
 
   @Override
   public String getCompiVersion() {
-    return prop.getProperty(COMPI_VERSION_PROPERTY);
+    return getProperty(COMPI_VERSION_PROPERTY);
   }
 
   public void setImageName(String imageName) {
-    prop.setProperty(IMAGE_NAME_PROPERTY, imageName);
+    setProperty(IMAGE_NAME_PROPERTY, imageName);
   }
 
   public void setCompiVersion(String compiVersion) {
-    prop.setProperty(COMPI_VERSION_PROPERTY, compiVersion);
+    setProperty(COMPI_VERSION_PROPERTY, compiVersion);
   }
-  
-  public void setProjectAlias(String alias) {
-    prop.setProperty(COMPI_HUB_PIPELINE_ALIAS, alias); 
+
+  public void setHubAlias(String alias) {
+    setProperty(COMPI_HUB_PIPELINE_ALIAS, alias);
   }
-  
+
   @Override
   public String getHubAlias() {
-    return prop.getProperty(COMPI_HUB_PIPELINE_ALIAS);
+    return getProperty(COMPI_HUB_PIPELINE_ALIAS);
   }
 
-  public void save() {
-    try (FileOutputStream out = new FileOutputStream(configFile)) {
-      prop.store(out, "");
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  public void settHubId(String hubId) {
+    setProperty(COMPI_HUB_PIPELINE_ID, hubId);
   }
 
-  private void read() {
-    try (FileInputStream in = new FileInputStream(this.configFile)) {
-      this.prop = new Properties();
-      this.prop.load(in);
-
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  @Override
+  public String getHubId() {
+    return getProperty(COMPI_HUB_PIPELINE_ID);
   }
 }

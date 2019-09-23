@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.sing_group.compi.dk.AbstractPropertiesFile;
+import org.sing_group.compi.dk.cli.WriteOnlyProperties;
 
 public class CompiHubMetadataPropertiesFile extends AbstractPropertiesFile {
   public static final String COMPI_HUB_METADATA_FILENAME = "hub.metadata";
@@ -45,7 +46,7 @@ public class CompiHubMetadataPropertiesFile extends AbstractPropertiesFile {
     );
 
   public CompiHubMetadataPropertiesFile(File file) {
-    super(file);
+    super(file, new WriteOnlyProperties());
   }
 
   public void readProperties(Logger logger, Console console) {
