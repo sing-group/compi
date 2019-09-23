@@ -22,31 +22,26 @@
  */
 package org.sing_group.compi.dk.hub;
 
-import java.io.Console;
-import java.util.Base64;
+import org.json.JSONObject;
 
-public class BasicAuth {
+public class InitHubResponse {
 
-  private String basicAuth;
-  private String user;
+  private String json;
+  private String id;
 
-  public BasicAuth(String user, String password) {
-    this.basicAuth = Base64.getEncoder().encodeToString(((user + ":" + password).getBytes()));
-    this.user = user;
+  public InitHubResponse(String json) {
+    this.json = json;
   }
 
-  public String getUser() {
-    return user;
-  }
-  
-  public String getBasicAuth() {
-    return basicAuth;
+  public String getHubId() {
+    if (this.id == null) {
+      this.parseJson();
+    }
+    return this.id;
   }
 
-  public static BasicAuth fromConsole(Console console) {
-    String username = console.readLine("Username: ");
-    String password = new String(console.readPassword("Password: "));
-
-    return new BasicAuth(username, password);
+  private void parseJson() {
+    JSONObject jsonResponse = new JSONObject(this.json);
+    this.id = jsonResponse.getString("_id");
   }
 }

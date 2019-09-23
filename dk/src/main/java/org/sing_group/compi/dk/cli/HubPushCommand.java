@@ -22,6 +22,7 @@
  */
 package org.sing_group.compi.dk.cli;
 
+import static java.util.Collections.emptyList;
 import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH;
 import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_DEFAULT_VALUE;
 import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_DESCRIPTION;
@@ -31,11 +32,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
+import org.sing_group.compi.core.PipelineValidationException;
 import org.sing_group.compi.dk.hub.BasicAuth;
-import org.sing_group.compi.dk.hub.InitHub;
-import org.sing_group.compi.dk.hub.InitHubResponse;
+import org.sing_group.compi.dk.hub.CompiHub;
+import org.sing_group.compi.dk.hub.CompiHubPipelineVersion;
+import org.sing_group.compi.dk.hub.CompiProjectDirectory;
+import org.sing_group.compi.dk.hub.ImportVersionZip;
 import org.sing_group.compi.dk.hub.PipelineExistsException;
 import org.sing_group.compi.dk.project.ProjectConfiguration;
 import org.sing_group.compi.dk.project.PropertiesFileProjectConfiguration;
@@ -44,30 +49,27 @@ import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;
 import es.uvigo.ei.sing.yacli.command.option.FlagOption;
 import es.uvigo.ei.sing.yacli.command.option.Option;
-import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
-public class HubInitCommand extends AbstractCommand {
-  private static final Logger LOGGER = Logger.getLogger(HubInitCommand.class.getName());
+public class HubPushCommand extends AbstractCommand {
+  private static final Logger LOGGER = Logger.getLogger(HubPushCommand.class.getName());
 
   public String getName() {
-    return "hub-init";
+    return "hub-push";
   }
 
   public String getDescriptiveName() {
-    return "Create compi-hub pipeline";
+    return "Push pipeline version";
   }
 
   public String getDescription() {
-    return "Creates a new pipeline at compi-hub";
+    return "Pushes a pipeline to compi-hub";
   }
 
   @Override
   protected List<Option<?>> createOptions() {
     return Arrays.asList(
       getProjectPathOption(),
-      getAliasOption(),
-      getTitleOption(),
       getVisibleOption(),
       getForceOption()
     );
@@ -79,29 +81,18 @@ public class HubInitCommand extends AbstractCommand {
     );
   }
 
-  private Option<?> getAliasOption() {
-    return new StringOption("alias", "a", "Alias of the pipeline", false, true);
-  }
-
-  private Option<?> getTitleOption() {
-    return new StringOption("title", "t", "Title of the pipeline", false, true);
-  }
-
   private Option<?> getVisibleOption() {
-    return new FlagOption("visible", "v", "Whether the pipeline is publicly visible or not");
+    return new FlagOption("visible", "v", "If it is visible or not");
   }
   
   private Option<?> getForceOption() {
-    return new FlagOption(
-      "force", "f",
-      "Whether the pipeline alias should be overriden. Note that this option will create a new pipeline at compi-hub and update the alias associated to this project"
-    );
+    return new FlagOption("force", "f", "If it is visible or not");
   }
 
   @Override
-  public void execute(final Parameters parameters) throws Exception {
+  public void execute(final Parameters parameters) {
     File directory = new File((String) parameters.getSingleValue(this.getOption("p")));
-    LOGGER.info("Building project in directory: " + directory);
+    LOGGER.info("Initializing pipeline at compi-hub from directory: " + directory);
 
     if (!directory.exists()) {
       LOGGER.severe("Directory " + directory + " does not exist");
@@ -113,37 +104,77 @@ public class HubInitCommand extends AbstractCommand {
       LOGGER.severe("Compi project file does not exist: " + compiProjectFile);
       System.exit(1);
     }
-    
+
     PropertiesFileProjectConfiguration projectConfiguration = new PropertiesFileProjectConfiguration(compiProjectFile);
-    boolean force = parameters.hasOption(super.getOption("force"));
-    
-    if (projectConfiguration.getHubAlias() != null && !force) {
-      LOGGER.warning(
-        "A pipeline has been already created with alias " + projectConfiguration.getHubAlias()
-          + ". Use -f/--force if you want to create a new pipeline at compi-hub"
-      );
-      System.exit(1);
-    }
 
     BasicAuth basicAuth = BasicAuth.fromConsole(System.console());
 
-    String alias = parameters.getSingleValueString(super.getOption("alias"));
-    String title = parameters.getSingleValueString(super.getOption("title"));
     boolean visible = parameters.hasOption(super.getOption("visible"));
-
+    boolean force = parameters.hasOption(super.getOption("force"));
+    
+    CompiProjectDirectory compiProjectDir = new CompiProjectDirectory(directory);
+    
+    String version = null;
     try {
-      InitHubResponse response = new InitHub(basicAuth, alias, title, visible).initHub();
-
-      projectConfiguration.setHubAlias(alias);
-      projectConfiguration.settHubId(response.getHubId());
-      projectConfiguration.save();
-    } catch (IOException e) {
-      LOGGER.severe("An error ocurred while creating the pipeline at compi-hub");
-      e.printStackTrace();
-      System.exit(1);
-    } catch (PipelineExistsException e) {
-      LOGGER.severe("A pipeline already exists with the specified alias");
+      version = compiProjectDir.getPipelineVersion();
+    } catch (IllegalArgumentException | IOException | PipelineValidationException e1) {
+      e1.printStackTrace();
       System.exit(1);
     }
+    
+    String pipelineHubId = projectConfiguration.getHubId();
+
+    if (pipelineHubId == null) {
+      LOGGER
+        .severe("A pipeline must be registered at compi-hub before pushing a version. Use compi-dk hub-init first.");
+      System.exit(1);
+    }
+
+    List<CompiHubPipelineVersion> pipelineVersions = emptyList();
+    try {
+      pipelineVersions = new CompiHub(basicAuth).listPipelineVersions(pipelineHubId);
+    } catch (IOException e1) {
+      e1.printStackTrace();
+      System.exit(1);
+    }
+
+    Optional<CompiHubPipelineVersion> compiHubVersion = existsVersion(pipelineVersions, version);
+    if (compiHubVersion.isPresent()) {
+      if(!force) {
+        LOGGER.warning("Version " + version + " already exists at compi-hub for this pipeline. Use --force");
+        System.exit(0);
+      }
+    }
+
+    File zipFile = new File("/home/hlfernandez/Tmp/test-project.zip");
+    try {
+      compiProjectDir.toZipFile(zipFile);
+    } catch (IOException e) {
+      e.printStackTrace();
+      System.exit(1);
+    }
+
+    ImportVersionZip ivz = new ImportVersionZip(basicAuth, pipelineHubId, visible, zipFile);
+
+    try {
+      if (compiHubVersion.isPresent()) {
+        ivz.updateZip(compiHubVersion.get());
+      } else {
+        ivz.uploadZip();
+      }
+    } catch (IOException | PipelineExistsException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private Optional<CompiHubPipelineVersion> existsVersion(
+    List<CompiHubPipelineVersion> pipelineVersions, String version
+  ) {
+    for (CompiHubPipelineVersion v : pipelineVersions) {
+      if (v.getVersion().equals(version)) {
+        return Optional.of(v);
+      }
+    }
+    return Optional.empty();
   }
 }

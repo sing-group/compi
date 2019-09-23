@@ -30,6 +30,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.logging.LogManager;
 
+import org.slf4j.LoggerFactory;
+
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.Command;
 
@@ -44,7 +46,8 @@ public class CompiDKCLI extends CLIApplication {
 		return asList(
 			new NewProjectCommand(), 
 			new BuildCommand(),
-			new HubInitCommand(),
+      new HubInitCommand(),
+      new HubPushCommand(),
 			new HubMetadataCommand()
 		);
 	}
@@ -64,16 +67,20 @@ public class CompiDKCLI extends CLIApplication {
 		return "compi-dk";
 	}
 
-	private static void configureLog() {
-		InputStream stream = CompiDKCLI.class.getClassLoader()
-			.getResourceAsStream("logging.properties");
-		try {
-			LogManager.getLogManager().readConfiguration(stream);
+  private static void configureLog() {
+    ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.http"))
+      .setLevel(ch.qos.logback.classic.Level.WARN);
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    InputStream stream =
+      CompiDKCLI.class.getClassLoader()
+        .getResourceAsStream("logging.properties");
+    try {
+      LogManager.getLogManager().readConfiguration(stream);
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
 	public static void main(String[] args) {
 		new CompiDKCLI().run(args);

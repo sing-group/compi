@@ -30,4 +30,6 @@ public interface ProjectConfiguration {
   public String getCompiVersion();
   
   public String getHubAlias();
+
+  public String getHubId();
 }

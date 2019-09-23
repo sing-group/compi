@@ -22,31 +22,42 @@
  */
 package org.sing_group.compi.dk.hub;
 
-import java.io.Console;
-import java.util.Base64;
+import org.json.JSONObject;
 
-public class BasicAuth {
+public class CompiHubPipelineVersion {
 
-  private String basicAuth;
-  private String user;
+  private String json;
+  private boolean parseJson = true;
 
-  public BasicAuth(String user, String password) {
-    this.basicAuth = Base64.getEncoder().encodeToString(((user + ":" + password).getBytes()));
-    this.user = user;
+  private String version;
+  private String id;
+
+  public CompiHubPipelineVersion(String json) {
+    this.json = json;
   }
 
-  public String getUser() {
-    return user;
-  }
-  
-  public String getBasicAuth() {
-    return basicAuth;
+  public String getVersion() {
+    if (this.parseJson) {
+      this.parseJson();
+    }
+    return this.version;
   }
 
-  public static BasicAuth fromConsole(Console console) {
-    String username = console.readLine("Username: ");
-    String password = new String(console.readPassword("Password: "));
+  public String getId() {
+    if (this.parseJson) {
+      this.parseJson();
+    }
+    return this.id;
+  }
 
-    return new BasicAuth(username, password);
+  private void parseJson() {
+    JSONObject jsonObject = new JSONObject(this.json);
+    this.id = jsonObject.getString("_id");
+    this.version = jsonObject.getString("version");
+  }
+
+  @Override
+  public String toString() {
+    return "Id: " + this.getId() + "; Version: " + this.getVersion();
   }
 }

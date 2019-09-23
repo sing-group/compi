@@ -23,7 +23,6 @@
 	<name>Compi Core</name>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -43,7 +42,6 @@
 			<version>3.6</version>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
 
 	<build>

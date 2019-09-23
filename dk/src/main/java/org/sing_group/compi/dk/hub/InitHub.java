@@ -48,8 +48,9 @@ public class InitHub {
     this.visible = visible;
   }
 
-  public void initHub() throws ClientProtocolException, IOException, PipelineExistsException {
-    HttpPost httpPost = new HttpPost(CompiHub.getServerUrl("pipeline"));
+  public InitHubResponse initHub() throws ClientProtocolException, IOException, PipelineExistsException {
+    CompiHub compiHub = new CompiHub(this.basicAuth);
+    HttpPost httpPost = new HttpPost(compiHub.url("pipeline"));
     httpPost.setHeader(HttpHeaders.AUTHORIZATION, "Basic " + this.basicAuth.getBasicAuth());
     httpPost.setHeader("Content-type", "application/json");
     httpPost.setEntity(getEntity());
@@ -63,6 +64,8 @@ public class InitHub {
       } else {
         throw new IOException(EntityUtils.toString(response.getEntity()));
       }
+    } else {
+      return new InitHubResponse(EntityUtils.toString(response.getEntity()));
     }
   }
 

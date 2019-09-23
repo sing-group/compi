@@ -45,12 +45,13 @@
 		<maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
 		<license-maven-plugin.version>1.14</license-maven-plugin.version>
 		<commons-compress.version>1.14</commons-compress.version>
+		<json.version>20180813</json.version>
 
 		<junit.version>4.12</junit.version>
 		<javax.activation.activation.version>1.1</javax.activation.activation.version>
 		<jaxb.version>2.2.11</jaxb.version>
 		<yacli.version>2.1.0-SNAPSHOT</yacli.version>
-		<httpclient.version>4.5.5</httpclient.version>
+		<httpclient.version>4.5.9</httpclient.version>
 		<velocity.version>1.7</velocity.version>
 
 		<!-- license-maven-plugin configuration -->
@@ -121,6 +122,11 @@
 				<artifactId>httpclient</artifactId>
 				<version>${httpclient.version}</version>
 			</dependency>
+              <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
 			<dependency>
 				<groupId>org.apache.velocity</groupId>
 				<artifactId>velocity</artifactId>
@@ -141,6 +147,12 @@
             	<artifactId>commons-compress</artifactId>
 				<version>${commons-compress.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.json</groupId>
+				<artifactId>json</artifactId>
+				<version>${json.version}</version>
+			</dependency>
+            
 		</dependencies>
 	</dependencyManagement>
 
