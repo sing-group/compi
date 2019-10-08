@@ -44,6 +44,8 @@
 		<maven-antrun-plugin.version>1.6</maven-antrun-plugin.version>
 		<maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
 		<license-maven-plugin.version>1.14</license-maven-plugin.version>
+		<download-maven-plugin.version>1.2.1</download-maven-plugin.version>
+
 		<commons-compress.version>1.14</commons-compress.version>
 		<json.version>20180813</json.version>
 
@@ -198,6 +200,11 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>${maven.resources.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>com.googlecode.maven-download-plugin</groupId>
+					<artifactId>download-maven-plugin</artifactId>
+					<version>${download-maven-plugin.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

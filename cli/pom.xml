@@ -111,6 +111,10 @@
 											<fileset dir="${basedir}/target/installer">
 												<include name="build" />
 											</fileset>
+											<fileset
+												dir="${basedir}/target/installer/payload/compi/compi-files/">
+												<include name="envsubst" />
+											</fileset>
 										</chmod>
 									</target>
 								</configuration>
@@ -203,6 +207,40 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack-jre</id>
+						<phase>package</phase>
+						<goals>
+                            <goal>unpack</goal>
+						</goals>
+						<configuration>
+                            <skip>${should.skip.installer}</skip>
+							<artifactItems>
+								<!--
+                                  a custom JRE for compi, generated with jlink (JRE 10+) and uploaded 
+                                  to SING maven repo with the following command:
+								  jlink - -add-modules java.base,java.logging,java.xml,java.naming,java.scripting,java.desktop,jdk.scripting.nashorn 
+								  - -output /tmp/myjre
+								-->
+								<artifactItem>
+									<groupId>com.oracle.java</groupId>
+									<artifactId>jre-mod.java.base-mod.java.logging-mod.java.xml-mod.java.naming-mod.java.desktop-mod.java.scripting-mod.java.scripting.nashorn</artifactId>
+									<version>10.0.1</version>
+									<type>tgz</type>
+									<overWrite>false</overWrite>
+									<!-- <classifier>win64</classifier> -->
+									<outputDirectory>${project.build.directory}/installer/payload/compi/compi-files/jre</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+      
 			<!-- create executable jar -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -296,38 +334,56 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
+				<groupId>com.googlecode.maven-download-plugin</groupId>
+				<artifactId>download-maven-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>unpack-jre</id>
+						<id>download-envsubst</id>
 						<phase>package</phase>
 						<goals>
-							<goal>unpack</goal>
+							<goal>wget</goal>
 						</goals>
 						<configuration>
-							<skip>${should.skip.installer}</skip>
-							<artifactItems>
-								<!--
-									a custom JRE for compi, generated with jlink (JRE 10+) and uploaded 
-									to SING maven repo with the following command:
-									jlink - -add-modules java.base,java.logging,java.xml,java.naming,java.scripting,java.desktop,jdk.scripting.nashorn 
-									- -output /tmp/myjre
-								-->
-								<artifactItem>
-									<groupId>com.oracle.java</groupId>
-									<artifactId>jre-mod.java.base-mod.java.logging-mod.java.xml-mod.java.naming-mod.java.desktop-mod.java.scripting-mod.java.scripting.nashorn</artifactId>
-									<version>10.0.1</version>
-									<type>tgz</type>
-									<overWrite>false</overWrite>
-									<!-- <classifier>win64</classifier> -->
-									<outputDirectory>${project.build.directory}/installer/payload/compi/compi-files/jre</outputDirectory>
-								</artifactItem>
-							</artifactItems>
+							<skip>${should.skip.download}</skip>
+							<url>http://static.sing-group.org/software/dev-resources/envsubst-Linux-x86_64</url>
+							<unpack>false</unpack>
+							<outputDirectory>${project.build.directory}/installer/payload/compi/compi-files/</outputDirectory>
+							<outputFileName>envsubst</outputFileName>
+							<md5>54a48dc0d1cb8f6dc51439e53a794da1</md5>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
+    
+		<pluginManagement>
+  			<plugins>
+  				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+  				<plugin>
+  					<groupId>org.eclipse.m2e</groupId>
+  					<artifactId>lifecycle-mapping</artifactId>
+  					<version>1.0.0</version>
+  					<configuration>
+  						<lifecycleMappingMetadata>
+  							<pluginExecutions>
+  								<pluginExecution>
+  									<pluginExecutionFilter>
+  										<groupId>com.googlecode.maven-download-plugin</groupId>
+  										<artifactId>download-maven-plugin</artifactId>
+  										<versionRange>[1.2.1,)</versionRange>
+  										<goals>
+  											<goal>wget</goal>
+  										</goals>
+  									</pluginExecutionFilter>
+  									<action>
+  										<ignore></ignore>
+  									</action>
+  								</pluginExecution>
+  							</pluginExecutions>
+  						</lifecycleMappingMetadata>
+  					</configuration>
+  				</plugin>
+  			</plugins>
+		</pluginManagement>
 	</build>
 </project>

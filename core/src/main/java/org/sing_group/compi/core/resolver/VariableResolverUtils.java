@@ -96,10 +96,12 @@ public class VariableResolverUtils {
         out.close();
       }
 
+      String envsubst = System.getProperty("envsubst.path", "$(which envsubst)");
+
       ProcessBuilder processBuilder =
         new ProcessBuilder(
           createShellCommand(
-            "envsubstpath=$(which envsubst); $envsubstpath < " + toResolveTextFile + " > " + resolvedTextFile
+            String.format("envsubstpath=%s; $envsubstpath < %s > %s", envsubst, toResolveTextFile, resolvedTextFile)
           )
         );
 
