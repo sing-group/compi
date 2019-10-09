@@ -167,7 +167,20 @@ public class CompiApp {
     synchronized (syncMonitor) {
       while (!taskManager.getTasksLeft().isEmpty()) {
         for (final Task taskToRun : taskManager.getRunnableTasks()) {
-          taskManager.setRunning(taskToRun);
+          try {
+            taskManager.setRunning(taskToRun);
+          } catch (RuntimeException e) {
+            taskManager.setAborted(taskToRun, e);
+            executorService.submit(()-> {
+            this.executionHandler.taskAborted(
+              taskToRun,
+              new CompiTaskAbortedException(
+                "Task aborted before being initialized: "+e.getMessage(), e, taskToRun, new LinkedList<String>(), new LinkedList<>()
+              )
+            );
+            });
+            continue;
+          }
           if (taskToRun instanceof Foreach) {
             loopCounterOfTask.put(
               taskToRun, new AtomicInteger(
@@ -208,7 +221,7 @@ public class CompiApp {
                 stdOut, stdErr, false, this.config.isShowStdOuts()
                 )
               );
-              }
+          }
         }
         syncMonitor.wait();
       }

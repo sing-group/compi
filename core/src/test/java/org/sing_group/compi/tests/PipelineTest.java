@@ -42,11 +42,9 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -54,10 +52,8 @@ import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
-import org.sing_group.compi.core.CompiTaskAbortedException;
 import org.sing_group.compi.core.TaskExecutionHandler;
 import org.sing_group.compi.core.loops.ForeachIteration;
-import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.Task;
 
 public class PipelineTest {
@@ -769,6 +765,26 @@ public class PipelineTest {
     assertEquals(5, handler.getFinishedTasksIncludingLoopChildren().size());
     assertEquals(2, handler.getAbortedTasks().size());
   }
+  
+  @Test
+  public void testTasksAbortedWithLoopsSingleTask() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("testForeachException.xml").getFile();
+
+    final CompiApp compi =
+      new CompiApp(
+        forPipeline(fromFile(new File(pipelineFile)))
+          .build()
+        );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+    assertEquals(1, handler.getStartedTasks().size());
+
+    assertEquals(1, handler.getFinishedTasksIncludingLoopChildren().size());
+    assertEquals(1, handler.getAbortedTasks().size());
+  }
 
   @Test
   public void testSomeTasksAbortedAndContinue() throws Exception {
@@ -812,59 +828,6 @@ public class PipelineTest {
     assertEquals(3, handler.getAbortedTasks().size());
   }
 
-  private static class TestExecutionHandler implements TaskExecutionHandler {
-    final List<String> startedTasks = new ArrayList<>();
-    final List<String> finishedTasks = new ArrayList<>();
-    final List<String> finishedTasksIncludingLoopChildren = new ArrayList<>();
-    final List<String> abortedTasks = new ArrayList<>();
-    final Set<String> startedForeachs = new HashSet<>();
-
-    @Override
-    synchronized public void taskStarted(Task task) {
-      startedTasks.add(task.getId());
-    }
-
-    @Override
-    public void taskFinished(Task task) {
-      finishedTasks.add(task.getId());
-      if (!(task instanceof Foreach))
-        finishedTasksIncludingLoopChildren.add(task.getId());
-    }
-
-    @Override
-    public void taskAborted(Task task, CompiTaskAbortedException e) {
-      abortedTasks.add(task.getId());
-    }
-
-    public List<String> getStartedTasks() {
-      return startedTasks;
-    }
-
-    public List<String> getFinishedTasks() {
-      return finishedTasks;
-    }
-
-    public List<String> getAbortedTasks() {
-      return abortedTasks;
-    }
-
-    public List<String> getFinishedTasksIncludingLoopChildren() {
-      return finishedTasksIncludingLoopChildren;
-    }
-
-    @Override
-    public void taskIterationStarted(ForeachIteration iteration) {
-      startedForeachs.add(iteration.getParentForeachTask().getId());
-
-    }
-
-    @Override
-    public void taskIterationFinished(ForeachIteration iteration) {
-      finishedTasksIncludingLoopChildren.add(iteration.getParentForeachTask().getId());
-    }
-
-    @Override
-    public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {}
-  }
+  
 
 }

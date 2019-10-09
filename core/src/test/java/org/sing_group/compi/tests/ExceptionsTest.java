@@ -22,6 +22,7 @@
  */
 package org.sing_group.compi.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.sing_group.compi.core.CompiRunConfiguration.forPipeline;
 import static org.sing_group.compi.core.pipeline.Pipeline.fromFile;
 
@@ -87,7 +88,7 @@ public class ExceptionsTest {
     compi.run();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testParamsException() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("pipelineParamsException.xml").getFile();
     final CompiApp compi =
@@ -96,10 +97,16 @@ public class ExceptionsTest {
           .whichResolvesVariablesWith(simpleVariableResolver)
           .build()
       );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
     compi.run();
+
+    assertEquals(1, handler.getAbortedTasks().size());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testForEachAsNotFoundException() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("pipelineForEachNotFoundException.xml").getFile();
     final CompiApp compi =
@@ -108,7 +115,13 @@ public class ExceptionsTest {
           .whichResolvesVariablesWith(new MapVariableResolver())
           .build()
       );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
     compi.run();
+
+    assertEquals(1, handler.getAbortedTasks().size());
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -125,7 +138,7 @@ public class ExceptionsTest {
     compi.run();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testNonExistantDirectory() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("pipelineNonExistantDirectory.xml").getFile();
     final CompiApp compi =
@@ -135,7 +148,12 @@ public class ExceptionsTest {
           .build()
       );
 
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
     compi.run();
+
+    assertEquals(1, handler.getAbortedTasks().size());
   }
 
   @Test(expected = IllegalArgumentException.class)
