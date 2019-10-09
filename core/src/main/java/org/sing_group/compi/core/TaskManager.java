@@ -147,6 +147,8 @@ public class TaskManager {
 
   /**
    * Get the iterations of a running foreach
+   *
+   * @param foreach the running foreach
    * 
    * @return The iterations of the given foreach
    * @throws IllegalStateException

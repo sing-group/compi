@@ -74,7 +74,15 @@ public class TaskRunnable implements Runnable {
    *          Indicates the {@link TaskExecutionHandler} to manage the
    *          {@link Task} execution
    * @param processCreator
-   *          an interface to create a process for running the task
+   *          Indicates the {@link ProcessCreator} to create the native process 
+   * @param stdOutLog
+   *          Indicates the file to redirect the task process's stdout
+   * @param stdErrorLog
+   *          Indicates the file to redirect the task process's stderr
+   * @param overwriteLog
+   *          Indicates if logs should be overwritten, instead of appended
+   * @param showStdOuts
+   *          Indicates if the process standard error and outs should be forwarded to System.out and System.err
    */
   public TaskRunnable(
     final Task task, final TaskExecutionHandler executionHandler, ProcessCreator processCreator, File stdOutLog,
