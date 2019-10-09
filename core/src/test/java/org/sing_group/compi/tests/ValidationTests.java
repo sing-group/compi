@@ -82,6 +82,20 @@ public class ValidationTests {
     assertEquals(1, numberOfErrorsOfType(NON_DECLARED_TASK_ID, errors));
   }
 
+  @Test
+  public void testInvalidSrc() throws Exception {
+    String pipelineName = "pipelineNonExistantSrc.xml";
+    List<ValidationError> errors = validatePipeline(pipelineName);
+    assertEquals(1, numberOfErrorsOfType(XML_SCHEMA_VALIDATION_ERROR, errors));
+  }
+
+  @Test
+  public void testBothSrcAndBody() throws Exception {
+    String pipelineName = "pipelineBothSrcAndBody.xml";
+    List<ValidationError> errors = validatePipeline(pipelineName);
+    assertEquals(1, numberOfErrorsOfType(XML_SCHEMA_VALIDATION_ERROR, errors));
+  }
+
   private List<ValidationError> validatePipeline(String pipelineName) {
     PipelineValidator validator =
       new PipelineValidator(

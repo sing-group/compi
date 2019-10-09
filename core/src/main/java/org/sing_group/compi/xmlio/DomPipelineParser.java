@@ -24,6 +24,7 @@ package org.sing_group.compi.xmlio;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +34,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.FileUtils;
 import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.ParameterDescription;
 import org.sing_group.compi.core.pipeline.Pipeline;
@@ -45,7 +47,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Implementation of {@link AbstractPipelineParser} to construtct {@code Pipeline} objects from XML files.
+ * Implementation of {@link AbstractPipelineParser} to construtct
+ * {@code Pipeline} objects from XML files.
  *
  * @author Jesus Alvarez Casanova
  * @author Hugo López-Fernández
@@ -56,10 +59,13 @@ public class DomPipelineParser extends AbstractPipelineParser {
   /**
    * Reads a pipeline XML file and returns it as a {@link Pipeline} object
    *
-   * @param f the XML input file
+   * @param f
+   *          the XML input file
    * @return the parsed Pipeline
-   * @throws IllegalArgumentException if a problem in XML parsing and validation occurs
-   * @throws IOException if a problem reading the file f occurs
+   * @throws IllegalArgumentException
+   *           if a problem in XML parsing and validation occurs
+   * @throws IOException
+   *           if a problem reading the file f occurs
    */
   public Pipeline parseXML(File f) throws IllegalArgumentException, IOException {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -142,10 +148,30 @@ public class DomPipelineParser extends AbstractPipelineParser {
               task.setInterpreter(element.getAttribute("interpreter"));
             if (element.hasAttribute("if"))
               task.setRunIf(element.getAttribute("if"));
+            if (element.hasAttribute("src"))
+              task.setSrc(element.getAttribute("src"));
             if (element.hasAttribute("params"))
               task.setParametersString(element.getAttribute("params"));
 
-            task.setExec(element.getTextContent());
+            if (element.getTextContent().trim().length() > 0 && task.getSrc() != null) {
+              throw new IllegalArgumentException(
+                "Task " + task.getId() + " has both src attribute and body, which is illegal"
+              );
+            }
+            if (task.getSrc() != null) {
+              try {
+                String code =
+                  FileUtils.readFileToString(f.toPath().getParent().resolve(Paths.get(task.getSrc())).toFile());
+                System.out.println("setting code to: " + code);
+                task.setToExecute(code);
+              } catch (Exception e) {
+                throw new IllegalArgumentException(
+                  "Could not read source code from src in task " + task.getId() + " due to: " + e.getMessage()
+                );
+              }
+            } else {
+              task.setToExecute(element.getTextContent().trim());
+            }
 
             tasks.add(task);
           }

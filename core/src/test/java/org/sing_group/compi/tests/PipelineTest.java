@@ -77,6 +77,26 @@ public class PipelineTest {
     assertEquals(1, handler.getFinishedTasks().size());
     assertEquals("1.0", compi.getPipeline().getVersion());
   }
+  
+  @Test
+  public void testOneTaskSrc() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("testOneTaskSrc.xml").getFile();
+
+    final CompiApp compi =
+      new CompiApp(
+        forPipeline(fromFile(new File(pipelineFile)))
+          .build()
+      );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+
+    assertEquals(1, handler.getStartedTasks().size());
+    assertEquals(1, handler.getFinishedTasks().size());
+    assertEquals("1.0", compi.getPipeline().getVersion());
+  }
 
   @Test
   public void testParameters() throws Exception {

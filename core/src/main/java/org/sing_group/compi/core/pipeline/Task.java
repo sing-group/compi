@@ -41,9 +41,9 @@ public class Task implements Cloneable {
 
   private String id;
   private String after;
-  private String exec;
   private String interpreter;
   private String runIf;
+  private String src;
   private List<String> parameters = new LinkedList<>();
   private String parametersString;
   private String toExecute;
@@ -74,7 +74,7 @@ public class Task implements Cloneable {
   public String getAfter() {
     return after;
   }
-  
+
   public List<String> getAfterList() {
     if (this.after != null) {
       return asList(this.after.split("[\\s,]+"));
@@ -99,6 +99,14 @@ public class Task implements Cloneable {
     this.runIf = runIf;
   }
 
+  public String getSrc() {
+    return src;
+  }
+
+  public void setSrc(String src) {
+    this.src = src;
+  }
+
   public void setAfter(final String after) {
     this.after = after;
   }
@@ -109,15 +117,6 @@ public class Task implements Cloneable {
 
   public String getParametersString() {
     return parametersString;
-  }
-
-  public String getExec() {
-    return exec;
-  }
-
-  public void setExec(final String exec) {
-    this.exec = exec.trim();
-    this.toExecute = this.exec;
   }
 
   public boolean isRunning() {

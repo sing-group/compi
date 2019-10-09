@@ -22,6 +22,7 @@
 				</attribute>
 				<attribute name="interpreter" type="string" use="optional" />
 				<attribute name="if" type="string" use="optional" />
+				<attribute name="src" type="string" use="optional" />
 			</extension>
 		</simpleContent>
 	</complexType>
