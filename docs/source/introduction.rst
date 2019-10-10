@@ -23,6 +23,8 @@ The main features of Compi are:
 - **User interface generation**: the Compi workflow engine automatically generates a Command-Line user interface to facilitate the users the usage of the pipeline. Thus, Compi is in fact an application framework in charge of dealing with user interaction, multi-threaded pipeline execution and logging, saving developers’ time with these aspects. Developers can focus in things that are really specific to their pipeline-based applications. 
 - **Parallel execution**: Compi pipelines run independent tasks in parallel and pipeline users ande developers do not have to worry about parallel execution management. Pipeline execution can be resumed from any step, without repeating previous steps that may have completed in previous runs.  
 
+.. _compi_ecosystem:
+
 The Compi ecosystem
 ===================
 
@@ -31,3 +33,5 @@ Compi is an ecosystem that comprises:
 - ``compi``: the workflow engine with a command-line user interface to control the pipeline execution.
 - ``compi-dk``: a command-line tool to help in the development and packaging of Compi-based applications.
 - *Compi Hub*: a public repository of Compi pipelines that allows other users to discover, browse and reuse them easily.
+
+The :ref:`Application development<application_development>` section shows how to use these three elements to develop, use and distribute Compi-based applications.
