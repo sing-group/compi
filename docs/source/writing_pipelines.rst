@@ -212,12 +212,8 @@ etc.)
 |              | can be started. The list can be separated by    |           |
 |              | whitespaces or commas.                          |           |
 +--------------+-------------------------------------------------+-----------+
-| as           | List of parameters that this task will use. The |   YES     |
-|              | parameters can not be identified by their       |           |
-|              | shortName.                                      |           |
-|              | Only global parameters and those indicated here |           |
-|              | are passed to the task.                         |           |
-|              | Values should be separated by whitespaces.      |           |
+| as           | Name of the loop parameter to use in the task   |   YES     |
+|              | code.                                           |           |
 +--------------+-------------------------------------------------+-----------+
 
 Defining tasks metadata
