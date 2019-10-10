@@ -9,12 +9,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -22,8 +22,11 @@
  */
 package org.sing_group.compi.xmlio;
 
+import static org.apache.commons.io.FileUtils.readFileToString;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -34,7 +37,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.FileUtils;
 import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.ParameterDescription;
 import org.sing_group.compi.core.pipeline.Pipeline;
@@ -47,8 +49,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Implementation of {@link AbstractPipelineParser} to construtct
- * {@code Pipeline} objects from XML files.
+ * Implementation of {@link AbstractPipelineParser} to construtct {@code Pipeline} objects from XML files.
  *
  * @author Jesus Alvarez Casanova
  * @author Hugo López-Fernández
@@ -59,13 +60,10 @@ public class DomPipelineParser extends AbstractPipelineParser {
   /**
    * Reads a pipeline XML file and returns it as a {@link Pipeline} object
    *
-   * @param f
-   *          the XML input file
+   * @param f the XML input file
    * @return the parsed Pipeline
-   * @throws IllegalArgumentException
-   *           if a problem in XML parsing and validation occurs
-   * @throws IOException
-   *           if a problem reading the file f occurs
+   * @throws IllegalArgumentException if a problem in XML parsing and validation occurs
+   * @throws IOException if a problem reading the file f occurs
    */
   public Pipeline parseXML(File f) throws IllegalArgumentException, IOException {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -160,9 +158,8 @@ public class DomPipelineParser extends AbstractPipelineParser {
             }
             if (task.getSrc() != null) {
               try {
-                String code =
-                  FileUtils.readFileToString(f.toPath().getParent().resolve(Paths.get(task.getSrc())).toFile());
-                System.out.println("setting code to: " + code);
+                Path parent = f.toPath().getParent() == null ? new File(".").toPath() : f.toPath().getParent();
+                String code = readFileToString(parent.resolve(Paths.get(task.getSrc())).toFile());
                 task.setToExecute(code);
               } catch (Exception e) {
                 throw new IllegalArgumentException(
