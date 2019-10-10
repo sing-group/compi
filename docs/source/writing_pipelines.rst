@@ -152,8 +152,10 @@ Simple tasks: the ``<task>`` element
 ------------------------------------
 
 Tasks are defined inside the ``<tasks>`` element. A ``<task>`` element contains
-a piece of runnable code (by default in Bash language). When the task runs,
-parameters **are passed as environmental variables**.
+a piece of runnable code (by default in Bash language). Alternatively, the piece
+of code can be loaded from the file specified in the ``src`` attribute, whose 
+location is relative to the pipeline XML file. When the task runs, parameters 
+**are passed as environmental variables**.
 
 In addition, ``<task>`` elements contain the following attributes: 
 
@@ -181,6 +183,9 @@ In addition, ``<task>`` elements contain the following attributes:
 | if           | A command to be run just before the task is     |   NO      |
 |              | about run. If the command's return status       |           |
 |              | is different from 0, the task will be skipped.  |           |
++--------------+-------------------------------------------------+-----------+
+| src          | The location of the file (relative to the       |   NO      |
+|              | pipeline XML file) that contains the task code. |           |
 +--------------+-------------------------------------------------+-----------+
 
 Parallel iterative tasks: the ``<foreach>`` element
