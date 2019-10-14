@@ -28,8 +28,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.logging.LogManager;
 
-import org.slf4j.LoggerFactory;
-
 import es.uvigo.ei.sing.yacli.CLIApplication;
 import es.uvigo.ei.sing.yacli.command.Command;
 
@@ -66,9 +64,6 @@ public class CompiDKCLI extends CLIApplication {
 	}
 
   private static void configureLog() {
-    ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.http"))
-      .setLevel(ch.qos.logback.classic.Level.WARN);
-
     InputStream stream =
       CompiDKCLI.class.getClassLoader()
         .getResourceAsStream("logging.properties");
