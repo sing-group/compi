@@ -1,105 +1,18 @@
 ![Compi Logo](artwork/logo.png)
-# Compi: framework for portable computational pipelines
+# Compi: framework for portable computational pipelines [![license](https://img.shields.io/github/license/sing-group/compi)](https://github.com/sing-group/compi) [![release](https://img.shields.io/github/release/sing-group/compi.svg)](http://www.sing-group.org/compi)
 
-## What is Compi?
-Compi is an application development framework for portable computational pipelines.
-A [software pipeline](https://en.wikipedia.org/wiki/Pipeline_(software)) is a
-chain of processing elements so that the output of each element is the input 
-of the next.
+Compi is an application development framework for portable computational pipelines. A software pipeline is a chain of processing elements so that the output of each element is the input of the next.
 
-In Compi, processing elements (called *tasks*) are external
-programs written in any programming language. In addition, Compi supports pipeline
-branching, where *tasks* can be run *parallel* with others. Moreover, a pipeline
-can be run partially, starting from a given intermediate point.
+There are many fields where computational pipelines constitute the main architecture of applications, such as big data analysis or bioinformatics.
 
-In addition, Compi allows you to develop **portable** pipelines, thanks to [Docker](http://docker.io).
+Many pipelines combine third party tools along with custom made processes, conforming the final pipeline. Compi is the framework helping to create the final, portable application.
 
-Compi pipelines are defined in XML files, such as this one:
+You can get more information at:
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!-- This is an example file of a compi pipeline -->
-<pipeline xmlns="http://www.esei.uvigo.es/compi-pipeline"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
-	<params>
-		<param name="parameter1" shortName="p1">Parameter one</param>
-		<param name="parameter2" shortName="p2">Parameter two</param>
-		<param name="a-list" shortName="l">A list of comma separated values</param>
-		<param name="out" shortName="o">Out file</param>
-	</params>
-
-	<tasks>
-		<task id="task-1">
-			echo ${parameter1} >> ${out}
-			echo ${parameter2} >> ${out}
-		</task>
-		<foreach id="task-2" after="task-1" of="param" in="a-list" as="i">
-			echo ${i} >> ${out}
-		</foreach>
-	</tasks>
-
-</pipeline>
-```
-
-## Elements of Compi
-Compi has several parts:
-* **Compi core**: Contains the pipelines execution engine, which is in charge
-of launching your pipeline tasks and managing their parallel execution.
-* **Compi Command Line Interface (cli)**: This tool allows you to run pipelines
-in your host machine. With this utility you can launch your pipeline entirely
-or partially.
-* **Compi Development Kit (dk)**: This tool allows you to create pipelines to
-be run on docker. The docker image will contain (i) compi cli and compi core
-and (ii) all third-party programs and dependencies your pipeline needs.
-compi-dk helps you on creating and building this docker image with your
-*portable* pipeline and all its dependencies.
-
-## Requisites
-* Linux
-* Java JDK
-* Maven
-* Docker
-
-## Building
-```
-# Clone the repository
-git clone https://github.com/sing-group/compi.git
-cd compi
-mvn package -PcreateInstaller
-```
-Inside `dk/target/installer` you will find `compi-dk-<version>-installer.bsx`,
-which is a self-extracting installer of the *Compi Development Kit*, compatible
-with any Linux 64-bit.
-
-```
-sudo ./dk/target/installer/compi-dk-<version>-installer.bsx
-```
-
-## Getting started
-The first step is to run `compi-dk` to create a project:
-
-```
-compi-dk new-project -p ~/my-new-pipeline -n my-new-pipeline
-```
-
-The option `-p` indicates the project location and the `-n` option indicates
-the name of the Docker image. Now you have a new pipeline project inside `~/my-new-pipeline`
-
-To build the pipeline:
-```
-cd ~/my-new-pipeline
-compi-dk build
-```
-
-Now you have a new Docker image `my-new-pipeline`
-
-To run the image you have to run `docker run <docker-params> my-new-pipeline [-pa <pipeline-params-file>] [-t <num-threads>] [-s <skip>] [-st <single-task>] [-- <pipeline-params>]`. For example:
-```
-docker run -v /tmp:/data my-new-pipeline -t 10 -- -p1 param-one -p2 param-two -o /data/output.txt -l one,two,three
-cat /tmp/output.txt
-```
+* Compi homepage: http://sing-group.org/compi
+* Compi help: http://sing-group.org/compi/docs
+* Compi hub: http://sing-group.org/compihub
+* Compi source code: https://github.com/sing-group/compi
 
 
 
