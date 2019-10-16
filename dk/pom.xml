@@ -253,6 +253,7 @@
 						<configuration>
 							<skipAssembly>${should.skip.dist}</skipAssembly>
 							<outputDirectory>${project.build.directory}/dist</outputDirectory>
+							<attach>false</attach>
 						</configuration>
 					</execution>
 					<execution>
@@ -264,6 +265,7 @@
 						<configuration>
 							<skipAssembly>${should.skip.installer}</skipAssembly>
 							<outputDirectory>${project.build.directory}/installer/payload/compi-dk/compi-dk-files</outputDirectory>
+							<attach>false</attach>
 						</configuration>
 					</execution>
 				</executions>
