@@ -58,7 +58,7 @@ This is the parameters file:
  seconds=2
  name=p1
  
-And this is the ``execute.sh`` script referenced in the parameters file:
+And this is the ``execute.sh`` script referenced in the parameters file (make it executable with chmod +x execute.sh):
 
 .. code-block:: bash
 
@@ -197,16 +197,25 @@ Run the following command to execute the ``pipeline.xml`` file using the example
 
  compi run -p pipeline.xml -pa params -a task-7
 
-11. Starting the pipeline execution using both `after` and `from`
+11. Starting the pipeline execution using both `from` and `until`
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-It is possible to specify multiple ``after`` and ``from`` tasks and even specify both of them in the same execution.
+It is possible to specify multiple ``from`` and ``until`` tasks and even specify both of them in the same execution.
 
-Run the following command to execute the ``pipeline.xml`` file using the example parameters file (``params``) starting at task ``task-2`` and also starting after ``task-3``. This command will run all tasks that do not depend on ``task-2``, including it, and that do not depend on ``task-3``, that is: ``task-2`, ``task-5``, ``task-6``, ``task-7``, and `task-8`.
+Run the following command to execute the ``pipeline.xml`` file using the example parameters file (``params``) starting at task ``task-2`` and until ``task-7``.
+This command will start from ``task-2`` and finish on ``task-7``. The path ``task-2`` -> ``task-5`` -> ``task-7`` will be executed.
+However, ``task-3`` -> ``task-6`` will be also executed, since they are dependencies of ``task-7``.
 
 .. code-block:: bash
 
- compi run -p pipeline.xml -pa params -f task-2 -a task-3
+ compi run -p pipeline.xml -pa params -f task-2 -ut task-7
+
+If you want to only run the ``task-2`` -> ``task-5`` -> ``task-7`` path, you have to exclude the ``task-3`` -> ``task-6`` path by also starting after ``task-6``.
+
+.. code-block:: bash
+
+ compi run -p pipeline.xml -pa params -f task-2 -ut task-7 -a task-6
+
 
 12. Save tasks outputs in log files
 +++++++++++++++++++++++++++++++++++
