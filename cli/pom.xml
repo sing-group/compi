@@ -65,7 +65,7 @@
 									<target>
 										<chmod perm="ugo+x">
 											<fileset dir="${basedir}/target/dist">
-												<include name="compi" />
+												<include name="compi"/>
 											</fileset>
 										</chmod>
 									</target>
@@ -99,21 +99,21 @@
 									<target>
 										<chmod perm="ugo+x">
 											<fileset dir="${basedir}/target/dist">
-												<include name="compi" />
+												<include name="compi"/>
 											</fileset>
 											<fileset
 												dir="${basedir}/target/installer/payload/compi">
-												<include name="compi" />
+												<include name="compi"/>
 											</fileset>
 											<fileset dir="${basedir}/target/installer/payload">
-												<include name="installer" />
+												<include name="installer"/>
 											</fileset>
 											<fileset dir="${basedir}/target/installer">
-												<include name="build" />
+												<include name="build"/>
 											</fileset>
 											<fileset
 												dir="${basedir}/target/installer/payload/compi/compi-files/">
-												<include name="envsubst" />
+												<include name="envsubst"/>
 											</fileset>
 										</chmod>
 									</target>
@@ -142,7 +142,7 @@
 									<target>
 										<chmod perm="ugo+x">
 											<fileset dir="${basedir}/target/installer">
-												<include name="*.bsx" />
+												<include name="*.bsx"/>
 											</fileset>
 										</chmod>
 									</target>
@@ -164,15 +164,15 @@
 											<tarfileset
 												dir="${project.build.directory}/installer/payload/compi"
 												filemode="775">
-												<include name="compi" />
-												<include name="compi-files/**" />
+												<include name="compi"/>
+												<include name="compi-files/**"/>
 											</tarfileset>
 										</tar>
 										<gzip
 											destfile="${project.build.directory}/installer/compi-${project.version}.tar.gz"
-											src="${project.build.directory}/installer/compi-${project.version}.tar" />
+											src="${project.build.directory}/installer/compi-${project.version}.tar"/>
 										<delete
-											file="${project.build.directory}/installer/compi-${project.version}.tar" />
+											file="${project.build.directory}/installer/compi-${project.version}.tar"/>
 									</target>
 								</configuration>
 							</execution>

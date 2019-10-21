@@ -162,6 +162,31 @@
 									<goal>run</goal>
 								</goals>
 							</execution>
+							<execution>
+								<id>make-portable-installer</id>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<tar
+											destfile="${project.build.directory}/installer/compi-dk-${project.version}.tar">
+											<tarfileset
+												dir="${basedir}/target/installer/payload/compi-dk"
+												filemode="775">
+												<include name="compi-dk"/>
+												<include name="compi-dk-files/**"/>
+											</tarfileset>
+										</tar>
+										<gzip
+											destfile="${project.build.directory}/installer/compi-dk-${project.version}.tar.gz"
+											src="${project.build.directory}/installer/compi-dk-${project.version}.tar"/>
+										<delete
+											file="${project.build.directory}/installer/compi-dk-${project.version}.tar"/>
+									</target>
+								</configuration>
+							</execution>
 						</executions>
 					</plugin>
 				</plugins>
