@@ -140,12 +140,15 @@ public class PipelineDockerFile {
   private File findFile(Function<File, Boolean> filter, File directory) {
     for (File file : directory.listFiles()) {
       if (file.isDirectory()) {
-        return findFile(filter, file);
-      }
-      if (filter.apply(file)) {
+        File result = findFile(filter, file);
+        if(result != null) {
+          return result;
+        }
+      } else if (filter.apply(file)) {
         return file;
       }
     }
+
     return null;
   }
 
