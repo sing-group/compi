@@ -172,9 +172,11 @@ public class BuildCommand extends AbstractCommand {
     Process p = Runtime.getRuntime().exec(new String[] {
       "/bin/bash", "-c", "docker build -t " + imageName + " " + directory.getAbsolutePath()
     });
-    redirectOutputToLogger(p);
+    Thread stdoutThreads = redirectOutputToLogger(p);
 
     int returnValue = p.waitFor();
+    stdoutThreads.join();
+    
     if (returnValue != 0) {
       LOGGER.severe("Docker build has returned a non-zero value: " + returnValue);
       System.exit(1);
@@ -183,7 +185,8 @@ public class BuildCommand extends AbstractCommand {
     }
   }
 
-  private void redirectOutputToLogger(Process p) {
+  private Thread redirectOutputToLogger(Process p) {
+    
     Thread stdoutThread = new Thread(() -> {
       try (Scanner sc = new Scanner(p.getInputStream())) {
         while (sc.hasNextLine()) {
@@ -203,6 +206,17 @@ public class BuildCommand extends AbstractCommand {
     });
     stderrThread.setName("Docker stderr");
     stderrThread.start();
+    
+    Thread stdoutsThread = new Thread(() -> {
+      try {
+        stdoutThread.join();
+        stderrThread.join();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    });
+    stdoutsThread.start();
+    return stdoutsThread;
   }
 
   private static class MainMethodRunner {
