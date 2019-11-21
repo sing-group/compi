@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'compi'
-copyright = u'2018, Daniel Glez-Peña, Osvaldo Graña, Miguel Reboiro-Jato, Hugo López-Fernández'
+copyright = u'2019, Daniel Glez-Peña, Osvaldo Graña, Miguel Reboiro-Jato, Hugo López-Fernández'
 author = u'Daniel Glez-Peña, Osvaldo Graña, Miguel Reboiro-Jato, Hugo López-Fernández'
 
 # The version info for the project you're documenting, acts as replacement for

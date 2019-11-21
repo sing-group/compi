@@ -9,6 +9,7 @@ Welcome to Compi's documentation!
    application_development
    writing_pipelines
    running_pipelines
+   faq
 
 .. toctree::
    :maxdepth: 2

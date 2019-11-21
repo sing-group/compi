@@ -3,7 +3,7 @@
 Application Development
 ***********************
 
-The following image summarizes the main interactions between the elements of the :ref:`Compi ecosystem<compi_ecosystem>` in the development of Compi-based applications.
+The following image summarizes the main interactions between the elements of :ref:`compi_ecosystem` in the development of Compi-based applications.
 
 .. figure:: images/application_development/lifecycle.png
    :align: center
