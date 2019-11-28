@@ -207,7 +207,7 @@ public class TaskManager {
    */
   public void setRunning(final Task task) {
     task.setRunning(true);
-    evaluateIf(task);
+    if (!task.isSkipped()) evaluateIf(task);
     if (!task.isSkipped() && task instanceof Foreach) {
       initializeForEach((Foreach) task);
     }
