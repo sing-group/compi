@@ -64,8 +64,12 @@ public class ParamsFileVariableResolver implements VariableResolver {
 
     try {
       Files.lines(this.paramsFile.toPath()).forEach(line -> {
-        if (!line.startsWith("#") && line.indexOf("=") != -1) {
-          variables.put(line.substring(0, line.indexOf("=")), line.substring(line.indexOf("=") + 1));
+        if (!line.startsWith("#")) {
+          if (line.indexOf("=") != -1) {
+            variables.put(line.substring(0, line.indexOf("=")), line.substring(line.indexOf("=") + 1));
+          } else {
+            variables.put(line.trim(), "yes");
+          }
         }
       });
     } catch (IOException e) {
