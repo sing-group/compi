@@ -89,8 +89,8 @@ public class HubPushCommand extends AbstractCommand {
 
   @Override
   public void execute(final Parameters parameters) {
-    File directory = new File((String) parameters.getSingleValue(this.getOption("p")));
-    LOGGER.info("Initializing pipeline at compi-hub from directory: " + directory);
+    File directory = new File((String) parameters.getSingleValue(this.getOption(PROJECT_PATH)));
+    LOGGER.info("Pushing pipeline version to compi-hub from directory: " + directory);
 
     if (!directory.exists()) {
       LOGGER.severe("Directory " + directory + " does not exist");
