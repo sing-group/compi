@@ -80,11 +80,11 @@ public class HubPushCommand extends AbstractCommand {
   }
 
   private Option<?> getVisibleOption() {
-    return new FlagOption("visible", "v", "If it is visible or not");
+    return new FlagOption("visible", "v", "make the pipeline version visible at Compi Hub");
   }
   
   private Option<?> getForceOption() {
-    return new FlagOption("force", "f", "If it is visible or not");
+    return new FlagOption("force", "f", "replace the previous version at Compi Hub");
   }
 
   @Override
