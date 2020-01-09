@@ -36,4 +36,8 @@ public class CommonParameters {
   public static final String PIPELINE_FILE_LONG = "pipeline";
   public static final String PIPELINE_FILE_DESCRIPTION = "XML pipeline file";
   public static final String PIPELINE_FILE_DEFAULT_VALUE = "pipeline.xml";
+
+  public static final String TAG_WITH_VERSION = "tv";
+  public static final String TAG_WITH_VERSION_LONG = "tag-version";
+  public static final String TAG_WITH_VERSION_DESCRIPTION = "tag the Docker image with the pipeline version";
 }
