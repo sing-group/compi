@@ -40,4 +40,8 @@ public class CommonParameters {
   public static final String TAG_WITH_VERSION = "tv";
   public static final String TAG_WITH_VERSION_LONG = "tag-version";
   public static final String TAG_WITH_VERSION_DESCRIPTION = "tag the Docker image with the pipeline version";
+  
+  public static final String DOCKER_REMOVE_DANGLING = "drd";
+  public static final String DOCKER_REMOVE_DANGLING_LONG = "docker-remove-dangling";
+  public static final String DOCKER_REMOVE_DANGLING_DESCRIPTION = "removes the Docker dangling images after building the Compi image";
 }

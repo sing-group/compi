@@ -20,6 +20,9 @@
  */
 package org.sing_group.compi.dk.cli;
 
+import static org.sing_group.compi.dk.cli.CommonParameters.DOCKER_REMOVE_DANGLING;
+import static org.sing_group.compi.dk.cli.CommonParameters.DOCKER_REMOVE_DANGLING_DESCRIPTION;
+import static org.sing_group.compi.dk.cli.CommonParameters.DOCKER_REMOVE_DANGLING_LONG;
 import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH;
 import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_DEFAULT_VALUE;
 import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_DESCRIPTION;
@@ -74,7 +77,8 @@ public class BuildCommand extends AbstractCommand {
   protected List<Option<?>> createOptions() {
     return Arrays.asList(
       getProjectPathOption(),
-      getTagWithVersionOption()
+      getTagWithVersionOption(),
+      getRemoveDockerDanglingOption()
     );
   }
 
@@ -87,6 +91,12 @@ public class BuildCommand extends AbstractCommand {
   private Option<?> getTagWithVersionOption() {
     return new FlagOption(
       TAG_WITH_VERSION_LONG, TAG_WITH_VERSION, TAG_WITH_VERSION_DESCRIPTION
+    );
+  }
+
+  private Option<?> getRemoveDockerDanglingOption() {
+    return new FlagOption(
+      DOCKER_REMOVE_DANGLING_LONG, DOCKER_REMOVE_DANGLING, DOCKER_REMOVE_DANGLING_DESCRIPTION
     );
   }
 
@@ -139,9 +149,10 @@ public class BuildCommand extends AbstractCommand {
     boolean isValid = validatePipeline(pipelineDockerFile);
 
     boolean tagDockerImageWithPipelineVersion = parameters.hasFlag(this.getOption(TAG_WITH_VERSION));
+    boolean dockerRemoveDanglingImages = parameters.hasFlag(this.getOption(DOCKER_REMOVE_DANGLING));
 
     if (isValid) {
-      buildDockerImage(directory, imageName, dockerFile, tagDockerImageWithPipelineVersion);
+      buildDockerImage(directory, imageName, dockerFile, tagDockerImageWithPipelineVersion, dockerRemoveDanglingImages);
     }
   }
 
@@ -180,9 +191,9 @@ public class BuildCommand extends AbstractCommand {
   }
 
   private void buildDockerImage(
-    File directory, String imageName, File dockerFile, boolean tagDockerImageWithPipelineVersion
-  )
-    throws IOException, InterruptedException {
+    File directory, String imageName, File dockerFile, boolean tagDockerImageWithPipelineVersion,
+    boolean dockerRemoveDanglingImages
+  ) throws IOException, InterruptedException {
     LOGGER.info("Building docker image (dockerfile: " + dockerFile + ")");
 
     String versionTag = versionTag(directory, imageName, tagDockerImageWithPipelineVersion);
@@ -194,12 +205,28 @@ public class BuildCommand extends AbstractCommand {
 
     int returnValue = p.waitFor();
     stdoutThreads.join();
-    
+
     if (returnValue != 0) {
       LOGGER.severe("Docker build has returned a non-zero value: " + returnValue);
       System.exit(1);
-    } {
+    } else {
       LOGGER.info("Docker image has been built properly");
+    }
+
+    if (dockerRemoveDanglingImages) {
+      Process p2 = Runtime.getRuntime().exec(new String[] {
+        "/bin/bash", "-c",
+        "IMAGES=$(docker images -f \"dangling=true\" -q); if [ ! -z \"$IMAGES\" ]; then docker rmi $IMAGES; fi"
+      });
+
+      int returnValue2 = p2.waitFor();
+
+      if (returnValue2 != 0) {
+        LOGGER.severe("Docker rmi command has returned a non-zero value: " + returnValue);
+        System.exit(1);
+      } else {
+        LOGGER.info("Docker remove dangling images command succeeded");
+      }
     }
   }
 
@@ -241,7 +268,7 @@ public class BuildCommand extends AbstractCommand {
     });
     stderrThread.setName("Docker stderr");
     stderrThread.start();
-    
+
     Thread stdoutsThread = new Thread(() -> {
       try {
         stdoutThread.join();
