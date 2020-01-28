@@ -169,8 +169,13 @@ public class PipelineGraphExporter {
 
 		for (Task task : pipelineObject.getTasks()) {
 			Node node = idToNode.get(task.getId());
-			for (final String afterId : task.getAfterList()) {
-        idToNode.put(afterId, idToNode.get(afterId).link(node));
+			for (String afterId : task.getAfterList()) {
+			  if (afterId.startsWith("*")) {
+			    afterId = afterId.substring(1);
+			    idToNode.put(afterId, idToNode.get(afterId).link(to(node).with(Style.DASHED)));
+			  } else {
+			    idToNode.put(afterId, idToNode.get(afterId).link(node));
+			  }
       }
 
       if (isDrawParameters(task) && !task.getParameters().isEmpty()) {

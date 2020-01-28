@@ -48,6 +48,8 @@ public class PipelineValidator {
     XML_SCHEMA_VALIDATION_ERROR(true),
     NON_DECLARED_PARAMETER(true),
     NON_DECLARED_TASK_ID(true),
+    ITERATION_DEPENDENCY_IN_NON_FOREACH_TASK(true),
+    ITERATION_DEPENDENCY_TO_NON_FOREACH_TASK(true),
     PARAMETER_NAME_FOUND_IN_CODE(false);
 
     private boolean isError;
@@ -176,6 +178,42 @@ public class PipelineValidator {
         continue;
 
       for (String afterTaskId : t.getAfterList()) {
+        if (afterTaskId.length() > 1 && afterTaskId.startsWith("*")) {
+          afterTaskId = afterTaskId.substring(1);
+          if (!(t instanceof Foreach)) {
+            errors.add(
+              new ValidationError(
+                ValidationErrorType.ITERATION_DEPENDENCY_IN_NON_FOREACH_TASK,
+                "Task id \"" + t.getId() + "\" has a iteration dependency to task id "+afterTaskId+", but task "
+                  + t.getId()+ " is not a foreach task"
+              )
+            );
+          }
+          if (!taskIds.contains(afterTaskId)) {
+            errors.add(
+              new ValidationError(
+                NON_DECLARED_TASK_ID,
+                "Task id \"" + afterTaskId + "\" declared in after of task: \"" + t.getId() + "\" does not exist"
+              )
+            );
+          } else {
+            for (Task afterTask : this.pipeline.getTasks()) {
+              if (afterTask.getId().equals(afterTaskId)) {
+                if (!(afterTask instanceof Foreach)) {
+                  errors.add(
+                    new ValidationError(
+                      ValidationErrorType.ITERATION_DEPENDENCY_TO_NON_FOREACH_TASK,
+                      "Task id \"" + t.getId() + "\" has a iteration dependency to task id "+afterTaskId+", but task "
+                        +afterTaskId+ " is not a foreach task"
+                    )
+                  );
+                }
+                break;
+              }
+            }
+          }
+        }
+          
         if (!taskIds.contains(afterTaskId)) {
           errors.add(
             new ValidationError(

@@ -75,7 +75,7 @@ public class PipelineTest {
     assertEquals(1, handler.getFinishedTasks().size());
     assertEquals("1.0", compi.getPipeline().getVersion());
   }
-  
+
   @Test
   public void testOneTaskSrc() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("testOneTaskSrc.xml").getFile();
@@ -127,12 +127,12 @@ public class PipelineTest {
     assertEquals(1, handler.getStartedTasks().size());
     assertEquals(1, handler.getFinishedTasks().size());
   }
-  
+
   @Test
   public void testParametersFromFile() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("echoPipeline.xml").getFile();
     File outFile = File.createTempFile("compi-test", ".txt");
-    
+
     File parametersFile = File.createTempFile("compi-test-parameters", "");
     Files.write(parametersFile.toPath(), new String("text=hello\ndestination=" + outFile.toString() + "\n").getBytes());
 
@@ -158,7 +158,6 @@ public class PipelineTest {
     assertEquals(1, handler.getFinishedTasks().size());
   }
 
-
   @Test
   public void testFlagParameters() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("testFlagParams.xml").getFile();
@@ -167,9 +166,11 @@ public class PipelineTest {
       final CompiApp compi =
         new CompiApp(
           forPipeline(
-            fromFile(new File(pipelineFile)))
-          .whichResolvesVariablesWith(
-            aFlag?resolverFor("aFlag", "yes"):emptyResolver()).build()
+            fromFile(new File(pipelineFile))
+          )
+            .whichResolvesVariablesWith(
+              aFlag ? resolverFor("aFlag", "yes") : emptyResolver()
+            ).build()
         );
 
       TestExecutionHandler handler = new TestExecutionHandler();
@@ -277,6 +278,138 @@ public class PipelineTest {
 
     for (File f : filesToTouch) {
       assertTrue(new File(f.toString() + ".2").exists());
+    }
+  }
+
+  @Test
+  public void testPipelineIterationBindedLoop() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("testPipelineIterationBindedLoops.xml").getFile();
+
+    final CompiApp compi =
+      new CompiApp(
+        forPipeline(fromFile(new File(pipelineFile)))
+          .build()
+      );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+    assertTrue(
+      "task does not wait for its dependency",
+      handler.getFinishedTasks().indexOf("ID1") < handler.getFinishedTasks().indexOf("ID3") &&
+        handler.getFinishedTasks().indexOf("ID2") < handler.getFinishedTasks().indexOf("ID3")
+    );
+    assertTrue(
+      "loop iterations are not binded",
+      // second iterations of precedent loops (ID1, ID2) end after starting
+      // first iteration of the dependant loop ID3
+      handler.getLoopIterations().indexOf("E_ID1_1") > handler.getLoopIterations().indexOf("S_ID3_0") &&
+        handler.getLoopIterations().indexOf("E_ID2_1") > handler.getLoopIterations().indexOf("S_ID3_0")
+    );
+  }
+
+  @Test
+  public void testPipelineIterationBindedLoop2() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("testPipelineIterationBindedLoops2.xml").getFile();
+
+    final CompiApp compi =
+      new CompiApp(
+        forPipeline(fromFile(new File(pipelineFile)))
+          .build()
+      );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+    assertTrue(
+      "task does not wait for its dependency",
+      handler.getFinishedTasks().indexOf("ID1") < handler.getFinishedTasks().indexOf("ID3") &&
+        handler.getFinishedTasks().indexOf("ID2") < handler.getFinishedTasks().indexOf("ID3")
+    );
+
+    assertTrue(
+      "loop iterations are not binded",
+
+      handler.getLoopIterations().indexOf("E_ID1_1") > handler.getLoopIterations().indexOf("S_ID3_0") &&
+        handler.getLoopIterations().indexOf("E_ID1_1") > handler.getLoopIterations().indexOf("S_ID2_0") &&
+        handler.getLoopIterations().indexOf("E_ID2_1") > handler.getLoopIterations().indexOf("S_ID3_0")
+    );
+  }
+
+  @Test
+  public void testPipelineIterationBindedLoopBadIterationSize() throws Exception {
+    final String pipelineFile =
+      ClassLoader.getSystemResource("testPipelineIterationBindedLoopsBadIterationSize.xml").getFile();
+
+    final CompiApp compi =
+      new CompiApp(
+        forPipeline(fromFile(new File(pipelineFile)))
+          .build()
+      );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+
+    assertTrue(
+      "foreach do not aborts due to dependant foreachs have different number of iterations",
+      handler.getAbortedTasks().contains("ID1")
+    );
+
+  }
+
+  @Test
+  public void testPipelineIterationBindedLoopWithSkip() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("testPipelineIterationBindedLoops2.xml").getFile();
+
+    final CompiApp compi =
+      new CompiApp(
+        forPipeline(fromFile(new File(pipelineFile)))
+          .whichRunsUntilTask("ID2").build()
+      );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+    assertTrue(
+      "task does not wait for its dependency",
+      handler.getFinishedTasks().indexOf("ID1") < handler.getFinishedTasks().indexOf("ID2")
+    );
+
+    assertTrue(
+      "loop iterations are not binded",
+
+      handler.getLoopIterations().indexOf("E_ID1_1") > handler.getLoopIterations().indexOf("S_ID3_0") &&
+        handler.getLoopIterations().indexOf("E_ID1_1") > handler.getLoopIterations().indexOf("S_ID2_0") &&
+        handler.getLoopIterations().indexOf("E_ID2_1") > handler.getLoopIterations().indexOf("S_ID3_0")
+    );
+  }
+
+  @Test
+  public void testPipelineIterationBindedLoopWithSingleTask() throws Exception {
+    for (String taskId : Arrays.asList("ID1", "ID2", "ID3")) {
+      final String pipelineFile = ClassLoader.getSystemResource("testPipelineIterationBindedLoops2.xml").getFile();
+
+      final CompiApp compi =
+        new CompiApp(
+          forPipeline(fromFile(new File(pipelineFile)))
+            .whichRunsTheSingleTask(taskId).build()
+        );
+
+      TestExecutionHandler handler = new TestExecutionHandler();
+      compi.addTaskExecutionHandler(handler);
+
+      compi.run();
+      assertTrue(
+        "does not run only "+taskId,
+        handler.getFinishedTasks().size() == 1 &&
+          handler.getFinishedTasks().contains(taskId)
+      );
+
     }
   }
 
@@ -783,7 +916,7 @@ public class PipelineTest {
     assertEquals(5, handler.getFinishedTasksIncludingLoopChildren().size());
     assertEquals(2, handler.getAbortedTasks().size());
   }
-  
+
   @Test
   public void testTasksAbortedWithLoopsSingleTask() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("testForeachException.xml").getFile();

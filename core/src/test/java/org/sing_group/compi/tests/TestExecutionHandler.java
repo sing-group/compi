@@ -37,6 +37,7 @@ public class TestExecutionHandler implements TaskExecutionHandler {
   final List<String> finishedTasksIncludingLoopChildren = new ArrayList<>();
   final List<String> abortedTasks = new ArrayList<>();
   final Set<String> startedForeachs = new HashSet<>();
+  final List<String> loopIterations = new ArrayList<>();
 
   @Override
   synchronized public void taskStarted(Task task) {
@@ -67,6 +68,10 @@ public class TestExecutionHandler implements TaskExecutionHandler {
     return abortedTasks;
   }
 
+  public List<String> getLoopIterations() {
+    return loopIterations;
+  }
+  
   public List<String> getFinishedTasksIncludingLoopChildren() {
     return finishedTasksIncludingLoopChildren;
   }
@@ -74,12 +79,13 @@ public class TestExecutionHandler implements TaskExecutionHandler {
   @Override
   public void taskIterationStarted(ForeachIteration iteration) {
     startedForeachs.add(iteration.getParentForeachTask().getId());
-
+    loopIterations.add("S_"+iteration.getParentForeachTask().getId()+"_"+iteration.getIterationIndex());
   }
 
   @Override
   public void taskIterationFinished(ForeachIteration iteration) {
     finishedTasksIncludingLoopChildren.add(iteration.getParentForeachTask().getId());
+    loopIterations.add("E_"+iteration.getParentForeachTask().getId()+"_"+iteration.getIterationIndex());
   }
 
   @Override

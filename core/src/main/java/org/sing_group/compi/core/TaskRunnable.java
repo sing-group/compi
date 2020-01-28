@@ -71,7 +71,7 @@ public class TaskRunnable implements Runnable {
    *          Indicates the {@link TaskExecutionHandler} to manage the
    *          {@link Task} execution
    * @param processCreator
-   *          Indicates the {@link ProcessCreator} to create the native process 
+   *          Indicates the {@link ProcessCreator} to create the native process
    * @param stdOutLog
    *          Indicates the file to redirect the task process's stdout
    * @param stdErrorLog
@@ -79,7 +79,8 @@ public class TaskRunnable implements Runnable {
    * @param overwriteLog
    *          Indicates if logs should be overwritten, instead of appended
    * @param showStdOuts
-   *          Indicates if the process standard error and outs should be forwarded to System.out and System.err
+   *          Indicates if the process standard error and outs should be
+   *          forwarded to System.out and System.err
    */
   public TaskRunnable(
     final Task task, final TaskExecutionHandler executionHandler, ProcessCreator processCreator, File stdOutLog,
@@ -108,7 +109,9 @@ public class TaskRunnable implements Runnable {
             this.task instanceof ForeachIteration &&
               ((ForeachIteration) task).getParentForeachTask().isAborted()
           ) {
-            taskAborted(this.task, null);
+            if (!this.task.isAborted()) {
+              taskAborted(this.task, ((ForeachIteration) task).getParentForeachTask().getAbortionCause());
+            }
           } else {
             this.process = this.getProcess(this.task);
             openLogBuffers(this.process);
@@ -154,10 +157,12 @@ public class TaskRunnable implements Runnable {
     int exitStatus = 0;
     try {
       exitStatus = process.waitFor();
-      
-      if (stdErrThread != null) stdErrThread.join();
-      if (stdOutThread != null) stdOutThread.join();
-      
+
+      if (stdErrThread != null)
+        stdErrThread.join();
+      if (stdOutThread != null)
+        stdOutThread.join();
+
       if ((exitStatus) != 0) {
         throw new CompiTaskAbortedException(
           "The process has exited with a non-zero status: " + exitStatus, null, this.task, this.stdOutLastMessages,
@@ -200,7 +205,7 @@ public class TaskRunnable implements Runnable {
         );
       task.setStdErrLogFile(this.stdErrorLog);
     }
-    
+
     final BufferedReader stdErr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
     this.stdErrThread = startLog(stdErr, this.err, this.stdErrLastMessages, System.err);
   }
@@ -233,10 +238,14 @@ public class TaskRunnable implements Runnable {
    */
   private void closeLogBuffers() throws IOException {
     try {
-      if (stdErrThread != null) stdErrThread.join();
-      if (stdOutThread != null) stdOutThread.join();
-    } catch (InterruptedException e) {e.printStackTrace();}
-    
+      if (stdErrThread != null)
+        stdErrThread.join();
+      if (stdOutThread != null)
+        stdOutThread.join();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     if (taskHasFileLog() && !this.task.isSkipped()) {
       out.flush();
       out.close();
@@ -247,7 +256,9 @@ public class TaskRunnable implements Runnable {
     }
   }
 
-  private Thread startLog(final BufferedReader in, final BufferedWriter out, final LinkedList<String> lastMessages, PrintStream stdOut)
+  private Thread startLog(
+    final BufferedReader in, final BufferedWriter out, final LinkedList<String> lastMessages, PrintStream stdOut
+  )
     throws UnsupportedEncodingException, FileNotFoundException {
     if (out != null) {
       try {
@@ -259,7 +270,7 @@ public class TaskRunnable implements Runnable {
     Thread logThread = new Thread(() -> {
       String line;
       try {
-        
+
         while ((line = in.readLine()) != null) {
           if (showStdOuts) {
             stdOut.println(line);

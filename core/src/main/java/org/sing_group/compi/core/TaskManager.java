@@ -21,7 +21,7 @@
 package org.sing_group.compi.core;
 
 import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableSet;
+import static java.util.stream.Collectors.toSet;
 import static org.sing_group.compi.core.loops.ForeachIteration.createIterationForForeach;
 import static org.sing_group.compi.core.runner.ProcessCreator.createProcess;
 
@@ -36,6 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.sing_group.compi.core.loops.CommandLoopValuesGenerator;
 import org.sing_group.compi.core.loops.FileLoopValuesGenerator;
 import org.sing_group.compi.core.loops.ForeachIteration;
+import org.sing_group.compi.core.loops.ForeachIterationDependency;
 import org.sing_group.compi.core.loops.ListLoopValuesGenerator;
 import org.sing_group.compi.core.loops.LoopValuesGenerator;
 import org.sing_group.compi.core.loops.ParameterLoopValuesGenerator;
@@ -66,7 +67,7 @@ public class TaskManager {
     for (final Task task : pipeline.getTasks()) {
       this.tasksById.put(task.getId(), task);
       this.tasksLeft.add(task);
-     // this.dependants.put(task, new LinkedHashSet<Task>());
+      // this.dependants.put(task, new LinkedHashSet<Task>());
 
       if (task instanceof Foreach) {
         this.forEachTasks.put((Foreach) task, new LinkedList<ForeachIteration>());
@@ -120,13 +121,14 @@ public class TaskManager {
    */
 
   public Set<Task> getDependantTasks(Task task) {
-    return unmodifiableSet(dag.getDependantsOfTask(task));
+    return dag.getDependantsOfTask(task).stream().map(Dependency::getDependantTask).collect(toSet());
   }
 
   /**
    * Get the iterations of a running foreach
    *
-   * @param foreach the running foreach
+   * @param foreach
+   *          the running foreach
    * 
    * @return The iterations of the given foreach
    * @throws IllegalStateException
@@ -148,7 +150,8 @@ public class TaskManager {
    *          Task whose dependencies will be skipped
    */
   public void skipDependencies(final Task task) {
-    dag.getDependenciesOfTask(task).forEach(dependency -> dependency.setSkipped(true));
+    dag.getDependenciesOfTask(task).stream().map(Dependency::getOnTask)
+      .forEach(dependency -> dependency.setSkipped(true));
   }
 
   /**
@@ -158,7 +161,8 @@ public class TaskManager {
    *          Task whose dependencies will be not skipped
    */
   public void skipAllButDependencies(Task task) {
-    final Set<Task> dependenciesOfTask = dag.getDependenciesOfTask(task);
+    final Set<Task> dependenciesOfTask =
+      dag.getDependenciesOfTask(task).stream().map(Dependency::getOnTask).collect(toSet());
     this.tasksById.values().stream()
       .filter(t -> !dependenciesOfTask.contains(t))
       .forEach(t -> t.setSkipped(true));
@@ -187,7 +191,8 @@ public class TaskManager {
    */
   public void setRunning(final Task task) {
     task.setRunning(true);
-    if (!task.isSkipped()) evaluateIf(task);
+    if (!task.isSkipped())
+      evaluateIf(task);
     if (!task.isSkipped() && task instanceof Foreach && !(task instanceof ForeachIteration)) {
       initializeForEach((Foreach) task);
     }
@@ -213,13 +218,11 @@ public class TaskManager {
    * @param e
    *          The cause of the abortion
    */
-  public void setAborted(final Task task, final Exception e) {
-    task.setAborted(true);
+  public void setAborted(final Task task, final CompiTaskAbortedException e) {
+    task.setAborted(true, e);
     task.setRunning(false);
     this.tasksLeft.remove(task);
   }
-
-  
 
   private void initializeForEach(Foreach foreach) throws IllegalArgumentException {
     List<String> values = new LinkedList<>();
@@ -247,7 +250,7 @@ public class TaskManager {
             + " of the task " + foreach.getId() + " doesn't exist"
         );
     }
-    
+
     if (!foreach.isSkipped()) {
       values = generator.getValues(foreach.getIn());
       int index = 0;
@@ -256,15 +259,33 @@ public class TaskManager {
         this.tasksLeft.add(iteration);
         this.forEachTasks.get(foreach).add(iteration);
       }
-      for(Task dependant: this.dag.getDependantsOfTask(foreach)) {
+      this.dag.getDependantsOfTask(foreach).stream().forEach(dependency -> {
+        final Task dependant = dependency.getDependantTask();
         this.dag.removeDependency(foreach, dependant);
-        
-        this.forEachTasks.get(foreach).forEach(foreachTask->{
-          
-          this.dag.addDependency(foreachTask, dependant);
-          
-        });
-      }
+        if (dependency instanceof ForeachIterationDependency && !dependant.isSkipped()) {
+          // iteration-binded loop
+          if (!dependant.isRunning())
+            setRunning(dependant); // here, the foreach values of dependant loop
+                                   // are computed
+
+            List<ForeachIteration> taskIterations = this.getForeachIterations((Foreach) dependency.getOnTask());
+            List<ForeachIteration> dependantIterations = this.getForeachIterations((Foreach) dependant);
+            
+            if (dependantIterations.size() != taskIterations.size()) {
+              throw new IllegalArgumentException("Iteration values of foreach "+foreach.getId()+" has a different number of elements of dependant foreach "+dependant.getId());
+            }
+            for (int i = 0; i < Math.min(taskIterations.size(), dependantIterations.size()); i++) {
+              this.dag.addDependency(taskIterations.get(i), dependantIterations.get(i), false);
+            }
+        } else {
+          // regular loop
+          this.forEachTasks.get(foreach).forEach(foreachTask -> {
+
+            this.dag.addDependency(foreachTask, dependant, false);
+
+          });
+        }
+      });
     }
   }
 
