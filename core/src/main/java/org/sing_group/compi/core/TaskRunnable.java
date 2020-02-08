@@ -34,7 +34,6 @@ import java.util.Date;
 import java.util.LinkedList;
 
 import org.sing_group.compi.core.loops.ForeachIteration;
-import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.Task;
 import org.sing_group.compi.core.runner.ProcessCreator;
 
@@ -286,7 +285,7 @@ public class TaskRunnable implements Runnable {
    *          the task
    */
   private void taskFinished(final Task task) {
-    if (task instanceof Foreach) {
+    if (task instanceof ForeachIteration) {
       executionHandler.taskIterationFinished((ForeachIteration) task);
     } else {
       executionHandler.taskFinished(task);
@@ -300,7 +299,7 @@ public class TaskRunnable implements Runnable {
    *          the task
    */
   private void taskStarted(Task task) {
-    if (task instanceof Foreach) {
+    if (task instanceof ForeachIteration) {
       executionHandler.taskIterationStarted((ForeachIteration) task);
     } else {
       executionHandler.taskStarted(task);
@@ -316,7 +315,7 @@ public class TaskRunnable implements Runnable {
    *          the error causing the abortion
    */
   private void taskAborted(final Task task, final CompiTaskAbortedException e) {
-    if (task instanceof Foreach) {
+    if (task instanceof ForeachIteration) {
       executionHandler.taskIterationAborted((ForeachIteration) task, e);
     } else {
       executionHandler.taskAborted(task, e);

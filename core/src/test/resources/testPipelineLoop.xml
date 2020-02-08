@@ -25,6 +25,7 @@
     <version>1.0</version>
 	<params>
 		<param name="dirparam" shortName="d">a directory</param>
+		<param name="elements" shortName="e">elements for a loop</param>	
 	</params>
 	<tasks>
 		<foreach id="ID1" of="list" in="2,1,1" as="param">
@@ -41,7 +42,7 @@
 			echo ${param}
 		</foreach>
 		<foreach id="ID5" after="ID2,ID3" of="param" in="elements"
-			as="param">
+			as="param" params="elements">
 			touch ${param}
 		</foreach>
 		<foreach id="ID6" params="dirparam" after="ID2,ID3" of="command"

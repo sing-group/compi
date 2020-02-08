@@ -26,15 +26,12 @@ import static org.sing_group.compi.core.loops.ForeachIteration.createIterationFo
 import static org.sing_group.compi.core.runner.ProcessCreator.createProcess;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 import org.sing_group.compi.core.loops.CommandLoopValuesGenerator;
 import org.sing_group.compi.core.loops.FileLoopValuesGenerator;
@@ -60,7 +57,7 @@ public class TaskManager {
 
   private final Map<String, Task> tasksById = new ConcurrentHashMap<>();
   private final List<Task> tasksLeft = new CopyOnWriteArrayList<>();
-  private final Map<Task, Set<Task>> dependants = new ConcurrentHashMap<>();
+  private final TasksDAG dag = new TasksDAG();
   private final Map<Foreach, List<ForeachIteration>> forEachTasks = new ConcurrentHashMap<>();
   private VariableResolver variableResolver;
 
@@ -69,13 +66,13 @@ public class TaskManager {
     for (final Task task : pipeline.getTasks()) {
       this.tasksById.put(task.getId(), task);
       this.tasksLeft.add(task);
-      this.dependants.put(task, new LinkedHashSet<Task>());
+     // this.dependants.put(task, new LinkedHashSet<Task>());
 
       if (task instanceof Foreach) {
         this.forEachTasks.put((Foreach) task, new LinkedList<ForeachIteration>());
       }
     }
-    initializeDependencies();
+    this.dag.initializeTaskDependencies(pipeline.getTasks());
   }
 
   /**
@@ -107,7 +104,7 @@ public class TaskManager {
   public List<Task> getRunnableTasks() {
     List<Task> runnableTasks = new ArrayList<Task>();
     for (final Task task : this.tasksLeft) {
-      if (!task.isFinished() && dependenciesAreMet(task)) {
+      if (!task.isFinished() && this.dag.dependenciesAreMet(task)) {
         runnableTasks.add(task);
       }
     }
@@ -123,24 +120,7 @@ public class TaskManager {
    */
 
   public Set<Task> getDependantTasks(Task task) {
-    return unmodifiableSet(dependants.get(task));
-  }
-
-  /**
-   * Gets all tasks that a given task depends on
-   * 
-   * @param task
-   *          The task whose dependencies will be obtained
-   * @return Tasks that task depends on
-   */
-  public Set<Task> getDependenciesOfTask(Task task) {
-    Set<Task> taskDependencies = new HashSet<>();
-    dependants.forEach((otherTask, dependantTasks) -> {
-      if (dependantTasks.contains(task)) {
-        taskDependencies.add(otherTask);
-      }
-    });
-    return taskDependencies;
+    return unmodifiableSet(dag.getDependantsOfTask(task));
   }
 
   /**
@@ -168,7 +148,7 @@ public class TaskManager {
    *          Task whose dependencies will be skipped
    */
   public void skipDependencies(final Task task) {
-    getDependenciesOfTask(task).forEach(dependency -> dependency.setSkipped(true));
+    dag.getDependenciesOfTask(task).forEach(dependency -> dependency.setSkipped(true));
   }
 
   /**
@@ -178,7 +158,7 @@ public class TaskManager {
    *          Task whose dependencies will be not skipped
    */
   public void skipAllButDependencies(Task task) {
-    final Set<Task> dependenciesOfTask = getDependenciesOfTask(task);
+    final Set<Task> dependenciesOfTask = dag.getDependenciesOfTask(task);
     this.tasksById.values().stream()
       .filter(t -> !dependenciesOfTask.contains(t))
       .forEach(t -> t.setSkipped(true));
@@ -208,7 +188,7 @@ public class TaskManager {
   public void setRunning(final Task task) {
     task.setRunning(true);
     if (!task.isSkipped()) evaluateIf(task);
-    if (!task.isSkipped() && task instanceof Foreach) {
+    if (!task.isSkipped() && task instanceof Foreach && !(task instanceof ForeachIteration)) {
       initializeForEach((Foreach) task);
     }
     this.tasksLeft.remove(task);
@@ -239,12 +219,7 @@ public class TaskManager {
     this.tasksLeft.remove(task);
   }
 
-  private boolean dependenciesAreMet(final Task task) {
-    return this.getDependenciesOfTask(task).stream()
-      .filter(t -> !t.isFinished())
-      .collect(Collectors.toList())
-      .size() == 0;
-  }
+  
 
   private void initializeForEach(Foreach foreach) throws IllegalArgumentException {
     List<String> values = new LinkedList<>();
@@ -272,35 +247,25 @@ public class TaskManager {
             + " of the task " + foreach.getId() + " doesn't exist"
         );
     }
+    
     if (!foreach.isSkipped()) {
       values = generator.getValues(foreach.getIn());
       int index = 0;
       for (final String source : values) {
-        this.forEachTasks.get(foreach).add(createIterationForForeach(foreach, source, index++));
+        ForeachIteration iteration = createIterationForForeach(foreach, source, index++);
+        this.tasksLeft.add(iteration);
+        this.forEachTasks.get(foreach).add(iteration);
+      }
+      for(Task dependant: this.dag.getDependantsOfTask(foreach)) {
+        this.dag.removeDependency(foreach, dependant);
+        
+        this.forEachTasks.get(foreach).forEach(foreachTask->{
+          
+          this.dag.addDependency(foreachTask, dependant);
+          
+        });
       }
     }
-  }
-
-  private void initializeDependencies() {
-    tasksById.values().forEach((task) -> {
-      if (task.getAfter() != null) {
-        for (final String afterId : task.getAfterList()) {
-          dependants.get(tasksById.get(afterId)).add(task);
-        }
-      }
-    });
-
-    tasksById.values().forEach((task) -> {
-      dependants.forEach((otherTask, otherTaskDependants) -> {
-        if (otherTaskDependants.contains(task)) {
-          otherTaskDependants.addAll(dependants.get(task));
-        }
-
-        if (otherTaskDependants.contains(otherTask)) {
-          throw new IllegalArgumentException("The pipeline contains a cycle");
-        }
-      });
-    });
   }
 
   private void evaluateIf(Task task) {

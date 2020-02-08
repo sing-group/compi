@@ -846,6 +846,4 @@ public class PipelineTest {
     assertEquals(3, handler.getAbortedTasks().size());
   }
 
-  
-
 }

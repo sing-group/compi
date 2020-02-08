@@ -164,22 +164,24 @@ public class CompiApp {
 
     synchronized (syncMonitor) {
       while (!taskManager.getTasksLeft().isEmpty()) {
-        for (final Task taskToRun : taskManager.getRunnableTasks()) {
+        final ArrayList<Task> runnableTasks = new ArrayList<>(taskManager.getRunnableTasks());
+        for (final Task taskToRun : runnableTasks) {
           try {
             taskManager.setRunning(taskToRun);
           } catch (RuntimeException e) {
             taskManager.setAborted(taskToRun, e);
-            executorService.submit(()-> {
-            this.executionHandler.taskAborted(
-              taskToRun,
-              new CompiTaskAbortedException(
-                "Task aborted before being initialized: "+e.getMessage(), e, taskToRun, new LinkedList<String>(), new LinkedList<>()
-              )
-            );
+            executorService.submit(() -> {
+              this.executionHandler.taskAborted(
+                taskToRun,
+                new CompiTaskAbortedException(
+                  "Task aborted before being initialized: " + e.getMessage(), e, taskToRun, new LinkedList<String>(),
+                  new LinkedList<>()
+                )
+              );
             });
             continue;
           }
-          if (taskToRun instanceof Foreach) {
+          if (taskToRun instanceof Foreach && !(taskToRun instanceof ForeachIteration)) {
             loopCounterOfTask.put(
               taskToRun, new AtomicInteger(
                 taskManager.getForeachIterations((Foreach) taskToRun).size()
@@ -189,6 +191,7 @@ public class CompiApp {
               // for loops without iterations, we need to add a dummy process,
               // because we expect the foreach task itself
               // is in taskLeft and we need to be notified that it has finished
+
               executorService.submit(
                 new TaskRunnable(
                   createIterationForForeach((Foreach) taskToRun, null, 0), this.executionHandler,
@@ -198,7 +201,8 @@ public class CompiApp {
                   )
                 );
                 } else {
-              for (final ForeachIteration lp : taskManager.getForeachIterations((Foreach) taskToRun)) {
+
+              /*for (final ForeachIteration lp : taskManager.getForeachIterations((Foreach) taskToRun)) {
                 final File stdOut = getLogFile(lp, ".out.log");
                 final File stdErr = getLogFile(lp, ".err.log");
 
@@ -208,7 +212,7 @@ public class CompiApp {
                     stdOut, stdErr, false, this.config.isShowStdOuts()
                     )
                   );
-                  }
+                  }*/
             }
           } else {
             final File stdOut = getLogFile(taskToRun, ".out.log");
@@ -219,9 +223,12 @@ public class CompiApp {
                 stdOut, stdErr, false, this.config.isShowStdOuts()
                 )
               );
-          }
+              }
         }
-        syncMonitor.wait();
+        
+        if (taskManager.getRunnableTasks().isEmpty()) {
+          syncMonitor.wait();
+        }
       }
     }
 
@@ -477,6 +484,7 @@ public class CompiApp {
     @Override
     public void taskIterationFinished(ForeachIteration iteration) {
       synchronized (syncMonitor) {
+        iteration.setFinished(true);
         final Task parent = iteration.getParentForeachTask();
         if (loopCounterOfTask.get(parent).decrementAndGet() <= 0) {
           taskManager.setFinished(parent);
@@ -494,11 +502,12 @@ public class CompiApp {
     @Override
     public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
       synchronized (syncMonitor) {
+        iteration.setAborted(true);
         this.notifyTaskIterationAborted(iteration, e);
         if (!foreachAbortedNotificationsSent.contains(iteration.getParentForeachTask())) {
           this.notifyTaskAborted(iteration.getParentForeachTask(), e);
           taskManager.setAborted(iteration.getParentForeachTask(), e);
-          abortDependencies(iteration.getParentForeachTask(), e);
+          abortDependencies(iteration, e);
           foreachAbortedNotificationsSent.add(iteration.getParentForeachTask());
           syncMonitor.notify();
         }
