@@ -154,7 +154,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
       @Override
       public void taskIterationFinished(ForeachIteration iteration) {
         LOGGER.info(
-          "<< Finished loop iteration of task " + iteration.getId()
+          "<< Finished loop iteration of task " + iteration.getId() +" ("+iteration.getIterationValue()+")"
         );
       }
 
