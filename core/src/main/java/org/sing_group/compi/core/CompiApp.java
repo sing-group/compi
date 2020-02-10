@@ -45,6 +45,7 @@ import org.sing_group.compi.core.loops.ForeachIteration;
 import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.Pipeline;
 import org.sing_group.compi.core.pipeline.Task;
+import org.sing_group.compi.core.resolver.MapVariableResolver;
 import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.core.runner.RunnersManager;
 import org.sing_group.compi.xmlio.ParamsFileVariableResolver;
@@ -120,6 +121,8 @@ public class CompiApp {
       this.resolver = config.getResolver();
     }
 
+    this.resolver = new MapVariableResolver(this.resolver, config.asMap());
+    
     this.taskManager = new TaskManager(this.pipeline, this.resolver);
 
     initializeRunnersManager();
