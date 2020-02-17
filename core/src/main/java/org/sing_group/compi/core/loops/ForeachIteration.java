@@ -54,7 +54,7 @@ public class ForeachIteration extends Foreach {
 		
 		foreachIteration.setId(foreach.getId());
 		foreachIteration.setFinished(foreach.isFinished());
-		foreachIteration.setAborted(foreach.isAborted());
+		foreachIteration.setAborted(foreach.isAborted(), foreach.getAbortionCause());
 		foreachIteration.setInterpreter(foreach.getInterpreter());
 		foreachIteration.setRunIf(foreach.getRunIf());
 		foreachIteration.setParametersString(foreach.getParametersString());

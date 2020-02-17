@@ -21,6 +21,7 @@
 package org.sing_group.compi.core.resolver;
 
 import static java.util.Arrays.asList;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static org.sing_group.compi.core.runner.ProcessCreator.createShellCommand;
 
@@ -33,7 +34,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
+import org.sing_group.compi.core.CompiRunConfiguration;
 import org.sing_group.compi.core.loops.ForeachIteration;
 import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.Task;
@@ -47,7 +50,6 @@ public class VariableResolverUtils {
   }
 
   public void addVariablesToEnvironmentForTask(Task task, ProcessBuilder builder) {
-
     task.getParameters().forEach(parameter -> {
       if (task.getPipeline().getParameterDescription(parameter).isFlag()) {
         if (this.resolver.resolveVariable(parameter) != null) {
@@ -79,6 +81,12 @@ public class VariableResolverUtils {
     runnerExtraVariables.put("task_params", params.stream().collect(joining(" ")));
 
     builder.environment().putAll(runnerExtraVariables);
+
+    builder.environment().putAll(
+      this.resolver.getVariableNames().stream().filter(
+        v -> v.startsWith(CompiRunConfiguration.CONFIGURATION_VARIABLES_PREFIX)
+      ).collect(Collectors.toMap(identity(), v -> this.resolver.resolveVariable(v)))
+    );
 
   }
 

@@ -23,31 +23,15 @@
 <pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <version>1.0</version>
-	<params>
-		<param name="dirparam" shortName="d">a directory</param>
-		<param name="elements" shortName="e">elements for a loop</param>	
-	</params>
 	<tasks>
-		<foreach id="ID1" of="list" in="2,1,1" as="param">
+		<foreach id="ID1" of="list" in="1,4" as="param">			
+			sleep ${param}
+		</foreach>
+		<foreach id="ID2" of="list" in="2,4" as="param">			
+			sleep ${param}
+		</foreach>
+		<foreach id="ID3" after="*ID1, *ID2" of="list" in="hello,bye" as="param">			
 			echo ${param}
-		</foreach>
-		<foreach id="ID2" after="ID1" of="list" in="1,1" as="param">
-			echo ${param}
-		</foreach>
-		<task id="ID3" after="ID1">
-			echo "tarea 3"
-		</task>
-		<foreach id="ID4" after="ID2,ID3" of="list" in="1,1,1,1"
-			as="param">
-			echo ${param}
-		</foreach>
-		<foreach id="ID5" after="ID2,ID3" of="param" in="elements"
-			as="param" params="elements">
-			touch ${param}
-		</foreach>
-		<foreach id="ID6" params="dirparam" after="ID2,ID3" of="command"
-			in="find ${dirparam} -maxdepth 1 | grep '.txt$'" as="param">
-			touch "${param}.2"
-		</foreach>
+		</foreach>		
 	</tasks>
 </pipeline>

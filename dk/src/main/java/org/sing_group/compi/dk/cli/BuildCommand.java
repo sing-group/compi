@@ -20,10 +20,16 @@
  */
 package org.sing_group.compi.dk.cli;
 
+import static org.sing_group.compi.dk.cli.CommonParameters.DOCKER_REMOVE_DANGLING;
+import static org.sing_group.compi.dk.cli.CommonParameters.DOCKER_REMOVE_DANGLING_DESCRIPTION;
+import static org.sing_group.compi.dk.cli.CommonParameters.DOCKER_REMOVE_DANGLING_LONG;
 import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH;
 import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_DEFAULT_VALUE;
 import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_DESCRIPTION;
 import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_LONG;
+import static org.sing_group.compi.dk.cli.CommonParameters.TAG_WITH_VERSION;
+import static org.sing_group.compi.dk.cli.CommonParameters.TAG_WITH_VERSION_DESCRIPTION;
+import static org.sing_group.compi.dk.cli.CommonParameters.TAG_WITH_VERSION_LONG;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -40,12 +46,15 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
+import org.sing_group.compi.core.PipelineValidationException;
+import org.sing_group.compi.dk.hub.CompiProjectDirectory;
 import org.sing_group.compi.dk.project.PipelineDockerFile;
 import org.sing_group.compi.dk.project.ProjectConfiguration;
 import org.sing_group.compi.dk.project.PropertiesFileProjectConfiguration;
 
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;
+import es.uvigo.ei.sing.yacli.command.option.FlagOption;
 import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
@@ -67,7 +76,9 @@ public class BuildCommand extends AbstractCommand {
   @Override
   protected List<Option<?>> createOptions() {
     return Arrays.asList(
-      getProjectPathOption()
+      getProjectPathOption(),
+      getTagWithVersionOption(),
+      getRemoveDockerDanglingOption()
     );
   }
 
@@ -77,9 +88,21 @@ public class BuildCommand extends AbstractCommand {
     );
   }
 
+  private Option<?> getTagWithVersionOption() {
+    return new FlagOption(
+      TAG_WITH_VERSION_LONG, TAG_WITH_VERSION, TAG_WITH_VERSION_DESCRIPTION
+    );
+  }
+
+  private Option<?> getRemoveDockerDanglingOption() {
+    return new FlagOption(
+      DOCKER_REMOVE_DANGLING_LONG, DOCKER_REMOVE_DANGLING, DOCKER_REMOVE_DANGLING_DESCRIPTION
+    );
+  }
+
   @Override
   public void execute(Parameters parameters) throws Exception {
-    File directory = new File((String) parameters.getSingleValue(this.getOption("p")));
+    File directory = new File((String) parameters.getSingleValue(this.getOption(PROJECT_PATH)));
     LOGGER.info("Building project in directory: " + directory);
 
     if (!directory.exists()) {
@@ -125,8 +148,11 @@ public class BuildCommand extends AbstractCommand {
 
     boolean isValid = validatePipeline(pipelineDockerFile);
 
+    boolean tagDockerImageWithPipelineVersion = parameters.hasFlag(this.getOption(TAG_WITH_VERSION));
+    boolean dockerRemoveDanglingImages = parameters.hasFlag(this.getOption(DOCKER_REMOVE_DANGLING));
+
     if (isValid) {
-      buildDockerImage(directory, imageName, dockerFile);
+      buildDockerImage(directory, imageName, dockerFile, tagDockerImageWithPipelineVersion, dockerRemoveDanglingImages);
     }
   }
 
@@ -165,25 +191,64 @@ public class BuildCommand extends AbstractCommand {
   }
 
   private void buildDockerImage(
-    File directory, String imageName, File dockerFile
-  )
-    throws IOException, InterruptedException {
+    File directory, String imageName, File dockerFile, boolean tagDockerImageWithPipelineVersion,
+    boolean dockerRemoveDanglingImages
+  ) throws IOException, InterruptedException {
     LOGGER.info("Building docker image (dockerfile: " + dockerFile + ")");
+
+    String versionTag = versionTag(directory, imageName, tagDockerImageWithPipelineVersion);
+
     Process p = Runtime.getRuntime().exec(new String[] {
-      "/bin/bash", "-c", "docker build -t " + imageName + " " + directory.getAbsolutePath()
+      "/bin/bash", "-c", "docker build -t " + imageName + " " + versionTag + directory.getAbsolutePath()
     });
-    redirectOutputToLogger(p);
+    Thread stdoutThreads = redirectOutputToLogger(p);
 
     int returnValue = p.waitFor();
+    stdoutThreads.join();
+
     if (returnValue != 0) {
       LOGGER.severe("Docker build has returned a non-zero value: " + returnValue);
       System.exit(1);
-    } {
+    } else {
       LOGGER.info("Docker image has been built properly");
+    }
+
+    if (dockerRemoveDanglingImages) {
+      Process p2 = Runtime.getRuntime().exec(new String[] {
+        "/bin/bash", "-c",
+        "IMAGES=$(docker images -f \"dangling=true\" -q); if [ ! -z \"$IMAGES\" ]; then docker rmi $IMAGES; fi"
+      });
+
+      int returnValue2 = p2.waitFor();
+
+      if (returnValue2 != 0) {
+        LOGGER.severe("Docker rmi command has returned a non-zero value: " + returnValue);
+        System.exit(1);
+      } else {
+        LOGGER.info("Docker remove dangling images command succeeded");
+      }
     }
   }
 
-  private void redirectOutputToLogger(Process p) {
+  private String versionTag(File directory, String imageName, boolean tagDockerImageWithPipelineVersion) {
+    if (!tagDockerImageWithPipelineVersion) {
+      return "";
+    }
+
+    CompiProjectDirectory compiProjectDir = new CompiProjectDirectory(directory);
+
+    String version = null;
+    try {
+      version = compiProjectDir.getPipelineVersion();
+    } catch (IllegalArgumentException | IOException | PipelineValidationException e1) {
+      e1.printStackTrace();
+      System.exit(1);
+    }
+
+    return "-t " + imageName + ":" + version + " ";
+  }
+
+  private Thread redirectOutputToLogger(Process p) {
     Thread stdoutThread = new Thread(() -> {
       try (Scanner sc = new Scanner(p.getInputStream())) {
         while (sc.hasNextLine()) {
@@ -203,6 +268,17 @@ public class BuildCommand extends AbstractCommand {
     });
     stderrThread.setName("Docker stderr");
     stderrThread.start();
+
+    Thread stdoutsThread = new Thread(() -> {
+      try {
+        stdoutThread.join();
+        stderrThread.join();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    });
+    stdoutsThread.start();
+    return stdoutsThread;
   }
 
   private static class MainMethodRunner {

@@ -98,8 +98,8 @@ public class HubInitCommand extends AbstractCommand {
 
   @Override
   public void execute(final Parameters parameters) throws Exception {
-    File directory = new File((String) parameters.getSingleValue(this.getOption("p")));
-    LOGGER.info("Building project in directory: " + directory);
+    File directory = new File((String) parameters.getSingleValue(this.getOption(PROJECT_PATH)));
+    LOGGER.info("Initializing pipeline at compi-hub from directory: " + directory);
 
     if (!directory.exists()) {
       LOGGER.severe("Directory " + directory + " does not exist");

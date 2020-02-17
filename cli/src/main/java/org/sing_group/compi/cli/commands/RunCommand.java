@@ -408,6 +408,8 @@ public class RunCommand extends AbstractCommand {
     }
 
     CompiRunConfiguration configuration = builder.build();
+    configuration.setPipelineFile(new File(pipelineFile));
+    
     return configuration;
   }
 

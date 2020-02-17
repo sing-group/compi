@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.sing_group.compi.core.CompiTaskAbortedException;
+
 /**
  * Definition of a compi pipeline task.
  * 
@@ -52,6 +54,7 @@ public class Task implements Cloneable {
   private File stdOutLogFile, stdErrLogFile;
   private Pipeline pipeline;
   private TaskMetadata metadata;
+  private CompiTaskAbortedException abortionCause;
 
   public Task(Pipeline pipeline) {
     this.pipeline = pipeline;
@@ -153,8 +156,13 @@ public class Task implements Cloneable {
     return isAborted;
   }
 
-  public void setAborted(final boolean isAborted) {
+  public void setAborted(final boolean isAborted, CompiTaskAbortedException abortionCause) {
     this.isAborted = isAborted;
+    this.abortionCause = abortionCause;
+  }
+  
+  public CompiTaskAbortedException getAbortionCause() {
+    return abortionCause;
   }
 
   public boolean isSkipped() {

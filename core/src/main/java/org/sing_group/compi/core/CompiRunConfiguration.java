@@ -22,7 +22,10 @@ package org.sing_group.compi.core;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.sing_group.compi.core.pipeline.Pipeline;
 import org.sing_group.compi.core.resolver.VariableResolver;
@@ -41,6 +44,7 @@ import org.sing_group.compi.core.resolver.VariableResolver;
  */
 public class CompiRunConfiguration {
   private Pipeline pipeline;
+  private File pipelineFile;
   private int maxTasks = 6;
   private VariableResolver resolver;
   private File paramsFile;
@@ -56,12 +60,72 @@ public class CompiRunConfiguration {
   private List<String> doNotLogTasks;
   private boolean showStdOuts = false;
 
+  public static final String CONFIGURATION_VARIABLES_PREFIX = "COMPI_";
+
+  public Map<String, String> asMap() {
+    final Map<String, String> asMap = new LinkedHashMap<>();
+    asMap.put(
+      CONFIGURATION_VARIABLES_PREFIX + "PIPELINE_FILE",
+      (this.getPipelineFile() == null) ? "" : this.getPipelineFile().toString()
+    );
+    asMap.put(
+      CONFIGURATION_VARIABLES_PREFIX + "PARAMS_FILE",
+      (this.getParamsFile() == null) ? "" : this.getParamsFile().toString()
+    );
+    asMap.put(
+      CONFIGURATION_VARIABLES_PREFIX + "RUNNERS_FILE",
+      (this.getRunnersFile() == null) ? "" : this.getRunnersFile().toString()
+    );
+
+    asMap.put(CONFIGURATION_VARIABLES_PREFIX + "MAX_TASKS", "" + this.getMaxTasks());
+
+    asMap
+      .put(CONFIGURATION_VARIABLES_PREFIX + "BEFORE_TASK", (this.getBeforeTask() == null) ? "" : this.getBeforeTask());
+    asMap.put(CONFIGURATION_VARIABLES_PREFIX + "UNTIL_TASK", (this.getUntilTask() == null) ? "" : this.getUntilTask());
+    asMap.put(
+      CONFIGURATION_VARIABLES_PREFIX + "AFTER_TASKS", (this.getAfterTasks() == null) ? ""
+        : this.getAfterTasks().stream().map(Object::toString).collect(Collectors.joining(",")).toString()
+    );
+    asMap.put(
+      CONFIGURATION_VARIABLES_PREFIX + "FROM_TASKS", (this.getFromTasks() == null) ? ""
+        : this.getFromTasks().stream().map(Object::toString).collect(Collectors.joining(",")).toString()
+    );
+    asMap
+      .put(CONFIGURATION_VARIABLES_PREFIX + "SINGLE_TASK", (this.getSingleTask() == null) ? "" : this.getSingleTask());
+
+    asMap.put(CONFIGURATION_VARIABLES_PREFIX + "SHOW_STD_OUTS", "" + this.isShowStdOuts());
+    asMap.put(
+      CONFIGURATION_VARIABLES_PREFIX + "LOGS_DIR", (this.getLogsDir() == null) ? "" : this.getLogsDir().toString()
+    );
+    asMap.put(CONFIGURATION_VARIABLES_PREFIX + "OVERWRITE_LOGS", "" + this.isOverwriteLogs());
+    asMap
+      .put(
+        CONFIGURATION_VARIABLES_PREFIX + "DO_NOT_LOG_TASKS", (this.getDoNotLogTasks() == null) ? ""
+          : this.getDoNotLogTasks().stream().map(Object::toString).collect(Collectors.joining(",")).toString()
+      );
+    asMap
+      .put(
+        CONFIGURATION_VARIABLES_PREFIX + "LOG_ONLY_TASKS", (this.getLogOnlyTasks() == null) ? ""
+          : this.getLogOnlyTasks().stream().map(Object::toString).collect(Collectors.joining(",")).toString()
+      );
+
+    return asMap;
+  }
+
   public Pipeline getPipeline() {
     return pipeline;
   }
 
   public void setPipeline(Pipeline pipeline) {
     this.pipeline = pipeline;
+  }
+
+  public File getPipelineFile() {
+    return pipelineFile;
+  }
+
+  public void setPipelineFile(File pipelineFile) {
+    this.pipelineFile = pipelineFile;
   }
 
   public int getMaxTasks() {
@@ -167,11 +231,11 @@ public class CompiRunConfiguration {
   public void setOverwriteLogs(boolean overwriteLogs) {
     this.overwriteLogs = overwriteLogs;
   }
-  
+
   public void setShowStdOuts(boolean showStdOuts) {
     this.showStdOuts = showStdOuts;
   }
-  
+
   public boolean isShowStdOuts() {
     return showStdOuts;
   }
@@ -264,12 +328,12 @@ public class CompiRunConfiguration {
       this.config.overwriteLogs = true;
       return this;
     }
-    
+
     public Builder whichShowsStdOuts() {
       this.config.showStdOuts = true;
       return this;
     }
-    
+
     public CompiRunConfiguration build() {
       return config;
     }
