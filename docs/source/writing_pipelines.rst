@@ -188,6 +188,7 @@ In addition, ``<task>`` elements contain the following attributes:
 |              | pipeline XML file) that contains the task code. |           |
 +--------------+-------------------------------------------------+-----------+
 
+
 Parallel iterative tasks: the ``<foreach>`` element
 ---------------------------------------------------
 
@@ -220,6 +221,42 @@ etc.)
 | as           | Name of the loop parameter to use in the task   |   YES     |
 |              | code.                                           |           |
 +--------------+-------------------------------------------------+-----------+
+
+Here it is an example:
+
+.. code-block:: xml
+
+  <!-- samples is a parameter with values such as 
+  "case-1,case-2,control-1,control-2" -->
+  <foreach of="param" in="samples" as="sample">
+    analyze.sh ${sample}.csv
+  </foreach>          
+
+
+Iteration dependencies between `foreach` tasks
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+You can define a "iteration dependency" between two ``foreach`` tasks, so that
+the first iteration of the dependant ``foreach`` waits only for the first iteration
+of the ``foreach`` which is depending on. For example:
+
+.. code-block:: xml
+
+  <!-- samples is a parameter with values such as 
+  "case-1,case-2,control-1,control-2" -->
+  <foreach id="foreach1">
+  </foreach>        
+  <foreach id="foreach2" after="*foreach1">
+  </foreach>        
+
+
+Please note the ``*`` in ``after="*foreach1"``, which indicates that the iterations
+of the second ``foreach`` will wait only for their respective iteration of the
+first ``foreach``. 
+
+.. note::
+    It is mandatory that all ``foreach`` tasks have the same number of iterations
+    if you want to establish an "iteration dependency" between them.
+  
 
 Defining tasks metadata
 =======================
