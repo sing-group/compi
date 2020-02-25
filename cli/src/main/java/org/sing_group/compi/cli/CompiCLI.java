@@ -44,8 +44,8 @@ import es.uvigo.ei.sing.yacli.command.Command;
  * <li>1º pipeline xml file (mandatory)</li>
  * <li>2º params xml file (optional)</li>
  * <li>3º number of threads (mandatory)</li>
- * <li>4º the task ID where you want to start (If there is not a correct ID,
- * it will not skip any task). (optional)</li>
+ * <li>4º the task ID where you want to start (If there is not a correct ID, it
+ * will not skip any task). (optional)</li>
  * </ul>
  * Example:
  * 
@@ -55,63 +55,64 @@ import es.uvigo.ei.sing.yacli.command.Command;
  */
 public abstract class CompiCLI extends CLIApplication {
 
-	static {
-		configureLog();
-	}
+  static {
+    configureLog();
+  }
 
-	public CompiCLI() {
-		super(true, true, false);
-	}
+  public CompiCLI() {
+    super(true, true, false);
+  }
 
-	@Override
-	protected List<Command> buildCommands() {
-		final List<Command> commands = new ArrayList<>();
-		commands.add(new RunCommand(getCommandLineArgs()));
-		commands.add(new ValidatePipelineCommand());
-		commands.add(new ExportGraphCommand());
-		commands.add(new HelpTaskCommand(getCommandLineArgs()));
+  @Override
+  protected List<Command> buildCommands() {
+    final List<Command> commands = new ArrayList<>();
+    commands.add(new RunCommand(getCommandLineArgs()));
+    commands.add(new ValidatePipelineCommand());
+    commands.add(new ExportGraphCommand());
+    commands.add(new HelpTaskCommand(getCommandLineArgs()));
 
-		return commands;
-	}
+    return commands;
+  }
 
-	@Override
-	protected String getApplicationCommand() {
-		return "compi";
-	}
+  @Override
+  protected String getApplicationCommand() {
+    return "compi";
+  }
 
-	@Override
-	protected String getApplicationVersion() {
-		return getCompiVersion();
-	}
+  @Override
+  protected String getApplicationVersion() {
+    return getCompiVersion();
+  }
 
-	@Override
-	protected String getApplicationName() {
-		return "Compi App (version " + getCompiVersion() + ")";
-	}
+  @Override
+  protected String getApplicationName() {
+    return "Compi App (version " + getCompiVersion() + ")";
+  }
 
-	private static void configureLog() {
-		InputStream stream = CompiCLI.class.getClassLoader()
-			.getResourceAsStream("logging.properties");
-		try {
-			LogManager.getLogManager().readConfiguration(stream);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static CompiCLI newCompiCLI(String[] args) {
-		return new CompiCLI() {
-			String[] getCommandLineArgs() {
-				return args;
-			}
-		};
-	}
+  private static void configureLog() {
+    InputStream stream =
+      CompiCLI.class.getClassLoader()
+        .getResourceAsStream("logging.properties");
+    try {
+      LogManager.getLogManager().readConfiguration(stream);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
-	abstract String[] getCommandLineArgs();
+  public static CompiCLI newCompiCLI(String[] args) {
+    return new CompiCLI() {
+      String[] getCommandLineArgs() {
+        return args;
+      }
+    };
+  }
 
-	public static void main(final String[] args) {
-		CompiCLI compiCLI = newCompiCLI(args);
+  abstract String[] getCommandLineArgs();
 
-		compiCLI.run(getCompiParameters(args));
-	}
+  public static void main(final String[] args) {
+    CompiCLI compiCLI = newCompiCLI(args);
+
+    compiCLI.run(getCompiParameters(args));
+  }
 }

@@ -29,19 +29,21 @@ import org.sing_group.compi.core.resolver.VariableResolver;
 
 public class ParameterLoopValuesGenerator extends AbstractLoopValuesGenerator {
 
-	public ParameterLoopValuesGenerator(VariableResolver resolver, Foreach foreach) {
-		super(resolver, foreach);
-	}
-	
-	@Override
-	public List<String> getValues(String source) {
-		String variableValue = resolver.resolveVariable(source);
-		if (variableValue == null) {
-			throw new IllegalArgumentException("Variable "+source+" is not defined");
-		}
-		return asList(resolver.resolveVariable(source).split(","));
-	}
+  public ParameterLoopValuesGenerator(VariableResolver resolver, Foreach foreach) {
+    super(resolver, foreach);
+  }
 
   @Override
-  protected List<String> getValuesFromResolvedSource(String source) { return null; }
+  public List<String> getValues(String source) {
+    String variableValue = resolver.resolveVariable(source);
+    if (variableValue == null) {
+      throw new IllegalArgumentException("Variable " + source + " is not defined");
+    }
+    return asList(resolver.resolveVariable(source).split(","));
+  }
+
+  @Override
+  protected List<String> getValuesFromResolvedSource(String source) {
+    return null;
+  }
 }

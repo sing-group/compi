@@ -62,9 +62,8 @@ public class TemplateProcessor {
       ve.getTemplate(
         File.separator
           + getClass().getPackage().getName().replace('.', File.separatorChar) + File.separator + templateName
-        );
-        return dockerFileTemplate;
+      );
+    return dockerFileTemplate;
   }
-
 
 }

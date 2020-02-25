@@ -109,7 +109,8 @@ public class Pipeline {
   /**
    * Returns the {@link ParameterDescription} for a given a parameter name
    *
-   * @param parameterName the parameter name
+   * @param parameterName
+   *          the parameter name
    * @return the parameter description, null if it is not available
    */
   public ParameterDescription getParameterDescription(String parameterName) {

@@ -42,7 +42,7 @@ public class CommandLoopValuesGenerator extends AbstractLoopValuesGenerator {
     try {
 
       Process p = new ProcessBuilder(createShellCommand(source)).start();
-      
+
       Thread t = new Thread(() -> {
         try (Scanner sc = new Scanner(p.getInputStream())) {
           while (sc.hasNextLine()) {

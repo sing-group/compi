@@ -70,8 +70,8 @@ public class ExportGraphCommand extends AbstractCommand {
   private static final String LINE_WIDTH = "lw";
   private static final String TASK_STYLES = "te";
   private static final String TASK_COLORS = "tc";
-  private static final String PARAMS_INCLUDE_TASKS ="it";
-  private static final String PARAMS_EXCLUDE_TASKS ="et";
+  private static final String PARAMS_INCLUDE_TASKS = "it";
+  private static final String PARAMS_EXCLUDE_TASKS = "et";
 
   private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;
   private static final String OUTPUT_FILE_LONG = "output";
@@ -85,8 +85,8 @@ public class ExportGraphCommand extends AbstractCommand {
   private static final String LINE_WIDTH_LONG = "line-width";
   private static final String TASK_STYLES_LONG = "task-styles";
   private static final String TASK_COLORS_LONG = "task-colors";
-  private static final String PARAMS_INCLUDE_TASKS_LONG ="include-task-params";
-  private static final String PARAMS_EXCLUDE_TASKS_LONG ="exclude-task-params";
+  private static final String PARAMS_INCLUDE_TASKS_LONG = "include-task-params";
+  private static final String PARAMS_EXCLUDE_TASKS_LONG = "exclude-task-params";
 
   private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
   private static final String OUTPUT_FILE_DESCRIPTION = "output file";
@@ -94,30 +94,38 @@ public class ExportGraphCommand extends AbstractCommand {
     "graph format. Values: " + getOutputformatValues();
   private static final String GRAPH_ORIENTATION_DESCRIPTION =
     "graph orientation. Values: " + getGraphOrientationValues();
-  private static final String GRAPH_WIDTH_DESCRIPTION = "graph width. By default, no width is used so the graph takes "
-    + "the minimum required. This option is incompatible with --" + GRAPH_HEIGHT_LONG;
-  private static final String GRAPH_HEIGHT_DESCRIPTION = "graph height. By default, no height is used so the graph "
-    + "takes the minimum required. This option is incompatible with --" + GRAPH_WITH_LONG;
+  private static final String GRAPH_WIDTH_DESCRIPTION =
+    "graph width. By default, no width is used so the graph takes "
+      + "the minimum required. This option is incompatible with --" + GRAPH_HEIGHT_LONG;
+  private static final String GRAPH_HEIGHT_DESCRIPTION =
+    "graph height. By default, no height is used so the graph "
+      + "takes the minimum required. This option is incompatible with --" + GRAPH_WITH_LONG;
   private static final String GRAPH_FONT_SIZE_DESCRIPTION = "graph font size";
-  private static final String DRAW_PIPELINE_PARAMS_DESCRIPTION = "use this flag to draw one node for each pipeline "
-    + "parameter. Each parameter node will be connected to the tasks using them. This flag is incompatible with --"
-    + DRAW_TASK_PARAMS_LONG;
-  private static final String DRAW_TASK_PARAMS_DESCRIPTION = "use this flag to draw one node for each task with all the"
-    + " task parameters. This flag is incompatible with --" + DRAW_PIPELINE_PARAMS_LONG;
+  private static final String DRAW_PIPELINE_PARAMS_DESCRIPTION =
+    "use this flag to draw one node for each pipeline "
+      + "parameter. Each parameter node will be connected to the tasks using them. This flag is incompatible with --"
+      + DRAW_TASK_PARAMS_LONG;
+  private static final String DRAW_TASK_PARAMS_DESCRIPTION =
+    "use this flag to draw one node for each task with all the"
+      + " task parameters. This flag is incompatible with --" + DRAW_PIPELINE_PARAMS_LONG;
   private static final String LINE_WIDTH_DESCRIPTION = "the line width of the graph nodes";
-  private static final String TASK_STYLES_DESCRIPTION = "the styles to the draw the task nodes. Use the following "
-    + "format: task-id-1:style;task-id-2,task-id-3:style. Possible values for styles: " + getTaskStylesValues();
-  private static final String TASK_COLORS_DESCRIPTION = "the colors to the draw the task nodes. Colors must be "
-    + "specified using their corresponding hexadecimal codes. Use the following format: "
-    + "task-id-1:color;task-id-2,task-id-3:color";
-  private static final String PARAMS_INCLUDE_TASKS_DESCRIPTION = "when draw parameters options (" 
-    + DRAW_PIPELINE_PARAMS_LONG + " or " + DRAW_TASK_PARAMS_LONG + ") are used, this option specifies the tasks for "
-    + "which parameter nodes should be created or parameters should be linked to. Task identifiers must be separated "
-    + "by commas. This option is incompatible with --" + PARAMS_EXCLUDE_TASKS_LONG;
-  private static final String PARAMS_EXCLUDE_TASKS_DESCRIPTION = "when draw parameters options (" 
-    + DRAW_PIPELINE_PARAMS_LONG + " or " + DRAW_TASK_PARAMS_LONG + ") are used, this option specifies the tasks for "
-    + "which parameter nodes should not be created or parameters should not be linked to. Task identifiers must be "
-    + "separated by commas. This option is incompatible with --" + PARAMS_INCLUDE_TASKS_LONG;
+  private static final String TASK_STYLES_DESCRIPTION =
+    "the styles to the draw the task nodes. Use the following "
+      + "format: task-id-1:style;task-id-2,task-id-3:style. Possible values for styles: " + getTaskStylesValues();
+  private static final String TASK_COLORS_DESCRIPTION =
+    "the colors to the draw the task nodes. Colors must be "
+      + "specified using their corresponding hexadecimal codes. Use the following format: "
+      + "task-id-1:color;task-id-2,task-id-3:color";
+  private static final String PARAMS_INCLUDE_TASKS_DESCRIPTION =
+    "when draw parameters options ("
+      + DRAW_PIPELINE_PARAMS_LONG + " or " + DRAW_TASK_PARAMS_LONG + ") are used, this option specifies the tasks for "
+      + "which parameter nodes should be created or parameters should be linked to. Task identifiers must be separated "
+      + "by commas. This option is incompatible with --" + PARAMS_EXCLUDE_TASKS_LONG;
+  private static final String PARAMS_EXCLUDE_TASKS_DESCRIPTION =
+    "when draw parameters options ("
+      + DRAW_PIPELINE_PARAMS_LONG + " or " + DRAW_TASK_PARAMS_LONG + ") are used, this option specifies the tasks for "
+      + "which parameter nodes should not be created or parameters should not be linked to. Task identifiers must be "
+      + "separated by commas. This option is incompatible with --" + PARAMS_INCLUDE_TASKS_LONG;
 
   private static final String DEFAULT_OUTPUT_FORMAT_STRING = DEFAULT_OUTPUT_FORMAT.toString().toLowerCase();
 
@@ -132,7 +140,7 @@ public class ExportGraphCommand extends AbstractCommand {
     }
 
     LOGGER.info("Pipeline file - " + pipelineFile);
-    
+
     List<ValidationError> errors = new PipelineValidator(pipelineFile).validate();
     ValidatePipelineCommand.logValidationErrors(errors, LOGGER);
 
@@ -243,17 +251,22 @@ public class ExportGraphCommand extends AbstractCommand {
       );
     } else if (hasDrawPipelineParams || hasDrawTaskParams) {
       if (hasIncludeParamsTasks) {
-        List<String> tasksToIncludeParams = parseTasksList(parameters.getSingleValue(super.getOption(PARAMS_INCLUDE_TASKS)));
+        List<String> tasksToIncludeParams =
+          parseTasksList(parameters.getSingleValue(super.getOption(PARAMS_INCLUDE_TASKS)));
         graphExporterBuilder = graphExporterBuilder.tasksToIncludeParams(tasksToIncludeParams);
         LOGGER.info("Draw parameters only for these tasks: " + tasksToIncludeParams.stream().collect(joining(", ")));
       } else if (hasExcludeParamsTasks) {
-        List<String> tasksToExcludeParams = parseTasksList(parameters.getSingleValue(super.getOption(PARAMS_EXCLUDE_TASKS)));
+        List<String> tasksToExcludeParams =
+          parseTasksList(parameters.getSingleValue(super.getOption(PARAMS_EXCLUDE_TASKS)));
         graphExporterBuilder = graphExporterBuilder.tasksToExcludeParams(tasksToExcludeParams);
-        LOGGER.info("Tasks for which parameters are not shown: " + tasksToExcludeParams.stream().collect(joining(", ")));
+        LOGGER
+          .info("Tasks for which parameters are not shown: " + tasksToExcludeParams.stream().collect(joining(", ")));
       } else {
         if (hasIncludeParamsTasks) {
-          LOGGER.warning("Ignoring --" + PARAMS_INCLUDE_TASKS_LONG + " because " + DRAW_PIPELINE_PARAMS_LONG + " or "
-            + DRAW_TASK_PARAMS_LONG + " are not present");
+          LOGGER.warning(
+            "Ignoring --" + PARAMS_INCLUDE_TASKS_LONG + " because " + DRAW_PIPELINE_PARAMS_LONG + " or "
+              + DRAW_TASK_PARAMS_LONG + " are not present"
+          );
         }
       }
     }
@@ -274,7 +287,7 @@ public class ExportGraphCommand extends AbstractCommand {
       String taskStyles = parameters.getSingleValueString(super.getOption(TASK_STYLES));
       graphExporterBuilder = graphExporterBuilder.taskStyles(parseTaskStyles(taskStyles));
     }
- 
+
     graphExporterBuilder.build().export();
   }
 
@@ -394,7 +407,7 @@ public class ExportGraphCommand extends AbstractCommand {
     return new StringOption(
       PARAMS_EXCLUDE_TASKS_LONG, PARAMS_EXCLUDE_TASKS,
       PARAMS_EXCLUDE_TASKS_DESCRIPTION, true, true, false
-      );
+    );
   }
 
   private Option<?> getNodeStylesOption() {

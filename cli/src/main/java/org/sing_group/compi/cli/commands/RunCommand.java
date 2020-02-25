@@ -170,7 +170,8 @@ public class RunCommand extends AbstractCommand {
 
     if (!pipelineFile.exists()) {
       throw new IllegalArgumentException(
-        "Pipeline file not found: " + pipelineFileName);
+        "Pipeline file not found: " + pipelineFileName
+      );
     }
 
     if (hasSingleTask && (hasFrom || hasAfter || hasUntilTask || hasBeforeTask)) {
@@ -294,7 +295,7 @@ public class RunCommand extends AbstractCommand {
         });
         return;
       }
-      
+
       LOGGER.info("Compi running with: ");
       LOGGER.info("Pipeline file - " + pipelineFile);
       LOGGER.info("Max number of parallel tasks - " + compiThreads);
@@ -306,7 +307,7 @@ public class RunCommand extends AbstractCommand {
       if (runnersFile != null) {
         LOGGER.info("Runners file - " + runnersFile);
       }
-      
+
       if (singleTask != null) {
         LOGGER.info("Running single task - " + singleTask);
       }
@@ -314,7 +315,7 @@ public class RunCommand extends AbstractCommand {
       if (fromTasks != null) {
         LOGGER.info("Running from task(s) - " + fromTasks.stream().collect(joining(", ")));
       }
-      
+
       if (afterTasks != null) {
         LOGGER.info("Running after task(s) - " + afterTasks.stream().collect(joining(", ")));
       }
@@ -322,11 +323,11 @@ public class RunCommand extends AbstractCommand {
       if (untilTask != null) {
         LOGGER.info("Running until task - " + untilTask);
       }
-      
+
       if (beforeTask != null) {
         LOGGER.info("Running tasks before task - " + beforeTask);
       }
-      
+
       if (logsDir != null) {
         LOGGER.info("Logging task's output to dir - " + logsDir);
       }
@@ -409,7 +410,7 @@ public class RunCommand extends AbstractCommand {
 
     CompiRunConfiguration configuration = builder.build();
     configuration.setPipelineFile(new File(pipelineFile));
-    
+
     return configuration;
   }
 

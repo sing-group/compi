@@ -33,27 +33,27 @@ import org.xml.sax.SAXParseException;
  */
 public class SimpleErrorHandler implements ErrorHandler {
 
-	/**
-	 * Prints a {@link SAXParseException} warning
-	 */
-	@Override
-	public void warning(final SAXParseException exception) throws SAXException {
-		exception.printStackTrace();
-	}
+  /**
+   * Prints a {@link SAXParseException} warning
+   */
+  @Override
+  public void warning(final SAXParseException exception) throws SAXException {
+    exception.printStackTrace();
+  }
 
-	/**
-	 * Throws a {@link SAXParseException} exception when a fatal error occurs
-	 */
-	@Override
-	public void fatalError(final SAXParseException exception) throws SAXException {
-		throw exception;
-	}
+  /**
+   * Throws a {@link SAXParseException} exception when a fatal error occurs
+   */
+  @Override
+  public void fatalError(final SAXParseException exception) throws SAXException {
+    throw exception;
+  }
 
-	/**
-	 * Throws a {@link SAXParseException} exception when an error occurs
-	 */
-	@Override
-	public void error(final SAXParseException exception) throws SAXException {
-		throw exception;
-	}
+  /**
+   * Throws a {@link SAXParseException} exception when an error occurs
+   */
+  @Override
+  public void error(final SAXParseException exception) throws SAXException {
+    throw exception;
+  }
 }

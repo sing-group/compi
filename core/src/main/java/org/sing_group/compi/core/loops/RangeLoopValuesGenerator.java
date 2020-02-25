@@ -48,7 +48,8 @@ public class RangeLoopValuesGenerator extends AbstractLoopValuesGenerator {
   /**
    * Splits all the values in the task source tag
    * 
-   * @param source Indicates the content of the task source tag
+   * @param source
+   *          Indicates the content of the task source tag
    */
   @Override
   protected List<String> getValuesFromResolvedSource(String source) {
@@ -62,7 +63,7 @@ public class RangeLoopValuesGenerator extends AbstractLoopValuesGenerator {
       int startInclusive = valueOf(sourceStrings[0].trim());
       int endInclusive = valueOf(sourceStrings[1].trim());
 
-      if(startInclusive > endInclusive) {
+      if (startInclusive > endInclusive) {
         throw new IllegalArgumentException("Range start must be equal or greater than range end");
       }
       this.toExecute.addAll(rangeClosed(startInclusive, endInclusive).mapToObj(Integer::toString).collect(toList()));

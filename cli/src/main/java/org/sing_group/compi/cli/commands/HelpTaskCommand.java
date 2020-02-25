@@ -73,9 +73,10 @@ public class HelpTaskCommand extends AbstractCommand {
 
     Pipeline pipelineObject = createPipelineParser().parsePipeline(pipelineFile);
 
-    Optional<Task> task = pipelineObject.getTasks().stream()
-      .filter(t -> t.getId().equals(taskId))
-      .findFirst();
+    Optional<Task> task =
+      pipelineObject.getTasks().stream()
+        .filter(t -> t.getId().equals(taskId))
+        .findFirst();
 
     if (!task.isPresent()) {
       LOGGER.warning("The specified task id (" + taskId + ") is not defined in the pipeline");

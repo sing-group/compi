@@ -27,13 +27,12 @@ public class DecoratedVariableResolver implements VariableResolver {
 
   private VariableResolver innerResolver;
 
-  public DecoratedVariableResolver() {
-  }
-  
+  public DecoratedVariableResolver() {}
+
   public DecoratedVariableResolver(VariableResolver innerResolver) {
     this.innerResolver = innerResolver;
   }
-  
+
   @Override
   public String resolveVariable(String variable) throws IllegalArgumentException {
     if (this.innerResolver == null) {
@@ -41,7 +40,7 @@ public class DecoratedVariableResolver implements VariableResolver {
     }
     return this.innerResolver.resolveVariable(variable);
   }
-  
+
   @Override
   public Set<String> getVariableNames() {
     if (this.innerResolver == null) {

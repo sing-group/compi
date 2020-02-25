@@ -43,7 +43,7 @@ public class DOMRunnersParser implements RunnersParser {
   public Runners parseXML(File f) throws IllegalArgumentException, IOException {
     try {
       String schemaVersion = XmlSchemaValidation.getSchemaVersion(f.toString());
-      XmlSchemaValidation.validateXmlSchema(f.toString(), "xsd/runners-"+schemaVersion+".xsd");
+      XmlSchemaValidation.validateXmlSchema(f.toString(), "xsd/runners-" + schemaVersion + ".xsd");
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
       DocumentBuilder db;
       db = dbf.newDocumentBuilder();
@@ -58,7 +58,7 @@ public class DOMRunnersParser implements RunnersParser {
           runner.setTasks(runnerElement.getAttribute("tasks"));
         }
         runner.setRunnerCode(runnerElement.getTextContent());
-        
+
         runnersList.add(runner);
       }
 

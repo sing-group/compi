@@ -74,10 +74,10 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
     RunSpecificPipelineCommand.config = config;
     RunSpecificPipelineCommand.paramsFile = config.getParamsFile();
     /**
-     * It is necessary to store the params file in a variable and remove it from the 
-     * configuration in order to avoid that the CompiApp class uses it by creating a
-     * ParamsFileVariableResolver. By removing it, we will force the CompiApp to use
-     * the proxy variable resolver created here.
+     * It is necessary to store the params file in a variable and remove it from
+     * the configuration in order to avoid that the CompiApp class uses it by
+     * creating a ParamsFileVariableResolver. By removing it, we will force the
+     * CompiApp to use the proxy variable resolver created here.
      */
     config.setParamsFile(null);
 
@@ -140,21 +140,21 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
       @Override
       synchronized public void taskAborted(Task task, CompiTaskAbortedException e) {
         LOGGER.severe(
-          "X Aborted task " + task.getId() + ". Cause: " + e.getMessage() + getLogInfo(e) 
+          "X Aborted task " + task.getId() + ". Cause: " + e.getMessage() + getLogInfo(e)
         );
       }
 
       @Override
       public void taskIterationStarted(ForeachIteration iteration) {
         LOGGER.info(
-          ">> Started loop iteration of task " + iteration.getId() +" ("+iteration.getIterationValue()+")"
+          ">> Started loop iteration of task " + iteration.getId() + " (" + iteration.getIterationValue() + ")"
         );
       }
 
       @Override
       public void taskIterationFinished(ForeachIteration iteration) {
         LOGGER.info(
-          "<< Finished loop iteration of task " + iteration.getId() +" ("+iteration.getIterationValue()+")"
+          "<< Finished loop iteration of task " + iteration.getId() + " (" + iteration.getIterationValue() + ")"
         );
       }
 
@@ -166,36 +166,42 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
 
       }
 
-      private String getLogInfo(CompiTaskAbortedException e) {        
+      private String getLogInfo(CompiTaskAbortedException e) {
         StringBuilder builder = new StringBuilder();
-        
+
         if (e.getLastStdOut().size() > 0) {
           builder.append("\n");
-          builder.append("--- Last "+e.getLastStdOut().size()+" stdout lines ---\n");
+          builder.append("--- Last " + e.getLastStdOut().size() + " stdout lines ---\n");
           e.getLastStdOut().forEach(line -> {
-            builder.append(line+"\n");
+            builder.append(line + "\n");
           });
           builder.append("--- End of stdout lines ---\n");
         }
-        
+
         if (e.getLastStdErr().size() > 0) {
           builder.append("\n");
-          builder.append("--- Last "+e.getLastStdErr().size()+" stderr lines ---\n");
+          builder.append("--- Last " + e.getLastStdErr().size() + " stderr lines ---\n");
           e.getLastStdErr().forEach(line -> {
-            builder.append(line+"\n");
+            builder.append(line + "\n");
           });
           builder.append("--- End of stderr lines ---\n");
         }
-        
+
         if (e.getLastStdOut().size() > 0 && e.getTask().getStdOutLogFile() != null) {
-          builder.append("\nComplete stdout log file: "+e.getTask().getStdOutLogFile());
+          builder.append("\nComplete stdout log file: " + e.getTask().getStdOutLogFile());
         } else if (e.getLastStdOut().size() > 0) {
-          builder.append("\nTask "+e.getTask().getId()+" was not recording the complete stdout in a log file. Enable logging if you want and run again. ");
+          builder.append(
+            "\nTask " + e.getTask().getId()
+              + " was not recording the complete stdout in a log file. Enable logging if you want and run again. "
+          );
         }
         if (e.getLastStdErr().size() > 0 && e.getTask().getStdErrLogFile() != null) {
-          builder.append("\nComplete stderr log file: "+e.getTask().getStdErrLogFile());
+          builder.append("\nComplete stderr log file: " + e.getTask().getStdErrLogFile());
         } else if (e.getLastStdErr().size() > 0) {
-          builder.append("\nTask "+e.getTask().getId()+" was not recording the complete stderr in a log file. Enable logging if you want and run again. ");
+          builder.append(
+            "\nTask " + e.getTask().getId()
+              + " was not recording the complete stderr in a log file. Enable logging if you want and run again. "
+          );
         }
         return builder.toString();
       }
@@ -252,22 +258,23 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
     // options defined as CLI parameters
     RunSpecificPipelineCommand.this.getOptions().forEach((option) -> {
       if (
-          parameters
-            .hasOption(
-              option
-        ) && (!(option instanceof DefaultValuedOption)
-          ||
-          !((DefaultValuedOption<?>) option)
-            .getDefaultValue()
-            .equals(
-              parameters
-                .getSingleValue(
-                  option
-          )
-          ))
+        parameters
+          .hasOption(
+            option
+          ) && (!(option instanceof DefaultValuedOption)
+            ||
+            !((DefaultValuedOption<?>) option)
+              .getDefaultValue()
+              .equals(
+                parameters
+                  .getSingleValue(
+                    option
+                  )
+              ))
       ) {
-        
-        variables.put(option.getParamName(), option instanceof FlagOption? "yes": parameters.getSingleValueString(option));
+
+        variables
+          .put(option.getParamName(), option instanceof FlagOption ? "yes" : parameters.getSingleValueString(option));
       }
     });
 
@@ -304,7 +311,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
         List<OptionCategory> categories =
           tasks.stream().filter(task -> !task.isSkipped())
             .map(task -> new OptionCategory(task.getId())).collect(toList()
-        );
+            );
 
         if (categories.size() > 0) {
           if (description != null) {
@@ -312,44 +319,48 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
             if (categories.size() > 0) {
               Option<?> option = null;
               if (description.isFlag()) {
-                option = new FlagOption(
-                  categories, description.getName(), 
-                  description.getShortName(), 
-                  description.getDescription());
-              }
-              else if (description.getDefaultValue() != null) {
+                option =
+                  new FlagOption(
+                    categories, description.getName(),
+                    description.getShortName(),
+                    description.getDescription()
+                  );
+              } else if (description.getDefaultValue() != null) {
                 option =
                   new DefaultValuedStringOption(
                     categories, description.getName(),
                     description.getShortName(), description.getDescription(),
                     description.getDefaultValue()
-                    );
+                  );
               } else {
                 option =
                   new StringOption(
                     categories, description.getName(),
                     description.getShortName(), description.getDescription(),
                     paramsFileResolver != null
-                      && paramsFileResolver.resolveVariable(parameterName
-                ) != null ? true
-                  : false,
+                      && paramsFileResolver.resolveVariable(
+                        parameterName
+                      ) != null ? true
+                        : false,
                     true, false
-                    );
+                  );
               }
-              options.add(option
-          );
+              options.add(
+                option
+              );
             }
           } else {
             options.add(
               new StringOption(
                 categories, parameterName, parameterName, "",
                 paramsFileResolver != null
-                  && paramsFileResolver.resolveVariable(parameterName
-            ) != null ? true
-              : false,
+                  && paramsFileResolver.resolveVariable(
+                    parameterName
+                  ) != null ? true
+                    : false,
                 true, false
-                )
-                );
+              )
+            );
           }
         }
 
@@ -362,9 +373,10 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
   }
 
   private ParamsFileVariableResolver getParamsFileResolver() {
-    if(paramsFile != null) {
+    if (paramsFile != null) {
       return new ParamsFileVariableResolver(paramsFile);
-    } {
+    }
+    {
       return null;
     }
   }

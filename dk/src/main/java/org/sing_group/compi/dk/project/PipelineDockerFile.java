@@ -141,7 +141,7 @@ public class PipelineDockerFile {
     for (File file : directory.listFiles()) {
       if (file.isDirectory()) {
         File result = findFile(filter, file);
-        if(result != null) {
+        if (result != null) {
           return result;
         }
       } else if (filter.apply(file)) {

@@ -33,35 +33,35 @@ import es.uvigo.ei.sing.yacli.command.Command;
 
 public class CompiDKCLI extends CLIApplication {
 
-	static {
-		configureLog();
-	}
+  static {
+    configureLog();
+  }
 
-	@Override
-	protected List<Command> buildCommands() {
-		return asList(
-			new NewProjectCommand(), 
-			new BuildCommand(),
+  @Override
+  protected List<Command> buildCommands() {
+    return asList(
+      new NewProjectCommand(),
+      new BuildCommand(),
       new HubInitCommand(),
       new HubPushCommand(),
-			new HubMetadataCommand()
-		);
-	}
+      new HubMetadataCommand()
+    );
+  }
 
-	@Override
-	protected String getApplicationName() {
-		return "Compi Development Kit (version: " + getCompiDKVersion() + ")";
-	}
+  @Override
+  protected String getApplicationName() {
+    return "Compi Development Kit (version: " + getCompiDKVersion() + ")";
+  }
 
-	@Override
-	protected String getApplicationVersion() {
-		return getCompiDKVersion();
-	}
+  @Override
+  protected String getApplicationVersion() {
+    return getCompiDKVersion();
+  }
 
-	@Override
-	protected String getApplicationCommand() {
-		return "compi-dk";
-	}
+  @Override
+  protected String getApplicationCommand() {
+    return "compi-dk";
+  }
 
   private static void configureLog() {
     InputStream stream =
@@ -75,7 +75,7 @@ public class CompiDKCLI extends CLIApplication {
     }
   }
 
-	public static void main(String[] args) {
-		new CompiDKCLI().run(args);
-	}
+  public static void main(String[] args) {
+    new CompiDKCLI().run(args);
+  }
 }

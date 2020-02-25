@@ -50,10 +50,14 @@ public class XmlSchemaValidation {
   /**
    * Validates the XML file with the XSD file.
    * 
-   * @param xmlPath the path of the XML pipeline file
-   * @param xsdFile the XSD file
-   * @throws SAXException if there is an error in the XML parsing
-   * @throws IOException if an I/O exception of some sort has occurred
+   * @param xmlPath
+   *          the path of the XML pipeline file
+   * @param xsdFile
+   *          the XSD file
+   * @throws SAXException
+   *           if there is an error in the XML parsing
+   * @throws IOException
+   *           if an I/O exception of some sort has occurred
    */
   public static void validateXmlSchema(final String xmlPath, final String xsdFile) throws SAXException, IOException {
     final SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -66,10 +70,13 @@ public class XmlSchemaValidation {
   }
 
   /**
-   * Returns {@code true} if the specified XSD file exists and {@code false} otherwise.
+   * Returns {@code true} if the specified XSD file exists and {@code false}
+   * otherwise.
    * 
-   * @param xsdFile the XSD file
-   * @return {@code true} if the specified XSD file exists and {@code false} otherwise
+   * @param xsdFile
+   *          the XSD file
+   * @return {@code true} if the specified XSD file exists and {@code false}
+   *         otherwise
    */
   public static boolean existsSchema(final String xsdFile) {
     return XmlSchemaValidation.class.getClassLoader().getResource(xsdFile) != null;
@@ -78,11 +85,15 @@ public class XmlSchemaValidation {
   /**
    * Returns the schema name of a given XML (xmlns attribute in its root node).
    * 
-   * @param xmlPath the path of the XML pipeline file
+   * @param xmlPath
+   *          the path of the XML pipeline file
    * @return the xmlns attribute of the root node
-   * @throws FileNotFoundException if the pipeline file does not exist
-   * @throws SAXException if there is an error in the XML parsing
-   * @throws IOException if an I/O exception of some sort has occurred
+   * @throws FileNotFoundException
+   *           if the pipeline file does not exist
+   * @throws SAXException
+   *           if there is an error in the XML parsing
+   * @throws IOException
+   *           if an I/O exception of some sort has occurred
    */
   public static String getSchemaName(final String xmlPath) throws FileNotFoundException, SAXException, IOException {
     SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
@@ -114,11 +125,15 @@ public class XmlSchemaValidation {
   /**
    * Returns the schema version of a given XML.
    * 
-   * @param xmlPath the path of the XML pipeline file
+   * @param xmlPath
+   *          the path of the XML pipeline file
    * @return the schema version
-   * @throws FileNotFoundException if the pipeline file does not exist
-   * @throws SAXException if there is an error in the XML parsing
-   * @throws IOException if an I/O exception of some sort has occurred
+   * @throws FileNotFoundException
+   *           if the pipeline file does not exist
+   * @throws SAXException
+   *           if there is an error in the XML parsing
+   * @throws IOException
+   *           if an I/O exception of some sort has occurred
    */
   public static String getSchemaVersion(final String xmlPath) throws FileNotFoundException, SAXException, IOException {
     String schemaName = XmlSchemaValidation.getSchemaName(xmlPath.toString());

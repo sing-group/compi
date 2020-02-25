@@ -26,7 +26,7 @@ public class Dependency<T extends Task> {
 
   private T dependantTask;
   private T onTask;
-  
+
   public Dependency(T onTask, T dependantTask) {
     super();
     this.onTask = onTask;
@@ -40,9 +40,9 @@ public class Dependency<T extends Task> {
   public T getOnTask() {
     return onTask;
   }
-  
+
   @Override
   public String toString() {
-    return this.getOnTask()+" -> "+this.getDependantTask();
+    return this.getOnTask() + " -> " + this.getDependantTask();
   }
 }

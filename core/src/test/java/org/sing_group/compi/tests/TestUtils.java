@@ -32,29 +32,33 @@ public class TestUtils {
     Map<String, String> variables = new HashMap<>();
     return new MapVariableResolver(variables);
   }
-  
+
   public static VariableResolver resolverFor(String key, String value) {
     Map<String, String> variables = new HashMap<>();
     variables.put(key, value);
     return new MapVariableResolver(variables);
   }
-  
+
   public static VariableResolver resolverFor(String key, String value, String key2, String value2) {
     Map<String, String> variables = new HashMap<>();
     variables.put(key, value);
     variables.put(key2, value2);
     return new MapVariableResolver(variables);
   }
-  
-  public static VariableResolver resolverFor(String key, String value, String key2, String value2, String key3, String value3) {
+
+  public static VariableResolver resolverFor(
+    String key, String value, String key2, String value2, String key3, String value3
+  ) {
     Map<String, String> variables = new HashMap<>();
     variables.put(key, value);
     variables.put(key2, value2);
     variables.put(key3, value3);
     return new MapVariableResolver(variables);
   }
-  
-  public static VariableResolver resolverFor(String key, String value, String key2, String value2, String key3, String value3, String key4, String value4) {
+
+  public static VariableResolver resolverFor(
+    String key, String value, String key2, String value2, String key3, String value3, String key4, String value4
+  ) {
     Map<String, String> variables = new HashMap<>();
     variables.put(key, value);
     variables.put(key2, value2);

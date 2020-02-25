@@ -35,7 +35,7 @@ public class MapVariableResolver extends DecoratedVariableResolver {
     super(inner);
     this.variables = variables;
   }
-  
+
   public MapVariableResolver(VariableResolver inner) {
     super(inner);
   }
@@ -57,7 +57,7 @@ public class MapVariableResolver extends DecoratedVariableResolver {
     variableNames.addAll(super.getVariableNames());
     return variableNames;
   }
-  
+
   public void addVariable(String name, String value) {
     this.variables.put(name, value);
   }

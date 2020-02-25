@@ -43,7 +43,7 @@ public class PipelineValidationException extends Exception {
   public PipelineValidationException(List<ValidationError> errors) {
     super(errors.stream().map(e -> e.getMessage()).collect(Collectors.joining(", ")));
     this.errors = errors;
-    
+
   }
 
   public List<ValidationError> getErrors() {

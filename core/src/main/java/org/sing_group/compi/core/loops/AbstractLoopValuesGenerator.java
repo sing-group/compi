@@ -30,20 +30,20 @@ public abstract class AbstractLoopValuesGenerator implements LoopValuesGenerator
 
   protected VariableResolver resolver;
   private Foreach foreach;
-  
+
   public AbstractLoopValuesGenerator(VariableResolver resolver, Foreach foreach) {
     this.resolver = resolver;
     this.foreach = foreach;
   }
-  
+
   @Override
   public List<String> getValues(String source) {
     source = resolveCommandParameters(source);
     return this.getValuesFromResolvedSource(source);
   }
-  
+
   protected abstract List<String> getValuesFromResolvedSource(String source);
-  
+
   private String resolveCommandParameters(String source) {
     VariableResolverUtils resolverUtils = new VariableResolverUtils(this.resolver);
     String resolvedString = resolverUtils.resolveAllVariables(source, foreach);

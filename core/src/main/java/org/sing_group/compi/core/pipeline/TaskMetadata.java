@@ -23,7 +23,7 @@ package org.sing_group.compi.core.pipeline;
 public class TaskMetadata {
 
   public static final TaskMetadata EMPTY_METADATA;
-  
+
   static {
     EMPTY_METADATA = new TaskMetadata("");
   }

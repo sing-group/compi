@@ -203,9 +203,9 @@ public class CompiApp {
                   (task) -> {
                     return new DummyProcess();
                   }, null, null, false, this.config.isShowStdOuts()
-                  )
-                );
-                }
+                )
+              );
+            }
           } else {
             final File stdOut = getLogFile(taskToRun, ".out.log");
             final File stdErr = getLogFile(taskToRun, ".err.log");
@@ -213,9 +213,9 @@ public class CompiApp {
               new TaskRunnable(
                 taskToRun, this.executionHandler, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()),
                 stdOut, stdErr, false, this.config.isShowStdOuts()
-                )
-              );
-              }
+              )
+            );
+          }
         }
 
         if (taskManager.getRunnableTasks().isEmpty()) {
@@ -269,7 +269,7 @@ public class CompiApp {
             ? new File(
               this.config.getLogsDir() + File.separator + task.getId()
                 + (task instanceof ForeachIteration ? "_" + ((ForeachIteration) task).getIterationIndex() : "") + suffix
-              )
+            )
             : null;
     return stdOut;
   }
@@ -483,9 +483,9 @@ public class CompiApp {
           loopCounterOfTask.put(
             parent, new AtomicInteger(
               taskManager.getForeachIterations(parent).size()
-              )
-            );
-            }
+            )
+          );
+        }
         if (!iteration.isSkipped()) {
           this.notifyTaskIterationFinished(iteration);
         }
@@ -507,7 +507,7 @@ public class CompiApp {
         if (
           !iteration.getParentForeachTask().isAborted()
             && !foreachAbortedNotificationsSent.contains(iteration.getParentForeachTask())
-          ) {
+        ) {
           this.notifyTaskAborted(iteration.getParentForeachTask(), e);
           taskManager.setAborted(iteration.getParentForeachTask(), e);
           abortDependencies(iteration, e);
@@ -526,9 +526,9 @@ public class CompiApp {
               new CompiTaskAbortedException(
                 "Aborted because a dependency of this task has aborted (" + e.getTask().getId() + ")",
                 e, taskToAbort, new LinkedList<>(), new LinkedList<>()
-                )
-              );
-              }
+              )
+            );
+          }
           taskManager.setAborted(taskToAbort, e);
         }
       }

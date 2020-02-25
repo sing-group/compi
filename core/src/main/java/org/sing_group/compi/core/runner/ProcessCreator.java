@@ -32,14 +32,14 @@ import org.sing_group.compi.core.resolver.VariableResolverUtils;
 
 public interface ProcessCreator {
   public Process createProcess(Task t);
-  
+
   public static List<String> createShellCommand(String program) {
     final List<String> SHELL_COMMAND = asList("/bin/bash", "-c");
     List<String> commandsToExecute = new ArrayList<>(SHELL_COMMAND);
     commandsToExecute.add(program);
     return commandsToExecute;
   }
-  
+
   public static Process createProcess(String source, Task task, VariableResolver resolver) {
     try {
       ProcessBuilder builder =

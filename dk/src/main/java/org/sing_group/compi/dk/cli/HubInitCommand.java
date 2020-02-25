@@ -88,7 +88,7 @@ public class HubInitCommand extends AbstractCommand {
   private Option<?> getVisibleOption() {
     return new FlagOption("visible", "v", "Whether the pipeline is publicly visible or not");
   }
-  
+
   private Option<?> getForceOption() {
     return new FlagOption(
       "force", "f",
@@ -111,10 +111,10 @@ public class HubInitCommand extends AbstractCommand {
       LOGGER.severe("Compi project file does not exist: " + compiProjectFile);
       System.exit(1);
     }
-    
+
     PropertiesFileProjectConfiguration projectConfiguration = new PropertiesFileProjectConfiguration(compiProjectFile);
     boolean force = parameters.hasOption(super.getOption("force"));
-    
+
     if (projectConfiguration.getHubAlias() != null && !force) {
       LOGGER.warning(
         "A pipeline has been already created with alias " + projectConfiguration.getHubAlias()

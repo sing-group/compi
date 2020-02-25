@@ -134,7 +134,8 @@ public class PipelineGraphExporterBuilder {
 
     if (!this.tasksToExcludeParams.isEmpty()) {
       toret.setTasksToExcludeParams(this.tasksToExcludeParams);
-    } if (!this.tasksToIncludeParams.isEmpty()) {
+    }
+    if (!this.tasksToIncludeParams.isEmpty()) {
       toret.setTasksToIncludeParams(this.tasksToIncludeParams);
     }
 

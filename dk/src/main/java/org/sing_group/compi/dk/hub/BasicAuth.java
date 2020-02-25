@@ -36,7 +36,7 @@ public class BasicAuth {
   public String getUser() {
     return user;
   }
-  
+
   public String getBasicAuth() {
     return basicAuth;
   }

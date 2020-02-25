@@ -34,15 +34,15 @@ import org.sing_group.compi.core.pipeline.Pipeline;
 
 public class CompiProjectDirectory {
   private static final Logger LOGGER = Logger.getLogger(CompiProjectDirectory.class.getName());
-  
+
   public static final String DEFAULT_FILE_PIPELINE = "pipeline.xml";
   public static final String DEFAULT_FILE_README = "README.md";
   public static final String DEFAULT_FILE_DEPENDENCIES = "DEPENDENCIES.md";
-  
+
   public static final String DEFAULT_FILE_DOCKERFILE = "Dockerfile";
   public static final String DEFAULT_FILE_LICENSE = "LICENSE";
   public static final String DEFAULT_FILE_HUB_METADATA = "hub.metadata";
-  
+
   public static final String DEFAULT_DIRECTORY_RUNNERS = "runners-examples";
   public static final String DEFAULT_DIRECTORY_PARAMS = "params-examples";
 
@@ -91,7 +91,7 @@ public class CompiProjectDirectory {
       checkAndZipFile(zos, this.paramsDirectoryName, DEFAULT_DIRECTORY_PARAMS);
     }
   }
-  
+
   private void checkAndZipFile(ZipOutputStream zos, String fileName, String zipFileName)
     throws FileNotFoundException, IOException {
     File file = projectFile(fileName);
@@ -106,8 +106,9 @@ public class CompiProjectDirectory {
   private File projectFile(String fileName) {
     return new File(this.directory, fileName);
   }
-  
-  private static void zipFile(ZipOutputStream zos, File fileToZip, String fileName) throws FileNotFoundException, IOException {
+
+  private static void zipFile(ZipOutputStream zos, File fileToZip, String fileName)
+    throws FileNotFoundException, IOException {
     if (fileToZip.isDirectory()) {
       if (fileName.endsWith("/")) {
         zos.putNextEntry(new ZipEntry(fileName));

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
 	http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -7,8 +8,8 @@
 	<artifactId>compi</artifactId>
 	<packaging>pom</packaging>
 	<version>1.3.0-SNAPSHOT</version>
-	<!-- WARNING: change version using (in the parent project): mvn versions:set 
-		-DnewVersion=[new_version] mvn versions:commit This will change the version 
+	<!-- WARNING: change version using (in the parent project): mvn versions:set
+		-DnewVersion=[new_version] mvn versions:commit This will change the version
 		in all modules at-once -->
 
 	<name>Compi</name>
@@ -55,6 +56,8 @@
 		<yacli.version>2.1.0-SNAPSHOT</yacli.version>
 		<httpclient.version>4.5.9</httpclient.version>
 		<velocity.version>1.7</velocity.version>
+
+		<formatter-maven-plugin.version>2.11.0</formatter-maven-plugin.version>
 
 		<!-- license-maven-plugin configuration -->
 		<license.licenseName>apache_v2</license.licenseName>
@@ -122,11 +125,11 @@
 				<artifactId>httpclient</artifactId>
 				<version>${httpclient.version}</version>
 			</dependency>
-              <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>${httpclient.version}</version>
-        </dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpmime</artifactId>
+				<version>${httpclient.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.apache.velocity</groupId>
 				<artifactId>velocity</artifactId>
@@ -144,7 +147,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
-            	<artifactId>commons-compress</artifactId>
+				<artifactId>commons-compress</artifactId>
 				<version>${commons-compress.version}</version>
 			</dependency>
 			<dependency>
@@ -152,7 +155,7 @@
 				<artifactId>json</artifactId>
 				<version>${json.version}</version>
 			</dependency>
-            
+
 		</dependencies>
 	</dependencyManagement>
 
@@ -204,6 +207,11 @@
 					<artifactId>download-maven-plugin</artifactId>
 					<version>${download-maven-plugin.version}</version>
 				</plugin>
+				<plugin>
+					<groupId>net.revelc.code.formatter</groupId>
+					<artifactId>formatter-maven-plugin</artifactId>
+					<version>${formatter-maven-plugin.version}</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -235,6 +243,21 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+					<groupId>net.revelc.code.formatter</groupId>
+					<artifactId>formatter-maven-plugin</artifactId>
+					<configuration>
+						<configFile>${project.basedir}/../formatter-config.xml</configFile>
+					</configuration>
+					<executions>
+						<execution>
+							<id>format-sources</id>
+							<goals>
+								<goal>format</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 		</plugins>
 	</build>
 
