@@ -20,28 +20,20 @@
  */
 package org.sing_group.compi.cli.commands;
 
-import static java.util.logging.Logger.getLogger;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.CompiRunConfiguration;
-import org.sing_group.compi.core.CompiTaskAbortedException;
-import org.sing_group.compi.core.TaskExecutionHandler;
-import org.sing_group.compi.core.loops.ForeachIteration;
-import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.ParameterDescription;
 import org.sing_group.compi.core.pipeline.Pipeline;
-import org.sing_group.compi.core.pipeline.Task;
 import org.sing_group.compi.core.resolver.MapVariableResolver;
 import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.xmlio.ParamsFileVariableResolver;
@@ -56,20 +48,20 @@ import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class RunSpecificPipelineCommand extends AbstractCommand {
-  private static final Logger LOGGER = getLogger(RunSpecificPipelineCommand.class.getName());
 
   public static final String NAME = "run";
 
   private static CompiRunConfiguration config;
   private static CompiApp compiApp;
-  private static VariableResolver resolver = null;
+  private static ResolverProxy proxy = null;
   private static File paramsFile = null;
 
   public static RunSpecificPipelineCommand newRunSpecificPipelineCommand(
     CompiRunConfiguration config
   ) throws IOException {
 
-    config.setResolver(createPipelineVariableResolverProxy());
+    proxy = new ResolverProxy();
+    config.setResolver(proxy);
 
     RunSpecificPipelineCommand.config = config;
     RunSpecificPipelineCommand.paramsFile = config.getParamsFile();
@@ -106,110 +98,14 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
   @Override
   public void execute(Parameters parameters) throws Exception {
 
-    RunSpecificPipelineCommand.resolver = createPipelineVariableResolver(parameters);
+    proxy.setResolver(createPipelineVariableResolver(parameters));
 
-    compiApp.addTaskExecutionHandler(new TaskExecutionHandler() {
-
-      private Set<String> startedForeachs = new HashSet<String>();
-
-      @Override
-      synchronized public void taskStarted(Task task) {
-        if (task instanceof Foreach) {
-          if (!startedForeachs.contains(task.getId())) {
-            LOGGER.info(
-              "> Started loop task " + task.getId()
-            );
-            startedForeachs.add(task.getId());
-          }
-        } else {
-          LOGGER.info("> Started task " + task.getId());
-        }
-      }
-
-      @Override
-      synchronized public void taskFinished(Task task) {
-        if (task instanceof Foreach) {
-          LOGGER.info(
-            "< Finished loop task " + task.getId()
-          );
-        } else {
-          LOGGER.info("< Finished task " + task.getId());
-        }
-      }
-
-      @Override
-      synchronized public void taskAborted(Task task, CompiTaskAbortedException e) {
-        LOGGER.severe(
-          "X Aborted task " + task.getId() + ". Cause: " + e.getMessage() + getLogInfo(e)
-        );
-      }
-
-      @Override
-      public void taskIterationStarted(ForeachIteration iteration) {
-        LOGGER.info(
-          ">> Started loop iteration of task " + iteration.getId() + " (" + iteration.getIterationValue() + ")"
-        );
-      }
-
-      @Override
-      public void taskIterationFinished(ForeachIteration iteration) {
-        LOGGER.info(
-          "<< Finished loop iteration of task " + iteration.getId() + " (" + iteration.getIterationValue() + ")"
-        );
-      }
-
-      @Override
-      public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
-        LOGGER.severe(
-          "X Aborted loop iteration of task " + iteration.getId() + ". Cause: " + e.getMessage() + getLogInfo(e)
-        );
-
-      }
-
-      private String getLogInfo(CompiTaskAbortedException e) {
-        StringBuilder builder = new StringBuilder();
-
-        if (e.getLastStdOut().size() > 0) {
-          builder.append("\n");
-          builder.append("--- Last " + e.getLastStdOut().size() + " stdout lines ---\n");
-          e.getLastStdOut().forEach(line -> {
-            builder.append(line + "\n");
-          });
-          builder.append("--- End of stdout lines ---\n");
-        }
-
-        if (e.getLastStdErr().size() > 0) {
-          builder.append("\n");
-          builder.append("--- Last " + e.getLastStdErr().size() + " stderr lines ---\n");
-          e.getLastStdErr().forEach(line -> {
-            builder.append(line + "\n");
-          });
-          builder.append("--- End of stderr lines ---\n");
-        }
-
-        if (e.getLastStdOut().size() > 0 && e.getTask().getStdOutLogFile() != null) {
-          builder.append("\nComplete stdout log file: " + e.getTask().getStdOutLogFile());
-        } else if (e.getLastStdOut().size() > 0) {
-          builder.append(
-            "\nTask " + e.getTask().getId()
-              + " was not recording the complete stdout in a log file. Enable logging if you want and run again. "
-          );
-        }
-        if (e.getLastStdErr().size() > 0 && e.getTask().getStdErrLogFile() != null) {
-          builder.append("\nComplete stderr log file: " + e.getTask().getStdErrLogFile());
-        } else if (e.getLastStdErr().size() > 0) {
-          builder.append(
-            "\nTask " + e.getTask().getId()
-              + " was not recording the complete stderr in a log file. Enable logging if you want and run again. "
-          );
-        }
-        return builder.toString();
-      }
-    });
+    compiApp.addTaskExecutionHandler(new CLITaskExecutionHandler());
     compiApp.run();
   }
 
-  private static VariableResolver createPipelineVariableResolverProxy() {
+  private static class ResolverProxy implements VariableResolver {
+    private static final long serialVersionUID = 1L;
     // A proxy for the variable resolver. This proxy solves a tricky situation:
     // 1. We need that CompiApp is created before the createOptions method is
     // called, since we need that skipped tasks
@@ -227,29 +123,32 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
     // execute(Parameters) call. Fortunately,
     // nobody calls these variable resolving methods before execute, since we
     // have not called CompiApp.run() yet.
-    return new VariableResolver() {
 
-      @Override
-      public String resolveVariable(String variable) throws IllegalArgumentException {
-        if (resolver == null) {
-          // you should not see this, since resolveVariable is not called before
-          // compiApp.run() is called
-          throw new IllegalStateException("resolver has not been initialized");
-        }
-        return resolver.resolveVariable(variable);
+    private VariableResolver resolver;
+
+    @Override
+    public String resolveVariable(String variable) throws IllegalArgumentException {
+      if (this.resolver == null) {
+        // you should not see this, since resolveVariable is not called before
+        // compiApp.run() is called
+        throw new IllegalStateException("resolver has not been initialized");
       }
+      return this.resolver.resolveVariable(variable);
+    }
 
-      @Override
-      public Set<String> getVariableNames() {
-        if (resolver == null) {
-          // you should not see this, since resolveVariable is not called before
-          // compiApp.run() is called
-          throw new IllegalStateException("resolver has not been initialized");
-        }
-        return resolver.getVariableNames();
+    @Override
+    public Set<String> getVariableNames() {
+      if (this.resolver == null) {
+        // you should not see this, since resolveVariable is not called before
+        // compiApp.run() is called
+        throw new IllegalStateException("resolver has not been initialized");
       }
+      return this.resolver.getVariableNames();
+    }
 
-    };
+    public void setResolver(VariableResolver resolver) {
+      this.resolver = resolver;
+    }
   }
 
   private VariableResolver createPipelineVariableResolver(Parameters parameters) {

@@ -20,7 +20,10 @@
  */
 package org.sing_group.compi.core.pipeline;
 
-public class ParameterDescription implements Cloneable {
+import java.io.Serializable;
+
+public class ParameterDescription implements Cloneable, Serializable {
+  private static final long serialVersionUID = 1L;
 
   private String name;
 

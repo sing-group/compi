@@ -70,7 +70,7 @@ public class RunCommand extends AbstractCommand {
   private static final String LOG_ONLY_TASK = "lt";
   private static final String LOG_EXCLUDE_TASK = "nl";
   private static final String SHOW_STD_OUTS = "o";
-  private static final String QUIET = "q";
+  private static final String QUIET = CommonParameters.QUIET;
   private static final String ABORT_IF_WARNINGS = "w";
   private static final String HELP = "h";
 
@@ -87,7 +87,7 @@ public class RunCommand extends AbstractCommand {
   private static final String LOG_ONLY_TASK_LONG = "log-only-task";
   private static final String LOG_EXCLUDE_TASK_LONG = "no-log-task";
   private static final String SHOW_STD_OUTS_LONG = "show-std-outs";
-  private static final String QUIET_LONG = "quiet";
+  private static final String QUIET_LONG = CommonParameters.QUIET_LONG;
   private static final String ABORT_IF_WARNINGS_LONG = "abort-if-warnings";
   private static final String HELP_LONG = "help";
 
@@ -131,7 +131,7 @@ public class RunCommand extends AbstractCommand {
       + LOG_ONLY_TASK_LONG + ". If you use this option, you must provide a log directory with --" + LOGS_DIR_LONG;
 
   private static final String SHOW_STD_OUTS_DESCRIPTION = "Forward task stdout/stderr to the compi stdout/stderr";
-  private static final String QUIET_DESCRIPTION = "Do not output compi logs to the console";
+  private static final String QUIET_DESCRIPTION = CommonParameters.QUIET_DESCRIPTION;
   private static final String ABORT_IF_WARNINGS_DESCRIPTION =
     "Abort pipeline run if there are warnings on pipeline validation";
   private static final String HELP_DESCRIPTION = "Show help of the specified pipeline";
@@ -268,25 +268,27 @@ public class RunCommand extends AbstractCommand {
       hasExcludeLogTasks ? parameters.getAllValuesString(super.getOption(LOG_EXCLUDE_TASK)) : null;
 
     try {
+      CompiRunConfiguration config =
+        buildConfiguration(
+          pipelineFileName,
+          paramsFile,
+          runnersFile,
+          compiThreads,
+          fromTasks,
+          afterTasks,
+          singleTask,
+          untilTask,
+          beforeTask,
+          logsDir,
+          logOnlyTasks,
+          logExcludeTasks,
+          hasShowStdOuts,
+          hasAbortIfWarnings
+        );
       CLIApplication pipelineApplication =
         newPipelineCLIApplication(
           pipelineFileName,
-          buildConfiguration(
-            pipelineFileName,
-            paramsFile,
-            runnersFile,
-            compiThreads,
-            fromTasks,
-            afterTasks,
-            singleTask,
-            untilTask,
-            beforeTask,
-            logsDir,
-            logOnlyTasks,
-            logExcludeTasks,
-            hasShowStdOuts,
-            hasAbortIfWarnings
-          ), this.commandLineArgs
+          config, this.commandLineArgs
         );
 
       if (hasHelp) {
@@ -297,39 +299,9 @@ public class RunCommand extends AbstractCommand {
       }
 
       LOGGER.info("Compi running with: ");
-      LOGGER.info("Pipeline file - " + pipelineFile);
-      LOGGER.info("Max number of parallel tasks - " + compiThreads);
 
-      if (paramsFile != null) {
-        LOGGER.info("Params file - " + paramsFile);
-      }
-
-      if (runnersFile != null) {
-        LOGGER.info("Runners file - " + runnersFile);
-      }
-
-      if (singleTask != null) {
-        LOGGER.info("Running single task - " + singleTask);
-      }
-
-      if (fromTasks != null) {
-        LOGGER.info("Running from task(s) - " + fromTasks.stream().collect(joining(", ")));
-      }
-
-      if (afterTasks != null) {
-        LOGGER.info("Running after task(s) - " + afterTasks.stream().collect(joining(", ")));
-      }
-
-      if (untilTask != null) {
-        LOGGER.info("Running until task - " + untilTask);
-      }
-
-      if (beforeTask != null) {
-        LOGGER.info("Running tasks before task - " + beforeTask);
-      }
-
-      if (logsDir != null) {
-        LOGGER.info("Logging task's output to dir - " + logsDir);
+      for (String logLine : config.toString().split("\n")) {
+        LOGGER.info(logLine);
       }
 
       pipelineApplication.run(getPipelineParameters(this.commandLineArgs));

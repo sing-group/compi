@@ -89,5 +89,9 @@ public class TestExecutionHandler implements TaskExecutionHandler {
   }
 
   @Override
-  public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {}
+  public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
+    // finishedTasksIncludingLoopChildren.add(iteration.getParentForeachTask().getId());
+    loopIterations.add("A_" + iteration.getParentForeachTask().getId() + "_" + iteration.getIterationIndex());
+
+  }
 }

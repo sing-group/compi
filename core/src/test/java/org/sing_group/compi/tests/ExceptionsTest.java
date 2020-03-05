@@ -37,18 +37,7 @@ import org.xml.sax.SAXException;
 
 public class ExceptionsTest {
 
-  private VariableResolver simpleVariableResolver = new VariableResolver() {
-
-    @Override
-    public Set<String> getVariableNames() {
-      return new HashSet<>();
-    }
-
-    @Override
-    public String resolveVariable(String variable) throws IllegalArgumentException {
-      return "a-simple-value";
-    }
-  };
+  private SimpleVariableResolver simpleVariableResolver = new SimpleVariableResolver();
 
   @Test(expected = SAXException.class)
   public void testXSDSAXException() throws Exception {
@@ -184,3 +173,17 @@ public class ExceptionsTest {
     compi.run();
   }
 }
+
+class SimpleVariableResolver implements VariableResolver {
+  private static final long serialVersionUID = 1L;
+
+  @Override
+  public Set<String> getVariableNames() {
+    return new HashSet<>();
+  }
+
+  @Override
+  public String resolveVariable(String variable) throws IllegalArgumentException {
+    return "a-simple-value";
+  }
+};

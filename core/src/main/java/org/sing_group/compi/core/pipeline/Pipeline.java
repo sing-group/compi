@@ -26,6 +26,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,7 +44,9 @@ import org.sing_group.compi.core.validation.ValidationError;
  * @author Hugo López-Fernández
  *
  */
-public class Pipeline {
+public class Pipeline implements Serializable {
+  private static final long serialVersionUID = 1L;
+
   private String version = "";
   private List<Task> tasks = new LinkedList<>();
   private List<ParameterDescription> parameterDescriptions = new LinkedList<>();

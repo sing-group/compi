@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class DecoratedVariableResolver implements VariableResolver {
+  private static final long serialVersionUID = 1L;
 
   private VariableResolver innerResolver;
 

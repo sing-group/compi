@@ -20,13 +20,14 @@
  */
 package org.sing_group.compi.core.resolver;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * A variable resolver obtains the value of a variable given its name.
  *
  */
-public interface VariableResolver {
+public interface VariableResolver extends Serializable {
 
   /**
    * Get the content of the variable.

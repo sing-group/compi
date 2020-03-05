@@ -973,7 +973,6 @@ public class PipelineTest {
     compi.addTaskExecutionHandler(handler);
 
     compi.run();
-
     assertEquals(4, handler.getStartedTasks().size());
     assertEquals(3, handler.getFinishedTasksIncludingLoopChildren().size());
     assertEquals(3, handler.getAbortedTasks().size());

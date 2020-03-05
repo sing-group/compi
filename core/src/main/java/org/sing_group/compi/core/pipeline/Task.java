@@ -24,6 +24,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,7 +38,9 @@ import org.sing_group.compi.core.CompiTaskAbortedException;
  * @author Hugo López-Fernández
  *
  */
-public class Task implements Cloneable {
+public class Task implements Cloneable, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private String id;
   private String after;

@@ -27,6 +27,7 @@ package org.sing_group.compi.core.pipeline;
  *
  */
 public class Foreach extends Task {
+  private static final long serialVersionUID = 1L;
 
   private String of;
   private String in;

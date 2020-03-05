@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class MapVariableResolver extends DecoratedVariableResolver {
+  private static final long serialVersionUID = 1L;
 
   private Map<String, String> variables = new HashMap<>();
 

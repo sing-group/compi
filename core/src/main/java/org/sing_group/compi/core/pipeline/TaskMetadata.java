@@ -20,7 +20,11 @@
  */
 package org.sing_group.compi.core.pipeline;
 
-public class TaskMetadata {
+import java.io.Serializable;
+
+public class TaskMetadata implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   public static final TaskMetadata EMPTY_METADATA;
 

@@ -38,6 +38,7 @@ import org.sing_group.compi.core.resolver.VariableResolver;
  * @author Hugo López-Fernández
  */
 public class ParamsFileVariableResolver implements VariableResolver {
+  private static final long serialVersionUID = 1L;
 
   private File paramsFile;
 

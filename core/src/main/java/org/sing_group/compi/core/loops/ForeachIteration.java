@@ -30,6 +30,7 @@ import org.sing_group.compi.core.pipeline.Pipeline;
  *
  */
 public class ForeachIteration extends Foreach {
+  private static final long serialVersionUID = 1L;
 
   private String iterationValue;
   private int iterationIndex;
