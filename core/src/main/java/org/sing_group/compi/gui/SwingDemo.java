@@ -192,7 +192,7 @@ public class SwingDemo {
     try {
       compi =
         new CompiApp(
-          forPipeline(fromFile(new File(pipelineText.getText())))
+          forPipeline(fromFile(new File(pipelineText.getText())), new File(pipelineText.getText()))
             .whichRunsAMaximumOf(threadNumber)
             .whichResolvesVariablesFromFile(new File(paramsFile))
             .whichStartsFromTasks(skipTask != null ? asList(skipTask) : null)

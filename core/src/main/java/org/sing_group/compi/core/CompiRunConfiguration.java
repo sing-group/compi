@@ -38,7 +38,7 @@ import org.sing_group.compi.core.resolver.VariableResolver;
  * for instantiating {@link CompiApp}
  * 
  * To create objects of this class, a builder is provided if you call
- * {@link CompiRunConfiguration#forPipeline(Pipeline)}
+ * {@link CompiRunConfiguration#forPipeline(Pipeline, File)}
  * 
  * @author Daniel Glez-Peña
  * 
@@ -254,8 +254,9 @@ public class CompiRunConfiguration implements Serializable {
   public static class Builder {
     private CompiRunConfiguration config = new CompiRunConfiguration();
 
-    private Builder forPipeline(Pipeline p) {
+    private Builder forPipeline(Pipeline p, File inFile) {
       this.config.setPipeline(p);
+      this.config.setPipelineFile(inFile);
       return this;
     }
 
@@ -344,9 +345,9 @@ public class CompiRunConfiguration implements Serializable {
     }
   }
 
-  public static Builder forPipeline(Pipeline pipeline) {
+  public static Builder forPipeline(Pipeline pipeline, File inFile) {
     Builder builder = new Builder();
-    builder.forPipeline(pipeline);
+    builder.forPipeline(pipeline, inFile);
     return builder;
   }
 

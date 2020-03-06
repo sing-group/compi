@@ -28,11 +28,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Date;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
 import org.sing_group.compi.core.loops.ForeachIteration;
 import org.sing_group.compi.core.pipeline.Pipeline;
 import org.sing_group.compi.core.pipeline.Task;
@@ -47,9 +49,9 @@ public class CompiExecutionLog implements Serializable {
   private static final File COMPI_LOG_DIR = new File(System.getProperty("user.home") + File.separator + ".compi");
   private static final long serialVersionUID = 1L;
 
-  private long timestamp = new Date().getTime();
+  private String pipelineHash;
 
-  private final Set<Task> finishedTasks = new HashSet<>();
+  private final Set<String> finishedTasks = new HashSet<>();
 
   private final File logFile;
 
@@ -58,11 +60,34 @@ public class CompiExecutionLog implements Serializable {
   private CompiExecutionLog(final CompiRunConfiguration configuration, final File logFile) throws IOException {
     this.config = configuration;
     this.logFile = logFile;
+    this.pipelineHash = hashFile(configuration.getPipelineFile());
     this.save();
+  }
+
+  private static String hashFile(File pipelineFile) throws IOException {
+    MessageDigest md5Digester;
+    try {
+      md5Digester = MessageDigest.getInstance("MD5");
+      return new String(md5Digester.digest(FileUtils.readFileToByteArray(pipelineFile)));
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public CompiExecutionLog(final CompiRunConfiguration configuration) throws IOException {
     this(configuration, getNewLogFile(configuration.getPipelineFile()));
+  }
+
+  public static CompiExecutionLog forPipeline(final File pipelineFile, boolean strict) throws Exception {
+
+    final File logFile = createLogFile(pipelineFile);
+
+    if (!logFile.exists()) {
+      throw new IllegalArgumentException(
+        "Cannot find redo log for pipeline file: " + pipelineFile + ". Log should be in: " + logFile
+      );
+    }
+    return load(pipelineFile, logFile, strict);
   }
 
   private static File getNewLogFile(File pipelineFile) {
@@ -89,28 +114,38 @@ public class CompiExecutionLog implements Serializable {
     return this.logFile;
   }
 
-  public Set<Task> getFinishedTasks() {
+  public Set<String> getFinishedTasks() {
     return this.finishedTasks;
   }
 
-  public static CompiExecutionLog forPipeline(final File pipelineFile) throws Exception {
-
-    final File logFile = createLogFile(pipelineFile);
-
-    if (!logFile.exists()) {
-      throw new IllegalArgumentException(
-        "Cannot find redo log for pipeline file: " + pipelineFile + ". Log should be in: " + logFile
-      );
-    }
-    return load(pipelineFile, logFile);
+  public void taskFinished(final Task t) throws IOException {
+    this.finishedTasks.add(getTaskId(t));
+    this.save();
   }
 
-  private static CompiExecutionLog load(final File pipelineFile, final File logFile)
+  public boolean taskWasFinished(final Task t) {
+    return this.finishedTasks.contains(getTaskId(t));
+  }
+
+  private String getTaskId(Task t) {
+    String task_id = t.getId();
+    if (t instanceof ForeachIteration) {
+      task_id += "_" + ((ForeachIteration) t).getIterationIndex();
+    }
+    return task_id;
+  }
+
+  private static CompiExecutionLog load(final File pipelineFile, final File logFile, boolean strict)
     throws IOException, ClassNotFoundException, FileNotFoundException, IllegalArgumentException,
     PipelineValidationException {
     try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(logFile))) {
       CompiExecutionLog log = (CompiExecutionLog) ois.readObject();
       if (log.config.getPipelineFile().equals(pipelineFile)) {
+        if (strict && !log.pipelineHash.equals(hashFile(pipelineFile))) {
+          throw new RuntimeException(
+            "Cannot use log because the pipeline file has changed since this log was saved. Resume in flexible mode to skip this check"
+          );
+        }
         log.config.setPipeline(Pipeline.fromFile(log.config.getPipelineFile()));
         return log;
       } else {
@@ -122,32 +157,12 @@ public class CompiExecutionLog implements Serializable {
     }
   }
 
-  public void taskFinished(final Task t) throws IOException {
-    this.finishedTasks.add(t);
-
-    this.save();
-  }
-
-  public boolean taskWasFinished(final Task t) {
-    for (final Task task : this.finishedTasks) {
-      if (task.getId().equals(t.getId())) {
-        if (
-          task instanceof ForeachIteration && t instanceof ForeachIteration &&
-            ((ForeachIteration) task).getIterationIndex() == ((ForeachIteration) t).getIterationIndex()
-        ) {
-          return true;
-        } else if (task.getClass().equals(t.getClass()) && !(t instanceof ForeachIteration)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   private void save() throws IOException {
-    this.timestamp = new Date().getTime();
     try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(this.logFile))) {
+      Pipeline p = this.config.getPipeline();
+      this.config.setPipeline(null);
       oos.writeObject(this);
+      this.config.setPipeline(p);
     }
   }
 }

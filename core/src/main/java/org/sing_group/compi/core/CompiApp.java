@@ -98,11 +98,15 @@ public class CompiApp {
     }
   }
 
-  public CompiApp(File resumePipelineFile) throws IllegalArgumentException, IOException, Exception {
-    this.executionLog = CompiExecutionLog.forPipeline(resumePipelineFile);
+  public CompiApp(File resumePipelineFile, boolean flexible) throws IllegalArgumentException, IOException, Exception {
+    this.executionLog = CompiExecutionLog.forPipeline(resumePipelineFile, !flexible);
     this.config = this.executionLog.getCompiRunConfiguration();
 
     this.init();
+  }
+
+  public CompiApp(File resumePipelineFile) throws IllegalArgumentException, IOException, Exception {
+    this(resumePipelineFile, false);
   }
 
   /**
@@ -568,7 +572,7 @@ public class CompiApp {
         ) {
           this.notifyTaskAborted(iteration.getParentForeachTask(), e);
           taskManager.setAborted(iteration.getParentForeachTask(), e);
-          
+
           abortDependencies(iteration, e);
           foreachAbortedNotificationsSent.add(iteration.getParentForeachTask());
           syncMonitor.notify();
@@ -589,13 +593,13 @@ public class CompiApp {
                 )
               );
             } else {
-            notifyTaskAborted(
-              taskToAbort,
-              new CompiTaskAbortedException(
-                "Aborted because a dependency of this task has aborted (" + e.getTask().getId() + ")",
-                e, taskToAbort, new LinkedList<>(), new LinkedList<>()
-              )
-            );
+              notifyTaskAborted(
+                taskToAbort,
+                new CompiTaskAbortedException(
+                  "Aborted because a dependency of this task has aborted (" + e.getTask().getId() + ")",
+                  e, taskToAbort, new LinkedList<>(), new LinkedList<>()
+                )
+              );
             }
           }
           taskManager.setAborted(taskToAbort, e);

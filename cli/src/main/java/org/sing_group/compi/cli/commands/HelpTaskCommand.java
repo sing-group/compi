@@ -91,7 +91,7 @@ public class HelpTaskCommand extends AbstractCommand {
     }
     System.err.println("Task parameters:");
 
-    final CompiRunConfiguration.Builder builder = CompiRunConfiguration.forPipeline(pipelineObject);
+    final CompiRunConfiguration.Builder builder = CompiRunConfiguration.forPipeline(pipelineObject, null);
     CompiRunConfiguration configuration = builder.whichRunsTheSingleTask(task.getId()).build();
     CLIApplication pipelineApplication =
       PipelineCLIApplication.newPipelineCLIApplication(

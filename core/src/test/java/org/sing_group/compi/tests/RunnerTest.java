@@ -77,7 +77,7 @@ public class RunnerTest {
 
     final CompiApp compi =
       new CompiApp(
-        forPipeline(fromFile(new File(pipelineFile)))
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile))
           .whichRunsAMaximumOf(1)
           .whichRunsTasksUsingCustomRunners(new File(runnersFile))
           .whichResolvesVariablesWith(resolverFor("my_var", "hello"))

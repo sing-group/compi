@@ -342,7 +342,7 @@ public class RunCommand extends AbstractCommand {
       );
     }
 
-    final CompiRunConfiguration.Builder builder = forPipeline(pipeline);
+    final CompiRunConfiguration.Builder builder = forPipeline(pipeline, new File(pipelineFile));
     builder.whichRunsAMaximumOf(compiThreads);
 
     if (paramsFile != null) {
@@ -381,7 +381,6 @@ public class RunCommand extends AbstractCommand {
     }
 
     CompiRunConfiguration configuration = builder.build();
-    configuration.setPipelineFile(new File(pipelineFile));
 
     return configuration;
   }

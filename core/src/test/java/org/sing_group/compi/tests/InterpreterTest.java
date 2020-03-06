@@ -60,7 +60,7 @@ public class InterpreterTest {
 
     final CompiApp compi =
       new CompiApp(
-        forPipeline(fromFile(new File(pipelineFile)))
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile))
           .whichResolvesVariablesWith(
             resolverFor(
               "input_file", inputFile.getAbsolutePath(),

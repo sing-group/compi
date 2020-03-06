@@ -41,12 +41,16 @@ public class ResumeCommand extends AbstractCommand {
 
   private static final String PIPELINE_FILE = CommonParameters.PIPELINE_FILE;
   private static final String QUIET = CommonParameters.QUIET;
+  private static final String FLEXIBLE = "f";
 
   private static final String PIPELINE_FILE_LONG = CommonParameters.PIPELINE_FILE_LONG;
   private static final String QUIET_LONG = CommonParameters.QUIET_LONG;
+  private static final String FLEXIBLE_LONG = "flexible";
 
   private static final String PIPELINE_FILE_DESCRIPTION = CommonParameters.PIPELINE_FILE_DESCRIPTION;
   private static final String QUIET_DESCRIPTION = CommonParameters.QUIET_DESCRIPTION;
+  private static final String FLEXIBLE_DESCRIPTION =
+    "Do not check if pipeline file contents have changed since last run and continue. Use with caution";
 
   @Override
   public void execute(final Parameters parameters) throws IllegalArgumentException, Exception {
@@ -63,8 +67,10 @@ public class ResumeCommand extends AbstractCommand {
       );
     }
 
+    boolean flexible = parameters.hasOption(super.getOption(FLEXIBLE));
+
     LOGGER.info("Compi resume. Trying to rebuild compi app for pipeline file: " + pipelineFile);
-    CompiApp compiApp = new CompiApp(pipelineFile);
+    CompiApp compiApp = new CompiApp(pipelineFile, flexible);
     LOGGER.info("Rebuild OK");
     compiApp.addTaskExecutionHandler(new CLITaskExecutionHandler());
     for (String logLine : compiApp.getConfig().toString().split("\n")) {
@@ -104,6 +110,7 @@ public class ResumeCommand extends AbstractCommand {
     final List<Option<?>> options = new ArrayList<>();
     options.add(getPipelineFileOption());
     options.add(getQuietOption());
+    options.add(getFlexibleOption());
 
     return options;
   }
@@ -119,6 +126,13 @@ public class ResumeCommand extends AbstractCommand {
     return new FlagOption(
       QUIET_LONG, QUIET,
       QUIET_DESCRIPTION
+    );
+  }
+
+  private Option<?> getFlexibleOption() {
+    return new FlagOption(
+      FLEXIBLE_LONG, FLEXIBLE,
+      FLEXIBLE_DESCRIPTION
     );
   }
 }

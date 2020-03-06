@@ -28,6 +28,7 @@ import static org.sing_group.compi.core.pipeline.Pipeline.fromFile;
 
 import java.io.File;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.CompiRunConfiguration;
@@ -37,8 +38,7 @@ public class ResumeTest {
   @Test
   public void testResume() throws Exception {
     final File pipelineFile = new File(ClassLoader.getSystemResource("testResume.xml").getFile());
-    final CompiRunConfiguration config = forPipeline(fromFile(pipelineFile)).build();
-    config.setPipelineFile(pipelineFile);
+    final CompiRunConfiguration config = forPipeline(fromFile(pipelineFile), pipelineFile).build();
 
     final CompiApp compi = new CompiApp(config);
 
@@ -63,7 +63,7 @@ public class ResumeTest {
     assertFalse(handler.getFinishedTasks().contains("ID-2"));
 
     final CompiApp compi2 = new CompiApp(pipelineFile); // resume
-    
+
     TestExecutionHandler handler2 = new TestExecutionHandler();
     compi2.addTaskExecutionHandler(handler2);
 
@@ -78,8 +78,7 @@ public class ResumeTest {
   @Test
   public void testResumeForeach() throws Exception {
     final File pipelineFile = new File(ClassLoader.getSystemResource("testResumeForeach.xml").getFile());
-    final CompiRunConfiguration config = forPipeline(fromFile(pipelineFile)).build();
-    config.setPipelineFile(pipelineFile);
+    final CompiRunConfiguration config = forPipeline(fromFile(pipelineFile), pipelineFile).build();
 
     final CompiApp compi = new CompiApp(config);
 
@@ -103,7 +102,7 @@ public class ResumeTest {
     assertEquals(1, handler.getLoopIterations().stream().filter(it -> it.startsWith("A_")).count());
 
     final CompiApp compi2 = new CompiApp(pipelineFile); // resume
-    
+
     TestExecutionHandler handler2 = new TestExecutionHandler();
     compi2.addTaskExecutionHandler(handler2);
 
@@ -121,8 +120,7 @@ public class ResumeTest {
   @Test
   public void testResumeIterationBindedForeach() throws Exception {
     final File pipelineFile = new File(ClassLoader.getSystemResource("testResumeIterationBindedForeach.xml").getFile());
-    final CompiRunConfiguration config = forPipeline(fromFile(pipelineFile)).build();
-    config.setPipelineFile(pipelineFile);
+    final CompiRunConfiguration config = forPipeline(fromFile(pipelineFile), pipelineFile).build();
 
     final CompiApp compi = new CompiApp(config);
 
@@ -146,7 +144,7 @@ public class ResumeTest {
     assertEquals(2, handler.getLoopIterations().stream().filter(it -> it.startsWith("A_")).count());
 
     final CompiApp compi2 = new CompiApp(pipelineFile); // resume
-    
+
     TestExecutionHandler handler2 = new TestExecutionHandler();
     compi2.addTaskExecutionHandler(handler2);
 
@@ -160,5 +158,38 @@ public class ResumeTest {
     assertTrue(handler2.getLoopIterations().contains("E_ID-1_2"));
     assertTrue(handler2.getLoopIterations().contains("S_ID-2_2"));
     assertTrue(handler2.getLoopIterations().contains("E_ID-2_2"));
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void testResumeStrict() throws Exception {
+    final File pipelineFile = new File(ClassLoader.getSystemResource("testResume.xml").getFile());
+
+    final CompiRunConfiguration config = forPipeline(fromFile(pipelineFile), pipelineFile).build();
+
+    final CompiApp compi = new CompiApp(config);
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+
+    compi.addTaskExecutionHandler(handler);
+
+    new Thread(
+      () -> {
+        try {
+          Thread.sleep(1000);
+          compi.requestStop();
+        } catch (InterruptedException e) {}
+      }
+    ).start();
+
+    compi.run();
+
+    byte[] original = FileUtils.readFileToByteArray(pipelineFile);
+    byte[] finalContents = new byte[original.length + 1];
+    System.arraycopy(original, 0, finalContents, 0, original.length);
+    finalContents[finalContents.length - 1] = '\n';
+
+    FileUtils.writeByteArrayToFile(pipelineFile, finalContents);
+
+    new CompiApp(pipelineFile); // resume
   }
 }
