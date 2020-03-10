@@ -9,7 +9,6 @@ Welcome to Compi's documentation!
    writing_pipelines
    running_pipelines
    application_development
-   faq
 
 .. toctree::
    :maxdepth: 2
@@ -19,3 +18,4 @@ Welcome to Compi's documentation!
    partial_execution
    custom_runners
    custom_interpreters
+   faq
