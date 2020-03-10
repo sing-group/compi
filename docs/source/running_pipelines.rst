@@ -93,6 +93,29 @@ Run the following command to execute the ``pipeline.xml`` file providing the req
  
  compi run -p pipeline.xml -- --path .execute.sh --name command-line-name --seconds 1
 
+Resuming a pipeline
+-------------------
+
+If a pipeline execution is interrupted (such pressing CTRL-C, electrical failure, or some tasks were aborted), it can be resumed through the
+command-line:
+
+.. code-block:: bash
+ 
+ compi resume -p pipeline.xml
+
+The execution will resume the pipeline execution with the **same parameters and running configuration** as in the original execution
+performed with ``compi run``.
+
+All tasks that should run did not completed successfully are started again.
+
+.. note::
+
+ The pipeline file cannot be changed. If it is changed, an error is shown. However, you can skip this check at your
+ own risk and force Compi to resume the pipeline by using a modified version of the pipeline file.
+
+ ``compi resume --flexible -p pipeline.xml``
+
+
 Advanced execution control
 --------------------------
 
