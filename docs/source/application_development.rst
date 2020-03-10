@@ -1,6 +1,6 @@
 .. _application_development:
 
-Application Development
+Application development
 ***********************
 
 The following image summarizes the main interactions between the elements of :ref:`compi_ecosystem` in the development of Compi-based applications.

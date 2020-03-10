@@ -1,4 +1,4 @@
-Running Pipelines
+Running pipelines
 *****************
 
 This section explains how to use ``compi`` to run pipelines using different parameters of the ``compi run`` command by showing several practical examples.

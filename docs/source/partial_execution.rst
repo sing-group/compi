@@ -23,7 +23,7 @@ Run the following command to execute a single task of the ``pipeline.xml`` file,
 Run the pipeline until a specific task
 --------------------------------------
 
-It is possible to run a pipeline until a specific task, including all its dependencies.
+It is possible to run a pipeline until a specific task, including all its dependencies, with the ``--until/-ut`` parameter.
 
 Run the following command to execute the ``pipeline.xml`` file using the example parameters file (``params``) until task ``task-7``. This command will run ``task-1``, ``task-2``, ``task-3``, ``task-5``, ``task-6`` and ``task-7``.
 
@@ -34,7 +34,7 @@ Run the following command to execute the ``pipeline.xml`` file using the example
 Run all the dependencies of a specific task
 -------------------------------------------
 
-It is possible to run all the dependencies a specific task.
+It is possible to run all the dependencies a specific task, with the ``--before/-bt`` parameter.
 
 Run the following command to execute the ``pipeline.xml`` file using the example parameters file (``params``) until task ``task-7``. This command will run ``task-1``, ``task-2``, ``task-3``, ``task-5`` and ``task-6``.
 
@@ -45,7 +45,8 @@ Run the following command to execute the ``pipeline.xml`` file using the example
 Start the pipeline execution at a specific task
 -----------------------------------------------
 
-It is possible start the pipeline execution at a specific task (e.g. in order to resume the execution after an error or in combination with ``before``, ``until`` and ``single-task`` executions).
+It is possible start the pipeline execution at a specific task (e.g. in order to resume the execution after an error or in combination with ``before``, ``until`` and ``single-task`` executions), 
+with the ``--from/-f`` parameter.
 
 Run the following command to execute the ``pipeline.xml`` file using the example parameters file (``params``) starting at task ``task-7``. This command will run all tasks that do not depend on ``task-7``, that is: ``task-7``, ``task-4``, and ``task-8``.
 
@@ -56,7 +57,8 @@ Run the following command to execute the ``pipeline.xml`` file using the example
 Start the pipeline execution after a specific task
 --------------------------------------------------
 
-It is possible start the pipeline execution after a specific task (e.g. in order to resume the execution after an error or in combination with ``before``, ``until`` and ``single-task`` executions). This is similar to the previous example, with the difference that the task specified with ``after`` is not executed.
+It is possible start the pipeline execution after a specific task (e.g. in order to resume the execution after an error or in combination with ``before``, ``until`` and ``single-task`` executions),
+with the ``--after/-a`` parameter. This is similar to the previous example, with the difference that the task specified with ``after`` is not executed.
 
 Run the following command to execute the ``pipeline.xml`` file using the example parameters file (``params``) starting after task ``task-7``. This command will run all tasks that do not depend on ``task-7``, that is: ``task-4`` and ``task-8``.
 
