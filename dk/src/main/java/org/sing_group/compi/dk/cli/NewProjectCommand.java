@@ -48,8 +48,8 @@ import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class NewProjectCommand extends AbstractCommand {
-  private static final Logger LOGGER = Logger.getLogger( NewProjectCommand.class.getName() );
-  
+  private static final Logger LOGGER = Logger.getLogger(NewProjectCommand.class.getName());
+
   public String getName() {
     return "new-project";
   }
@@ -120,9 +120,9 @@ public class NewProjectCommand extends AbstractCommand {
 
     configuration.setCompiVersion(compiVersion);
     configuration.setImageName(imageName);
-    
+
     configuration.save();
-    
+
     /*
      * File compiDestination = new File(directory + File.separator +
      * "compi.jar"); logger.info("Downloading Compi to " + compiDestination);
@@ -130,16 +130,18 @@ public class NewProjectCommand extends AbstractCommand {
      * logger.info("Compi downloaded");
      */
 
-    createDockerFile(directory, parameters.getSingleValueString(getOption("i")), getProperty("user.name"), compiVersion);
+    createDockerFile(
+      directory, parameters.getSingleValueString(getOption("i")), getProperty("user.name"), compiVersion
+    );
 
     createPipelineFile(directory);
-    
+
     createGitIgnoreFile(directory);
   }
 
   private void createGitIgnoreFile(File directory) throws FileNotFoundException {
     try (PrintStream out = new PrintStream(new FileOutputStream(directory + File.separator + ".gitignore"))) {
-      out.println("/"+PipelineDockerFile.IMAGE_FILES_DIR+"/");
+      out.println("/" + PipelineDockerFile.IMAGE_FILES_DIR + "/");
     }
   }
 
@@ -151,7 +153,8 @@ public class NewProjectCommand extends AbstractCommand {
     );
   }
 
-  private void createDockerFile(File destDirectory, String baseImage, String maintainer, String compiVersion) throws IOException, SAXException, ParserConfigurationException {
+  private void createDockerFile(File destDirectory, String baseImage, String maintainer, String compiVersion)
+    throws IOException, SAXException, ParserConfigurationException {
     PipelineDockerFile dockerFile = new PipelineDockerFile(destDirectory);
     dockerFile.setBaseImage(baseImage);
     dockerFile.setCompiVersion(compiVersion);

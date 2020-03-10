@@ -71,7 +71,7 @@ public class TestExecutionHandler implements TaskExecutionHandler {
   public List<String> getLoopIterations() {
     return loopIterations;
   }
-  
+
   public List<String> getFinishedTasksIncludingLoopChildren() {
     return finishedTasksIncludingLoopChildren;
   }
@@ -79,15 +79,19 @@ public class TestExecutionHandler implements TaskExecutionHandler {
   @Override
   public void taskIterationStarted(ForeachIteration iteration) {
     startedForeachs.add(iteration.getParentForeachTask().getId());
-    loopIterations.add("S_"+iteration.getParentForeachTask().getId()+"_"+iteration.getIterationIndex());
+    loopIterations.add("S_" + iteration.getParentForeachTask().getId() + "_" + iteration.getIterationIndex());
   }
 
   @Override
   public void taskIterationFinished(ForeachIteration iteration) {
     finishedTasksIncludingLoopChildren.add(iteration.getParentForeachTask().getId());
-    loopIterations.add("E_"+iteration.getParentForeachTask().getId()+"_"+iteration.getIterationIndex());
+    loopIterations.add("E_" + iteration.getParentForeachTask().getId() + "_" + iteration.getIterationIndex());
   }
 
   @Override
-  public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {}
+  public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
+    // finishedTasksIncludingLoopChildren.add(iteration.getParentForeachTask().getId());
+    loopIterations.add("A_" + iteration.getParentForeachTask().getId() + "_" + iteration.getIterationIndex());
+
+  }
 }

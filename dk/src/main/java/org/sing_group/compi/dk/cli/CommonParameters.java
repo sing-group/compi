@@ -21,7 +21,8 @@
 package org.sing_group.compi.dk.cli;
 
 /**
- * This class provides names and descriptions for parameters shared across different commands.
+ * This class provides names and descriptions for parameters shared across
+ * different commands.
  * 
  * @author hlfernandez
  *
@@ -31,7 +32,7 @@ public class CommonParameters {
   public static final String PROJECT_PATH_LONG = "path";
   public static final String PROJECT_PATH_DESCRIPTION = "path of the project";
   public static final String PROJECT_PATH_DEFAULT_VALUE = ".";
-  
+
   public static final String PIPELINE_FILE = "p";
   public static final String PIPELINE_FILE_LONG = "pipeline";
   public static final String PIPELINE_FILE_DESCRIPTION = "XML pipeline file";
@@ -40,8 +41,9 @@ public class CommonParameters {
   public static final String TAG_WITH_VERSION = "tv";
   public static final String TAG_WITH_VERSION_LONG = "tag-version";
   public static final String TAG_WITH_VERSION_DESCRIPTION = "tag the Docker image with the pipeline version";
-  
+
   public static final String DOCKER_REMOVE_DANGLING = "drd";
   public static final String DOCKER_REMOVE_DANGLING_LONG = "docker-remove-dangling";
-  public static final String DOCKER_REMOVE_DANGLING_DESCRIPTION = "removes the Docker dangling images after building the Compi image";
+  public static final String DOCKER_REMOVE_DANGLING_DESCRIPTION =
+    "removes the Docker dangling images after building the Compi image";
 }

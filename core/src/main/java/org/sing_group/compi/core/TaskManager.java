@@ -268,15 +268,18 @@ public class TaskManager {
             setRunning(dependant); // here, the foreach values of dependant loop
                                    // are computed
 
-            List<ForeachIteration> taskIterations = this.getForeachIterations((Foreach) dependency.getOnTask());
-            List<ForeachIteration> dependantIterations = this.getForeachIterations((Foreach) dependant);
-            
-            if (dependantIterations.size() != taskIterations.size()) {
-              throw new IllegalArgumentException("Iteration values of foreach "+foreach.getId()+" has a different number of elements of dependant foreach "+dependant.getId());
-            }
-            for (int i = 0; i < Math.min(taskIterations.size(), dependantIterations.size()); i++) {
-              this.dag.addDependency(taskIterations.get(i), dependantIterations.get(i), false);
-            }
+          List<ForeachIteration> taskIterations = this.getForeachIterations((Foreach) dependency.getOnTask());
+          List<ForeachIteration> dependantIterations = this.getForeachIterations((Foreach) dependant);
+
+          if (dependantIterations.size() != taskIterations.size()) {
+            throw new IllegalArgumentException(
+              "Iteration values of foreach " + foreach.getId()
+                + " has a different number of elements of dependant foreach " + dependant.getId()
+            );
+          }
+          for (int i = 0; i < Math.min(taskIterations.size(), dependantIterations.size()); i++) {
+            this.dag.addDependency(taskIterations.get(i), dependantIterations.get(i), false);
+          }
         } else {
           // regular loop
           this.forEachTasks.get(foreach).forEach(foreachTask -> {

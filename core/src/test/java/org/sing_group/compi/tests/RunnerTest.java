@@ -48,7 +48,6 @@ public class RunnerTest {
     XmlSchemaValidation.validateXmlSchema(runnerFile, "xsd/runners-1.0.xsd");
   }
 
-
   @Test
   public void testDOMRunnersParser() throws SAXException, IOException {
     DOMRunnersParser parser = new DOMRunnersParser();
@@ -78,13 +77,13 @@ public class RunnerTest {
 
     final CompiApp compi =
       new CompiApp(
-        forPipeline(fromFile(new File(pipelineFile)))
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile))
           .whichRunsAMaximumOf(1)
           .whichRunsTasksUsingCustomRunners(new File(runnersFile))
           .whichResolvesVariablesWith(resolverFor("my_var", "hello"))
           .build()
       );
-    
+
     compi.run();
 
     assertTrue(t1ResultFile.exists());
@@ -105,6 +104,9 @@ public class RunnerTest {
 
     assertTrue(runner_results_contents.contains("[t1] my_var: hello code: echo ${my_var} > /tmp/t1-result"));
     assertTrue(runner_results_contents.contains("[t2] code: echo task-2 > /tmp/t2-result"));
-    assertTrue(runner_results_contents.contains("[t3] iteration-value: 2 code: echo ${i} ${my_var} >> /tmp/t3-result params: my_var i"));
+    assertTrue(
+      runner_results_contents
+        .contains("[t3] iteration-value: 2 code: echo ${i} ${my_var} >> /tmp/t3-result params: my_var i")
+    );
   }
 }

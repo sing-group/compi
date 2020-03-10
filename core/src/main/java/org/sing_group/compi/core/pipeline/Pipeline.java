@@ -44,6 +44,7 @@ import org.sing_group.compi.core.validation.ValidationError;
  *
  */
 public class Pipeline {
+
   private String version = "";
   private List<Task> tasks = new LinkedList<>();
   private List<ParameterDescription> parameterDescriptions = new LinkedList<>();
@@ -109,7 +110,8 @@ public class Pipeline {
   /**
    * Returns the {@link ParameterDescription} for a given a parameter name
    *
-   * @param parameterName the parameter name
+   * @param parameterName
+   *          the parameter name
    * @return the parameter description, null if it is not available
    */
   public ParameterDescription getParameterDescription(String parameterName) {

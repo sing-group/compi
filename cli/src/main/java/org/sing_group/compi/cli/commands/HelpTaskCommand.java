@@ -73,9 +73,10 @@ public class HelpTaskCommand extends AbstractCommand {
 
     Pipeline pipelineObject = createPipelineParser().parsePipeline(pipelineFile);
 
-    Optional<Task> task = pipelineObject.getTasks().stream()
-      .filter(t -> t.getId().equals(taskId))
-      .findFirst();
+    Optional<Task> task =
+      pipelineObject.getTasks().stream()
+        .filter(t -> t.getId().equals(taskId))
+        .findFirst();
 
     if (!task.isPresent()) {
       LOGGER.warning("The specified task id (" + taskId + ") is not defined in the pipeline");
@@ -90,7 +91,7 @@ public class HelpTaskCommand extends AbstractCommand {
     }
     System.err.println("Task parameters:");
 
-    final CompiRunConfiguration.Builder builder = CompiRunConfiguration.forPipeline(pipelineObject);
+    final CompiRunConfiguration.Builder builder = CompiRunConfiguration.forPipeline(pipelineObject, null);
     CompiRunConfiguration configuration = builder.whichRunsTheSingleTask(task.getId()).build();
     CLIApplication pipelineApplication =
       PipelineCLIApplication.newPipelineCLIApplication(

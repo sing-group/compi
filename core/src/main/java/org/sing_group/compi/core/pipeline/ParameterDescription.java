@@ -20,19 +20,21 @@
  */
 package org.sing_group.compi.core.pipeline;
 
-public class ParameterDescription implements Cloneable {
+import java.io.Serializable;
 
-  
+public class ParameterDescription implements Cloneable, Serializable {
+  private static final long serialVersionUID = 1L;
+
   private String name;
-  
+
   private String shortName;
-  
+
   private String description;
-  
+
   private String defaultValue;
-  
+
   private boolean global;
-  
+
   private boolean isFlag;
 
   public ParameterDescription() {}
@@ -45,7 +47,7 @@ public class ParameterDescription implements Cloneable {
   public String getName() {
     return name;
   }
-  
+
   public void setName(String name) {
     this.name = name;
   }
@@ -58,7 +60,7 @@ public class ParameterDescription implements Cloneable {
   public String getShortName() {
     return shortName;
   }
-  
+
   public void setShortName(String shortName) {
     this.shortName = shortName;
   }
@@ -71,7 +73,7 @@ public class ParameterDescription implements Cloneable {
   public String getDescription() {
     return description;
   }
-  
+
   public void setDescription(String description) {
     this.description = description;
   }
@@ -84,19 +86,19 @@ public class ParameterDescription implements Cloneable {
   public String getDefaultValue() {
     return defaultValue;
   }
-  
+
   public void setDefaultValue(String defaultValue) {
     this.defaultValue = defaultValue;
   }
-  
+
   public boolean isGlobal() {
     return global;
   }
-  
+
   public void setGlobal(boolean global) {
     this.global = global;
   }
-  
+
   public boolean isFlag() {
     return isFlag;
   }

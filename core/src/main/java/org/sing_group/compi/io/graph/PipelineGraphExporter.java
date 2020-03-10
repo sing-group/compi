@@ -19,6 +19,7 @@
  * #L%
  */
 package org.sing_group.compi.io.graph;
+
 import static guru.nidi.graphviz.attribute.Font.config;
 import static guru.nidi.graphviz.attribute.Label.html;
 import static guru.nidi.graphviz.engine.Graphviz.fromGraph;
@@ -134,13 +135,13 @@ public class PipelineGraphExporter {
     this.taskToStyle = taskToStyle;
   }
 
-	public void setWidth(int width) {
-		this.width = width;
-	}
+  public void setWidth(int width) {
+    this.width = width;
+  }
 
-	public void setHeight(int height) {
-		this.height = height;
-	}
+  public void setHeight(int height) {
+    this.height = height;
+  }
 
   public void export() throws IOException {
     Pipeline pipelineObject = createPipelineParser().parsePipeline(this.pipeline);
@@ -167,15 +168,15 @@ public class PipelineGraphExporter {
       idToNode.putIfAbsent(task.getId(), node);
     }
 
-		for (Task task : pipelineObject.getTasks()) {
-			Node node = idToNode.get(task.getId());
-			for (String afterId : task.getAfterList()) {
-			  if (afterId.startsWith("*")) {
-			    afterId = afterId.substring(1);
-			    idToNode.put(afterId, idToNode.get(afterId).link(to(node).with(Style.DASHED)));
-			  } else {
-			    idToNode.put(afterId, idToNode.get(afterId).link(node));
-			  }
+    for (Task task : pipelineObject.getTasks()) {
+      Node node = idToNode.get(task.getId());
+      for (String afterId : task.getAfterList()) {
+        if (afterId.startsWith("*")) {
+          afterId = afterId.substring(1);
+          idToNode.put(afterId, idToNode.get(afterId).link(to(node).with(Style.DASHED)));
+        } else {
+          idToNode.put(afterId, idToNode.get(afterId).link(node));
+        }
       }
 
       if (isDrawParameters(task) && !task.getParameters().isEmpty()) {
@@ -201,27 +202,27 @@ public class PipelineGraphExporter {
       }
     }
 
-		for (Node n : idToNode.values()) {
-			pipelineGraph = pipelineGraph.with(n);
-		}
+    for (Node n : idToNode.values()) {
+      pipelineGraph = pipelineGraph.with(n);
+    }
 
-		Graphviz graphviz = fromGraph(pipelineGraph);
+    Graphviz graphviz = fromGraph(pipelineGraph);
 
-		if (this.height > 0) {
-			graphviz = graphviz.height(this.height);
-		}
+    if (this.height > 0) {
+      graphviz = graphviz.height(this.height);
+    }
 
-		if (this.width > 0) {
-			graphviz = graphviz.width(this.width);
-		}
+    if (this.width > 0) {
+      graphviz = graphviz.width(this.width);
+    }
 
-		graphviz.render(this.outputFormat.getFormat()).toFile(this.output);
+    graphviz.render(this.outputFormat.getFormat()).toFile(this.output);
   }
 
   private boolean isDrawParameters(Task task) {
     if (drawParams.equals(DrawParams.NO)) {
       return false;
-    }else if (!this.tasksToIncludeParams.isEmpty()) {
+    } else if (!this.tasksToIncludeParams.isEmpty()) {
       return this.tasksToIncludeParams.contains(task.getId());
     } else if (!this.tasksToExcludeParams.isEmpty()) {
       return !this.tasksToExcludeParams.contains(task.getId());

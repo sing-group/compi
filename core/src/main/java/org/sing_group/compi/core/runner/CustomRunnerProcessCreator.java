@@ -28,7 +28,6 @@ import org.sing_group.compi.core.pipeline.Task;
 import org.sing_group.compi.core.resolver.VariableResolver;
 import org.sing_group.compi.core.resolver.VariableResolverUtils;
 
-
 public class CustomRunnerProcessCreator implements ProcessCreator {
 
   private Runner runner;

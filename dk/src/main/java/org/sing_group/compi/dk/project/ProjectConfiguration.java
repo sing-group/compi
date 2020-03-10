@@ -26,7 +26,7 @@ public interface ProjectConfiguration {
   public String getImageName();
 
   public String getCompiVersion();
-  
+
   public String getHubAlias();
 
   public String getHubId();

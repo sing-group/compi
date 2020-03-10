@@ -20,7 +20,10 @@
  */
 package org.sing_group.compi.core;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.File;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,14 +38,16 @@ import org.sing_group.compi.core.resolver.VariableResolver;
  * for instantiating {@link CompiApp}
  * 
  * To create objects of this class, a builder is provided if you call
- * {@link CompiRunConfiguration#forPipeline(Pipeline)}
+ * {@link CompiRunConfiguration#forPipeline(Pipeline, File)}
  * 
  * @author Daniel Glez-Peña
  * 
  * @see CompiApp
  *
  */
-public class CompiRunConfiguration {
+public class CompiRunConfiguration implements Serializable {
+  private static final long serialVersionUID = 1L;
+
   private Pipeline pipeline;
   private File pipelineFile;
   private int maxTasks = 6;
@@ -249,8 +254,9 @@ public class CompiRunConfiguration {
   public static class Builder {
     private CompiRunConfiguration config = new CompiRunConfiguration();
 
-    private Builder forPipeline(Pipeline p) {
+    private Builder forPipeline(Pipeline p, File inFile) {
       this.config.setPipeline(p);
+      this.config.setPipelineFile(inFile);
       return this;
     }
 
@@ -339,9 +345,33 @@ public class CompiRunConfiguration {
     }
   }
 
-  public static Builder forPipeline(Pipeline pipeline) {
+  public static Builder forPipeline(Pipeline pipeline, File inFile) {
     Builder builder = new Builder();
-    builder.forPipeline(pipeline);
+    builder.forPipeline(pipeline, inFile);
     return builder;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sBuilder = new StringBuilder();
+    sBuilder.append("Max number of parallel tasks - " + maxTasks + "\n");
+    if (this.paramsFile != null)
+      sBuilder.append("Params file - " + paramsFile + "\n");
+    if (this.runnersFile != null)
+      sBuilder.append("Runners file - " + runnersFile + "\n");
+    if (this.singleTask != null)
+      sBuilder.append("Running single task - " + singleTask + "\n");
+    if (this.fromTasks != null)
+      sBuilder.append("Running from task(s) - " + fromTasks.stream().collect(joining(", ")));
+    if (this.afterTasks != null)
+      sBuilder.append("Running after task(s) - " + afterTasks.stream().collect(joining(", ")) + "\n");
+    if (this.untilTask != null)
+      sBuilder.append("Running until task - " + untilTask + "\n");
+    if (this.beforeTask != null)
+      sBuilder.append("Running tasks before task - " + beforeTask + "\n");
+    if (this.logsDir != null)
+      sBuilder.append("Logging task's output to dir - " + logsDir);
+
+    return sBuilder.toString();
   }
 }

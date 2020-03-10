@@ -39,16 +39,15 @@ public class TasksDAG {
 
   public Set<Dependency<?>> getDependantsOfTask(Task t) {
     Set<Dependency<?>> dependantsOfTask = new HashSet<Dependency<?>>();
-    if (this.dag.get(t)==null) {
+    if (this.dag.get(t) == null) {
       return new HashSet<>();
     }
-   
+
     for (Dependency<?> dependency : this.dag.get(t)) {
       dependantsOfTask.add(dependency);
       Set<Dependency<?>> dependants = getDependantsOfTask(dependency.getDependantTask());
       dependantsOfTask.addAll(
-        dependants.stream().map(d -> 
-              new Dependency<Task>(t, d.getDependantTask())
+        dependants.stream().map(d -> new Dependency<Task>(t, d.getDependantTask())
         ).collect(Collectors.toSet())
       );
     }

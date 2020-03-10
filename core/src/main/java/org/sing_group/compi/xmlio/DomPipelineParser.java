@@ -47,7 +47,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Implementation of {@link AbstractPipelineParser} to construtct {@code Pipeline} objects from XML files.
+ * Implementation of {@link AbstractPipelineParser} to construtct
+ * {@code Pipeline} objects from XML files.
  *
  * @author Jesus Alvarez Casanova
  * @author Hugo López-Fernández
@@ -58,10 +59,13 @@ public class DomPipelineParser extends AbstractPipelineParser {
   /**
    * Reads a pipeline XML file and returns it as a {@link Pipeline} object
    *
-   * @param f the XML input file
+   * @param f
+   *          the XML input file
    * @return the parsed Pipeline
-   * @throws IllegalArgumentException if a problem in XML parsing and validation occurs
-   * @throws IOException if a problem reading the file f occurs
+   * @throws IllegalArgumentException
+   *           if a problem in XML parsing and validation occurs
+   * @throws IOException
+   *           if a problem reading the file f occurs
    */
   public Pipeline parseXML(File f) throws IllegalArgumentException, IOException {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

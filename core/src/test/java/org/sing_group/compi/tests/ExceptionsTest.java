@@ -37,18 +37,7 @@ import org.xml.sax.SAXException;
 
 public class ExceptionsTest {
 
-  private VariableResolver simpleVariableResolver = new VariableResolver() {
-
-    @Override
-    public Set<String> getVariableNames() {
-      return new HashSet<>();
-    }
-
-    @Override
-    public String resolveVariable(String variable) throws IllegalArgumentException {
-      return "a-simple-value";
-    }
-  };
+  private SimpleVariableResolver simpleVariableResolver = new SimpleVariableResolver();
 
   @Test(expected = SAXException.class)
   public void testXSDSAXException() throws Exception {
@@ -64,7 +53,7 @@ public class ExceptionsTest {
     final int threadNumber = -2;
     final CompiApp compi =
       new CompiApp(
-        forPipeline(fromFile(new File(pipelineFile)))
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile))
           .whichRunsAMaximumOf(threadNumber)
           .whichResolvesVariablesWith(simpleVariableResolver)
           .build()
@@ -78,7 +67,7 @@ public class ExceptionsTest {
     final int threadNumber = 0;
     final CompiApp compi =
       new CompiApp(
-        forPipeline(fromFile(new File(pipelineFile)))
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile))
           .whichRunsAMaximumOf(threadNumber)
           .whichResolvesVariablesWith(simpleVariableResolver)
           .build()
@@ -91,7 +80,7 @@ public class ExceptionsTest {
     final String pipelineFile = ClassLoader.getSystemResource("pipelineParamsException.xml").getFile();
     final CompiApp compi =
       new CompiApp(
-        forPipeline(fromFile(new File(pipelineFile)))
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile))
           .whichResolvesVariablesWith(simpleVariableResolver)
           .build()
       );
@@ -109,7 +98,7 @@ public class ExceptionsTest {
     final String pipelineFile = ClassLoader.getSystemResource("pipelineForEachNotFoundException.xml").getFile();
     final CompiApp compi =
       new CompiApp(
-        forPipeline(fromFile(new File(pipelineFile)))
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile))
           .whichResolvesVariablesWith(new MapVariableResolver())
           .build()
       );
@@ -128,7 +117,7 @@ public class ExceptionsTest {
     final String fromTask = "NonExistantId";
     final CompiApp compi =
       new CompiApp(
-        forPipeline(fromFile(new File(pipelineFile)))
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile))
           .whichStartsFromTask(fromTask)
           .whichResolvesVariablesWith(simpleVariableResolver)
           .build()
@@ -141,7 +130,7 @@ public class ExceptionsTest {
     final String pipelineFile = ClassLoader.getSystemResource("pipelineNonExistantDirectory.xml").getFile();
     final CompiApp compi =
       new CompiApp(
-        forPipeline(fromFile(new File(pipelineFile)))
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile))
           .whichResolvesVariablesWith(simpleVariableResolver)
           .build()
       );
@@ -161,7 +150,7 @@ public class ExceptionsTest {
     final String singleTask = "ID2";
     final CompiApp compi =
       new CompiApp(
-        forPipeline(fromFile(new File(pipelineFile)))
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile))
           .whichRunsTheSingleTask(singleTask)
           .whichStartsFromTask(fromTask)
           .build()
@@ -176,7 +165,7 @@ public class ExceptionsTest {
     final String afterTask = "ID2";
     final CompiApp compi =
       new CompiApp(
-        forPipeline(fromFile(new File(pipelineFile)))
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile))
           .whichStartsFromTask(fromTask)
           .whichRunsTasksAfterTask(afterTask)
           .build()
@@ -184,3 +173,17 @@ public class ExceptionsTest {
     compi.run();
   }
 }
+
+class SimpleVariableResolver implements VariableResolver {
+  private static final long serialVersionUID = 1L;
+
+  @Override
+  public Set<String> getVariableNames() {
+    return new HashSet<>();
+  }
+
+  @Override
+  public String resolveVariable(String variable) throws IllegalArgumentException {
+    return "a-simple-value";
+  }
+};

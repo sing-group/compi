@@ -150,7 +150,7 @@ public class SwingDemo {
         skipComboBox.addItem("-");
         skipComboBox.setSelectedIndex(0);
         consoleTextArea.append("Task IDs\n");
-        for (Task task: compi.getPipeline().getTasks()) {
+        for (Task task : compi.getPipeline().getTasks()) {
           consoleTextArea.append("ID : " + task.getId() + "\n");
           skipComboBox.addItem(task.getId());
         }
@@ -166,11 +166,11 @@ public class SwingDemo {
     runButton.addActionListener(actionListener -> {
       new Thread(() -> {
         consoleTextArea.setText(null);
-          compiExecution(
-            (100 / compi.getPipeline().getTasks().size()),
-            model.getNumber().intValue(), paramsText.getText(),
-            skipComboBox.getSelectedItem().toString(), consoleTextArea, progressBar
-          );
+        compiExecution(
+          (100 / compi.getPipeline().getTasks().size()),
+          model.getNumber().intValue(), paramsText.getText(),
+          skipComboBox.getSelectedItem().toString(), consoleTextArea, progressBar
+        );
       }).start();
 
     });
@@ -192,7 +192,7 @@ public class SwingDemo {
     try {
       compi =
         new CompiApp(
-          forPipeline(fromFile(new File(pipelineText.getText())))
+          forPipeline(fromFile(new File(pipelineText.getText())), new File(pipelineText.getText()))
             .whichRunsAMaximumOf(threadNumber)
             .whichResolvesVariablesFromFile(new File(paramsFile))
             .whichStartsFromTasks(skipTask != null ? asList(skipTask) : null)
@@ -214,7 +214,7 @@ public class SwingDemo {
           if (task.isSkipped()) {
             if (task instanceof Foreach) {
               consoleTextArea.append("Task with id " + task.getId() + " skipped\n");
-              final Task parent = ((ForeachIteration)task).getParentForeachTask();
+              final Task parent = ((ForeachIteration) task).getParentForeachTask();
               if (parent.isFinished()) {
                 int percent = progressBar.getValue() + taskNumber;
                 progressBar.setValue(percent);
@@ -231,7 +231,7 @@ public class SwingDemo {
                 (System.currentTimeMillis() / 1000) + " - SubTask with id "
                   + task.getId() + " finished\n"
               );
-              final Task parent = ((ForeachIteration)task).getParentForeachTask();
+              final Task parent = ((ForeachIteration) task).getParentForeachTask();
               if (parent.isFinished()) {
                 int percent = progressBar.getValue() + taskNumber;
                 progressBar.setValue(percent);
@@ -262,19 +262,19 @@ public class SwingDemo {
         @Override
         public void taskIterationStarted(ForeachIteration iteration) {
           // TODO Auto-generated method stub
-          
+
         }
 
         @Override
         public void taskIterationFinished(ForeachIteration iteration) {
           // TODO Auto-generated method stub
-          
+
         }
 
         @Override
         public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
           // TODO Auto-generated method stub
-          
+
         }
 
       });

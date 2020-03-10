@@ -160,7 +160,7 @@ public class Task implements Cloneable {
     this.isAborted = isAborted;
     this.abortionCause = abortionCause;
   }
-  
+
   public CompiTaskAbortedException getAbortionCause() {
     return abortionCause;
   }

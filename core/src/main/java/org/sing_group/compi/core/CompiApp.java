@@ -65,7 +65,7 @@ public class CompiApp {
 
   private final CompiRunConfiguration config;
 
-  private final Pipeline pipeline;
+  private Pipeline pipeline;
   private final Map<Task, AtomicInteger> loopCounterOfTask = new HashMap<>();
   private final List<TaskExecutionHandler> executionHandlers = new ArrayList<>();
   private final CompiExecutionHandler executionHandler = new CompiExecutionHandler();
@@ -76,6 +76,12 @@ public class CompiApp {
   private RunnersManager runnersManager;
 
   private Object syncMonitor = this;
+
+  private CompiExecutionLog executionLog;
+
+  private boolean stopRequested = false;
+
+  private List<TaskRunnable> submittedTasks = new LinkedList<>();
 
   /**
    * Returns the current compi project version
@@ -90,6 +96,17 @@ public class CompiApp {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public CompiApp(File resumePipelineFile, boolean flexible) throws IllegalArgumentException, IOException, Exception {
+    this.executionLog = CompiExecutionLog.forPipeline(resumePipelineFile, !flexible);
+    this.config = this.executionLog.getCompiRunConfiguration();
+
+    this.init();
+  }
+
+  public CompiApp(File resumePipelineFile) throws IllegalArgumentException, IOException, Exception {
+    this(resumePipelineFile, false);
   }
 
   /**
@@ -109,9 +126,14 @@ public class CompiApp {
     CompiRunConfiguration config
   ) throws IllegalArgumentException, IOException {
 
-    validateParameters(config);
-
     this.config = config;
+    this.executionLog = new CompiExecutionLog(this.config);
+
+    init();
+  }
+
+  private void init() throws IOException {
+    validateParameters(config);
 
     this.pipeline = config.getPipeline();
 
@@ -130,6 +152,7 @@ public class CompiApp {
     disableTasksThatWillNotRun();
 
     initializeExecutorService();
+
   }
 
   /**
@@ -144,6 +167,14 @@ public class CompiApp {
 
   public Pipeline getPipeline() {
     return pipeline;
+  }
+
+  public CompiExecutionLog getExecutionLog() {
+    return this.executionLog;
+  }
+
+  public CompiRunConfiguration getConfig() {
+    return this.config;
   }
 
   /**
@@ -164,12 +195,14 @@ public class CompiApp {
    */
   public void run()
     throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException, InterruptedException {
-
     synchronized (syncMonitor) {
-      while (!taskManager.getTasksLeft().isEmpty()) {
+      while (!taskManager.getTasksLeft().isEmpty() && !this.stopRequested) {
 
         final ArrayList<Task> runnableTasks = new ArrayList<>(taskManager.getRunnableTasks());
         for (final Task taskToRun : runnableTasks) {
+          if (this.executionLog.taskWasFinished(taskToRun)) {
+            taskToRun.setSkipped(true);
+          }
           try {
             taskManager.setRunning(taskToRun);
           } catch (RuntimeException e) {
@@ -196,26 +229,29 @@ public class CompiApp {
               // for loops without iterations, we need to add a dummy process,
               // because we expect the foreach task itself
               // is in taskLeft and we need to be notified that it has finished
-
-              executorService.submit(
+              final TaskRunnable taskRunnable =
                 new TaskRunnable(
                   createIterationForForeach((Foreach) taskToRun, null, 0), this.executionHandler,
                   (task) -> {
                     return new DummyProcess();
                   }, null, null, false, this.config.isShowStdOuts()
-                  )
                 );
-                }
+              this.submittedTasks.add(taskRunnable);
+              executorService.submit(taskRunnable);
+
+            }
           } else {
             final File stdOut = getLogFile(taskToRun, ".out.log");
             final File stdErr = getLogFile(taskToRun, ".err.log");
-            executorService.submit(
+            final TaskRunnable taskRunnable =
               new TaskRunnable(
                 taskToRun, this.executionHandler, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()),
                 stdOut, stdErr, false, this.config.isShowStdOuts()
-                )
               );
-              }
+
+            this.submittedTasks.add(taskRunnable);
+            executorService.submit(taskRunnable);
+          }
         }
 
         if (taskManager.getRunnableTasks().isEmpty()) {
@@ -227,7 +263,15 @@ public class CompiApp {
     executorService.shutdown();
 
     // wait for remaining tasks that are currently running
-    executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+    do {
+      if (this.stopRequested) {
+
+        for (TaskRunnable taskRunnable : this.submittedTasks) {
+          taskRunnable.killProcess();
+        }
+        this.stopRequested = false;
+      }
+    } while (!executorService.awaitTermination(1, TimeUnit.SECONDS));
   }
 
   private void validateParameters(CompiRunConfiguration config) {
@@ -269,7 +313,7 @@ public class CompiApp {
             ? new File(
               this.config.getLogsDir() + File.separator + task.getId()
                 + (task instanceof ForeachIteration ? "_" + ((ForeachIteration) task).getIterationIndex() : "") + suffix
-              )
+            )
             : null;
     return stdOut;
   }
@@ -409,6 +453,14 @@ public class CompiApp {
     }
   }
 
+  public void requestStop() {
+    this.stopRequested = true;
+    synchronized (syncMonitor) {
+      syncMonitor.notify();
+    }
+
+  }
+
   private class CompiExecutionHandler implements TaskExecutionHandler {
 
     private Set<Foreach> foreachStartNotificationsSent = new HashSet<>();
@@ -439,6 +491,11 @@ public class CompiApp {
         syncMonitor.notify();
         if (!task.isSkipped()) {
           this.notifyTaskFinished(task);
+        }
+        try {
+          executionLog.taskFinished(task);
+        } catch (IOException e) {
+          throw new RuntimeException("Could not save execution log due to: " + e);
         }
       }
     }
@@ -483,11 +540,16 @@ public class CompiApp {
           loopCounterOfTask.put(
             parent, new AtomicInteger(
               taskManager.getForeachIterations(parent).size()
-              )
-            );
-            }
+            )
+          );
+        }
         if (!iteration.isSkipped()) {
           this.notifyTaskIterationFinished(iteration);
+          try {
+            executionLog.taskFinished(iteration);
+          } catch (IOException e) {
+            throw new RuntimeException("Could not save execution log due to: " + e);
+          }
         }
         if (loopCounterOfTask.get(parent).decrementAndGet() <= 0) {
           taskManager.setFinished(parent);
@@ -507,9 +569,10 @@ public class CompiApp {
         if (
           !iteration.getParentForeachTask().isAborted()
             && !foreachAbortedNotificationsSent.contains(iteration.getParentForeachTask())
-          ) {
+        ) {
           this.notifyTaskAborted(iteration.getParentForeachTask(), e);
           taskManager.setAborted(iteration.getParentForeachTask(), e);
+
           abortDependencies(iteration, e);
           foreachAbortedNotificationsSent.add(iteration.getParentForeachTask());
           syncMonitor.notify();
@@ -521,14 +584,24 @@ public class CompiApp {
       for (final Task taskToAbort : taskManager.getDependantTasks(task)) {
         if (taskManager.getTasksLeft().contains(taskToAbort)) {
           if (!taskToAbort.isSkipped()) {
-            notifyTaskAborted(
-              taskToAbort,
-              new CompiTaskAbortedException(
-                "Aborted because a dependency of this task has aborted (" + e.getTask().getId() + ")",
-                e, taskToAbort, new LinkedList<>(), new LinkedList<>()
+            if (taskToAbort instanceof ForeachIteration) {
+              notifyTaskIterationAborted(
+                (ForeachIteration) taskToAbort,
+                new CompiTaskAbortedException(
+                  "Aborted because a dependency of this task has aborted (" + e.getTask().getId() + ")",
+                  e, taskToAbort, new LinkedList<>(), new LinkedList<>()
                 )
               );
-              }
+            } else {
+              notifyTaskAborted(
+                taskToAbort,
+                new CompiTaskAbortedException(
+                  "Aborted because a dependency of this task has aborted (" + e.getTask().getId() + ")",
+                  e, taskToAbort, new LinkedList<>(), new LinkedList<>()
+                )
+              );
+            }
+          }
           taskManager.setAborted(taskToAbort, e);
         }
       }

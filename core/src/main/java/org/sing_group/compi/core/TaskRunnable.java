@@ -332,4 +332,11 @@ public class TaskRunnable implements Runnable {
       executionHandler.taskAborted(task, e);
     }
   }
+
+  public void killProcess() {
+    if (this.process != null && this.process.isAlive()) {
+      this.process.destroy();
+    }
+  }
+
 }

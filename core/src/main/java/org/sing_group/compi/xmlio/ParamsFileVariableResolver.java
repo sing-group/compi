@@ -31,21 +31,25 @@ import org.sing_group.compi.core.resolver.MapVariableResolver;
 import org.sing_group.compi.core.resolver.VariableResolver;
 
 /**
- * A {@code VariableResolver} implementation that reads variable names and values from a plain text file. Each line
- * assigns a variable name to a value separating them with a "=" character.
+ * A {@code VariableResolver} implementation that reads variable names and
+ * values from a plain text file. Each line assigns a variable name to a value
+ * separating them with a "=" character.
  *
  * @author Hugo López-Fernández
  */
 public class ParamsFileVariableResolver implements VariableResolver {
+  private static final long serialVersionUID = 1L;
 
   private File paramsFile;
 
   private MapVariableResolver mapResolver;
 
   /**
-   * Creates a new {@code ParamsFileVariableResolver} instance for the specified parameters file.
+   * Creates a new {@code ParamsFileVariableResolver} instance for the specified
+   * parameters file.
    * 
-   * @param paramsFile the path of the parameters file
+   * @param paramsFile
+   *          the path of the parameters file
    */
   public ParamsFileVariableResolver(final File paramsFile) {
     if (paramsFile != null) {

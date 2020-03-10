@@ -29,7 +29,7 @@ public class Runners {
   public List<Runner> getRunners() {
     return runners;
   }
-  
+
   public void setRunners(List<Runner> runners) {
     this.runners = runners;
   }

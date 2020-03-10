@@ -47,7 +47,8 @@ public class RunnersManager {
     this.resolver = resolver;
   }
 
-  public RunnersManager(File runnersXML, Pipeline pipeline, VariableResolver resolver) throws IllegalArgumentException, IOException {
+  public RunnersManager(File runnersXML, Pipeline pipeline, VariableResolver resolver)
+    throws IllegalArgumentException, IOException {
     this(resolver);
     this.runnersXML = runnersXML;
     this.pipeline = pipeline;

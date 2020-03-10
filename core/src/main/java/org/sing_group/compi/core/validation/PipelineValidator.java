@@ -184,8 +184,8 @@ public class PipelineValidator {
             errors.add(
               new ValidationError(
                 ValidationErrorType.ITERATION_DEPENDENCY_IN_NON_FOREACH_TASK,
-                "Task id \"" + t.getId() + "\" has a iteration dependency to task id "+afterTaskId+", but task "
-                  + t.getId()+ " is not a foreach task"
+                "Task id \"" + t.getId() + "\" has a iteration dependency to task id " + afterTaskId + ", but task "
+                  + t.getId() + " is not a foreach task"
               )
             );
           }
@@ -203,8 +203,9 @@ public class PipelineValidator {
                   errors.add(
                     new ValidationError(
                       ValidationErrorType.ITERATION_DEPENDENCY_TO_NON_FOREACH_TASK,
-                      "Task id \"" + t.getId() + "\" has a iteration dependency to task id "+afterTaskId+", but task "
-                        +afterTaskId+ " is not a foreach task"
+                      "Task id \"" + t.getId() + "\" has a iteration dependency to task id " + afterTaskId
+                        + ", but task "
+                        + afterTaskId + " is not a foreach task"
                     )
                   );
                 }
@@ -213,7 +214,7 @@ public class PipelineValidator {
             }
           }
         }
-          
+
         if (!taskIds.contains(afterTaskId)) {
           errors.add(
             new ValidationError(

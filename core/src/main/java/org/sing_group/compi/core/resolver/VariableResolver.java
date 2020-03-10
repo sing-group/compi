@@ -20,20 +20,23 @@
  */
 package org.sing_group.compi.core.resolver;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * A variable resolver obtains the value of a variable given its name.
  *
  */
-public interface VariableResolver {
+public interface VariableResolver extends Serializable {
 
   /**
    * Get the content of the variable.
    *
-   * @param variable the variable to resolve
+   * @param variable
+   *          the variable to resolve
    * @return the content of the variable
-   * @throws IllegalArgumentException if the variable does not exist
+   * @throws IllegalArgumentException
+   *           if the variable does not exist
    */
   String resolveVariable(String variable)
     throws IllegalArgumentException;

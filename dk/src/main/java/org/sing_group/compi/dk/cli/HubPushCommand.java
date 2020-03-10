@@ -82,7 +82,7 @@ public class HubPushCommand extends AbstractCommand {
   private Option<?> getVisibleOption() {
     return new FlagOption("visible", "v", "make the pipeline version visible at Compi Hub");
   }
-  
+
   private Option<?> getForceOption() {
     return new FlagOption("force", "f", "replace the previous version at Compi Hub");
   }
@@ -109,9 +109,9 @@ public class HubPushCommand extends AbstractCommand {
 
     boolean visible = parameters.hasOption(super.getOption("visible"));
     boolean force = parameters.hasOption(super.getOption("force"));
-    
+
     CompiProjectDirectory compiProjectDir = new CompiProjectDirectory(directory);
-    
+
     String version = null;
     try {
       version = compiProjectDir.getPipelineVersion();
@@ -119,7 +119,7 @@ public class HubPushCommand extends AbstractCommand {
       e1.printStackTrace();
       System.exit(1);
     }
-    
+
     String pipelineHubId = projectConfiguration.getHubId();
 
     if (pipelineHubId == null) {
@@ -138,7 +138,7 @@ public class HubPushCommand extends AbstractCommand {
 
     Optional<CompiHubPipelineVersion> compiHubVersion = existsVersion(pipelineVersions, version);
     if (compiHubVersion.isPresent()) {
-      if(!force) {
+      if (!force) {
         LOGGER.warning("Version " + version + " already exists at compi-hub for this pipeline. Use --force");
         System.exit(0);
       }

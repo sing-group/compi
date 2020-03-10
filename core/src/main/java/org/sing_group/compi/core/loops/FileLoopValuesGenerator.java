@@ -28,40 +28,40 @@ import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.resolver.VariableResolver;
 
 /**
- * Obtains the values of the task foreach tag when the element
- * attribute contains "file"
+ * Obtains the values of the task foreach tag when the element attribute
+ * contains "file"
  * 
  * @author Jesus Alvarez Casanova
  *
  */
 public class FileLoopValuesGenerator extends AbstractLoopValuesGenerator {
 
-	private final List<String> toExecute;
+  private final List<String> toExecute;
 
-	public FileLoopValuesGenerator(VariableResolver resolver, Foreach foreach) {
-		super(resolver, foreach);
-	  this.toExecute = new LinkedList<>();
-	}
-
-	/**
-	 * Splits all the values in the task source tag
-	 * 
-	 * @param source
-	 *            Indicates the directory of the task source tag
-	 */
-	@Override
-	public List<String> getValuesFromResolvedSource(String source) {
-		final File folder = new File(source);
-		listFilesForFolder(folder);
-		return this.toExecute;
-	}
+  public FileLoopValuesGenerator(VariableResolver resolver, Foreach foreach) {
+    super(resolver, foreach);
+    this.toExecute = new LinkedList<>();
+  }
 
   /**
-	 * List all the files inside a folder
-	 * 
-	 * @param folder
-	 *            Indicates the folder where the files are searched
-	 */
+   * Splits all the values in the task source tag
+   * 
+   * @param source
+   *          Indicates the directory of the task source tag
+   */
+  @Override
+  public List<String> getValuesFromResolvedSource(String source) {
+    final File folder = new File(source);
+    listFilesForFolder(folder);
+    return this.toExecute;
+  }
+
+  /**
+   * List all the files inside a folder
+   * 
+   * @param folder
+   *          Indicates the folder where the files are searched
+   */
   public void listFilesForFolder(final File folder) {
     if (!folder.exists()) {
       throw new IllegalArgumentException("The folder " + folder + " doesn't exist");
