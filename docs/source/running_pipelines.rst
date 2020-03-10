@@ -1,7 +1,7 @@
 Running Pipelines
 *****************
 
-This section explains how to use ``compi`` to validate and run pipelines using different parameters of the ``compi run`` command by showing several practical examples.
+This section explains how to use ``compi`` to run pipelines using different parameters of the ``compi run`` command by showing several practical examples.
 
 .. _sample_pipeline:
 
@@ -69,15 +69,6 @@ And this is the ``execute.sh`` script referenced in the parameters file (make it
  sleep $2
  echo "Finishing $1"
  
-Validating a pipeline
----------------------
-
-Run the following command to validate the ``pipeline.xml`` file:
-
-.. code-block:: bash
-
- compi validate -p pipeline.xml
-
 Executing the pipeline using a parameters file
 ----------------------------------------------
 
@@ -102,39 +93,8 @@ Run the following command to execute the ``pipeline.xml`` file providing the req
  
  compi run -p pipeline.xml -- --path .execute.sh --name command-line-name --seconds 1
 
-Export the pipeline graph as an image
--------------------------------------
+Advanced execution control
+--------------------------
 
-Run the following command to export the graph defined by the ``pipeline.xml`` pipeline as an image.
+For gaining control of the execution process, you can se the advanced topics, such as :ref:`partial execution <partial_execution>`, :ref:`logging <logging>`, etc.
 
-.. code-block:: bash
-
- compi export-graph -p pipeline.xml -o pipeline.png -f png
-
-.. figure:: images/writing/pipeline.png
-   :align: center
- 
-If you want to draw also the task parameters, try options ``--draw-task-params`` or ``--draw-pipeline-params``.
-
-Executing the pipeline using a custom task runner
--------------------------------------------------
-
-It is possible to run pipeline tasks using :ref:`custom runners<custom_runners>`, which must be defined in XML passed with the ``-r`` or ``--runners-config`` parameter. This mode is meant to allow users to run tasks using ways different than the default ``/bin/sh -c`` used by Compi, such as running tasks in Docker images or using work managers (e.g. Slurm, qsub).
-
-This is the XML file with the runners definition provided in the sample pipeline:
-
-.. code-block:: xml
-
-    <?xml version="1.0" encoding="UTF-8"?>
-    <runners xmlns="http://sing-group.org/compi/runners-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <runner>
-            echo "[${task_id}] code: ${task_code}" >> /tmp/runner-output.txt
-            /bin/sh -c "${task_code}"
-        </runner>
-    </runners>
-
-Run the following command to execute the ``pipeline.xml`` file using the example parameters file (``params``) with the custom runner defined in the ``pipeline-runner.xml`` file. This runner simply writes a log in ``/tmp/runner-output.txt`` and runs each task using ``/bin/sh -c``.
-
-.. code-block:: bash
-
- compi run -p pipeline.xml -pa params -r pipeline-runner.xml

@@ -284,3 +284,27 @@ is being provided.
   </pipeline>
 
 .. _NCName: http://www.datypic.com/sc/xsd/t-xsd_ID.html
+
+Validating a pipeline
+=======================
+
+Run the following command to validate the ``pipeline.xml`` file:
+
+.. code-block:: bash
+
+ compi validate -p pipeline.xml
+
+
+Viewing the pipeline as a graph
+===============================
+
+Run the following command to export the graph defined by the ``pipeline.xml`` pipeline as an image.
+
+.. code-block:: bash
+
+ compi export-graph -p pipeline.xml -o pipeline.png -f png
+
+.. figure:: images/writing/pipeline.png
+   :align: center
+ 
+If you want to draw also the task parameters, try options ``--draw-task-params`` or ``--draw-pipeline-params``.

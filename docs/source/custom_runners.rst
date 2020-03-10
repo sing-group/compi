@@ -1,5 +1,3 @@
-.. _custom_runners:
-
 Custom runners
 **************
 
@@ -8,7 +6,8 @@ What are Compi `runners`
 
 By default, compi runs task code by spawning local processes. With `runners`,
 task' codes are passed to custom-made scripts which are in charge of running
-them, for example, by submitting a job to a queue or using Docker images.
+them, for example, by submitting a job to a queue (e.g. Slurm, SGE) or using 
+Docker images.
 
 Runners are passed to the main ``compi run`` command using the ``-r`` 
 parameter.

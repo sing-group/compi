@@ -1,4 +1,6 @@
-Partial Execution
+.. _partial_execution:
+
+Partial execution
 *****************
 
 Compi is able to run pipelines partially, i.e. not running all tasks, but a subset of them. There are multiple options in the ``compi run``
