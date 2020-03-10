@@ -16,6 +16,14 @@ simply provide the ``-o`` parameter. For example:
 
  compi run -p pipeline.xml -o
 
+Remove Compi messages
+=====================
+You can silence Compi messages by using the ``--quiet/-q`` parameter:
+
+.. code-block:: bash
+
+ compi run -p pipeline.xml -pa params -q
+
 Log task outputs into files
 ===========================
 
@@ -46,5 +54,8 @@ multiple times, one per excluded task. For example:
 .. code-block:: bash
 
  compi run -p pipeline.xml -pa params -l /tmp --no-log-task task-1 --no-log-task task-2
+
+
+
 
 
