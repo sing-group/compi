@@ -243,13 +243,15 @@ of the ``foreach`` which is depending on. For example:
 
   <!-- samples is a parameter with values such as 
   "case-1,case-2,control-1,control-2" -->
-  <foreach id="foreach1">
-  </foreach>        
-  <foreach id="foreach2" after="*foreach1">
+  <foreach id="preprocess" of="param" in="samples" as="sample">
+    preprocess.sh ${sample}.csv > ${sample}.preprocessed.csv
+  </foreach>
+  <foreach id="analyze" of="param" in="samples" as="sample" after="*preprocess">
+    analyze.sh ${sample}.preprocessed.csv
   </foreach>        
 
 
-Please note the ``*`` in ``after="*foreach1"``, which indicates that the iterations
+Please note the ``*`` character in ``after="*preprocess"``, which indicates that the iterations
 of the second ``foreach`` will wait only for their respective iteration of the
 first ``foreach``. 
 
