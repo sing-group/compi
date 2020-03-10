@@ -18,10 +18,6 @@ Run the following command to execute a single task of the ``pipeline.xml`` file,
 
  compi run -p pipeline.xml -pa params -st task-8
  
-.. note::
-  
-  With the ``-o`` parameter, the task stdout/stderr are forwarded to the compi stdout/stderr: ``compi run -p pipeline.xml -pa params -st task-8 -o``
-
 Run the pipeline until a specific task
 --------------------------------------
 

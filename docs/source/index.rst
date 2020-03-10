@@ -15,6 +15,7 @@ Welcome to Compi's documentation!
    :maxdepth: 2
    :caption: Advanced
 
+   logging
    partial_execution
    custom_runners
    custom_interpreters
