@@ -234,7 +234,7 @@ Here it is an example:
 
 
 Iteration dependencies between `foreach` tasks
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 You can define a "iteration dependency" between two ``foreach`` tasks, so that
 the first iteration of the dependant ``foreach`` waits only for the first iteration
 of the ``foreach`` which is depending on. For example:
