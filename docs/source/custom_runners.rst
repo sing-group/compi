@@ -153,9 +153,10 @@ The following runners file shows a generic Slurm runner:
             echo ${task_code} >> ${tmpfile}
             chmod u+x ${tmpfile}
             srun -c 1 -p main --export ALL -o /tmp/task-1.log -e /tmp/task-1.err -J task_1 bash ${tmpfile}
-    </runner>
+        </runner>
+    </runners>
     
-Some parameters of the ``srum`` may need to be adjusted for each specific
+Some parameters of the ``srun`` may need to be adjusted for each specific
 cluster, but this is how a generic Slurm runner may look like. The 
 ``export`` parameter must be used to export all the environment variables to
 the process that will be executed, and this is neccessary because the task
