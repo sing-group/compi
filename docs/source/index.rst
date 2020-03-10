@@ -6,9 +6,9 @@ Welcome to Compi's documentation!
    :caption: Basics
 
    introduction
-   application_development
    writing_pipelines
    running_pipelines
+   application_development
    faq
 
 .. toctree::
