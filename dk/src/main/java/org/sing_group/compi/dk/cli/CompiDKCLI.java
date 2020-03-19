@@ -23,15 +23,23 @@ package org.sing_group.compi.dk.cli;
 import static java.util.Arrays.asList;
 import static org.sing_group.compi.dk.CompiDKVersion.getCompiDKVersion;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+import org.sing_group.compi.dk.CompiDKException;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
+import es.uvigo.ei.sing.yacli.CLIApplicationCommandException;
 import es.uvigo.ei.sing.yacli.command.Command;
 
 public class CompiDKCLI extends CLIApplication {
+
+  private static final Logger LOGGER = Logger.getLogger(CompiDKCLI.class.getName());
 
   static {
     configureLog();
@@ -75,7 +83,31 @@ public class CompiDKCLI extends CLIApplication {
     }
   }
 
+  @Override
+  protected void handleCommandException(CLIApplicationCommandException exception, PrintStream out) {
+    if (exception.getCause() instanceof CompiDKException) {
+      throw (CompiDKException) exception.getCause();
+    }
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try {
+      super.handleCommandException(exception, new PrintStream(baos));
+    } catch (Exception e) {
+      // e == exception
+    }
+    throw new CompiDKException(exception.getCause().getClass().getSimpleName(), baos.toString(), exception.getCause());
+  }
+
   public static void main(String[] args) {
-    new CompiDKCLI().run(args);
+    try {
+      new CompiDKCLI().run(args);
+    } catch (CompiDKException compiException) {
+      // compiException.printStackTrace();
+      LOGGER.severe(compiException.getShortMessage());
+      LOGGER.severe(compiException.getDisplayMessage());
+      System.exit(1);
+    } catch (Exception e) {
+      // e.printStackTrace(); //TODO: add compi cli argument "-X" to show this
+      System.exit(1);
+    }
   }
 }

@@ -35,6 +35,7 @@ import org.sing_group.compi.core.CompiApp;
 import org.sing_group.compi.core.CompiRunConfiguration;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
+import es.uvigo.ei.sing.yacli.CLIApplicationCommandException;
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.Command;
 import es.uvigo.ei.sing.yacli.command.CommandPrinterConfiguration;
@@ -46,22 +47,25 @@ public class PipelineCLIApplication extends CLIApplication {
   private static CompiRunConfiguration config;
   private static String[] commandLineArgs;
 
+  private PrintStream out;
   private String pipelineName;
 
   public static PipelineCLIApplication newPipelineCLIApplication(
     String pipelineName,
     CompiRunConfiguration config,
-    String[] commandLineArgs
+    String[] commandLineArgs,
+    PrintStream out
   ) {
 
     PipelineCLIApplication.config = config;
     PipelineCLIApplication.commandLineArgs = commandLineArgs;
 
-    return new PipelineCLIApplication(pipelineName);
+    return new PipelineCLIApplication(pipelineName, out);
   }
 
-  private PipelineCLIApplication(String pipelineName) {
+  private PipelineCLIApplication(String pipelineName, PrintStream out) {
     this.pipelineName = pipelineName;
+    this.out = out;
   }
 
   @Override
@@ -114,6 +118,16 @@ public class PipelineCLIApplication extends CLIApplication {
 
   protected void printTaskHelp(Command command, PrintStream out) {
     printCommandOptionsExtended(command, out, new CommandPrinterConfiguration(false));
+  }
+
+  @Override
+  protected void handleCommandException(CLIApplicationCommandException exception, PrintStream out) {
+    super.handleCommandException(exception, this.out);
+  }
+
+  @Override
+  public void run(String[] args) {
+    super.run(args);
   }
 
   private class ShowPipelineHelp extends AbstractCommand {
@@ -182,5 +196,6 @@ public class PipelineCLIApplication extends CLIApplication {
     protected List<Option<?>> createOptions() {
       return new ArrayList<>();
     }
+
   }
 }

@@ -1,6 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
 	http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -43,18 +42,18 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 		</dependency>
-                  <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpmime</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
 		</dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
@@ -91,6 +90,19 @@
 							</execution>
 						</executions>
 					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-failsafe-plugin</artifactId>
+						<version>3.0.0-M4</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>integration-test</goal>
+									<goal>verify</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 				</plugins>
 			</build>
 		</profile>
@@ -116,8 +128,7 @@
 											<fileset dir="${basedir}/target/dist">
 												<include name="compi-dk"/>
 											</fileset>
-											<fileset
-												dir="${basedir}/target/installer/payload/compi-dk">
+											<fileset dir="${basedir}/target/installer/payload/compi-dk">
 												<include name="compi-dk"/>
 											</fileset>
 											<fileset dir="${basedir}/target/installer/payload">
@@ -138,8 +149,7 @@
 								<phase>package</phase>
 								<configuration>
 									<target>
-										<exec executable="${basedir}/target/installer/build"
-											dir="${project.build.directory}/installer"></exec>
+										<exec executable="${basedir}/target/installer/build" dir="${project.build.directory}/installer"></exec>
 									</target>
 								</configuration>
 								<goals>
@@ -170,20 +180,14 @@
 								</goals>
 								<configuration>
 									<target>
-										<tar
-											destfile="${project.build.directory}/installer/compi-dk-${project.version}.tar">
-											<tarfileset
-												dir="${basedir}/target/installer/payload/compi-dk"
-												filemode="775">
+										<tar destfile="${project.build.directory}/installer/compi-dk-${project.version}.tar">
+											<tarfileset dir="${basedir}/target/installer/payload/compi-dk" filemode="775">
 												<include name="compi-dk"/>
 												<include name="compi-dk-files/**"/>
 											</tarfileset>
 										</tar>
-										<gzip
-											destfile="${project.build.directory}/installer/compi-dk-${project.version}.tar.gz"
-											src="${project.build.directory}/installer/compi-dk-${project.version}.tar"/>
-										<delete
-											file="${project.build.directory}/installer/compi-dk-${project.version}.tar"/>
+										<gzip destfile="${project.build.directory}/installer/compi-dk-${project.version}.tar.gz" src="${project.build.directory}/installer/compi-dk-${project.version}.tar"/>
+										<delete file="${project.build.directory}/installer/compi-dk-${project.version}.tar"/>
 									</target>
 								</configuration>
 							</execution>
