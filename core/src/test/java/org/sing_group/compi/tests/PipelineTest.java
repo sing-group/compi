@@ -978,4 +978,27 @@ public class PipelineTest {
     assertEquals(3, handler.getAbortedTasks().size());
   }
 
+  @Test
+  public void testForeachIf() throws Exception {
+    final String pipelineFile =
+      ClassLoader.getSystemResource("testForeachIf.xml")
+        .getFile();
+
+    final CompiApp compi =
+      new CompiApp(
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile))
+          .build()
+      );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+
+    assertEquals(4, handler.getLoopIterations().size());
+    assertTrue(handler.getLoopIterations().contains("S_task_0"));
+    assertTrue(handler.getLoopIterations().contains("E_task_0"));
+    assertTrue(handler.getLoopIterations().contains("E_task_2"));
+    assertTrue(handler.getLoopIterations().contains("E_task_2"));
+  }
 }
