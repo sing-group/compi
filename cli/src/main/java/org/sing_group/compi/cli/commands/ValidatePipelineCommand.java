@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.sing_group.compi.cli.CompiException;
 import org.sing_group.compi.core.validation.PipelineValidator;
 import org.sing_group.compi.core.validation.ValidationError;
 
@@ -51,8 +52,10 @@ public class ValidatePipelineCommand extends AbstractCommand {
     File pipelineFile = new File(pipelineNameFile);
 
     if (!pipelineFile.exists()) {
-      throw new IllegalArgumentException(
-        "Pipeline file not found: " + pipelineNameFile
+      String errorMessage = "Pipeline file not found: " + pipelineNameFile;
+      throw new CompiException(
+        "PipelineNotFound",
+        errorMessage, new IllegalArgumentException(errorMessage)
       );
     }
 

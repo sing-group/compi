@@ -1,0 +1,110 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+	http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>compi-e2e-tests</artifactId>
+	<packaging>jar</packaging>
+
+	<parent>
+		<groupId>org.sing_group</groupId>
+		<artifactId>compi</artifactId>
+		<version>1.3.0</version>
+		<!--
+			WARNING: change version using (in the parent project):
+			mvn versions:set -DnewVersion=[new_version]
+			mvn versions:commit
+
+			This will change the version in all modules at-once
+		-->
+	</parent>
+
+	<name>Compi end-to-end CLI(s) tests</name>
+
+	<properties>
+		<distResourcesDirectory>src/main/dist-resources</distResourcesDirectory>
+		<installerResourcesDirectory>src/main/installer</installerResourcesDirectory>
+		<should.skip.dist>true</should.skip.dist>
+		<should.skip.installer>true</should.skip.installer>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.sing_group</groupId>
+			<artifactId>compi-cli</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sing_group</groupId>
+			<artifactId>compi-dk</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>java-hamcrest</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>createDist</id>
+			<properties>
+				<should.skip.dist>false</should.skip.dist>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-failsafe-plugin</artifactId>
+						<version>3.0.0-M4</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>integration-test</goal>
+									<goal>verify</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+
+			</build>
+		</profile>
+	</profiles>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>com.googlecode.maven-download-plugin</groupId>
+										<artifactId>download-maven-plugin</artifactId>
+										<versionRange>[1.2.1,)</versionRange>
+										<goals>
+											<goal>wget</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

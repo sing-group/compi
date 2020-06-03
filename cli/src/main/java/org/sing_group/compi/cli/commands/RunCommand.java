@@ -27,8 +27,10 @@ import static org.sing_group.compi.cli.PipelineCLIApplication.newPipelineCLIAppl
 import static org.sing_group.compi.core.CompiRunConfiguration.forPipeline;
 import static org.sing_group.compi.core.pipeline.Pipeline.fromFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,12 +40,14 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.sing_group.compi.cli.CompiException;
 import org.sing_group.compi.core.CompiRunConfiguration;
 import org.sing_group.compi.core.PipelineValidationException;
 import org.sing_group.compi.core.pipeline.Pipeline;
 import org.sing_group.compi.core.validation.ValidationError;
 
 import es.uvigo.ei.sing.yacli.CLIApplication;
+import es.uvigo.ei.sing.yacli.CLIApplicationException;
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;
 import es.uvigo.ei.sing.yacli.command.option.FlagOption;
@@ -169,31 +173,34 @@ public class RunCommand extends AbstractCommand {
     File pipelineFile = new File(pipelineFileName);
 
     if (!pipelineFile.exists()) {
-      throw new IllegalArgumentException(
-        "Pipeline file not found: " + pipelineFileName
-      );
+      String errorMessage = "Pipeline file not found: " + pipelineFileName;
+      throw new CompiException("Pipeline file not found", errorMessage, new IllegalArgumentException(errorMessage));
     }
 
     if (hasSingleTask && (hasFrom || hasAfter || hasUntilTask || hasBeforeTask)) {
-      throw new IllegalArgumentException(
+      String errorMessage =
         "--" + SINGLE_TASK_LONG + " is incompatible with any of --" + FROM_LONG + ", --" + AFTER_LONG + ", --"
           + UNTIL_TASK_LONG + ", and "
-          + BEFORE_TASK_LONG
-      );
+          + BEFORE_TASK_LONG;
+      throw new CompiException("Incompatible Parameters", errorMessage, new IllegalArgumentException(errorMessage));
     }
+
     if (hasUntilTask && hasBeforeTask) {
-      throw new IllegalArgumentException("--" + UNTIL_TASK_LONG + " is incompatible with --" + BEFORE_TASK_LONG);
+      String errorMessage = "--" + UNTIL_TASK_LONG + " is incompatible with --" + BEFORE_TASK_LONG;
+      throw new CompiException("Incompatible Parameters", errorMessage, new IllegalArgumentException(errorMessage));
     }
+
     if (hasLogOnlyTasks && hasExcludeLogTasks) {
-      throw new IllegalArgumentException(
-        "--" + LOG_ONLY_TASK_LONG + " and --" + LOG_EXCLUDE_TASK_LONG + " are incompatible"
-      );
+      String errorMessage =
+        "--" + LOG_ONLY_TASK_LONG + " and --" + LOG_EXCLUDE_TASK_LONG + " are incompatible";
+
+      throw new CompiException("Incompatible Parameters", errorMessage, new IllegalArgumentException(errorMessage));
     }
     if ((hasLogOnlyTasks || hasExcludeLogTasks) && !hasLogDir) {
-      throw new IllegalArgumentException(
+      String errorMessage =
         "--" + LOGS_DIR_LONG + " is mandatory if --" + (hasLogOnlyTasks ? LOG_ONLY_TASK_LONG : LOG_EXCLUDE_TASK_LONG)
-          + " is used"
-      );
+          + " is used";
+      throw new CompiException("Incompatible Parameters", errorMessage, new IllegalArgumentException(errorMessage));
     }
 
     List<String> fromTasks =
@@ -209,9 +216,11 @@ public class RunCommand extends AbstractCommand {
       Set<String> afterTasksSet = new HashSet<>(afterTasks);
       afterTasksSet.retainAll(new HashSet<>(fromTasks));
       if (afterTasksSet.size() > 0) {
-        throw new IllegalArgumentException(
+        String errorMessage =
           "--" + FROM_LONG + " and --" + AFTER_LONG + "  have tasks in common, which is illegal. Common tasks: "
-            + afterTasksSet.stream().collect(joining(", "))
+            + afterTasksSet.stream().collect(joining(", "));
+        throw new CompiException(
+          "Incompatible from and after values", errorMessage, new IllegalArgumentException(errorMessage)
         );
       }
     }
@@ -221,7 +230,13 @@ public class RunCommand extends AbstractCommand {
     if (parameters.hasOption(super.getOption(RUNNERS_CONFIG_FILE))) {
       runnersFile = new File(parameters.getSingleValueString(super.getOption(RUNNERS_CONFIG_FILE)));
       if (!runnersFile.exists()) {
-        throw new IllegalArgumentException("The runners file does not exist: " + runnersFile);
+        String errorMessage = "Runners file not found: " + runnersFile;
+        throw new CompiException("Runners file not found", errorMessage, new IllegalArgumentException(errorMessage));
+      } else if (runnersFile.isDirectory()) {
+        String errorMessage = "The specified runners file is a directory and must be a file: " + runnersFile;
+        throw new CompiException(
+          "Params file is a directory", errorMessage, new IllegalArgumentException(errorMessage)
+        );
       }
     }
 
@@ -230,10 +245,12 @@ public class RunCommand extends AbstractCommand {
     if (parameters.hasOption(super.getOption(PARAMS_FILE))) {
       paramsFile = new File(parameters.getSingleValueString(super.getOption(PARAMS_FILE)));
       if (!paramsFile.exists()) {
-        throw new IllegalArgumentException("The params file does not exist: " + paramsFile);
+        String errorMessage = "Params file not found: " + paramsFile;
+        throw new CompiException("Params file not found", errorMessage, new IllegalArgumentException(errorMessage));
       } else if (paramsFile.isDirectory()) {
-        throw new IllegalArgumentException(
-          "The specified params file is a directory and must be a file: " + paramsFile
+        String errorMessage = "The specified params file is a directory and must be a file: " + paramsFile;
+        throw new CompiException(
+          "Params file is a directory", errorMessage, new IllegalArgumentException(errorMessage)
         );
       }
     }
@@ -255,10 +272,14 @@ public class RunCommand extends AbstractCommand {
     if (parameters.hasOption(super.getOption(LOGS_DIR))) {
       logsDir = new File(parameters.getSingleValueString(super.getOption(LOGS_DIR)));
       if (!logsDir.exists()) {
-        throw new IllegalArgumentException("Log dir (" + logsDir + ") does not exist or is not accessible");
+        String errorMessage = "Log dir (" + logsDir + ") does not exist or is not accessible";
+        throw new CompiException("Log not found", errorMessage, new IllegalArgumentException(errorMessage));
       }
       if (!logsDir.isDirectory()) {
-        throw new IllegalArgumentException("Log dir (" + logsDir + ") is not a directory");
+        String errorMessage = "Log dir (" + logsDir + ") is not a directory";
+        throw new CompiException(
+          "Log dir is not a directory", errorMessage, new IllegalArgumentException(errorMessage)
+        );
       }
     }
 
@@ -266,6 +287,8 @@ public class RunCommand extends AbstractCommand {
       hasLogOnlyTasks ? parameters.getAllValuesString(super.getOption(LOG_ONLY_TASK)) : null;
     List<String> logExcludeTasks =
       hasExcludeLogTasks ? parameters.getAllValuesString(super.getOption(LOG_EXCLUDE_TASK)) : null;
+
+    ByteArrayOutputStream errorBaos = new ByteArrayOutputStream();
 
     try {
       CompiRunConfiguration config =
@@ -288,7 +311,8 @@ public class RunCommand extends AbstractCommand {
       CLIApplication pipelineApplication =
         newPipelineCLIApplication(
           pipelineFileName,
-          config, this.commandLineArgs
+          config, this.commandLineArgs,
+          new PrintStream(errorBaos)
         );
 
       if (hasHelp) {
@@ -306,12 +330,21 @@ public class RunCommand extends AbstractCommand {
 
       pipelineApplication.run(getPipelineParameters(this.commandLineArgs));
 
+    } catch (CLIApplicationException cliException) {
+      // LOGGER.severe("here: " + errorBaos.toString() + "-----");
+      throw new CompiException(
+        cliException.getCause().getClass().getSimpleName(), errorBaos.toString(), cliException.getCause()
+      );
     } catch (IllegalArgumentException e) {
-      e.printStackTrace();
-      LOGGER.severe(e.getClass() + ": " + e.getMessage());
+      /*
+       * e.printStackTrace(); LOGGER.severe(e.getClass() + ": " +
+       * e.getMessage());
+       */
+      throw e;
     } catch (PipelineValidationException e) {
-      LOGGER.severe("Pipeline is not valid");
-      logValidationErrors(e.getErrors());
+      // LOGGER.severe("Pipeline is not valid");
+      // logValidationErrors(e.getErrors());
+      throw new CompiException("Pipeline is not valid", e.getMessage(), e);
     }
   }
 
@@ -337,8 +370,10 @@ public class RunCommand extends AbstractCommand {
     logValidationErrors(errors);
 
     if (errors.stream().filter(error -> !error.getType().isError()).count() > 0 && abortIfWarnings) {
-      throw new IllegalArgumentException(
-        "Pipeline has warnings and --" + ABORT_IF_WARNINGS_LONG + " option was used. Aborting"
+      throw new CompiException(
+        "Aborted due to warnings",
+        "Pipeline has warnings and --" + ABORT_IF_WARNINGS_LONG + " option was used. Aborting",
+        new PipelineValidationException(errors)
       );
     }
 

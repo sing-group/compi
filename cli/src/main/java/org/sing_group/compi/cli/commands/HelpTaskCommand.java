@@ -91,13 +91,15 @@ public class HelpTaskCommand extends AbstractCommand {
     }
     System.err.println("Task parameters:");
 
-    final CompiRunConfiguration.Builder builder = CompiRunConfiguration.forPipeline(pipelineObject, null);
+    final CompiRunConfiguration.Builder builder =
+      CompiRunConfiguration.forPipeline(pipelineObject, new File(pipelineFileName));
     CompiRunConfiguration configuration = builder.whichRunsTheSingleTask(task.getId()).build();
     CLIApplication pipelineApplication =
       PipelineCLIApplication.newPipelineCLIApplication(
         pipelineFileName,
         configuration,
-        this.commandLineArgs
+        this.commandLineArgs,
+        System.err
       );
     pipelineApplication.run(new String[] {
       "help-task"

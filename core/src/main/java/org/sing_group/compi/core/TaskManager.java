@@ -191,10 +191,14 @@ public class TaskManager {
    */
   public void setRunning(final Task task) {
     task.setRunning(true);
-    if (!task.isSkipped())
+    if (!task.isSkipped() && (!(task instanceof Foreach))) {
       evaluateIf(task);
+    }
     if (!task.isSkipped() && task instanceof Foreach && !(task instanceof ForeachIteration)) {
       initializeForEach((Foreach) task);
+    }
+    if (task instanceof ForeachIteration) {
+      evaluateIf(task);
     }
     this.tasksLeft.remove(task);
   }

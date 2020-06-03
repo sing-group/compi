@@ -355,6 +355,8 @@ public class CompiRunConfiguration implements Serializable {
   public String toString() {
     StringBuilder sBuilder = new StringBuilder();
     sBuilder.append("Max number of parallel tasks - " + maxTasks + "\n");
+    if (this.pipelineFile != null)
+      sBuilder.append("Pipeline file - " + pipelineFile + "\n");
     if (this.paramsFile != null)
       sBuilder.append("Params file - " + paramsFile + "\n");
     if (this.runnersFile != null)

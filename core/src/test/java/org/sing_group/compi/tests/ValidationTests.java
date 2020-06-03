@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.NON_DECLARED_PARAMETER;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.NON_DECLARED_TASK_ID;
 import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.XML_SCHEMA_VALIDATION_ERROR;
+import static org.sing_group.compi.core.validation.PipelineValidator.ValidationErrorType.PARAMETER_NAME_FOUND_IN_CODE;
 
 import java.io.File;
 import java.util.List;
@@ -70,6 +71,14 @@ public class ValidationTests {
 
     List<ValidationError> errors = validatePipeline(pipelineName);
     assertEquals(1, numberOfErrorsOfType(NON_DECLARED_PARAMETER, errors));
+  }
+
+  @Test
+  public void testNotParameterInSource() {
+    String pipelineName = "pipelineNotParameterInSource.xml";
+
+    List<ValidationError> errors = validatePipeline(pipelineName);
+    assertEquals(1, numberOfErrorsOfType(PARAMETER_NAME_FOUND_IN_CODE, errors));
   }
 
   @Test
