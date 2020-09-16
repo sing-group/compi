@@ -271,8 +271,8 @@ public class RunCommand extends AbstractCommand {
     File logsDir = null;
     if (parameters.hasOption(super.getOption(LOGS_DIR))) {
       logsDir = new File(parameters.getSingleValueString(super.getOption(LOGS_DIR)));
-      if (!logsDir.exists()) {
-        String errorMessage = "Log dir (" + logsDir + ") does not exist or is not accessible";
+      if (!logsDir.exists() && !logsDir.mkdirs()) {
+        String errorMessage = "Log dir (" + logsDir + ") could not be created";
         throw new CompiException("Log not found", errorMessage, new IllegalArgumentException(errorMessage));
       }
       if (!logsDir.isDirectory()) {
