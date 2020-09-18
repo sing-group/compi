@@ -260,7 +260,6 @@ public class TaskManager {
       int index = 0;
       for (final String source : values) {
         ForeachIteration iteration = createIterationForForeach(foreach, source, index++);
-        this.tasksLeft.add(iteration);
         this.forEachTasks.get(foreach).add(iteration);
       }
       this.dag.getDependantsOfTask(foreach).stream().forEach(dependency -> {
@@ -293,6 +292,10 @@ public class TaskManager {
           });
         }
       });
+
+      for (ForeachIteration iteration : this.forEachTasks.get(foreach)) {
+        this.tasksLeft.add(iteration);
+      }
     }
   }
 

@@ -112,12 +112,13 @@ public class TaskRunnable implements Runnable {
             if (!this.task.isAborted()) {
               taskAborted(this.task, ((ForeachIteration) task).getParentForeachTask().getAbortionCause());
             }
-          } else {
-            this.process = this.getProcess(this.task);
-            openLogBuffers(this.process);
-            waitForProcess(this.process);
-            taskFinished(this.task);
           }
+
+          this.process = this.getProcess(this.task);
+          openLogBuffers(this.process);
+          waitForProcess(this.process);
+          taskFinished(this.task);
+
         } else {
           taskFinished(this.task);
         }

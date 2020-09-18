@@ -414,6 +414,25 @@ public class PipelineTest {
   }
 
   @Test
+  public void testPipelineIterationBindedWithAbortedIterations() throws Exception {
+    final String pipelineFile =
+      ClassLoader.getSystemResource("testPipelineIterationBindedWithAbortedIterations.xml").getFile();
+
+    final CompiApp compi =
+      new CompiApp(
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile)).whichRunsAMaximumOf(1)
+          .build()
+      );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+    assertTrue(handler.getFinishedTasksIncludingLoopChildren().size() == 6);
+
+  }
+
+  @Test
   public void testTaskExecutionHandler() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("testExecutionHandler.xml").getFile();
     final CompiApp compi =
@@ -490,6 +509,10 @@ public class PipelineTest {
 
     // ID3: iteration 1, which aborts so the whole task will abort
     handler.taskIterationAborted(capture(capturesForTaskID3[1]), anyObject());
+    expectLastCall();
+
+    // ID3: iteration 2, runs equally
+    handler.taskIterationFinished(capture(capturesForTaskID3[3]));
     expectLastCall();
 
     // the whole task ID3 aborts...
