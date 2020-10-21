@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>org.sing_group</groupId>
 		<artifactId>compi</artifactId>
-		<version>1.3.2</version>
+		<version>1.3.3</version>
 		<!--
 			WARNING: change version using (in the parent project):
 			mvn versions:set -DnewVersion=[new_version]

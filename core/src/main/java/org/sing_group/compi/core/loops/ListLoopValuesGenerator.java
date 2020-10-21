@@ -50,7 +50,8 @@ public class ListLoopValuesGenerator extends AbstractLoopValuesGenerator {
    */
   @Override
   protected List<String> getValuesFromResolvedSource(String source) {
-    final String[] sourceStrings = source.split(",");
+
+    final String[] sourceStrings = source.length() == 0 ? new String[0] : source.split(",");
     for (final String s : sourceStrings) {
       this.toExecute.add(s);
     }

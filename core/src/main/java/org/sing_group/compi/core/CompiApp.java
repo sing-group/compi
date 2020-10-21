@@ -22,6 +22,7 @@ package org.sing_group.compi.core;
 
 import static org.sing_group.compi.core.loops.ForeachIteration.createIterationForForeach;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -203,6 +204,7 @@ public class CompiApp {
           if (this.executionLog.taskWasFinished(taskToRun)) {
             taskToRun.setSkipped(true);
           }
+
           try {
             taskManager.setRunning(taskToRun);
           } catch (RuntimeException e) {
@@ -219,6 +221,7 @@ public class CompiApp {
             });
             continue;
           }
+
           if (taskToRun instanceof Foreach && !(taskToRun instanceof ForeachIteration)) {
             loopCounterOfTask.put(
               taskToRun, new AtomicInteger(
@@ -677,12 +680,12 @@ public class CompiApp {
 
     @Override
     public InputStream getInputStream() {
-      return null;
+      return new ByteArrayInputStream(new byte[0]);
     }
 
     @Override
     public InputStream getErrorStream() {
-      return null;
+      return new ByteArrayInputStream(new byte[0]);
     }
 
     @Override

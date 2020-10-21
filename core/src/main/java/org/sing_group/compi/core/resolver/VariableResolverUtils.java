@@ -131,7 +131,11 @@ public class VariableResolverUtils {
 
   private String getFileContents(File resolvedTextFile) throws FileNotFoundException {
     try (Scanner resultsScanner = new Scanner(resolvedTextFile)) {
-      return resultsScanner.useDelimiter("\\Z").next();
+      if (resultsScanner.useDelimiter("\\Z").hasNext()) {
+        return resultsScanner.useDelimiter("\\Z").next();
+      } else {
+        return "";
+      }
     }
   }
 }

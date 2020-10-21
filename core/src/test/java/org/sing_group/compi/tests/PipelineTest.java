@@ -282,6 +282,25 @@ public class PipelineTest {
   }
 
   @Test
+  public void testPipelineEmptyLoop() throws Exception {
+    final String pipelineFile = ClassLoader.getSystemResource("testEmptyForeach.xml").getFile();
+
+    final CompiApp compi =
+      new CompiApp(
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile))
+          .build()
+      );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+
+    assertTrue("empty loop does not finish", handler.getFinishedTasksIncludingLoopChildren().contains("ID-1"));
+
+  }
+
+  @Test
   public void testPipelineIterationBindedLoop() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("testPipelineIterationBindedLoops.xml").getFile();
 
