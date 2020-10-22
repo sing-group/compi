@@ -3,7 +3,7 @@
  * Compi Core
  * %%
  * Copyright (C) 2016 - 2018 Daniel Glez-Peña, Osvaldo Graña-Castro, Hugo
- * 			López-Fernández, Jesús Álvarez Casanova
+ *      López-Fernández, Jesús Álvarez Casanova
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,10 @@ import static org.sing_group.compi.xmlio.PipelineParserFactory.createPipelinePar
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.Pipeline;
@@ -153,10 +155,12 @@ public class PipelineGraphExporter {
     pipelineGraph = pipelineGraph.nodeAttr().with(config("Arial", this.fontSize));
 
     Map<String, Node> idToNode = new HashMap<>();
+    Map<String, Task> idToTask = new HashMap<>();
 
-    for (Task task : pipelineObject.getTasks()) {
+    List<Task> tasks = pipelineObject.getTasks();
+
+    for (Task task : tasks) {
       Node node = node(task.getId());
-
       if (Foreach.class.isAssignableFrom(task.getClass())) {
         node = node.with(Shape.RECTANGLE, getTaskStyle(task.getId(), true));
       } else {
@@ -166,44 +170,17 @@ public class PipelineGraphExporter {
         node = node.with(Color.rgb(taskToRgbColor.get(task.getId())));
       }
       idToNode.putIfAbsent(task.getId(), node);
+      idToTask.putIfAbsent(task.getId(), task);
     }
 
-    for (Task task : pipelineObject.getTasks()) {
-      Node node = idToNode.get(task.getId());
-      for (String afterId : task.getAfterList()) {
-        if (afterId.startsWith("*")) {
-          afterId = afterId.substring(1);
-          idToNode.put(afterId, idToNode.get(afterId).link(to(node).with(Style.DASHED)));
-        } else {
-          idToNode.put(afterId, idToNode.get(afterId).link(node));
-        }
-      }
+    Set<String> connectedTasks = new HashSet<>();
 
-      if (isDrawParameters(task) && !task.getParameters().isEmpty()) {
-        if (this.drawParams.equals(DrawParams.TASK)) {
-          String paramsNodeName = task.getId() + "_params";
-          Node params =
-            node(paramsNodeName).with(
-              html(task.getParameters().stream().collect(joining("<br/>")))
-            ).with(getParamsNodeStyle());
-          idToNode.put(paramsNodeName, params.link(to(node).with(Style.DOTTED)));
-        } else {
-          for (String p : task.getParameters()) {
-            String paramsNodeName = p;
-            Node paramsNode = null;
-            if (idToNode.containsKey(paramsNodeName)) {
-              paramsNode = idToNode.get(paramsNodeName);
-            } else {
-              paramsNode = node(paramsNodeName).with(Label.of(p)).with(getParamsNodeStyle());
-            }
-            idToNode.put(paramsNodeName, paramsNode.link(to(node).with(Style.DOTTED)));
-          }
-        }
-      }
+    for (Task task : tasks) {
+      connectTask(task, connectedTasks, idToNode, idToTask);
     }
 
-    for (Node n : idToNode.values()) {
-      pipelineGraph = pipelineGraph.with(n);
+    for (Task task : tasks) {
+      pipelineGraph = pipelineGraph.with(idToNode.get(task.getId()));
     }
 
     Graphviz graphviz = fromGraph(pipelineGraph);
@@ -217,6 +194,50 @@ public class PipelineGraphExporter {
     }
 
     graphviz.render(this.outputFormat.getFormat()).toFile(this.output);
+  }
+
+  private void connectTask(
+    Task task, Set<String> connectedTasks, Map<String, Node> idToNode, Map<String, Task> idToTask
+  ) {
+    if (connectedTasks.contains(task.getId())) {
+      return;
+    }
+
+    Node node = idToNode.get(task.getId());
+    for (String afterId : task.getAfterList()) {
+      if (afterId.startsWith("*")) {
+        afterId = afterId.substring(1);
+        connectTask(idToTask.get(afterId), connectedTasks, idToNode, idToTask);
+        idToNode.put(afterId, idToNode.get(afterId).link(to(node).with(Style.DASHED)));
+      } else {
+        connectTask(idToTask.get(afterId), connectedTasks, idToNode, idToTask);
+        idToNode.put(afterId, idToNode.get(afterId).link(node));
+      }
+    }
+
+    connectedTasks.add(task.getId());
+
+    if (isDrawParameters(task) && !task.getParameters().isEmpty()) {
+      if (this.drawParams.equals(DrawParams.TASK)) {
+        String paramsNodeName = task.getId() + "_params";
+        Node params =
+          node(paramsNodeName).with(
+            html(task.getParameters().stream().collect(joining("<br/>")))
+          ).with(getParamsNodeStyle());
+        idToNode.put(paramsNodeName, params.link(to(node).with(Style.DOTTED)));
+      } else {
+        for (String p : task.getParameters()) {
+          String paramsNodeName = p;
+          Node paramsNode = null;
+          if (idToNode.containsKey(paramsNodeName)) {
+            paramsNode = idToNode.get(paramsNodeName);
+          } else {
+            paramsNode = node(paramsNodeName).with(Label.of(p)).with(getParamsNodeStyle());
+          }
+          idToNode.put(paramsNodeName, paramsNode.link(to(node).with(Style.DOTTED)));
+        }
+      }
+    }
   }
 
   private boolean isDrawParameters(Task task) {
