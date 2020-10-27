@@ -23,12 +23,14 @@ package org.sing_group.compi.core;
 import static java.util.function.Function.identity;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import org.sing_group.compi.core.loops.ForeachIteration;
 import org.sing_group.compi.core.loops.ForeachIterationDependency;
 import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.Task;
@@ -37,7 +39,13 @@ public class TasksDAG {
 
   private final Map<Task, Set<Dependency<?>>> dag = new ConcurrentHashMap<>();
 
+  private Map<Task, Set<Dependency<?>>> dependantsCache = new HashMap<>();
+  private Map<Task, Set<Dependency<?>>> dependenciesCache = new HashMap<>();
+
   public Set<Dependency<?>> getDependantsOfTask(Task t) {
+    if (dependantsCache.containsKey(t))
+      return dependantsCache.get(t);
+
     Set<Dependency<?>> dependantsOfTask = new HashSet<Dependency<?>>();
     if (this.dag.get(t) == null) {
       return new HashSet<>();
@@ -51,6 +59,9 @@ public class TasksDAG {
         ).collect(Collectors.toSet())
       );
     }
+
+    dependantsCache.put(t, dependantsOfTask);
+
     return dependantsOfTask;
   }
 
@@ -62,6 +73,9 @@ public class TasksDAG {
    * @return Tasks that task depends on
    */
   public Set<Dependency<?>> getDependenciesOfTask(Task task) {
+    if (dependenciesCache.containsKey(task))
+      return dependenciesCache.get(task);
+
     final Set<Dependency<?>> dependencies = new HashSet<>();
     dag.keySet().forEach(t -> {
       final Set<Dependency<?>> dependants = getDependantsOfTask(t);
@@ -74,6 +88,7 @@ public class TasksDAG {
       ;
     });
 
+    dependenciesCache.put(task, dependencies);
     return dependencies;
   }
 
@@ -105,6 +120,7 @@ public class TasksDAG {
 
   public void removeDependency(Task t, Task dependant) {
     this.dag.get(t).removeIf(d -> d.getDependantTask().equals(dependant));
+    clearCache();
   }
 
   public void addDependency(Task task, Task dependant, boolean isIterationDependency) {
@@ -117,5 +133,12 @@ public class TasksDAG {
     this.dag.get(task).add(
       isIterationDependency ? new ForeachIterationDependency((Foreach) task, (Foreach) dependant) : new Dependency<Task>(task, dependant)
     );
+    clearCache();
+  }
+
+  private void clearCache() {
+    this.dependantsCache.clear();
+    this.dependenciesCache.clear();
+
   }
 }
