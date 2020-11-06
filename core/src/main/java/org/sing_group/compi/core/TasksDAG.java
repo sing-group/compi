@@ -30,19 +30,24 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import org.sing_group.compi.core.loops.ForeachIteration;
 import org.sing_group.compi.core.loops.ForeachIterationDependency;
 import org.sing_group.compi.core.pipeline.Foreach;
 import org.sing_group.compi.core.pipeline.Task;
 
 public class TasksDAG {
 
-  private final Map<Task, Set<Dependency<?>>> dag = new ConcurrentHashMap<>();
+  private final Map<Task, Set<Dependency<?>>> dag = new ConcurrentHashMap<>(); // task
+                                                                               // ->
+                                                                               // dependants
+  private final Map<Task, Set<Dependency<?>>> reverseDag = new ConcurrentHashMap<>(); // task
+                                                                                      // ->
+                                                                                      // dependencies
 
   private Map<Task, Set<Dependency<?>>> dependantsCache = new HashMap<>();
   private Map<Task, Set<Dependency<?>>> dependenciesCache = new HashMap<>();
 
   public Set<Dependency<?>> getDependantsOfTask(Task t) {
+
     if (dependantsCache.containsKey(t))
       return dependantsCache.get(t);
 
@@ -55,8 +60,7 @@ public class TasksDAG {
       dependantsOfTask.add(dependency);
       Set<Dependency<?>> dependants = getDependantsOfTask(dependency.getDependantTask());
       dependantsOfTask.addAll(
-        dependants.stream().map(d -> new Dependency<Task>(t, d.getDependantTask())
-        ).collect(Collectors.toSet())
+        dependants.stream().map(d -> new Dependency<Task>(t, d.getDependantTask())).collect(Collectors.toSet())
       );
     }
 
@@ -73,6 +77,7 @@ public class TasksDAG {
    * @return Tasks that task depends on
    */
   public Set<Dependency<?>> getDependenciesOfTask(Task task) {
+
     if (dependenciesCache.containsKey(task))
       return dependenciesCache.get(task);
 
@@ -112,14 +117,16 @@ public class TasksDAG {
   }
 
   public boolean dependenciesAreMet(final Task task) {
-    return this.getDependenciesOfTask(task).stream()
-      .map(Dependency::getOnTask).filter(t -> !t.isFinished())
-      .collect(Collectors.toList())
+    if (!reverseDag.containsKey(task)) {
+      return true;
+    }
+    return this.reverseDag.get(task).stream().filter(d -> !d.getOnTask().isFinished()).collect(Collectors.toList())
       .size() == 0;
   }
 
   public void removeDependency(Task t, Task dependant) {
     this.dag.get(t).removeIf(d -> d.getDependantTask().equals(dependant));
+    this.reverseDag.get(dependant).removeIf(d -> d.getOnTask().equals(t));
     clearCache();
   }
 
@@ -130,9 +137,15 @@ public class TasksDAG {
     if (!this.dag.containsKey(task)) {
       this.dag.put(task, new HashSet<>());
     }
-    this.dag.get(task).add(
-      isIterationDependency ? new ForeachIterationDependency((Foreach) task, (Foreach) dependant) : new Dependency<Task>(task, dependant)
-    );
+    if (!this.reverseDag.containsKey(dependant)) {
+      this.reverseDag.put(dependant, new HashSet<>());
+    }
+
+    Dependency<?> dependency =
+      isIterationDependency ? new ForeachIterationDependency((Foreach) task, (Foreach) dependant) : new Dependency<Task>(task, dependant);
+    this.dag.get(task).add(dependency);
+    this.reverseDag.get(dependant).add(dependency);
+
     clearCache();
   }
 
