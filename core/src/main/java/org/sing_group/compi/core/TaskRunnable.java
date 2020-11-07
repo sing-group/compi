@@ -264,6 +264,9 @@ public class TaskRunnable implements Runnable {
     if (out != null) {
       try {
         out.write("\n-- Starting log on " + new Date() + " --\n");
+        if (this.task instanceof ForeachIteration) {
+          out.write("\n-- Iteration: " + ((ForeachIteration) this.task).getIterationValue()+ "--\n");
+        }
       } catch (IOException e) {
         e.printStackTrace();
       }
