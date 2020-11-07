@@ -364,7 +364,7 @@ public class CompiRunConfiguration implements Serializable {
     if (this.singleTask != null)
       sBuilder.append("Running single task - " + singleTask + "\n");
     if (this.fromTasks != null)
-      sBuilder.append("Running from task(s) - " + fromTasks.stream().collect(joining(", ")));
+      sBuilder.append("Running from task(s) - " + fromTasks.stream().collect(joining(", ")) + "\n");
     if (this.afterTasks != null)
       sBuilder.append("Running after task(s) - " + afterTasks.stream().collect(joining(", ")) + "\n");
     if (this.untilTask != null)
@@ -372,7 +372,7 @@ public class CompiRunConfiguration implements Serializable {
     if (this.beforeTask != null)
       sBuilder.append("Running tasks before task - " + beforeTask + "\n");
     if (this.logsDir != null)
-      sBuilder.append("Logging task's output to dir - " + logsDir);
+      sBuilder.append("Logging task's output to dir - " + logsDir + "\n");
 
     return sBuilder.toString();
   }
