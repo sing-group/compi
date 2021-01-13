@@ -214,15 +214,16 @@ etc.)
 |              | * ``command``: a command whose output lines     |           |
 |              |   are the values to iterate over                |           |
 +--------------+-------------------------------------------------+-----------+
-| in           | List of tasks that should end before this task  |   YES     |
-|              | can be started. The list can be separated by    |           |
-|              | whitespaces or commas.                          |           |
+| in           | The source to take the collection elements to   |   YES     |
+|              | iterate over.                                   |           |
 +--------------+-------------------------------------------------+-----------+
 | as           | Name of the loop parameter to use in the task   |   YES     |
 |              | code.                                           |           |
 +--------------+-------------------------------------------------+-----------+
 
-Here it is an example:
+Here it is an example. In this case, since the foreach type is ``param``, the 
+``in`` attribute specifies the name of the pipeline parameter that must be used
+to take the collection elements to iterate over.
 
 .. code-block:: xml
 
