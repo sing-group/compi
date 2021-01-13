@@ -18,4 +18,5 @@ Welcome to Compi's documentation!
    partial_execution
    custom_runners
    custom_interpreters
+   common_patterns
    faq
