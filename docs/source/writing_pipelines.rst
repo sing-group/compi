@@ -231,7 +231,12 @@ to take the collection elements to iterate over.
   "case-1,case-2,control-1,control-2" -->
   <foreach of="param" in="samples" as="sample">
     analyze.sh ${sample}.csv
-  </foreach>          
+  </foreach>
+  
+.. note::
+    In case you want a ``file`` foreach that iterates over all files under a 
+    given directory and the source directory is a pipeline parameter, then the
+    ``in`` attribute must be specify this as follows: ``in="${parameter}"``.
 
 
 Iteration dependencies between `foreach` tasks
