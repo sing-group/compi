@@ -84,9 +84,9 @@ public class CLITaskExecutionHandler implements TaskExecutionHandler {
   @Override
   public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
     LOGGER.severe(
-      "X Aborted loop iteration of task " + iteration.getId() + ". Cause: " + e.getMessage() + getLogInfo(e)
+      "X Aborted loop iteration of task " + iteration.getId() + " (" + iteration.getIterationValue() + ")" + ". Cause: "
+        + e.getMessage() + getLogInfo(e)
     );
-
   }
 
   private String getLogInfo(CompiTaskAbortedException e) {
