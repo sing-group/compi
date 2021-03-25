@@ -28,6 +28,7 @@ import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_LONG;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -144,8 +145,9 @@ public class HubPushCommand extends AbstractCommand {
       }
     }
 
-    File zipFile = new File("/home/hlfernandez/Tmp/test-project.zip");
+    File zipFile = null;
     try {
+      zipFile = Files.createTempFile("compi-project", ".zip").toFile();
       compiProjectDir.toZipFile(zipFile);
     } catch (IOException e) {
       e.printStackTrace();
