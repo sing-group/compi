@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<runners xmlns="http://sing-group.org/compi/runners-1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <runner tasks="task-1">
+        envs=$(for param in $task_params; do echo -n "-e $param "; done)
+        docker run --rm $envs -v ${workingDir}:${workingDir} --entrypoint /bin/bash your/docker-image -c "${task_code}"
+    </runner>
+</runners>

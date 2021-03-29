@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<runners xmlns="http://sing-group.org/compi/runners-1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <runner tasks="task-1">
+        tmpfile=$(mktemp /tmp/compi-task-code.XXXXXXXX)
+        echo "#!/bin/bash" >> ${tmpfile}
+        echo ${task_code} >> ${tmpfile}
+        chmod u+x ${tmpfile}
+        srun -c 1 -p main --export ALL -o /tmp/task-1.log -e /tmp/task-1.err -J task_1 bash ${tmpfile}
+    </runner>
+</runners>

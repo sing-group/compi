@@ -8,7 +8,7 @@ The following image summarizes the main interactions between the elements of :re
 .. figure:: images/application_development/lifecycle.png
    :align: center
    
-This development starts with the creation of new Compi Development Kit project with the ``compi-dk new-project command``. This command mainly initializes a project directory by creating two template files: ``pipeline.xml`` and ``Dockerfile``. 
+This development starts with the creation of new Compi Development Kit project with the ``compi-dk new-project command``. This command mainly initializes a project directory by creating two template files to start with the pipeline development, namely ``pipeline.xml`` and ``Dockerfile``. In addition, it also creates the empty files ``README.md``, ``DEPENDENCIES.md``, and ``LICENSE``, and the folders ``params-examples`` and ``runners-examples`` (this one containing working examples of generic Compi runners).
 
 The pipeline developer can now start the definition of the pipeline by modifying the ``pipeline.xml`` template and test it locally (using the ``compi`` executable) or test it by running the Docker image. For this latter case, when the ``compi-dk build`` command is executed in the project directory, a Docker image for the pipeline is created. This image contains the ``compi`` executable, the ``pipeline.xml`` being developed as well as the pipeline dependencies as defined in the ``Dockerfile``.
 
@@ -140,13 +140,13 @@ After registering the pipeline, it is time to register the first pipeline versio
 
 When the ``compi-dk hub-push`` command is used, it creates a ZIP file using all the files in the project directory and pushes it to Compi Hub, which is equivalent to submit the ZIP using the *Import version* option of the pipeline edition interface at Compi Hub.
 
-The ``compi-dk hub-push`` command looks for the following files and directories:
+The ``compi-dk hub-push`` command looks for the following files and directories, which are created automatically by the ``new-project`` command:
 
 - ``README.md``: the file that contains the information shown in the *Readme* tab.
 - ``DEPENDENCIES.md``: the file that contains the information shown in the *Dependencies* tab.
 - ``LICENSE``: the file that contains the licensing information shown in the *License* tab.
-- ``hub.metadata``: the file that contains version metadata (e.g. the URLs pointing to GitHub, DockerHub, and so on). This file can be created using the ``compi-dk hub-metadata`` command.
 - ``params-examples`` and ``runners-examples``: two directories with examples of Compi parameter files and XML files for custom runners, respectively.
+- ``hub.metadata``: the file that contains version metadata (e.g. the URLs pointing to GitHub, DockerHub, and so on). This file can be created using the ``compi-dk hub-metadata`` command.
 
 .. note::
   
@@ -162,8 +162,7 @@ The ``compi-dk hub-push`` command looks for the following files and directories:
      ## file-name
      associated description in plain text
 
-
-For this example, let's add two simple ``README.md`` and ``DEPENDENCIES.md``.
+For this example, let's add the following contents to the ``README.md`` and ``DEPENDENCIES.md`` files.
 
 - ``README.md``:
 

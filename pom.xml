@@ -255,6 +255,11 @@
 							<goal>update-file-header</goal>
 						</goals>
 						<phase>process-sources</phase>
+						<configuration>
+							<excludes>
+							<exclude>**/runners-examples/**</exclude>
+							</excludes>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

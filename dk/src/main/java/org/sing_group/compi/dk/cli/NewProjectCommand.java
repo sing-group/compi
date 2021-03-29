@@ -30,10 +30,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -43,12 +46,22 @@ import org.xml.sax.SAXException;
 
 import es.uvigo.ei.sing.yacli.command.AbstractCommand;
 import es.uvigo.ei.sing.yacli.command.option.DefaultValuedStringOption;
+import es.uvigo.ei.sing.yacli.command.option.FlagOption;
 import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.option.StringOption;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class NewProjectCommand extends AbstractCommand {
   private static final Logger LOGGER = Logger.getLogger(NewProjectCommand.class.getName());
+
+  private static final String[] INITIAL_FILES = {
+    "README.md", "DEPENDENCIES.md", "LICENSE",
+    "runners-examples/README.md",
+    "runners-examples/generic-docker-runner.xml",
+    "runners-examples/generic-slurm-runner.xml",
+    "params-examples/README.md",
+    "params-examples/params-1"
+  };
 
   public String getName() {
     return "new-project";
@@ -107,11 +120,6 @@ public class NewProjectCommand extends AbstractCommand {
 
     directory.mkdirs();
 
-    /*
-     * File jreDestination = new File(directory + File.separator + "jre.tgz");
-     * logger.info("Downloading JRE to " + jreDestination); downloadToFile(new
-     * URL(JRE_URL), jreDestination); logger.info("JRE downloaded");
-     */
     String compiVersion = parameters.getSingleValueString(getOption("v"));
     String imageName = parameters.getSingleValueString(getOption("n"));
 
@@ -123,13 +131,6 @@ public class NewProjectCommand extends AbstractCommand {
 
     configuration.save();
 
-    /*
-     * File compiDestination = new File(directory + File.separator +
-     * "compi.jar"); logger.info("Downloading Compi to " + compiDestination);
-     * downloadToFile(new URL(getCompiURL(compiVersion)), compiDestination);
-     * logger.info("Compi downloaded");
-     */
-
     createDockerFile(
       directory, parameters.getSingleValueString(getOption("i")), getProperty("user.name"), compiVersion
     );
@@ -137,6 +138,8 @@ public class NewProjectCommand extends AbstractCommand {
     createPipelineFile(directory);
 
     createGitIgnoreFile(directory);
+
+    createCompiHubFiles(directory);
   }
 
   private void createGitIgnoreFile(File directory) throws FileNotFoundException {
@@ -159,5 +162,24 @@ public class NewProjectCommand extends AbstractCommand {
     dockerFile.setBaseImage(baseImage);
     dockerFile.setCompiVersion(compiVersion);
     dockerFile.createDockerFile();
+  }
+
+  private void createCompiHubFiles(File directory) {
+    Stream.of(INITIAL_FILES).forEach(f -> {
+      copyToFile(this.getClass().getResourceAsStream(f), new File(directory, f));
+    });
+  }
+
+  private static void copyToFile(InputStream inputStream, File destFile) {
+    destFile.getAbsoluteFile().getParentFile().mkdirs();
+
+    try (OutputStream output = new FileOutputStream(destFile)) {
+      byte[] buffer = new byte[inputStream.available()];
+      inputStream.read(buffer);
+      output.write(buffer);
+
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
