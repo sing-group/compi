@@ -13,6 +13,8 @@ There are many fields where computational pipelines constitute the main architec
 
 Many pipelines combine third party tools along with custom made processes, conforming the final pipeline. Compi is the framework helping to create the final, portable application.
 
+The source code of Compi is available at this GitHub repository: https://github.com/sing-group/compi
+
 Main features
 =============
 
@@ -35,3 +37,12 @@ Compi is an ecosystem that comprises:
 - *Compi Hub*: a public repository of Compi pipelines that allows other users to discover, browse and reuse them easily.
 
 The :ref:`Application development<application_development>` section shows how to use these three elements to develop, use and distribute Compi-based applications.
+
+Installation
+============
+
+Installers for ``compi`` and ``compi-dk`` for Linux 64-bit systems are available here: https://www.sing-group.org/compi#downloads
+
+Portable versions (*.tar.gz*) and self-extracted installers (*.bsx*) are available for both. 
+
+Note that while ``compi`` distributions are self-contained and do not require any dependencies, ``compi-dk`` requires Docker, which should be available for the ``compi-dk build`` command to work.

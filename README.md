@@ -10,13 +10,32 @@ Many pipelines combine third party tools along with custom made processes, confo
 You can get more information at:
 
 * Compi homepage: http://sing-group.org/compi
-* Compi help: http://sing-group.org/compi/docs
-* Compi hub: http://sing-group.org/compihub
+* Compi documentation: http://sing-group.org/compi/docs
+* Compi Hub: http://sing-group.org/compihub
 * Compi source code: https://github.com/sing-group/compi
 
+# The Compi ecosystem
 
+Compi is an ecosystem that comprises:
 
+- `compi`: the workflow engine with a command-line user interface to control the pipeline execution.
+- `compi-dk`: a command-line tool to help in the development and packaging of Compi-based applications.
+- *Compi Hub*: a public repository of Compi pipelines that allows other users to discover, browse and reuse them easily.
 
+# Install `compi` and `compi-dk`
 
+## From binaries
 
+Binaries for `compi` and `compi-dk` for Linux 64-bit systems are available here: https://www.sing-group.org/compi#downloads
 
+Portable versions (*.tar.gz*) and self-extracted installers (*.bsx*) are available for both. `compi` distributions are self-contained and do not require any dependencies. `compi-dk` only requires Docker, which should be available for the `compi-dk build` command to work.
+
+## Build from source
+
+Alternatively, the compi project can be build to obtain the `compi` and `compi-dk` binaries.
+
+To do so, just download or clone this project and run the following command (*Note*: requires Maven 3.x and Java 1.8): `mvn clean package -PcreateInstaller`
+
+If the build succeeds, then:
+- The `compi` and `compi-dk` builds will be available at `compi/cli/target/dist/` and `compi/dk/target/dist/`, respectively. Java is required to run these binaries. The `compi` also requires `envsubst` to be available at runtime and `compi-dk` requires Docker, which should be available for the *compi-dk build* command to work.
+-  the `compi` and `compi-dk` Linux 64-bit builds will be available at `compi/cli/target/installer/` and `compi/dk/target/installer/`, respectively.
