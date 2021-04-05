@@ -21,12 +21,15 @@
 package org.sing_group.compi.e2e_tests;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
@@ -56,6 +59,21 @@ public class CompiRunIT {
       );
 
     assertThat(compiProcess.getReturnValue(), is(0));
+  }
+
+  @Test
+  public void testEchoPipelineLogs() throws IOException, InterruptedException, ExecutionException {
+    Path tempDir = Files.createTempDirectory("logs");
+    CommandResults compiProcess =
+      runCompi(
+        "run", "-p", "../core/src/test/resources/testPipelineLoop.xml", "-l", tempDir.toString(), "--", "--dirparam",
+        "/tmp", "--elements", "/tmp/1,/tmp/4,/tmp/5,/tmp/6"
+      );
+
+    assertThat(compiProcess.getReturnValue(), is(0));
+    assertThat(tempDir.toFile().exists(), is(true));
+    assertThat(tempDir.toFile().listFiles().length, greaterThan(0));
+
   }
 
   @Test

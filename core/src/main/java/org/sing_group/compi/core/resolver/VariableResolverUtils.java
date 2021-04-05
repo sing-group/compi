@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import org.sing_group.compi.core.CompiRunConfiguration;
@@ -49,20 +50,20 @@ public class VariableResolverUtils {
     this.resolver = resolver;
   }
 
-  public void addVariablesToEnvironmentForTask(Task task, ProcessBuilder builder) {
+  public void iterateOverAllVariablesForTask(Task task, BiConsumer<String, String> consumer) {
     task.getParameters().forEach(parameter -> {
       if (task.getPipeline().getParameterDescription(parameter).isFlag()) {
         if (this.resolver.resolveVariable(parameter) != null) {
-          builder.environment().put(parameter, "yes");
+          consumer.accept(parameter, "yes");
         }
       } else {
-        builder.environment().put(parameter, this.resolver.resolveVariable(parameter));
+        consumer.accept(parameter, this.resolver.resolveVariable(parameter));
       }
     });
 
     if (task instanceof ForeachIteration && ((ForeachIteration) task).getParentForeachTask() != null) {
       ForeachIteration forEachTask = (ForeachIteration) task;
-      builder.environment().put(
+      consumer.accept(
         forEachTask.getAs(), forEachTask.getIterationValue()
       );
     }
@@ -80,14 +81,18 @@ public class VariableResolverUtils {
     }
     runnerExtraVariables.put("task_params", params.stream().collect(joining(" ")));
 
-    builder.environment().putAll(runnerExtraVariables);
+    runnerExtraVariables.forEach(consumer);
 
-    builder.environment().putAll(
-      this.resolver.getVariableNames().stream().filter(
-        v -> v.startsWith(CompiRunConfiguration.CONFIGURATION_VARIABLES_PREFIX)
-      ).collect(Collectors.toMap(identity(), v -> this.resolver.resolveVariable(v)))
-    );
+    this.resolver.getVariableNames().stream().filter(
+      v -> v.startsWith(CompiRunConfiguration.CONFIGURATION_VARIABLES_PREFIX)
+    ).collect(Collectors.toMap(identity(), v -> this.resolver.resolveVariable(v))).forEach(consumer);
 
+  }
+
+  public void addVariablesToEnvironmentForTask(Task task, ProcessBuilder builder) {
+    iterateOverAllVariablesForTask(task, (varName, varValue) -> {
+      builder.environment().put(varName, varValue);
+    });
   }
 
   public String resolveAllVariables(String text, Task task) {

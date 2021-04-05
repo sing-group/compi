@@ -24,9 +24,12 @@ import static org.sing_group.compi.core.loops.ForeachIteration.createIterationFo
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,6 +51,8 @@ import org.sing_group.compi.core.pipeline.Pipeline;
 import org.sing_group.compi.core.pipeline.Task;
 import org.sing_group.compi.core.resolver.MapVariableResolver;
 import org.sing_group.compi.core.resolver.VariableResolver;
+import org.sing_group.compi.core.resolver.VariableResolverUtils;
+import org.sing_group.compi.core.runner.ProcessCreator;
 import org.sing_group.compi.core.runner.RunnersManager;
 import org.sing_group.compi.xmlio.ParamsFileVariableResolver;
 import org.xml.sax.SAXException;
@@ -246,9 +251,13 @@ public class CompiApp {
           } else {
             final File stdOut = getLogFile(taskToRun, ".out.log");
             final File stdErr = getLogFile(taskToRun, ".err.log");
+            final File paramsFile = getLogFile(taskToRun, ".params");
+
+            final ProcessCreator processCreator = this.runnersManager.getProcessCreatorForTask(taskToRun.getId());
+
             final TaskRunnable taskRunnable =
               new TaskRunnable(
-                taskToRun, this.executionHandler, this.runnersManager.getProcessCreatorForTask(taskToRun.getId()),
+                taskToRun, this.executionHandler, getProcessCreator(paramsFile, processCreator),
                 stdOut, stdErr, false, this.config.isShowStdOuts()
               );
 
@@ -275,6 +284,34 @@ public class CompiApp {
         this.stopRequested = false;
       }
     } while (!executorService.awaitTermination(1, TimeUnit.SECONDS));
+  }
+
+  private ProcessCreator getProcessCreator(final File paramsFile, final ProcessCreator processCreator) {
+    return new ProcessCreator() {
+
+      @Override
+      public Process createProcess(Task t) {
+        if (paramsFile != null) {
+          VariableResolverUtils utils = new VariableResolverUtils(resolver);
+          try {
+
+            PrintStream paramsFileOut = new PrintStream(new FileOutputStream(paramsFile));
+            utils.iterateOverAllVariablesForTask(t, (key, value) -> {
+              paramsFileOut
+                .println(key + "=\"" + value.replaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\"") + "\"");
+            });
+            paramsFileOut.close();
+            return processCreator.createProcess(t);
+
+          } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+          }
+
+        } else {
+          return processCreator.createProcess(t);
+        }
+      }
+    };
   }
 
   private void validateParameters(CompiRunConfiguration config) {
