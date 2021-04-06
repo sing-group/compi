@@ -52,7 +52,10 @@ public class CompiDKCLI extends CLIApplication {
       new BuildCommand(),
       new HubInitCommand(),
       new HubPushCommand(),
-      new HubMetadataCommand()
+      new HubMetadataCommand(),
+      new ListTasksCommand(),
+      new ListParametersCommand(),
+      new CreateMetadataSkeletonCommand()
     );
   }
 

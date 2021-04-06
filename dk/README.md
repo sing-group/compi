@@ -16,6 +16,18 @@ where <command> is one of:
                 Creates a new compi project
         build
                 Builds a compi project
+        hub-init
+                Creates a new pipeline at compi-hub
+        hub-push
+                Pushes a pipeline to compi-hub
+        hub-metadata
+                Sets the compi-hub pipeline version metadata
+        list-tasks
+                Lists pipeline tasks
+        list-params
+                Lists pipeline parameters
+        create-metadata-skeleton
+                Creates the metadata skeleton based on the current parameters
 Write 'compi-dk help <command>' to see command-specific help
 ```
 
@@ -33,11 +45,81 @@ usage: compi-dk new-project -p <path> -n <image-name> [-i <base-image>] [-v <com
                 compi version (default: 1.2.0)
 ```
 
-### `validate`
+### `build`
 
 ```
 Command build
 usage: compi-dk build [-p <path>]
         --path/-p
                 path the new project to build (default: .)
+```
+
+### `hub-init`
+
+```
+Command hub-init
+usage: compi-dk hub-init [-p <path>] -a <alias> -t <title> [-v] [-f]
+        --path/-p
+                path of the project (default: .)
+        --alias/-a
+                Alias of the pipeline
+        --title/-t
+                Title of the pipeline
+        --visible/-v
+                Whether the pipeline is publicly visible or not
+        --force/-f
+                Whether the pipeline alias should be overriden. Note that this option will create a new pipeline at compi-hub and update the alias associated to this project
+```
+
+### `hub-push`
+
+```
+Command hub-push
+usage: compi-dk hub-push [-p <path>] [-v] [-f]
+        --path/-p
+                path of the project (default: .)
+        --visible/-v
+                make the pipeline version visible at Compi Hub
+        --force/-f
+                replace the previous version at Compi Hub
+```
+
+### `hub-metadata`
+
+```
+Command hub-metadata
+usage: compi-dk hub-metadata [-p <path>]
+        --path/-p
+                path of the project (default: .)
+```
+
+### `list-tasks`
+
+```
+Command list-tasks
+usage: compi-dk list-tasks [-p <pipeline>] [-c]
+        --pipeline/-p
+                XML pipeline file (default: pipeline.xml)
+        --complete-report/-c
+                Use this flag to print a complete report
+```
+
+### `list-params`
+
+```
+Command list-params
+usage: compi-dk list-params [-p <pipeline>] [-c]
+        --pipeline/-p
+                XML pipeline file (default: pipeline.xml)
+        --complete-report/-c
+                Use this flag to print a complete report
+```
+
+### `create-metadata-skeleton`
+
+```
+Command create-metadata-skeleton
+usage: compi-dk create-metadata-skeleton [-p <pipeline>]
+        --pipeline/-p
+                XML pipeline file (default: pipeline.xml)
 ```
