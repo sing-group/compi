@@ -54,7 +54,8 @@ public class NewProjectCommand extends AbstractCommand {
   private static final Logger LOGGER = Logger.getLogger(NewProjectCommand.class.getName());
 
   private static final String[] INITIAL_FILES = {
-    "README.md", "DEPENDENCIES.md", "LICENSE",
+    "README.md", "DEPENDENCIES.md",
+    "LICENSE", "DATASETS.md", "hub.config",
     "runners-examples/README.md",
     "runners-examples/generic-docker-runner.xml",
     "runners-examples/generic-slurm-runner.xml",

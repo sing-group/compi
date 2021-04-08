@@ -40,10 +40,6 @@ import es.uvigo.ei.sing.yacli.command.option.Option;
 import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 
 public class CreateMetadataSkeletonCommand extends AbstractCommand {
-  private static final String COMPLETE_REPORT_NAME = "complete-report";
-  private static final String COMPLETE_REPORT_SHORT_NAME = "c";
-  private static final String COMPLETE_REPORT_DESCRIPTION = "Use this flag to print a complete report";
-
   public String getName() {
     return "create-metadata-skeleton";
   }

@@ -38,10 +38,12 @@ public class CompiProjectDirectory {
   public static final String DEFAULT_FILE_PIPELINE = "pipeline.xml";
   public static final String DEFAULT_FILE_README = "README.md";
   public static final String DEFAULT_FILE_DEPENDENCIES = "DEPENDENCIES.md";
+  public static final String DEFAULT_FILE_DATASETS = "DATASETS.md";
 
   public static final String DEFAULT_FILE_DOCKERFILE = "Dockerfile";
   public static final String DEFAULT_FILE_LICENSE = "LICENSE";
   public static final String DEFAULT_FILE_HUB_METADATA = "hub.metadata";
+  public static final String DEFAULT_FILE_HUB_CONFIG = "hub.config";
 
   public static final String DEFAULT_DIRECTORY_RUNNERS = "runners-examples";
   public static final String DEFAULT_DIRECTORY_PARAMS = "params-examples";
@@ -50,9 +52,11 @@ public class CompiProjectDirectory {
   private String pipelineFileName = DEFAULT_FILE_PIPELINE;
   private String readmeFileName = DEFAULT_FILE_README;
   private String dependenciesFileName = DEFAULT_FILE_DEPENDENCIES;
+  private String datasetsFileName = DEFAULT_FILE_DATASETS;
   private String dockerfileFileName = DEFAULT_FILE_DOCKERFILE;
   private String licenseFileName = DEFAULT_FILE_LICENSE;
   private String hubMetadataFileName = DEFAULT_FILE_HUB_METADATA;
+  private String hubConfigFileName = DEFAULT_FILE_HUB_CONFIG;
   private String runnersDirectoryName = DEFAULT_DIRECTORY_RUNNERS;
   private String paramsDirectoryName = DEFAULT_DIRECTORY_PARAMS;
 
@@ -83,9 +87,11 @@ public class CompiProjectDirectory {
 
       checkAndZipFile(zos, this.readmeFileName, DEFAULT_FILE_README);
       checkAndZipFile(zos, this.dependenciesFileName, DEFAULT_FILE_DEPENDENCIES);
+      checkAndZipFile(zos, this.datasetsFileName, DEFAULT_FILE_DATASETS);
       checkAndZipFile(zos, this.dockerfileFileName, DEFAULT_FILE_DOCKERFILE);
       checkAndZipFile(zos, this.licenseFileName, DEFAULT_FILE_LICENSE);
       checkAndZipFile(zos, this.hubMetadataFileName, DEFAULT_FILE_HUB_METADATA);
+      checkAndZipFile(zos, this.hubConfigFileName, DEFAULT_FILE_HUB_CONFIG);
 
       checkAndZipFile(zos, this.runnersDirectoryName, DEFAULT_DIRECTORY_RUNNERS);
       checkAndZipFile(zos, this.paramsDirectoryName, DEFAULT_DIRECTORY_PARAMS);
