@@ -147,7 +147,7 @@ The following runners file shows a generic Slurm runner:
     <?xml version="1.0" encoding="UTF-8"?>
     <runners xmlns="http://sing-group.org/compi/runners-1.0"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <runner tasks="task-1">
+        <runner tasks="task-1"> <!-- Replace tasks with the ids of your task to attach this runner to -->
             tmpfile=$(mktemp /tmp/compi-task-code.XXXXXXXX)
             echo "#!/bin/bash" >> ${tmpfile}
             echo ${task_code} >> ${tmpfile}
@@ -161,3 +161,119 @@ cluster, but this is how a generic Slurm runner may look like. The
 ``export`` parameter must be used to export all the environment variables to
 the process that will be executed, and this is neccessary because the task
 parameters are declared as environment variables.
+
+Generic SSH runner
+--------------------
+
+The following runners file shows a generic SSH runner, that executes the task code in a given SSH host.
+A confidence relation between the client machine (where Compi runs) and the remote host is assumed (See `here <https://www.thegeekstuff.com/2008/11/3-steps-to-perform-ssh-login-without-password-using-ssh-keygen-ssh-copy-id/>`_ how to create this)
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <runners xmlns="http://sing-group.org/compi/runners-1.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <runner tasks="task-1"> <!-- Replace tasks with the ids of your task to attach this runner to -->
+            remote_host="192.168.1.108" #set here the remote machine
+            remote_user="lipido"
+            # copy the compi environment to a file 
+            envfile=$(mktemp /tmp/compi-env.XXXXXX)
+            for param in $task_params; do 
+                export -p | sed -n -e "/^declare -x $param/,/^declare -x/ p" | sed \$d >> $envfile
+                echo "export $param" >> $envfile
+            done
+            scp $envfile ${remote_user}@${remote_host}:${envfile}
+            task_code_with_env="source $envfile; $task_code"
+            ssh ${remote_user}@${remote_host} "$task_code_with_env"
+        </runner>
+    </runners>
+
+Generic AWS runner
+--------------------
+
+Based on the previous SSH generic runner, here it is a more complex runner. This runner runs the task code over SSH in an Amazon Linux virtual machine.
+In order to do that, this runner is in charge of creating the instance, if it is not available, and waiting for the SSH protocol being available.
+After that, the task code is run in the instance via SSH. This runner uses `flock` utility to ensure that only one execution of the runner 
+launches the Amazon instance, whereas the other ones only executes the SSH part.
+
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <runners xmlns="http://sing-group.org/compi/runners-1.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <runner tasks="task-1">
+
+            image_id="ami-014f0ecd3e71df934" # set here the AMI id
+            remote_user="ubuntu" # SSH user of your amazon image (depends on the concrete image)
+            type="m1.small" # set here the image type
+            
+            # Your Amazon key-pair (needed for SSH connection)
+            key_name="lipido-aws-key" # you need to create a key pair in amazon
+            private_key_file="~/.ssh/lipido-aws-key.pem"
+
+            lock_file="/tmp/lock-for-launching-$image_id"
+            touch ${lock_file} 
+            
+            # check if instance is available under a lock (only one instance of this runner will be inside this critical section)
+            ( flock 99
+                echo "Checking if amazon instance is available"
+                OUT=$(aws ec2 describe-instances --filters "Name=tag-value,Values=compi-aws-${image_id}" Name=instance-state-name,Values=running --output text)
+                if [ "$OUT" == "" ]; then
+                    # Launch and tag the instance
+                    echo "No. Launching a new amazon instance"
+                    OUT=$(aws ec2 run-instances --image-id $image_id --instance-type $type --key-name ${key_name} --output text)
+                    ID=$(echo "$OUT" | grep INSTANCES | cut -f 9)
+                    STATE=$(echo "$OUT" | grep STATE | head -n 1 | cut -f 3)
+                    aws ec2 create-tags --resources $ID --tags Key=Name,Value="compi-aws-${image_id}"
+                    
+                    # Wait for running state
+                    echo "Wait for running state... "
+                    echo "STATE is $STATE"
+                    while [[ $STATE != running ]]; do
+                        sleep 5
+                        OUT=$(aws ec2 describe-instances --filters "Name=tag-value,Values=compi-aws-${image_id}" Name=instance-state-name,Values=running --output text)
+                        STATE=$(echo "$OUT" | grep STATE | cut -f 3)   
+                        echo "STATE is $STATE"
+                    done    
+                    echo "Running"
+
+                    remote_host=$(echo "$OUT" | grep ASSOCIATION | head -n 1 | cut -f 3)
+                    echo "remote host is $remote_host"
+
+                    # Wait for SSH is ready
+                    echo "Wait for SSH is ready"
+                    READY=''
+                    while [ ! $READY ]; do
+                        sleep 10
+                        set +e
+                        OUT=$(ssh -o ConnectTimeout=1 -o StrictHostKeyChecking=no -o BatchMode=yes xxxx@${remote_host} 2>&1 | grep 'Permission denied' )
+                        [[ $? = 0 ]] && READY='ready'
+                        echo "READY is $READY"
+                        set -e
+                    done
+                    echo "Ready"
+                else
+                    echo "Yes, it is available"
+                fi
+                
+            ) 99<"$lock_file"
+
+            # Here we assume that the instance is up and running
+
+            # Obtain the instance details and host
+            OUT=$(aws ec2 describe-instances --filters "Name=tag-value,Values=compi-aws-${image_id}" Name=instance-state-name,Values=running --output text)                
+            remote_host=$(echo "$OUT" | grep ASSOCIATION | head -n 1 | cut -f 3)
+            
+
+            # copy the compi environment to a file 
+            envfile=$(mktemp /tmp/compi-env.XXXXXX)
+            for param in $task_params; do 
+                export -p | sed -n -e "/^declare -x $param/,/^declare -x/ p" | sed \$d >> $envfile
+                echo "export $param" >> $envfile
+            done
+            scp -o StrictHostKeyChecking=no -i ${private_key_file} $envfile ${remote_user}@${remote_host}:${envfile}
+            task_code_with_env="source $envfile; $task_code"
+            ssh -o StrictHostKeyChecking=no -i ${private_key_file} ${remote_user}@${remote_host} "$task_code_with_env"
+        </runner>
+    </runners>
