@@ -202,8 +202,7 @@ launches the Amazon instance, whereas the other ones only executes the SSH part.
     <?xml version="1.0" encoding="UTF-8"?>
     <runners xmlns="http://sing-group.org/compi/runners-1.0"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <runner tasks="task-1">
-
+        <runner tasks="task-1"><![CDATA[
             image_id="ami-014f0ecd3e71df934" # set here the AMI id
             remote_user="ubuntu" # SSH user of your amazon image (depends on the concrete image)
             type="m1.small" # set here the image type
@@ -275,5 +274,5 @@ launches the Amazon instance, whereas the other ones only executes the SSH part.
             scp -o StrictHostKeyChecking=no -i ${private_key_file} $envfile ${remote_user}@${remote_host}:${envfile}
             task_code_with_env="source $envfile; $task_code"
             ssh -o StrictHostKeyChecking=no -i ${private_key_file} ${remote_user}@${remote_host} "$task_code_with_env"
-        </runner>
+        ]]></runner>
     </runners>
