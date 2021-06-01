@@ -104,16 +104,6 @@ public class TaskRunnable implements Runnable {
       try {
         if (!this.task.isSkipped()) {
           taskStarted(this.task);
-
-          if (
-            this.task instanceof ForeachIteration &&
-              ((ForeachIteration) task).getParentForeachTask().isAborted()
-          ) {
-            if (!this.task.isAborted()) {
-              taskAborted(this.task, ((ForeachIteration) task).getParentForeachTask().getAbortionCause());
-            }
-          }
-
           this.process = this.getProcess(this.task);
           openLogBuffers(this.process);
           waitForProcess(this.process);

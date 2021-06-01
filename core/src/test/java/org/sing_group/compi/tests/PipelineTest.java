@@ -452,6 +452,48 @@ public class PipelineTest {
   }
 
   @Test
+  public void testPipelineIterationBindedWithAbortedIterations2() throws Exception {
+    final String pipelineFile =
+      ClassLoader.getSystemResource("testPipelineIterationBindedWithAbortedIterations2.xml").getFile();
+
+    final CompiApp compi =
+      new CompiApp(
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile)).whichRunsAMaximumOf(1)
+          .build()
+      );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+    assertTrue(handler.getFinishedTasksIncludingLoopChildren().size() == 0);
+
+  }
+
+  @Test
+  public void testPipelineIterationBindedWithAbortedIterations3() throws Exception {
+    final String pipelineFile =
+      ClassLoader.getSystemResource("testPipelineIterationBindedWithAbortedIterations3.xml").getFile();
+
+    final CompiApp compi =
+      new CompiApp(
+        forPipeline(fromFile(new File(pipelineFile)), new File(pipelineFile)).whichRunsAMaximumOf(1)
+          .build()
+      );
+
+    TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(handler);
+
+    compi.run();
+    assertTrue(handler.getFinishedTasksIncludingLoopChildren().size() == 3);
+    assertTrue(handler.getAbortedTasks().contains("ID-1"));
+    assertTrue(handler.getAbortedTasks().contains("ID-2"));
+    assertTrue(handler.getAbortedTasks().contains("ID-3"));
+    assertTrue(handler.getAbortedTasks().contains("ID-4"));
+    assertTrue(handler.getAbortedTasks().contains("ID-5"));
+  }
+
+  @Test
   public void testTaskExecutionHandler() throws Exception {
     final String pipelineFile = ClassLoader.getSystemResource("testExecutionHandler.xml").getFile();
     final CompiApp compi =
@@ -467,6 +509,7 @@ public class PipelineTest {
       compi.getPipeline().getTasks().stream().collect(Collectors.toMap(Task::getId, Function.identity()));
 
     // TestExecutionHandler handler = new TestExecutionHandler();
+    compi.addTaskExecutionHandler(new TestExecutionHandler());
 
     @SuppressWarnings("unchecked")
     final Capture<ForeachIteration>[] capturesForTaskID1 = new Capture[6];
@@ -538,11 +581,13 @@ public class PipelineTest {
     handler.taskAborted(eq(tasksById.get("ID3")), anyObject());
     expectLastCall();
 
-    // ID3: iteration 2, which aborts because ID3 aborted
+    // ID3: iteration 2, runs normally
     handler.taskIterationStarted(capture(capturesForTaskID3[2]));
     expectLastCall();
-    handler.taskIterationAborted(capture(capturesForTaskID3[3]), anyObject());
-    expectLastCall();
+    /*
+     * handler.taskIterationAborted(capture(capturesForTaskID3[3]),
+     * anyObject()); expectLastCall();
+     */
 
     // task ID4 aborts because it depends on ID3
     handler.taskAborted(eq(tasksById.get("ID4")), anyObject());

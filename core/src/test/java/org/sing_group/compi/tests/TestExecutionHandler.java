@@ -41,11 +41,13 @@ public class TestExecutionHandler implements TaskExecutionHandler {
 
   @Override
   synchronized public void taskStarted(Task task) {
+    // System.out.println("S_" + task.getId());
     startedTasks.add(task.getId());
   }
 
   @Override
   public void taskFinished(Task task) {
+    // System.out.println("E_" + task.getId());
     finishedTasks.add(task.getId());
     if (!(task instanceof Foreach))
       finishedTasksIncludingLoopChildren.add(task.getId());
@@ -53,6 +55,7 @@ public class TestExecutionHandler implements TaskExecutionHandler {
 
   @Override
   public void taskAborted(Task task, CompiTaskAbortedException e) {
+    // System.out.println("A_" + task.getId());
     abortedTasks.add(task.getId());
   }
 
@@ -78,18 +81,24 @@ public class TestExecutionHandler implements TaskExecutionHandler {
 
   @Override
   public void taskIterationStarted(ForeachIteration iteration) {
+    // System.out.println("S_" + iteration.getParentForeachTask().getId() + "_"
+    // + iteration.getIterationIndex());
     startedForeachs.add(iteration.getParentForeachTask().getId());
     loopIterations.add("S_" + iteration.getParentForeachTask().getId() + "_" + iteration.getIterationIndex());
   }
 
   @Override
   public void taskIterationFinished(ForeachIteration iteration) {
+    // System.out.println("E_" + iteration.getParentForeachTask().getId() + "_"
+    // + iteration.getIterationIndex());
     finishedTasksIncludingLoopChildren.add(iteration.getParentForeachTask().getId());
     loopIterations.add("E_" + iteration.getParentForeachTask().getId() + "_" + iteration.getIterationIndex());
   }
 
   @Override
   public void taskIterationAborted(ForeachIteration iteration, CompiTaskAbortedException e) {
+    // System.out.println("A_" + iteration.getParentForeachTask().getId() + "_"
+    // + iteration.getIterationIndex()+": "+e.getMessage());
     // finishedTasksIncludingLoopChildren.add(iteration.getParentForeachTask().getId());
     loopIterations.add("A_" + iteration.getParentForeachTask().getId() + "_" + iteration.getIterationIndex());
 

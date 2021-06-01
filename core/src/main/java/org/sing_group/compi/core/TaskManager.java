@@ -131,15 +131,8 @@ public class TaskManager {
    *          the running foreach
    * 
    * @return The iterations of the given foreach
-   * @throws IllegalStateException
-   *           if the foreach is not running yet. It should running before
-   *           calling this method (call {@link TaskManager#setRunning(Task)}
-   *           before
    */
   public List<ForeachIteration> getForeachIterations(Foreach foreach) {
-    if (!foreach.isRunning()) {
-      throw new IllegalStateException("Foreach is not running yet");
-    }
     return unmodifiableList(forEachTasks.get(foreach));
   }
 

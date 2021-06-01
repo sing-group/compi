@@ -553,7 +553,7 @@ public class CompiApp {
       synchronized (syncMonitor) {
         notifyTaskAborted(task, e);
         taskManager.setAborted(task, e);
-        abortDependencies(task, e);
+        abortDependencies(task, e, false);
         syncMonitor.notify();
       }
     }
@@ -610,21 +610,25 @@ public class CompiApp {
           !iteration.getParentForeachTask().isAborted()
             && !foreachAbortedNotificationsSent.contains(iteration.getParentForeachTask())
         ) {
-          this.notifyTaskAborted(iteration.getParentForeachTask(), e);
-          taskManager.setAborted(iteration.getParentForeachTask(), e);
-
-          abortDependencies(iteration, e);
-          foreachAbortedNotificationsSent.add(iteration.getParentForeachTask());
-          syncMonitor.notify();
+          abortParentForeach(e, iteration);
+          abortDependencies(iteration, e, false);
+        } else {
+          abortDependencies(iteration, e, true);
         }
+        syncMonitor.notify();
       }
     }
 
-    private void abortDependencies(Task task, CompiTaskAbortedException e) {
+    private void abortDependencies(Task task, CompiTaskAbortedException e, boolean onlyForeachIterations) {
       for (final Task taskToAbort : taskManager.getDependantTasks(task)) {
         if (taskManager.getTasksLeft().contains(taskToAbort)) {
           if (!taskToAbort.isSkipped()) {
             if (taskToAbort instanceof ForeachIteration) {
+              ForeachIteration iteration = (ForeachIteration) taskToAbort;
+              if (!foreachAbortedNotificationsSent.contains(iteration.getParentForeachTask())) {
+                abortParentForeach(e, iteration);
+              }
+
               notifyTaskIterationAborted(
                 (ForeachIteration) taskToAbort,
                 new CompiTaskAbortedException(
@@ -632,7 +636,7 @@ public class CompiApp {
                   e, taskToAbort, new LinkedList<>(), new LinkedList<>()
                 )
               );
-            } else {
+            } else if (!onlyForeachIterations) {
               notifyTaskAborted(
                 taskToAbort,
                 new CompiTaskAbortedException(
@@ -645,6 +649,12 @@ public class CompiApp {
           taskManager.setAborted(taskToAbort, e);
         }
       }
+    }
+
+    private void abortParentForeach(CompiTaskAbortedException e, ForeachIteration iteration) {
+      this.notifyTaskAborted(iteration.getParentForeachTask(), e);
+      taskManager.setAborted(iteration.getParentForeachTask(), e);
+      foreachAbortedNotificationsSent.add(iteration.getParentForeachTask());
     }
 
     /**
