@@ -147,6 +147,7 @@ public class RunSpecificPipelineCommand extends AbstractCommand {
     }
 
     public void setResolver(VariableResolver resolver) {
+      System.out.println("setting resolver " + resolver);
       this.resolver = resolver;
     }
   }

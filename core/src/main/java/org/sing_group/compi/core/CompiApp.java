@@ -201,6 +201,7 @@ public class CompiApp {
    */
   public void run()
     throws IllegalArgumentException, ParserConfigurationException, SAXException, IOException, InterruptedException {
+    this.executionLog.save();
     synchronized (syncMonitor) {
       while (!taskManager.getTasksLeft().isEmpty() && !this.stopRequested) {
 

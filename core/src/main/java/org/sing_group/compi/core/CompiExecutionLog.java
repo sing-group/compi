@@ -157,7 +157,7 @@ public class CompiExecutionLog implements Serializable {
     }
   }
 
-  private void save() throws IOException {
+  public void save() throws IOException {
     try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(this.logFile))) {
       Pipeline p = this.config.getPipeline();
       this.config.setPipeline(null);
