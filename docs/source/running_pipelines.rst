@@ -115,6 +115,8 @@ All tasks that should run did not completed successfully are started again.
 
  ``compi resume --flexible -p pipeline.xml``
 
+.. note::
+ If you are running the pipeline using Docker, please refer to :ref:`resume in docker <resume_in_docker>`
 
 Advanced execution control
 --------------------------
