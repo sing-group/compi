@@ -258,6 +258,7 @@
 						<configuration>
 							<excludes>
 							<exclude>**/runners-examples/**</exclude>
+							<exclude>**/entrypoint.sh</exclude>
 							</excludes>
 						</configuration>
 					</execution>

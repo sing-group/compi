@@ -3,11 +3,18 @@ LABEL maintainer="$maintainer"
 
 # INSTALL COMPI
 ADD image-files/compi.tar.gz /
+ADD entrypoint.sh /entrypoint.sh
+RUN chmod u+x /entrypoint.sh
 
 # PLACE HERE YOUR DEPENDENCIES (SOFTWARE NEEDED BY YOUR PIPELINE)
 
 
 
 # ADD PIPELINE
+ARG IMAGE_NAME
+ARG IMAGE_VERSION
+
 ADD pipeline.xml /pipeline.xml
-ENTRYPOINT ["/compi", "run",  "-p", "/pipeline.xml"]
+RUN mv /pipeline.xml /pipeline-$(echo ${IMAGE_NAME}${IMAGE_VERSION} | md5sum | awk '{print $1}').xml
+
+ENTRYPOINT ["/entrypoint.sh"]

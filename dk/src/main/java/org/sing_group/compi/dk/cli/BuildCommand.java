@@ -199,7 +199,8 @@ public class BuildCommand extends AbstractCommand {
     String versionTag = versionTag(directory, imageName, tagDockerImageWithPipelineVersion);
 
     Process p = Runtime.getRuntime().exec(new String[] {
-      "/bin/bash", "-c", "docker build -t " + imageName + " " + versionTag + directory.getAbsolutePath()
+      "/bin/bash", "-c", "docker build --build-arg IMAGE_NAME=" + imageName + " --build-arg IMAGE_VERSION="
+        + getVersion(directory) + " -t " + imageName + " " + versionTag + directory.getAbsolutePath()
     });
     Thread stdoutThreads = redirectOutputToLogger(p);
 
@@ -234,9 +235,13 @@ public class BuildCommand extends AbstractCommand {
     if (!tagDockerImageWithPipelineVersion) {
       return "";
     }
+    String version = getVersion(directory);
 
+    return "-t " + imageName + ":" + version + " ";
+  }
+
+  private String getVersion(File directory) {
     CompiProjectDirectory compiProjectDir = new CompiProjectDirectory(directory);
-
     String version = null;
     try {
       version = compiProjectDir.getPipelineVersion();
@@ -244,8 +249,7 @@ public class BuildCommand extends AbstractCommand {
       e1.printStackTrace();
       System.exit(1);
     }
-
-    return "-t " + imageName + ":" + version + " ";
+    return version;
   }
 
   private Thread redirectOutputToLogger(Process p) {
