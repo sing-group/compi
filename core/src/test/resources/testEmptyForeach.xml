@@ -24,8 +24,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <version>1.0</version>
 	<tasks>
+	
+	<!--  WARNING: DO NOT ADD TASKS TO THIS PIPELINE. THE UNIT
+	TEST, WILL TEST IF COMPI FINALIZES WHEN ONLY ONE EMPTY LOOP
+	IS PRESENT IN THE PIPELINE -->
 		<foreach id="ID-1" as="param" of="list" in="">
 			sleep $param
 		</foreach>
+
 	</tasks>
 </pipeline>

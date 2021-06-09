@@ -296,7 +296,13 @@ public class PipelineTest {
 
     compi.run();
 
-    assertTrue("empty loop does not finish", handler.getFinishedTasksIncludingLoopChildren().contains("ID-1"));
+    // one condition is that the pipeline does not hang
+
+    // moreover, no iteration events should be received from the empty loop
+    // (ID-1)
+    assertTrue(
+      "empty loop notifies the dummy iteration", handler.getLoopIterations().stream().filter((s) -> s.startsWith("ID-1")).count() == 0
+    );
 
   }
 

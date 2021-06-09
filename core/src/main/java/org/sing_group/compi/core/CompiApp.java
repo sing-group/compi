@@ -234,10 +234,18 @@ public class CompiApp {
                 taskManager.getForeachIterations((Foreach) taskToRun).size()
               )
             );
-            if (taskManager.getForeachIterations((Foreach) taskToRun).size() == 0) {
-              // for loops without iterations, we need to add a dummy process,
-              // because we expect the foreach task itself
-              // is in taskLeft and we need to be notified that it has finished
+            if (taskToRun.isSkipped()) {
+              // For skipped foreach tasks, we need to add a dummy iteration.
+              // Skipped tasks need
+              // to enter the thread pool and notify its termination (without
+              // running the real task code).
+              // Given that foreachs do not enter the thread pool as a whole,
+              // but their iterations do,
+              // and given the fact that skipped foreachs do not have iterations
+              // (they are not computed),
+              // we need that at least one "dummy iteration" enters the pool and
+              // exists notifying its termination
+              // without doing anything more (as skipped regular tasks do)
               final TaskRunnable taskRunnable =
                 new TaskRunnable(
                   createIterationForForeach((Foreach) taskToRun, null, 0), this.executionHandler,
@@ -266,8 +274,7 @@ public class CompiApp {
             executorService.submit(taskRunnable);
           }
         }
-
-        if (taskManager.getRunnableTasks().isEmpty()) {
+        if (taskManager.getRunnableTasks().isEmpty() && !taskManager.getTasksLeft().isEmpty()) {
           syncMonitor.wait();
         }
       }
@@ -562,7 +569,9 @@ public class CompiApp {
     @Override
     public void taskIterationStarted(ForeachIteration iteration) {
       synchronized (syncMonitor) {
-        if (!foreachStartNotificationsSent.contains(iteration.getParentForeachTask())) {
+        if (
+          !foreachStartNotificationsSent.contains(iteration.getParentForeachTask())
+        ) {
           this.notifyTaskStarted(iteration.getParentForeachTask());
           foreachStartNotificationsSent.add(iteration.getParentForeachTask());
         }
