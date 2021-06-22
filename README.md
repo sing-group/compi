@@ -1,5 +1,5 @@
 ![Compi Logo](artwork/logo.png)
-# Compi: framework for portable computational pipelines [![license](https://img.shields.io/github/license/sing-group/compi)](https://github.com/sing-group/compi) [![release](https://img.shields.io/github/release/sing-group/compi.svg)](http://www.sing-group.org/compi)
+# Compi: framework for portable computational pipelines [![license](https://img.shields.io/github/license/sing-group/compi)](https://github.com/sing-group/compi) [![release](https://img.shields.io/github/release/sing-group/compi.svg)](http://www.sing-group.org/compi) [![DOI](https://img.shields.io/badge/DOI-10.7717%2Fpeerj--cs.593-blue)](https://doi.org/10.7717/peerj-cs.593)
 
 Compi is an application development framework for portable computational pipelines. A software pipeline is a chain of processing elements so that the output of each element is the input of the next.
 
@@ -39,3 +39,8 @@ To do so, just download or clone this project and run the following command (*No
 If the build succeeds, then:
 - The `compi` and `compi-dk` builds will be available at `compi/cli/target/dist/` and `compi/dk/target/dist/`, respectively. Java is required to run these binaries. The `compi` also requires `envsubst` to be available at runtime and `compi-dk` requires Docker, which should be available for the *compi-dk build* command to work.
 -  the `compi` and `compi-dk` Linux 64-bit builds will be available at `compi/cli/target/installer/` and `compi/dk/target/installer/`, respectively.
+
+## Citing
+
+Please, cite the following publication if you use Compi:
+- H. López-Fernández; O. Graña-Castro; A. Nogueira-Rodríguez; M. Reboiro-Jato; D. Glez-Peña (2021) **Compi: a Framework for Portable and Reproducible Pipelines**. *PeerJ Computer Science*. Volume 7: e593. ISSN: 2376-5992 [![DOI](https://img.shields.io/badge/DOI-10.7717%2Fpeerj--cs.593-blue)](https://doi.org/10.7717/peerj-cs.593)
