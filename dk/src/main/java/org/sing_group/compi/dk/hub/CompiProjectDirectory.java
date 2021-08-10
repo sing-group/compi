@@ -64,6 +64,11 @@ public class CompiProjectDirectory {
     this.directory = directory;
   }
 
+  public CompiProjectDirectory(File directory, String pipelineFileName) {
+    this.directory = directory;
+    this.pipelineFileName = pipelineFileName;
+  }
+
   public String getPipelineVersion() throws IllegalArgumentException, IOException, PipelineValidationException {
     return Pipeline.fromFile(getPipelineFile()).getVersion();
   }

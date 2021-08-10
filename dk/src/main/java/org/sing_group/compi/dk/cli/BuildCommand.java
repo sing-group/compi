@@ -23,6 +23,8 @@ package org.sing_group.compi.dk.cli;
 import static org.sing_group.compi.dk.cli.CommonParameters.DOCKER_REMOVE_DANGLING;
 import static org.sing_group.compi.dk.cli.CommonParameters.DOCKER_REMOVE_DANGLING_DESCRIPTION;
 import static org.sing_group.compi.dk.cli.CommonParameters.DOCKER_REMOVE_DANGLING_LONG;
+import static org.sing_group.compi.dk.cli.CommonParameters.PIPELINE_FILE_DESCRIPTION;
+import static org.sing_group.compi.dk.cli.CommonParameters.PIPELINE_FILE_LONG;
 import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH;
 import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_DEFAULT_VALUE;
 import static org.sing_group.compi.dk.cli.CommonParameters.PROJECT_PATH_DESCRIPTION;
@@ -61,6 +63,8 @@ import es.uvigo.ei.sing.yacli.command.parameter.Parameters;
 public class BuildCommand extends AbstractCommand {
   private static final Logger LOGGER = Logger.getLogger(BuildCommand.class.getName());
 
+  public static final String PIPELINE_FILE = "pf";
+
   public String getName() {
     return "build";
   }
@@ -77,6 +81,7 @@ public class BuildCommand extends AbstractCommand {
   protected List<Option<?>> createOptions() {
     return Arrays.asList(
       getProjectPathOption(),
+      getPipelineFileOption(),
       getTagWithVersionOption(),
       getRemoveDockerDanglingOption()
     );
@@ -85,6 +90,13 @@ public class BuildCommand extends AbstractCommand {
   private Option<?> getProjectPathOption() {
     return new DefaultValuedStringOption(
       PROJECT_PATH_LONG, PROJECT_PATH, PROJECT_PATH_DESCRIPTION, PROJECT_PATH_DEFAULT_VALUE
+    );
+  }
+
+  private Option<?> getPipelineFileOption() {
+    return new DefaultValuedStringOption(
+      PIPELINE_FILE_LONG, PIPELINE_FILE,
+      PIPELINE_FILE_DESCRIPTION, CommonParameters.PIPELINE_FILE_DEFAULT_VALUE
     );
   }
 
@@ -146,18 +158,29 @@ public class BuildCommand extends AbstractCommand {
     pipelineDockerFile.setCompiVersion(compiVersion);
     pipelineDockerFile.downloadImageFilesIfNecessary();
 
-    boolean isValid = validatePipeline(pipelineDockerFile);
+    String pipelineFileName = parameters.getSingleValueString(super.getOption(PIPELINE_FILE));
+    File pipelineFile = new File(pipelineDockerFile.getBaseDirectory(), pipelineFileName);
+
+    if (!pipelineFile.exists()) {
+      LOGGER.severe("Pipeline file not found: " + pipelineFileName);
+      System.exit(1);
+    }
+
+    boolean isValid = validatePipeline(pipelineDockerFile, pipelineFileName);
 
     boolean tagDockerImageWithPipelineVersion = parameters.hasFlag(this.getOption(TAG_WITH_VERSION));
     boolean dockerRemoveDanglingImages = parameters.hasFlag(this.getOption(DOCKER_REMOVE_DANGLING));
 
     if (isValid) {
-      buildDockerImage(directory, imageName, dockerFile, tagDockerImageWithPipelineVersion, dockerRemoveDanglingImages);
+      buildDockerImage(
+        directory, imageName, dockerFile, tagDockerImageWithPipelineVersion, dockerRemoveDanglingImages,
+        pipelineFileName
+      );
     }
   }
 
   private boolean validatePipeline(
-    PipelineDockerFile pipelineDockerFile
+    PipelineDockerFile pipelineDockerFile, String pipelineFileName
   )
     throws ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException,
     IllegalArgumentException, InvocationTargetException {
@@ -167,7 +190,7 @@ public class BuildCommand extends AbstractCommand {
         new MainMethodRunner("org.sing_group.compi.cli.CompiCLI", getDownloadedCompiJarURL(pipelineDockerFile));
 
       int returnValue = mainRunner.run(new String[] {
-        "validate", "-p", pipelineDockerFile.getBaseDirectory() + File.separator + "pipeline.xml"
+        "validate", "-p", pipelineDockerFile.getBaseDirectory() + File.separator + pipelineFileName
       });
 
       if (returnValue != 0) {
@@ -192,15 +215,15 @@ public class BuildCommand extends AbstractCommand {
 
   private void buildDockerImage(
     File directory, String imageName, File dockerFile, boolean tagDockerImageWithPipelineVersion,
-    boolean dockerRemoveDanglingImages
+    boolean dockerRemoveDanglingImages, String pipelineFileName
   ) throws IOException, InterruptedException {
     LOGGER.info("Building docker image (dockerfile: " + dockerFile + ")");
 
-    String versionTag = versionTag(directory, imageName, tagDockerImageWithPipelineVersion);
+    String versionTag = versionTag(directory, imageName, tagDockerImageWithPipelineVersion, pipelineFileName);
 
     Process p = Runtime.getRuntime().exec(new String[] {
       "/bin/bash", "-c", "docker build --build-arg IMAGE_NAME=" + imageName + " --build-arg IMAGE_VERSION="
-        + getVersion(directory) + " -t " + imageName + " " + versionTag + directory.getAbsolutePath()
+        + getVersion(directory, pipelineFileName) + " -t " + imageName + " " + versionTag + directory.getAbsolutePath()
     });
     Thread stdoutThreads = redirectOutputToLogger(p);
 
@@ -231,17 +254,19 @@ public class BuildCommand extends AbstractCommand {
     }
   }
 
-  private String versionTag(File directory, String imageName, boolean tagDockerImageWithPipelineVersion) {
+  private String versionTag(
+    File directory, String imageName, boolean tagDockerImageWithPipelineVersion, String pipelineFileName
+  ) {
     if (!tagDockerImageWithPipelineVersion) {
       return "";
     }
-    String version = getVersion(directory);
+    String version = getVersion(directory, pipelineFileName);
 
     return "-t " + imageName + ":" + version + " ";
   }
 
-  private String getVersion(File directory) {
-    CompiProjectDirectory compiProjectDir = new CompiProjectDirectory(directory);
+  private String getVersion(File directory, String pipelineFileName) {
+    CompiProjectDirectory compiProjectDir = new CompiProjectDirectory(directory, pipelineFileName);
     String version = null;
     try {
       version = compiProjectDir.getPipelineVersion();
