@@ -74,6 +74,10 @@ public class CompiRunConfiguration implements Serializable {
       (this.getPipelineFile() == null) ? "" : this.getPipelineFile().toString()
     );
     asMap.put(
+      CONFIGURATION_VARIABLES_PREFIX + "PIPELINE_VERSION",
+      (this.getPipeline() == null) ? "" : this.getPipeline().getVersion().toString()
+    );
+    asMap.put(
       CONFIGURATION_VARIABLES_PREFIX + "PARAMS_FILE",
       (this.getParamsFile() == null) ? "" : this.getParamsFile().toString()
     );

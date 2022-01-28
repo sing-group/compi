@@ -264,7 +264,37 @@ first ``foreach``.
 .. note::
     It is mandatory that all ``foreach`` tasks have the same number of iterations
     if you want to establish an "iteration dependency" between them.
-  
+
+Environment variables available for tasks
+-----------------------------------------
+
+When launching a task, Compi establishes a set of environment variables related with the task
+and the Compi execution itself (i.e. the ``compi run`` command), plus an additional variable 
+with the pipeline version (``COMPI_PIPELINE_VERSION``).
+
+The task-related variables are:
+
+- ``task_id``: contains the id of the task being executed.
+- ``task_code``: contains the code (defined in the ``pipeline.xml``) of the task being executed.
+- ``task_params``: contains the list of params associated to the task being executed.
+- ``i``: in the case of ``foreach`` tasks, the iteration value.
+
+The variables related with the Compi execution are:
+
+- ``COMPI_PARAMS_FILE``
+- ``COMPI_DO_NOT_LOG_TASKS``
+- ``COMPI_UNTIL_TASK``
+- ``COMPI_MAX_TASKS``
+- ``COMPI_AFTER_TASKS``
+- ``COMPI_BEFORE_TASK``
+- ``COMPI_LOGS_DIR``
+- ``COMPI_PIPELINE_FILE``
+- ``COMPI_RUNNERS_FILE``
+- ``COMPI_FROM_TASKS``
+- ``COMPI_SINGLE_TASK``
+- ``COMPI_LOG_ONLY_TASKS``
+- ``COMPI_SHOW_STD_OUTS``
+- ``COMPI_OVERWRITE_LOGS``
 
 Defining tasks metadata
 =======================
