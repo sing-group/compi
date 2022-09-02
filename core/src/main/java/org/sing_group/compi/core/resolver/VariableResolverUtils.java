@@ -80,6 +80,7 @@ public class VariableResolverUtils {
       params.add(((Foreach) task).getAs());
     }
     runnerExtraVariables.put("task_params", params.stream().collect(joining(" ")));
+    runnerExtraVariables.put("task_after", task.getAfterList().stream().collect(joining(" ")));
 
     runnerExtraVariables.forEach(consumer);
 

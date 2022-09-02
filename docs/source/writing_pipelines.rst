@@ -277,6 +277,7 @@ The task-related variables are:
 - ``task_id``: contains the id of the task being executed.
 - ``task_code``: contains the code (defined in the ``pipeline.xml``) of the task being executed.
 - ``task_params``: contains the list of params associated to the task being executed.
+- ``task_after``: contains the list of tasks that goes before the task being executed.
 - ``i``: in the case of ``foreach`` tasks, the iteration value.
 
 The variables related with the Compi execution are:
