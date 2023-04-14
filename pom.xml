@@ -46,7 +46,7 @@
 		<download-maven-plugin.version>1.2.1</download-maven-plugin.version>
 
 		<commons-compress.version>1.14</commons-compress.version>
-		<json.version>20180813</json.version>
+		<json.version>20230227</json.version>
 
 		<junit.version>4.12</junit.version>
 		<java-hamcrest.version>2.0.0.0</java-hamcrest.version>
