@@ -43,3 +43,9 @@ Below is an example of a task that is only executed when the optional parameter 
             </task>
         </tasks>
     </pipeline>
+
+Is it possible to control the maximum number of parallel tasks of a specific task?
+==================================================================================
+The ``--num-tasks/-n`` parameter of Compi allows setting the maximum number of tasks that can be run in parallel but can't be applied to specific tasks only. 
+
+To do so, a custom runner should be used. Please refer to :ref:`this section <runner_maximum_tasks>` to learn how to do it.

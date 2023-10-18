@@ -276,3 +276,69 @@ launches the Amazon instance, whereas the other ones only executes the SSH part.
             ssh -o StrictHostKeyChecking=no -i ${private_key_file} ${remote_user}@${remote_host} "$task_code_with_env"
         ]]></runner>
     </runners>
+
+.. _runner_maximum_tasks:
+
+Controlling the maximum number of parallel tasks at task-level
+--------------------------------------------------------------
+The ``--num-tasks/-n`` parameter of Compi allows setting the maximum number of tasks that can be run in parallel. 
+
+Nevertheless, imagine you need to run a very heavy `foreach` task or a `foreach` task that may not be run in parallel if there
+are not enough resources (e.g. GPUs). Using ``--num-tasks`` for controlling this foreach tasks will also apply the same limit
+to other pipeline tasks and this may not be desirable.
+
+The maximum number of such parallel tasks can be controlled at task-level using a custom pipeline runner like the following, which:
+
+1. Requires a pipeline parameter ``max_tasks`` that specifies the maximum number of parallel tasks allowed for ``task``.
+2. Creates a shared lock file that will be used to store a number with the actual number of parallel tasks. This file is shared between all parallel tasks.
+3. Waits until it can access the lock file (using flock to avoid concurrency issues) and checks if the there is still room for one more task (i.e. the actual number is less than ``max_tasks``). When available, increments the number and creates a slot file (used for the task process to be aware of the slot).
+4. Runs the task code as necessary.
+5. Updates the actual number of parallel tasks in the shared lock file.
+
+.. code-block:: xml
+
+   <runner tasks="task"><![CDATA[
+      echo "[runner ${task_id}] [max_tasks is ${max_tasks}]"
+
+      compipid=$(ps -o ppid= $$ | tr -d ' ')
+      process_start_time=$(ps -o lstart= -p $compipid)
+      process_start_time_epoch=$(date -d "$process_start_time" +%s)
+      uniqid=${process_start_time_epoch}_${compipid}
+      
+      lock_file="/tmp/lock-file-${task_id}-${uniqid}"
+      touch ${lock_file}
+
+      slot_available=$(mktemp -t slot-file-${task_id}-${id}.XXXXXXXXXX)
+
+      while [ ! -s ${slot_available} ]; do
+         sleep ${sleep_time:=0}
+
+         ( flock 99
+            count=$(cat ${lock_file})
+            count=${count:-0}
+
+            if [ ${count} -lt ${max_tasks} ]; then
+               echo $((count+1)) > ${lock_file}
+               echo $((count+1)) > ${slot_available}
+            fi
+         ) 99<"$lock_file"
+
+         sleep_time=5
+      done
+         
+      echo "Got a ticket for ${id}"
+
+      /bin/sh -c "${task_code}"
+
+      ( flock 99
+         count=$(cat ${lock_file})
+         echo $((count-1)) > ${lock_file}
+      ) 99<"$lock_file"
+   ]]>
+   </runner>
+
+Try `this example XML pipeline <_static/resources/runner-for-max-parallel-tasks.zip>`_ with (``max_tasks`` has a default value of 4): 
+
+.. code-block:: shell
+
+  compi run -o -n 20 -r runner.xml

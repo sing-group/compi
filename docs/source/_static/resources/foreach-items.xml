@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <version>1.0</version>
+    <params>
+        <param name="items_list" shortName="il">A comma-separated list of values.</param>
+    </params>
+    <tasks>
+        <foreach id="process_items" params="items_list" of="param" in="items_list" as="item">
+            echo "Here is your item: ${item}"
+        </foreach>
+    </tasks>
+</pipeline>

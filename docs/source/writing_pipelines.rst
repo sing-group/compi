@@ -121,7 +121,7 @@ are present or not as environmental variable, but with no concrete value).
 |              | of every task                                    |           |
 +--------------+--------------------------------------------------+-----------+
 
-Here it is an example of a paramerters section
+Here it is an example of a parameters section
 
 .. code-block:: xml
 
@@ -209,35 +209,60 @@ etc.)
 |              | * ``range``: a number interval specified        |           |
 |              |   as <low>:<high>. E.g.: "1:10"                 |           |
 |              | * ``file``: all files under a given directory   |           |
+|              |   (recursively)                                 |           |
 |              | * ``param``: the name of a parameter whose value|           |
 |              |   is a comma-separated list of values           |           |
 |              | * ``command``: a command whose output lines     |           |
 |              |   are the values to iterate over                |           |
 +--------------+-------------------------------------------------+-----------+
 | in           | The source to take the collection elements to   |   YES     |
-|              | iterate over.                                   |           |
+|              | iterate over. Here you can use pipeline         |           |
+|              | parameters with ``${parameter}`` as they will   |           |
+|              | be replaced with they actual value.             |           |
 +--------------+-------------------------------------------------+-----------+
 | as           | Name of the loop parameter to use in the task   |   YES     |
 |              | code.                                           |           |
 +--------------+-------------------------------------------------+-----------+
+ 
+``param`` example
+^^^^^^^^^^^^^^^^^
 
-Here it is an example. In this case, since the foreach type is ``param``, the 
-``in`` attribute specifies the name of the pipeline parameter that must be used
-to take the collection elements to iterate over.
+In case you want a ``param`` foreach that iterates over all items of a given collection
+and the collection is a pipeline parameter, then the ``in`` attribute 
+must be specify this as follows: ``in="${parameter}"``.
 
-.. code-block:: xml
+Try the `foreach-items.xml <_static/resources/foreach-items.xml>`_ pipeline with: 
 
-  <!-- samples is a parameter with values such as 
-  "case-1,case-2,control-1,control-2" -->
-  <foreach of="param" in="samples" as="sample">
-    analyze.sh ${sample}.csv
-  </foreach>
-  
-.. note::
-    In case you want a ``file`` foreach that iterates over all files under a 
-    given directory and the source directory is a pipeline parameter, then the
-    ``in`` attribute must be specify this as follows: ``in="${parameter}"``.
+.. code-block:: shell
 
+  compi run -o -p foreach-items.xml -- --items_list "A, B, C"
+
+A ``list`` foreach works the same way but the items list is a fixed value 
+
+``file`` example
+^^^^^^^^^^^^^^^^
+
+In case you want a ``file`` foreach that iterates over all files under a given 
+directory and the source directory is a pipeline parameter, then the ``in`` attribute 
+must be specify this as follows: ``in="${parameter}"``.
+
+Try the `foreach-file-in-data-dir.xml <_static/resources/foreach-file-in-data-dir.xml>`_ pipeline with: 
+
+.. code-block:: shell
+
+  compi run -o -p foreach-file-in-data-dir.xml -- --data_dir "/path/to/dir"
+
+``command`` example
+^^^^^^^^^^^^^^^^^^^
+
+A ``command`` foreach has in the ``in`` a command whose output lines are the values to
+iterate over (each line is an element).
+
+Use `this ZIP file <_static/resources/foreach-command-input.zip>`_ to run the pipeline provided with: 
+
+.. code-block:: shell
+
+  compi run -o -p foreach-command.xml -- --file_with_items foreach-command-input.txt
 
 Iteration dependencies between `foreach` tasks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

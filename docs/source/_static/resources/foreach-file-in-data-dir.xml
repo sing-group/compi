@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <version>1.0</version>
+    <params>
+        <param name="data_dir" shortName="dd">The data directory.</param>
+    </params>
+    <tasks>
+        <foreach id="process_directory" params="data_dir" of="file" in="${data_dir}" as="my_file">
+            echo "Here is ${my_file}:"
+            # cat ${my_file}
+            echo ""
+        </foreach>
+    </tasks>
+</pipeline>
