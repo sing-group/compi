@@ -33,7 +33,7 @@
 			  print $1
 			}
 		</task>
-		<task id="ID-2" params="input_file output_file_python" interpreter="/usr/bin/python -c &quot;$task_code&quot;" >
+		<task id="ID-2" params="input_file output_file_python" interpreter="/usr/bin/python3 -c &quot;$task_code&quot;" >
 import os
 f = open(os.environ['output_file_python'], "a")
 f.write(os.environ['input_file'])
