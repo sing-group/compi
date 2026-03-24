@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
@@ -52,18 +53,21 @@ public class UrlModule implements CompiDkModule {
 
   private final String url;
   private final Path tempDir;
+  private Path extractionBaseDir;
   private JSONObject metadata;
   private boolean extracted = false;
 
   public UrlModule(String url) throws IOException {
     this.url = url;
     this.tempDir = Files.createTempDirectory("compi-dk-module-");
+    this.extractionBaseDir = this.tempDir;
     this.tempDir.toFile().deleteOnExit();
   }
 
   private void ensureExtracted() throws IOException {
     if (!extracted) {
       downloadAndExtract();
+      resolveExtractionBaseDir();
       loadMetadata();
       extracted = true;
     }
@@ -97,8 +101,23 @@ public class UrlModule implements CompiDkModule {
     LOGGER.info("Module extracted to: " + tempDir);
   }
 
+  private void resolveExtractionBaseDir() throws IOException {
+    final List<Path> topLevelEntries;
+    try (java.util.stream.Stream<Path> entries = Files.list(tempDir)) {
+      topLevelEntries = entries.collect(Collectors.toList());
+    }
+
+    if (topLevelEntries.size() == 1 && Files.isDirectory(topLevelEntries.get(0))) {
+      extractionBaseDir = topLevelEntries.get(0);
+      LOGGER.info("Using module root directory: " + extractionBaseDir);
+    } else {
+      extractionBaseDir = tempDir;
+      LOGGER.info("Using extraction root directory: " + extractionBaseDir);
+    }
+  }
+
   private void loadMetadata() throws IOException {
-    File metadataFile = tempDir.resolve("metadata.json").toFile();
+    File metadataFile = extractionBaseDir.resolve("metadata.json").toFile();
     if (!metadataFile.exists()) {
       throw new CompiDKException(
         "Missing metadata.json in module ZIP", "The module ZIP file must contain a metadata.json file", null
@@ -174,7 +193,7 @@ public class UrlModule implements CompiDkModule {
     List<String> allFiles = new ArrayList<>();
 
     // First, add files from the bundles folder (if it exists)
-    Path bundlesDir = tempDir.resolve("bundles");
+    Path bundlesDir = extractionBaseDir.resolve("bundles");
     if (Files.exists(bundlesDir) && Files.isDirectory(bundlesDir)) {
       LOGGER.info("Found bundles directory, processing bundle contents");
 
@@ -205,7 +224,7 @@ public class UrlModule implements CompiDkModule {
     }
 
     // Then, download files from URLs listed in files.txt (if it exists)
-    File filesFile = tempDir.resolve("files.txt").toFile();
+    File filesFile = extractionBaseDir.resolve("files.txt").toFile();
     if (filesFile.exists()) {
       Path filesDir = tempDir.resolve("files");
       Files.createDirectories(filesDir);
@@ -249,7 +268,7 @@ public class UrlModule implements CompiDkModule {
   }
 
   private String readFileContent(String fileName) throws IOException {
-    File file = tempDir.resolve(fileName).toFile();
+    File file = extractionBaseDir.resolve(fileName).toFile();
     if (!file.exists()) {
       return "";
     }
