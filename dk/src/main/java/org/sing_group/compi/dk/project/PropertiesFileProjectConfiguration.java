@@ -23,15 +23,17 @@ package org.sing_group.compi.dk.project;
 import java.io.File;
 
 import org.sing_group.compi.dk.AbstractPropertiesFile;
+import org.sing_group.compi.dk.cli.WriteOnlyProperties;
 
 public class PropertiesFileProjectConfiguration extends AbstractPropertiesFile implements ProjectConfiguration {
   public static final String IMAGE_NAME_PROPERTY = "image.name";
   public static final String COMPI_VERSION_PROPERTY = "compi.version";
   public static final String COMPI_HUB_PIPELINE_ALIAS = "hub.pipeline.alias";
   public static final String COMPI_HUB_PIPELINE_ID = "hub.pipeline.id";
+  public static final String DK_MODULES_PROPERTY = "dk.modules";
 
   public PropertiesFileProjectConfiguration(File configFile) {
-    super(configFile);
+    super(configFile, new WriteOnlyProperties());
   }
 
   @Override
@@ -68,5 +70,20 @@ public class PropertiesFileProjectConfiguration extends AbstractPropertiesFile i
   @Override
   public String getHubId() {
     return getProperty(COMPI_HUB_PIPELINE_ID);
+  }
+
+  public void addModule(String name, String version) {
+    String currentModules = getProperty(DK_MODULES_PROPERTY, "");
+    String newModule = name + ":" + version;
+
+    if (currentModules.isEmpty()) {
+      setProperty(DK_MODULES_PROPERTY, newModule);
+    } else {
+      setProperty(DK_MODULES_PROPERTY, currentModules + ";" + newModule);
+    }
+  }
+
+  public String getModules() {
+    return getProperty(DK_MODULES_PROPERTY, "");
   }
 }

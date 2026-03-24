@@ -33,10 +33,19 @@ public class CommonParameters {
   public static final String PROJECT_PATH_DESCRIPTION = "path of the project";
   public static final String PROJECT_PATH_DEFAULT_VALUE = ".";
 
-  public static final String PIPELINE_FILE = "p";
+  public static final String PIPELINE_FILE = "pf";
   public static final String PIPELINE_FILE_LONG = "pipeline";
   public static final String PIPELINE_FILE_DESCRIPTION = "XML pipeline file";
   public static final String PIPELINE_FILE_DEFAULT_VALUE = "pipeline.xml";
+
+  public static final String RUNNERS_FILE = "rf";
+  public static final String RUNNERS_FILE_LONG = "runners";
+  public static final String RUNNERS_FILE_DESCRIPTION = "XML runners file";
+  public static final String RUNNERS_FILE_DEFAULT_VALUE = "runners.xml";
+
+  public static final String URL = "u";
+  public static final String URL_LONG = "url";
+  public static final String URL_DESCRIPTION = "the download URL";
 
   public static final String TAG_WITH_VERSION = "tv";
   public static final String TAG_WITH_VERSION_LONG = "tag-version";
