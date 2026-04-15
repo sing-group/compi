@@ -78,4 +78,9 @@ public class CompiDkModuleAdapter implements CompiDkModule {
   public String getDockerfile() throws IOException {
     return "";
   }
+
+  @Override
+  public String getLicense() throws IOException {
+    return "";
+  }
 }

@@ -111,4 +111,13 @@ public interface CompiDkModule {
    *           if an I/O error occurs
    */
   String getDockerfile() throws IOException;
+
+  /**
+   * Returns the license text of the module.
+   * 
+   * @return the license content
+   * @throws IOException
+   *           if an I/O error occurs
+   */
+  String getLicense() throws IOException;
 }

@@ -193,6 +193,17 @@ public class AddModuleCommand extends AbstractCommand {
         extractZipFile(zipFile, projectDirectory);
       }
 
+      // 6. Write license file
+      String licenseContent = module.getLicense();
+      if (!licenseContent.isEmpty()) {
+        String sanitizedModuleName = moduleName.replaceAll("[^a-zA-Z0-9_.\\-]", "_");
+        File licenseFile = new File(projectDirectory, "LICENSE_" + sanitizedModuleName);
+        Files.write(licenseFile.toPath(), licenseContent.getBytes());
+        LOGGER.info("Written license file: " + licenseFile.getAbsolutePath());
+      } else {
+        LOGGER.warning("No LICENSE file found in module: " + moduleName);
+      }
+
       LOGGER.info("Module " + moduleName + " added successfully");
 
     } catch (Exception e) {

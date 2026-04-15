@@ -267,6 +267,12 @@ public class UrlModule implements CompiDkModule {
     return readFileContent("Dockerfile");
   }
 
+  @Override
+  public String getLicense() throws IOException {
+    ensureExtracted();
+    return readFileContent("LICENSE");
+  }
+
   private String readFileContent(String fileName) throws IOException {
     File file = extractionBaseDir.resolve(fileName).toFile();
     if (!file.exists()) {
