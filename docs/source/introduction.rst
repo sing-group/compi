@@ -38,11 +38,13 @@ Compi is an ecosystem that comprises:
 
 The :ref:`Application development<application_development>` section shows how to use these three elements to develop, use and distribute Compi-based applications.
 
+This ecosystem is complemented by Compi GUI, a standalone desktop application that serves as a universal graphical interface for Compi pipelines. It provides a convenient way to configure and run any Compi pipeline without using the command line. The :ref:`Compi GUI<gui>` section describes its features and usage in detail.
+
 Installation
 ============
 
-Installers for ``compi`` and ``compi-dk`` for Linux 64-bit systems are available here: https://www.sing-group.org/compi#downloads
+Installers for ``compi``, ``compi-dk``, and ``compi-gui`` for Linux 64-bit systems are available here: https://www.sing-group.org/compi#downloads
 
-Portable versions (*.tar.gz*) and self-extracted installers (*.bsx*) are available for both. 
+Portable versions (*.tar.gz*) and self-extracted installers (*.bsx*) are available for them. 
 
-Note that while ``compi`` distributions are self-contained and do not require any dependencies, ``compi-dk`` requires Docker, which should be available for the ``compi-dk build`` command to work.
+Note that while ``compi`` distributions are self-contained and do not require any dependencies, ``compi-dk`` requires Docker, which should be available for the ``compi-dk build`` command to work. Compi GUI requires either ``compi`` or Docker to run pipelines, so at least one of these must be installed for the application to function.

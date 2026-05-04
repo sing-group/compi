@@ -8,6 +8,7 @@ Welcome to Compi's documentation!
    introduction
    writing_pipelines
    running_pipelines
+   gui
    application_development
 
 .. toctree::
@@ -19,4 +20,5 @@ Welcome to Compi's documentation!
    custom_runners
    custom_interpreters
    common_patterns
+   modules
    faq
