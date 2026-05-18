@@ -45,7 +45,7 @@
 		<license-maven-plugin.version>1.14</license-maven-plugin.version>
 		<download-maven-plugin.version>1.2.1</download-maven-plugin.version>
 
-		<commons-compress.version>1.14</commons-compress.version>
+		<commons-compress.version>1.21</commons-compress.version>
 		<json.version>20180813</json.version>
 
 		<junit.version>4.12</junit.version>
