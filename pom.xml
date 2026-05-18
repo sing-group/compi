@@ -48,7 +48,7 @@
 		<commons-compress.version>1.14</commons-compress.version>
 		<json.version>20180813</json.version>
 
-		<junit.version>4.12</junit.version>
+		<junit.version>4.13.1</junit.version>
 		<java-hamcrest.version>2.0.0.0</java-hamcrest.version>
 		<javax.activation.activation.version>1.1</javax.activation.activation.version>
 		<jaxb.version>2.2.11</jaxb.version>
