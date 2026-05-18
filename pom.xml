@@ -53,7 +53,7 @@
 		<javax.activation.activation.version>1.1</javax.activation.activation.version>
 		<jaxb.version>2.2.11</jaxb.version>
 		<yacli.version>2.1.0-SNAPSHOT</yacli.version>
-		<httpclient.version>4.5.9</httpclient.version>
+		<httpclient.version>4.5.13</httpclient.version>
 		<velocity.version>1.7</velocity.version>
 
 		<formatter-maven-plugin.version>2.11.0</formatter-maven-plugin.version>
