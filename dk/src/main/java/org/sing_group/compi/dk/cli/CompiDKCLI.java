@@ -56,7 +56,8 @@ public class CompiDKCLI extends CLIApplication {
       new ListTasksCommand(),
       new ListParametersCommand(),
       new CreateMetadataSkeletonCommand(),
-      new AddModuleCommand()
+      new AddModuleCommand(),
+      new GetCompiSkillsCommand()
     );
   }
 
