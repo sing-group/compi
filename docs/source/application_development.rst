@@ -200,3 +200,22 @@ The image bellow shows the public view of this pipeline version, where pipeline 
 
 .. figure:: images/application_development/compi-hub-3.png
    :align: center
+
+.. _ai_assisted_development:
+
+AI-assisted development
+=======================
+
+Compi pipelines can also be developed with the help of AI coding agents. The `compi-pipeline-engineering <https://github.com/sing-group/compi-pipeline-engineering>`_ repository provides a ``SKILL.md`` file that gives AI coding agents (such as `OpenCode <https://opencode.ai>`_) the Compi-specific knowledge needed to diagnose, refactor and verify pipelines according to SOLID design principles, robustness checks and reproducibility best practices.
+
+The skill version compatible with your installed ``compi-dk`` can be downloaded with the ``compi-dk get-compi-skills`` command, which resolves the appropriate skill release from the repository's version mapping and downloads the ``SKILL.md`` file into the given directory:
+
+.. code-block:: bash
+
+ compi-dk get-compi-skills -p .opencode/skills/compi-pipeline-engineering
+
+Once installed, the AI agent can assist with tasks such as reviewing a pipeline design, extracting inline task code into external scripts, splitting tasks with mixed responsibilities, scoping parameters to the tasks that use them, adding environment and input checks, and verifying changes with tests.
+
+The design principles and recommendations implemented in the skill are presented in:
+
+- D. Pérez-Rodríguez; A. Nogueira-Rodríguez; J. Vieira; C. Vieira; D. Glez-Peña; H. López-Fernández (2026) **Software Engineering for Reproducible Pipeline Development in Bioinformatics**. *Frontiers in Bioinformatics*. Volume 6 (2026), Article ID 1824590. ISSN: 2673-7647. https://doi.org/10.3389/fbinf.2026.1824590

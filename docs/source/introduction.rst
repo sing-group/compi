@@ -40,6 +40,8 @@ The :ref:`Application development<application_development>` section shows how to
 
 This ecosystem is complemented by Compi GUI, a standalone desktop application that serves as a universal graphical interface for Compi pipelines. It provides a convenient way to configure and run any Compi pipeline without using the command line. The :ref:`Compi GUI<gui>` section describes its features and usage in detail.
 
+Compi pipelines can also be developed with the help of AI coding agents. The `compi-pipeline-engineering <https://github.com/sing-group/compi-pipeline-engineering>`_ repository provides a ``SKILL.md`` file encoding Compi-specific engineering knowledge, including SOLID design principles, robustness checks and reproducibility best practices. See the :ref:`AI-assisted development<ai_assisted_development>` section for details.
+
 Installation
 ============
 
