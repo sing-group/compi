@@ -137,6 +137,31 @@ The key points of this generic Docker runner are:
 - The second line runs the docker image passing this list of environment variables and mounts the directory where the command has the input and output files.
 - Since this particular image of Clustal Omega has an entrypoint defined, it must be overriden to run the desired task code.
 
+Generic conda, Docker and bash runner (module)
+----------------------------------------------
+
+The `generic-env-runner <https://github.com/sing-group/compi-module-generic-env-runner>`_ Compi module provides a ready-to-use runner that executes each task in a conda environment, inside a Docker image, or directly with bash, depending on its configuration. It avoids hard-coding Docker or conda details in the pipeline and includes an example project.
+
+The runner is configured with two files installed by the module in the ``generic-env-runner/`` directory:
+
+- ``conda-envs.env``: maps tasks to conda environments with ``<normalized_task_id>_conda_env`` variables.
+- ``docker.env``: maps tasks to Docker images with ``<normalized_task_id>_image`` variables and declares mounted paths with ``docker_mount_<name>`` variables. The shell used inside the container defaults to ``/bin/bash`` and can be changed per task with ``<normalized_task_id>_shell``.
+
+For example:
+
+.. code-block:: bash
+
+ # conda-envs.env
+ task_align_conda_env=align-env
+
+ # docker.env
+ task_align_image=pegi3s/clustalomega:latest
+ docker_mount_work="${workingDir:-}"
+
+Tasks without conda or Docker configuration run with bash. The runner passes task parameters to Docker containers as environment variables, serialises conda environment creation and Docker image pulls when tasks run in parallel, and resolves relative mount paths against the directory containing the runners file.
+
+See the module repository for installation and configuration instructions: https://github.com/sing-group/compi-module-generic-env-runner
+
 Generic Slurm runner
 --------------------
 

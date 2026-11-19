@@ -11,7 +11,7 @@ Module structure
 A Compi module is distributed as a ZIP package. The package must contain the following mandatory files:
 
 - ``metadata.json``: a JSON file whose ``name`` and ``version`` fields must be non-empty. An optional ``description`` field may also be included.
-- ``LICENSE_<modulename>``: a text file containing the module license.
+- ``LICENSE``: a text file containing the module license. When the module is added to a project, ``compi-dk`` installs it as ``LICENSE_<modulename>``.
 
 The following files are optional. If absent, they are treated as empty or ignored:
 
@@ -44,7 +44,7 @@ The tool performs the following steps:
 Available modules
 =================
 
-Two modules have been developed to illustrate this feature.
+The following modules are available:
 
 init-working-dir
 ----------------
@@ -64,6 +64,20 @@ The module introduces a naming convention where any pipeline parameter whose nam
 - ``cleanup_docker_images``: removes all locally cached images referenced by those parameters.
 
 The module also declares an example parameter (``hello_world_docker_image``) to illustrate the expected naming pattern. Pipeline developers may create one parameter per task with the default Docker image that must be downloaded. After adding the module, developers need to edit the remaining tasks in ``pipeline.xml`` to declare that they should run after ``pull_docker_images``, and to update ``cleanup_docker_images`` to declare its predecessors.
+
+generic-env-runner
+------------------
+
+The ``generic-env-runner`` module provides a reusable default runner that executes each pipeline task in a conda environment, inside a Docker image, or directly with bash (https://github.com/sing-group/compi-module-generic-env-runner).
+
+The module installs its files in the ``generic-env-runner/`` directory of the project. Its behaviour is configured through two files:
+
+- ``conda-envs.env``: maps tasks to conda environments using ``<normalized_task_id>_conda_env`` variables. If the environment does not exist, it is created from ``conda-envs/<environment_name>_environment.yml``.
+- ``docker.env``: maps tasks to Docker images using ``<normalized_task_id>_image`` variables and declares paths to mount with ``docker_mount_<name>`` variables. The container shell can be changed with ``<normalized_task_id>_shell`` (default: ``/bin/bash``).
+
+Task ids are normalised by replacing characters that are not valid in bash variable names with ``_``. Tasks without a conda or Docker configuration run directly with bash. The module also serialises conda environment creation and Docker image pulls to avoid concurrent operations when tasks run in parallel.
+
+The repository includes an example project that can be used to test the module.
 
 Quickstart example
 ==================
